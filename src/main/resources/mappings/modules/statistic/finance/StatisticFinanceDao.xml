@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.statistic.dao.finance.StatisticFinanceDao">
+    
+	<sql id="statisticFinanceColumns">
+		finance.project_id AS "projectId",
+		pro1.project_name AS "projectName",
+		pro1.project_code AS "projectCode",
+		finance.salary AS "salary",
+		finance.pension AS "pension",
+		finance.medical AS "medical",
+		finance.unemployment AS "unemployment",
+		finance.occupational_injury AS "occupationalInjury",
+		finance.birth AS "birth",
+		finance.rovident_fund AS "rovidentFund",
+		finance.insurance_and_housing_fund AS "insuranceAndHousingFund",
+		finance.labor AS "labor"
+	</sql>
+	
+	<sql id="statisticFinanceJoins">
+		inner join project_apply_external pro1 on pro1.id  =finance.project_id
+		LEFT JOIN sys_user u4 ON u4.id = pro1.saler_id
+		LEFT JOIN sys_office s5 on s5.id =u4.office_id
+	</sql>
+    
+	
+	<select id="findList" resultType="StatisticFinance">
+		SELECT 
+			<include refid="statisticFinanceColumns"/>
+		from(
+			select ta.project_id, sum(tm.manhour*sl.salary_hourly) as salary,sum(tm.manhour*sl.pension_hourly) as pension,
+					sum(tm.manhour*sl.medical_hourly) as  medical,sum(tm.manhour*sl.unemployment_hourly) as  unemployment,
+					sum(tm.manhour*sl.occupational_injury_hourly) as occupational_injury,sum(tm.manhour*sl.birth_hourly) as birth,
+					sum(tm.manhour*sl.provident_fund_hourly) as rovident_fund,sum(tm.manhour*sl.insurance_and_housing_fund_hourly) as insurance_and_housing_fund,
+					sum(tm.manhour*sl.labor_hourly) as labor
+			from project_techapply ta,project_techapply_assigning tas,project_techapply_workorder tw,project_techapply_manhour tm,user_salary_relation usr,salary_level sl,project_apply_external pro
+			where ta.id = tas.techapply_id
+			and tm.audit_state =1
+			and tas.id = tw.assigning_id
+			and tw.id = tm.workorder_id
+			and tm.engineer_id = usr.user_id
+			and usr.salary_id =sl.id
+			and ta.project_id = pro.id
+			group by ta.project_id
+			) finance
+		<include refid="statisticFinanceJoins"/>
+		<where>
+			1 = 1
+			<if test="projectCode != null and projectCode != ''">
+				AND pro1.project_code = #{projectCode}
+			</if>
+			<if test="projectName != null and projectName != ''">
+				AND pro1.project_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{projectName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{projectName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{projectName},'%')</if>
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findFinanceItem4Pro" resultType="StatisticFinanceItem4Pro">
+		select finance.tech_apply_id,su.`NAME` as engnier_name,finance.salary ,finance.pension,finance.medical,finance.unemployment,finance.occupational_injury,
+			finance.birth,finance.rovident_fund,finance.insurance_and_housing_fund,finance.labor
+		from(
+			select ta.id as tech_apply_id,tm.engineer_id, sum(tm.manhour*sl.salary_hourly) as salary,sum(tm.manhour*sl.pension_hourly) as pension,
+					sum(tm.manhour*sl.medical_hourly) as  medical,sum(tm.manhour*sl.unemployment_hourly) as  unemployment,
+					sum(tm.manhour*sl.occupational_injury_hourly) as occupational_injury,sum(tm.manhour*sl.birth_hourly) as birth,
+					sum(tm.manhour*sl.provident_fund_hourly) as rovident_fund,sum(tm.manhour*sl.insurance_and_housing_fund_hourly) as insurance_and_housing_fund,
+					sum(tm.manhour*sl.labor_hourly) as labor
+			from project_techapply ta,project_techapply_assigning tas,project_techapply_workorder tw,project_techapply_manhour tm,user_salary_relation usr,salary_level sl,project_apply_external pro
+			where ta.id = tas.techapply_id
+			and tm.audit_state =1
+			and tas.id = tw.assigning_id
+			and tw.id = tm.workorder_id
+			and tm.engineer_id = usr.user_id
+			and usr.salary_id =sl.id
+			and ta.project_id = pro.id
+			and pro.id = #{pro.id} 
+			group by ta.id,tm.engineer_id
+			) finance,sys_user su
+		where finance.engineer_id =su.id
+	</select>
+</mapper>

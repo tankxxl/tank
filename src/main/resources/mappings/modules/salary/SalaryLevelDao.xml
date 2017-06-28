@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.salary.dao.SalaryLevelDao">
+    
+	<sql id="salaryLevelColumns">
+		a.id AS "id",
+		a.grade AS "grade",
+		a.profession AS "profession",
+		a.pay_monthly AS "payMonthly",
+		a.nssf AS "nssf",
+		a.pension AS "pension",
+		a.pension_hourly AS "pensionHourly",
+		a.unemployment AS "unemployment",
+		a.unemployment_hourly AS "unemploymentHourly",
+		a.occupational_injury AS "occupationalInjury",
+		a.occupational_injury_hourly AS "occupationalInjuryHourly",
+		a.birth AS "birth",
+		a.birth_hourly AS "birthHourly",
+		a.medical AS "medical",
+		a.medical_hourly AS "medicalHourly",
+		a.provident_fund AS "providentFund",
+		a.provident_fund_hourly AS "providentFundHourly",
+		a.insurance_and_housing_fund_hourly AS "insuranceAndHousingFundHourly",
+		a.salary_hourly AS "salaryHourly",
+		a.labor_hourly AS "laborHourly",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="salaryLevelJoins">
+	</sql>
+    
+	<select id="get" resultType="SalaryLevel">
+		SELECT 
+			<include refid="salaryLevelColumns"/>
+		FROM salary_level a
+		<include refid="salaryLevelJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SalaryLevel">
+		SELECT 
+			<include refid="salaryLevelColumns"/>
+		FROM salary_level a
+		<include refid="salaryLevelJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="grade != null and grade != ''">
+				AND a.grade = #{grade}
+			</if>
+			<if test="profession != null and profession != ''">
+				AND a.profession = #{profession}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SalaryLevel">
+		SELECT 
+			<include refid="salaryLevelColumns"/>
+		FROM salary_level a
+		<include refid="salaryLevelJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO salary_level(
+			id,
+			grade,
+			profession,
+			pay_monthly,
+			nssf,
+			pension,
+			pension_hourly,
+			unemployment,
+			unemployment_hourly,
+			occupational_injury,
+			occupational_injury_hourly,
+			birth,
+			birth_hourly,
+			medical,
+			medical_hourly,
+			provident_fund,
+			provident_fund_hourly,
+			insurance_and_housing_fund_hourly,
+			salary_hourly,
+			labor_hourly,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{grade},
+			#{profession},
+			#{payMonthly},
+			#{nssf},
+			#{pension},
+			#{pensionHourly},
+			#{unemployment},
+			#{unemploymentHourly},
+			#{occupationalInjury},
+			#{occupationalInjuryHourly},
+			#{birth},
+			#{birthHourly},
+			#{medical},
+			#{medicalHourly},
+			#{providentFund},
+			#{providentFundHourly},
+			#{insuranceAndHousingFundHourly},
+			#{salaryHourly},
+			#{laborHourly},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE salary_level SET 	
+			grade = #{grade},
+			profession = #{profession},
+			pay_monthly = #{payMonthly},
+			nssf = #{nssf},
+			pension = #{pension},
+			pension_hourly = #{pensionHourly},
+			unemployment = #{unemployment},
+			unemployment_hourly = #{unemploymentHourly},
+			occupational_injury = #{occupationalInjury},
+			occupational_injury_hourly = #{occupationalInjuryHourly},
+			birth = #{birth},
+			birth_hourly = #{birthHourly},
+			medical = #{medical},
+			medical_hourly = #{medicalHourly},
+			provident_fund = #{providentFund},
+			provident_fund_hourly = #{providentFundHourly},
+			insurance_and_housing_fund_hourly = #{insuranceAndHousingFundHourly},
+			salary_hourly = #{salaryHourly},
+			labor_hourly = #{laborHourly},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE salary_level SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

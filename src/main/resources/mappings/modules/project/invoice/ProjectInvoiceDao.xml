@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceDao">
+    
+	<sql id="columns">
+        a.id AS "id",
+		a.project_id AS "apply.id",
+		a.contract_id AS "contract.id",
+		a.contract_item_id AS "contractItem.id",
+
+		a.contract_type AS "contractType",
+		a.invoice_type AS "invoiceType",
+		a.customer_name AS "customerName",
+		a.tax_no AS "taxNo",
+		a.bank_name AS "bankName",
+		a.bank_no AS "bankNo",
+		a.address AS "address",
+		a.phone AS "phone",
+
+		a.invoice_amount AS "invoiceAmount",
+		a.return_date AS "returnDate",
+		a.invoice_date AS "invoiceDate",
+
+		a.attachment AS "attachment",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.proc_ins_id AS "procInsId",
+		a.proc_status AS "procStatus",
+
+		pro_apply.project_code AS "apply.projectCode",
+		pro_apply.project_name AS "apply.projectName",
+		pro_apply.pro_main_stage AS "apply.proMainStage",
+		pro_apply.category AS "apply.category",
+		pro_apply.estimated_contract_amount AS "apply.estimatedContractAmount",
+		pro_apply.estimated_gross_profit_margin AS "apply.estimatedGrossProfitMargin",
+		pro_apply.outsourcing AS "apply.outsourcing",
+
+		contract_item.contract_code AS "contractItem.contractCode",
+		contract_item.contract_amount AS "contractItem.contractAmount",
+		contract_item.gross_profit_margin AS "contractItem.grossProfitMargin",
+
+		c5.customer_name AS "apply.customer.customerName",
+		c5.phone AS "apply.customer.phone",
+		c6.contact_name AS "apply.customerContact.contactName",
+		c6.phone AS "apply.customerContact.phone",
+
+		u4.name AS "saler.name",
+		u4.login_name AS "saler.loginName",
+		s5.name AS "saler.office.name"
+
+		
+	</sql>
+	
+	<sql id="joins">
+		LEFT JOIN project_apply_external pro_apply ON pro_apply.id = a.project_id
+		LEFT JOIN project_contract contract ON contract.project_id = a.project_id
+		LEFT JOIN project_contract_item contract_item ON contract_item.contract_id = contract.id
+		LEFT JOIN customer c5 ON c5.id = pro_apply.customer_id
+		LEFT JOIN customer_contact c6 ON c6.id = pro_apply.customer_contact_id
+		LEFT JOIN sys_user u4 ON u4.id = pro_apply.saler_id
+		LEFT JOIN sys_office s5 on s5.id =u4.office_id
+	</sql>
+    
+	<select id="get" resultType="ProjectInvoice">
+		SELECT 
+			<include refid="columns"/>
+		FROM project_invoice a
+		<include refid="joins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findByProcInsId" resultType="ProjectInvoice">
+		SELECT
+		<include refid="columns"/>
+		FROM project_invoice a
+		<include refid="joins"/>
+		WHERE a.proc_ins_id = #{procInsId}
+	</select>
+
+	<select id="findList" resultType="ProjectInvoice">
+		SELECT 
+			<include refid="columns"/>
+		FROM project_invoice a
+		<include refid="joins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="apply!=null and apply.projectCode != null and apply.projectCode != ''">
+				AND pro_apply.project_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{apply.projectCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{apply.projectCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{apply.projectCode},'%')</if>
+			</if>
+			<if test="apply!=null and apply.projectName != null and apply.projectName != ''">
+				AND pro_apply.project_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{apply.projectName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{apply.projectName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{apply.projectName},'%')</if>
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ProjectInvoice">
+		SELECT 
+			<include refid="columns"/>
+		FROM project_invoice a
+		<include refid="joins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+
+    <select id="findListByContractId" resultType="ProjectInvoice">
+        SELECT
+        <include refid="columns"/>
+        FROM project_invoice a
+        <include refid="joins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="apply!=null and apply.id != null and apply.id != ''">
+                AND a.project_id = #{apply.id}
+            </if>
+            <if test="contractItem!=null and contractItem.id != null and contractItem.id != ''">
+                AND a.contract_item_id = #{contractItem.id}
+            </if>
+            ${sqlMap.dsf}
+        </where>
+        <choose>
+            <when test="page !=null and page.orderBy != null and page.orderBy != ''">
+                ORDER BY ${page.orderBy}
+            </when>
+            <otherwise>
+                ORDER BY a.update_date DESC
+            </otherwise>
+        </choose>
+    </select>
+	
+	<insert id="insert">
+		INSERT INTO project_invoice (
+		    id,
+			project_id,
+			contract_id,
+			contract_item_id,
+
+			invoice_amount,
+			return_date,
+			invoice_date,
+
+			contract_type,
+			invoice_type,
+			customer_name,
+			tax_no,
+			bank_name,
+			bank_no,
+			address,
+			phone,
+
+			attachment,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			proc_ins_id,
+			proc_status
+
+		) VALUES (
+		    #{id},
+			#{apply.id},
+			#{contract.id},
+			#{contractItem.id},
+
+            #{invoiceAmount},
+            #{returnDate},
+            #{invoiceDate},
+
+            #{contractType},
+            #{invoiceType},
+            #{customerName},
+            #{taxNo},
+            #{bankName},
+            #{bankNo},
+            #{address},
+            #{phone},
+
+            #{attachment},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{procInsId},
+			#{procStatus}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE project_invoice SET
+		    project_id = #{apply.id},
+			contract_id = #{contract.id},
+			contract_item_id = #{contractItem.id},
+
+            invoice_amount = #{invoiceAmount},
+            return_date = #{returnDate},
+            invoice_date = #{invoiceDate},
+
+            contract_type = #{contractType},
+            invoice_type = #{invoiceType},
+            customer_name = #{customerName},
+            tax_no = #{taxNo},
+            bank_name = #{bankName},
+            bank_no = #{bankNo},
+            address = #{address},
+            phone = #{phone},
+
+			attachment = #{attachment},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			proc_ins_id = #{procInsId},
+			proc_status = #{procStatus}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE project_invoice SET
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

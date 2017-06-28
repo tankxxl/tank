@@ -1,0 +1,28 @@
+/**
+ * Copyright &copy; 2012-2014 <a href="https://github.com/thinkgem/jeesite">JeeSite</a> All rights reserved.
+ */
+package com.thinkgem.jeesite.modules.project.dao.contract;
+
+import com.thinkgem.jeesite.common.persistence.CrudDao;
+import com.thinkgem.jeesite.common.persistence.annotation.MyBatisDao;
+import com.thinkgem.jeesite.modules.project.entity.bidding.ProjectBidding;
+import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
+
+/**
+ * 合同DAO接口
+ * @author jicdata
+ * @version 2016-03-09
+ */
+@MyBatisDao
+public interface ProjectContractDao extends CrudDao<ProjectContract> {
+	
+	/**
+	 * 必须保证一个项目只出现在合同审批表中一次
+	 * @param prjId
+	 * @return
+	 */
+	public ProjectContract findContractByPrjId(String prjId);
+
+	public ProjectContract findByProcInsId(String procInsId);
+	
+}

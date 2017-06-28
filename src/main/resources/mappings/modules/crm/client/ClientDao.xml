@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.crm.client.dao.ClientDao">
+    
+	<sql id="columns">
+		a.id AS "id",
+		a.customer_name AS "customerName",
+		a.phone AS "phone",
+		a.fax AS "fax",
+		a.industry AS "industry",
+		a.province AS "province",
+		a.customer_category AS "customerCategory",
+		a.address AS "address",
+		a.website AS "website",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.principal AS "principal.id",
+		u4.name AS "principal.name",
+		u5.name AS "createBy.name"
+	</sql>
+	
+	<sql id="joins">
+		LEFT JOIN sys_user u4 ON u4.id = a.principal
+		LEFT JOIN sys_user u5 ON u5.id = a.create_by
+		LEFT JOIN sys_office s5 on s5.id =u4.office_id
+	</sql>
+    
+	<select id="get" resultType="Client">
+		SELECT 
+			<include refid="columns"/>
+		FROM crm_client a
+		<include refid="joins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Client">
+		SELECT 
+			<include refid="columns"/>
+		FROM crm_client a
+		
+		<include refid="joins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="customerName != null and customerName != ''">
+				AND a.customer_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{customerName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{customerName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{customerName},'%')</if>
+			</if>
+			<if test="industry != null and industry != ''">
+				AND a.industry = #{industry}
+			</if>
+			
+				and(
+				 1 = 1
+				 <if test="sqlMap != null and sqlMap.dsf != null and sqlMap.dsf !=''">
+				 ${sqlMap.dsf}
+				 </if>
+				 or u4.id is null
+				)
+			
+			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Client">
+		SELECT 
+			<include refid="columns"/>
+		FROM crm_client a
+		<include refid="joins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO crm_client (
+			id,
+			customer_name,
+			phone,
+			fax,
+			industry,
+			customer_category,
+			address,
+			website,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			principal
+		) VALUES (
+			#{id},
+			#{customerName},
+			#{phone},
+			#{fax},
+			#{industry},
+			#{customerCategory},
+			#{address},
+			#{website},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{principal.id}
+		)
+	</insert>
+	
+	<update id="update">
+  		UPDATE crm_client
+		<set>
+			<if test="customerName != null">customer_name = #{customerName},</if>
+			<if test="phone != null">phone = #{phone},</if>
+			<if test="fax != null">fax = #{fax},</if>
+			<if test="industry != null">industry = #{industry},</if>
+			<if test="customerCategory != null">customer_category = #{customerCategory},</if>
+			<if test="address != null">address = #{address},</if>
+			<if test="website != null">website = #{website},</if>
+			<if test="phone != null">phone = #{phone},</if>
+			<if test="phone != null">phone = #{phone},</if>
+
+			<if test="updateBy != null and updateBy.id != null and updateBy.id != ''">update_by = #{updateBy.id},</if>
+
+			<if test="updateDate != null">update_date = #{updateDate},</if>
+
+			<if test="remarks != null">remarks = #{remarks},</if>
+
+			<if test="principal != null and principal.id != null and principal.id != ''">principal = #{principal.id},</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE crm_client SET
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 根据客户名称查询客户 -->
+	<select id="getByName" resultType="Client" parameterType="Client">
+	    
+	    SELECT 
+			<include refid="columns"/>
+		FROM crm_client a
+		<include refid="joins"/>
+		WHERE 
+		a.customer_name = #{customerName} AND a.del_flag = #{DEL_FLAG_NORMAL}
+	</select>
+	
+</mapper>

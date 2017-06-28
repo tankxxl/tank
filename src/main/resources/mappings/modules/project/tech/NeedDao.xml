@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.project.dao.tech.NeedDao">
+    
+	<sql id="needColumns">
+		a.id AS "id",
+		a.techapply_id AS "techapply.id",
+		a.level AS "level",
+		a.number AS "number",
+		a.desc_content AS "descContent",
+		a.desc_location AS "descLocation",
+		a.desc_time_begin AS "descTimeBegin",
+		a.desc_time_end AS "descTimeEnd",
+		a.man_hour AS "manHour",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="needJoins">
+		LEFT JOIN project_techapply b ON b.id = a.techapply_id
+	</sql>
+    
+	<select id="get" resultType="Need">
+		SELECT 
+			<include refid="needColumns"/>
+		FROM project_techapply_need a
+		<include refid="needJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Need">
+		SELECT 
+			<include refid="needColumns"/>
+		FROM project_techapply_need a
+		<include refid="needJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="techapply != null and techapply.id != null and techapply.id != ''">
+				AND a.techapply_id = #{techapply.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Need">
+		SELECT 
+			<include refid="needColumns"/>
+		FROM project_techapply_need a
+		<include refid="needJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO project_techapply_need(
+			id,
+			techapply_id,
+			level,
+			number,
+			desc_content,
+			desc_location,
+			desc_time_begin,
+			desc_time_end,
+			man_hour,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{techapply.id},
+			#{level},
+			#{number},
+			#{descContent},
+			#{descLocation},
+			#{descTimeBegin},
+			#{descTimeEnd},
+			#{manHour},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE project_techapply_need SET 	
+			techapply_id = #{techapply.id},
+			level = #{level},
+			number = #{number},
+			desc_content = #{descContent},
+			desc_location = #{descLocation},
+			desc_time_begin = #{descTimeBegin},
+			desc_time_end = #{descTimeEnd},
+			man_hour = #{manHour},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE project_techapply_need SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE techapply_id = #{techapply.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+</mapper>

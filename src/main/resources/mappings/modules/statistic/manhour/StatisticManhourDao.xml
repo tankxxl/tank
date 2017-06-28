@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.statistic.dao.manhour.StatisticManhourDao">
+    
+    <sql id="statisticFinanceColumns">
+    </sql>
+    <sql id="statisticFinanceJoins">
+		inner join project_apply_external pro1 on pro1.id  =sm.project_id
+		LEFT JOIN sys_user u4 ON u4.id = pro1.saler_id
+		LEFT JOIN sys_office s5 on s5.id =u4.office_id
+	</sql>
+	
+    <!-- 插入待查数据 -->
+	<select id="insetTempStatisticManhourTable"   resultType="StatisticManhour"  statementType="CALLABLE" >
+		{  
+      	call query_current_statistic_manhour(#{projectId},#{projectCode},#{projectName},#{startTime},#{endTime},#{tectechnicalDepartmentId})
+      	}
+    </select> 
+    
+    
+	<select id="findList"  resultType="StatisticManhour" >  
+      	select sm.project_id,sm.project_code,sm.project_name,sm.saler_name,sm.saler_office_name,
+				sm.total_manhour_4service,sm.total_labor_4service,
+				sm.total_manhour_4software,sm.total_labor_4software,
+				sm.total_manhour_4scheme,sm.total_labor_4scheme
+		from statistic_manhour sm
+		<include refid="statisticFinanceJoins"/>
+		<where>
+			1 = 1
+			<if test="tectechnicalDepartmentId = null">
+				${sqlMap.dsf}
+			</if>
+		</where>
+    </select>
+    <select id="findList4First" resultType="StatisticManhour" >  
+      	select sm.project_id,sm.project_code,sm.project_name,sm.saler_name,sm.saler_office_name,
+				sm.total_manhour_4service,sm.total_labor_4service,
+				sm.total_manhour_4software,sm.total_labor_4software,
+				sm.total_manhour_4scheme,sm.total_labor_4scheme
+		from statistic_manhour sm
+		<include refid="statisticFinanceJoins"/>
+		<where>
+			1 = 1
+			<if test="tectechnicalDepartmentId = null">
+				${sqlMap.dsf}
+			</if>
+		</where>
+		limit #{start},#{pageSize}
+    </select>
+	<select id="findCount4First" resultType="integer" >  
+      	select count(1) from (
+      			select 1 from statistic_manhour sm
+      			<include refid="statisticFinanceJoins"/>
+      			<where>
+					1 = 1
+					<if test="tectechnicalDepartmentId = null">
+						${sqlMap.dsf}
+					</if>
+				</where>
+      	) tmp_count
+    </select>
+    
+	<select id="findList4DeptManhour4pro"  resultType="DeptManhour4pro" >  
+      	select tap2.project_id,tap2.id as apply_id,tap2.apply_date as apply_date,offi.`NAME` as office_name,us.`NAME` as tech_name,tm.manhour as manhour
+		from (  select tap.id,tw.user_id,sum(tman.manhour) as manhour
+				from project_techapply tap,project_techapply_assigning tas,project_techapply_workorder tw,project_techapply_manhour tman
+				where tap.id = tas.techapply_id
+				and tas.id = tw.assigning_id
+				and tman.workorder_id = tw.id
+				and tman.audit_state =1
+				and tap.project_id = #{projectId}
+				and tap.office_id =#{officeId}
+				group by tap.id,tw.user_id) tm,sys_user us,sys_office offi,project_techapply tap2
+		where tm.id = tap2.id
+		and tm.user_id =us.id
+		and tap2.office_id =offi.id
+    </select>
+    
+    
+    <select id="createTempStatisticManHour">
+    	create TEMPORARY  table if not exists statistic_manhour  
+		 (  
+		   project_id varchar(64) primary key COMMENT '项目id',  
+		   project_code varchar(64)	COMMENT '项目code',  
+		   project_name varchar(64)	COMMENT '项目名称',  
+		   saler_name varchar(100)	COMMENT '销售名称',  
+		   saler_office_name varchar(100)	COMMENT '销售部门',  
+		   total_manhour_4service int	COMMENT '服务交互部工时',
+		   total_labor_4service decimal(10,2)	COMMENT '服务交互部人力',
+		   total_manhour_4software int	COMMENT '软件工时',
+		   total_labor_4software decimal(10,2)	COMMENT '软件人力',
+		   total_manhour_4scheme int	COMMENT '解决方案部工时',
+		   total_labor_4scheme decimal(10,2)	COMMENT '解决方案部人力',
+		   total_manhour int	COMMENT '总工时',
+		   total_labor decimal(10,2)	COMMENT '总人力'
+		 ) COMMENT '公司统计';
+    </select>
+	
+	
+</mapper>

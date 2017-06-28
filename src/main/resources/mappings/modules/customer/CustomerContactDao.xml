@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.customer.dao.CustomerContactDao">
+    
+	<sql id="customerContactColumns">
+		a.id AS "id",
+		a.contact_name AS "contactName",
+		a.sex AS "sex",
+		a.position AS "position",
+		a.phone AS "phone",
+		a.mobile_phone AS "mobilePhone",
+		a.customer_id AS "customer.id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="customerContactJoins">
+		LEFT JOIN customer b ON b.id = a.customer_id
+	</sql>
+    
+	<select id="get" resultType="CustomerContact">
+		SELECT 
+			<include refid="customerContactColumns"/>
+		FROM customer_contact a
+		<include refid="customerContactJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CustomerContact">
+		SELECT 
+			<include refid="customerContactColumns"/>
+		FROM customer_contact a
+		<include refid="customerContactJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="contactName != null and contactName != ''">
+				AND a.contact_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{contactName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{contactName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{contactName},'%')</if>
+			</if>
+			<if test="customer != null and customer.id != null and customer.id != ''">
+				AND a.customer_id = #{customer.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CustomerContact">
+		SELECT 
+			<include refid="customerContactColumns"/>
+		FROM customer_contact a
+		<include refid="customerContactJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO customer_contact(
+			id,
+			contact_name,
+			sex,
+			position,
+			phone,
+			mobile_phone,
+			customer_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{contactName},
+			#{sex},
+			#{position},
+			#{phone},
+			#{mobilePhone},
+			#{customer.id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE customer_contact SET 	
+			contact_name = #{contactName},
+			sex = #{sex},
+			position = #{position},
+			phone = #{phone},
+			mobile_phone = #{mobilePhone},
+			customer_id = #{customer.id},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE customer_contact SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE customer_id = #{customer.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+</mapper>

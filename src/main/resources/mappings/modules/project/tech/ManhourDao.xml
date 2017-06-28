@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.project.dao.tech.ManhourDao">
+
+    <sql id="manhourColumns">
+		a.id AS "id",
+		a.workorder_id AS "workorder.id",
+		a.engineer_id AS "engineer.id",
+		a.manhour_date AS "manhourDate",
+		a.manhour AS "manhour",
+		a.audit_state AS "auditState",
+		a.audit_opinion AS "auditOpinion",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		su.name AS "engineer.name"
+
+	</sql>
+
+    <sql id="manhourJoins">
+		LEFT JOIN sys_user su ON su.id = a.engineer_id
+		LEFT JOIN project_techapply_workorder ptw ON ptw.id = a.workorder_id
+		LEFT JOIN project_techapply_assigning pta ON pta.id = ptw.assigning_id
+		LEFT JOIN project_techapply pt ON pt.id = pta.techapply_id
+		LEFT JOIN project_apply_external pte ON pte.id = pt.project_id
+		LEFT JOIN sys_office so ON so.id = su.office_id
+	</sql>
+
+    <select id="get" resultType="Manhour">
+        SELECT
+        <include refid="manhourColumns"/>
+        FROM project_techapply_manhour a
+        <include refid="manhourJoins"/>
+        WHERE a.id = #{id}
+    </select>
+
+    <select id="findList" resultType="Manhour">
+        SELECT
+        <include refid="manhourColumns"/>
+        FROM project_techapply_manhour a
+        <include refid="manhourJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="workorder != null and workorder.assigning != null and
+            	workorder.assigning.techapply != null and
+            	workorder.assigning.techapply.project != null and
+            	workorder.assigning.techapply.project.id != null and
+            	workorder.assigning.techapply.project.id != ''">
+                AND pte.id = #{workorder.assigning.techapply.project.id}
+            </if>
+            <if test="workorder != null and workorder.assigning != null and
+            	workorder.assigning.techapply != null and
+            	workorder.assigning.techapply.applicant != null and
+            	workorder.assigning.techapply.applicant.id != null and
+            	workorder.assigning.techapply.applicant.id != ''">
+                AND a.engineer_id = #{workorder.assigning.techapply.applicant.id}
+            </if>
+            <if test="engineer != null and engineer.id != null and engineer.id != ''">
+                AND a.engineer_id = #{engineer.id}
+            </if>
+            <if test="beginManhourDate != null and endManhourDate != null and beginManhourDate != '' and endManhourDate != ''">
+                AND a.manhour_date BETWEEN #{beginManhourDate} AND #{endManhourDate}
+            </if>
+            <if test="auditState != null and auditState != ''">
+                AND a.audit_state = #{auditState}
+            </if>
+			${sqlMap.dsf}
+        </where>
+        <choose>
+            <when test="page !=null and page.orderBy != null and page.orderBy != ''">
+                ORDER BY ${page.orderBy}
+            </when>
+            <otherwise>
+                ORDER BY a.update_date DESC
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="findAllList" resultType="Manhour">
+        SELECT
+        <include refid="manhourColumns"/>
+        FROM project_techapply_manhour a
+        <include refid="manhourJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+        </where>
+        <choose>
+            <when test="page !=null and page.orderBy != null and page.orderBy != ''">
+                ORDER BY ${page.orderBy}
+            </when>
+            <otherwise>
+                ORDER BY a.update_date DESC
+            </otherwise>
+        </choose>
+    </select>
+
+    <insert id="insert">
+		INSERT INTO project_techapply_manhour(
+			id,
+			workorder_id,
+			engineer_id,
+			manhour_date,
+			manhour,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{workorder.id},
+			#{engineer.id},
+			#{manhourDate},
+			#{manhour},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+
+    <update id="update">
+		UPDATE project_techapply_manhour SET 	
+			workorder_id = #{workorder.id},
+			engineer_id = #{engineer.id},
+			manhour_date = #{manhourDate},
+			manhour = #{manhour},
+			audit_state = #{auditState},
+			audit_opinion = #{auditOpinion},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+
+    <update id="delete">
+		UPDATE project_techapply_manhour SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+    <update id="delete4Real">
+		DELETE FROM  project_techapply_manhour
+		WHERE id = #{id}
+	</update>
+
+    <!--
+        为工填报页面提供工单-工时二维对照数组
+        使用存储过程生成的临时表t_temp_date_fillin存储当前周日期
+    -->
+    <select id="execuDateGenProc" statementType="CALLABLE">
+		<![CDATA[
+
+			{
+				call temp_proc_fillin(#{paramDate})
+			}
+
+        ]]>
+	</select>
+    <sql id="manhourColumnsTemp">
+		a.id AS "id",
+		a.workorder_id AS "workorder_id",
+		a.engineer_id AS "engineer_id",
+		a.manhour_date AS "manhour_date",
+		a.manhour AS "manhour",
+		a.audit_state AS "audit_state",
+		a.audit_opinion AS "audit_opinion",
+		a.create_by AS "create_by",
+		a.create_date AS "create_date",
+		a.update_by AS "update_by",
+		a.update_date AS "update_date",
+		a.remarks AS "remarks",
+		a.del_flag AS "del_flag",
+		su.name AS "name"
+	</sql>
+    <sql id="manhourColumns4FillIn">
+		temp.id AS "id",
+		temp.workorder_id AS "workorder.id",
+		temp.engineer_id AS "engineer.id",
+		ttdf.manhour_date AS "manhourDate",
+		temp.manhour AS "manhour",
+		temp.audit_state AS "auditState",
+		temp.audit_opinion AS "auditOpinion",
+		temp.create_by AS "createBy.id",
+		temp.create_date AS "createDate",
+		temp.update_by AS "updateBy.id",
+		temp.update_date AS "updateDate",
+		temp.remarks AS "remarks",
+		temp.del_flag AS "delFlag",
+		temp.name AS "engineer.name"
+	</sql>
+    <sql id="manhourJoins4FillIn">
+		RIGHT JOIN t_temp_date_fillin ttdf ON ttdf.manhour_date = temp.manhour_date
+	</sql>
+    <select id="findList4FillIn" resultType="Manhour">
+        SELECT
+        <include refid="manhourColumns4FillIn"/>
+        FROM (
+        SELECT
+        <include refid="manhourColumnsTemp"/>
+        FROM project_techapply_manhour a
+        <include refid="manhourJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="workorder != null and workorder.id != null and workorder.id != ''">
+                AND a.workorder_id = #{workorder.id}
+            </if>
+        </where>
+        ) AS temp
+        <include refid="manhourJoins4FillIn"/>
+        ORDER BY ttdf.manhour_date ASC
+    </select>
+
+</mapper>

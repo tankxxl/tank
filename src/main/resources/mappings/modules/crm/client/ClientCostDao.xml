@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.crm.client.dao.ClientCostDao">
+    
+	<sql id="columns">
+		a.id AS "id",
+		a.client_id AS "client.id",
+		a.contact_id AS "contact.id",
+		a.visit_id AS "visit.id",
+		a.type AS "type",
+		a.amount AS "amount",
+
+		visit.visit_date AS "visit.visitDate",
+
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="joins">
+		LEFT JOIN crm_client client ON client.id = a.client_id
+		LEFT JOIN crm_client_contact contact ON contact.id = a.contact_id
+		LEFT JOIN crm_client_visit visit ON visit.id = a.visit_id
+	</sql>
+    
+	<select id="get" resultType="ClientCost">
+		SELECT 
+			<include refid="columns"/>
+		FROM crm_client_cost a
+		<include refid="joins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ClientCost">
+		SELECT 
+			<include refid="columns"/>
+		FROM crm_client_cost a
+		<include refid="joins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="title != null and title != ''">
+				AND a.title LIKE
+					<if test="dbName == 'oracle'">'%'||#{title}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{title}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{title},'%')</if>
+			</if>
+			<if test="client != null and client.id != null and client.id != ''">
+				AND a.client_id = #{client.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ClientCost">
+		SELECT 
+			<include refid="columns"/>
+		FROM crm_client_cost a
+		<include refid="joins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO crm_client_cost(
+			id,
+			client_id,
+			contact_id,
+			visit_id,
+			type,
+			amount,
+
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{client.id},
+			#{contact.id},
+			#{visit.id},
+			#{type},
+			#{amount},
+
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE crm_client_cost SET
+			client_id = #{client.id},
+			contact_id = #{contact.id},
+			visit_id = #{visit.id},
+			type = #{type},
+			amount = #{amount},
+
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE crm_client_cost SET
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<when test="client != null and client.id != null and client.id != ''">
+				WHERE client_id = #{client.id}
+			</when>
+
+			<when test="visit != null and visit.id != null and visit.id != ''">
+				WHERE visit_id = #{visit.id}
+			</when>
+
+			<otherwise>
+				WHERE client_id = #{client.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+</mapper>

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.salary.dao.relation.UserSalaryRelationDao">
+    
+	<sql id="userSalaryRelationColumns">
+		a.salary_id AS "salary.id",
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.proc_ins_id AS "procInsId",
+		a.process_status AS "processStatus",
+		s.grade AS "salary.grade",
+		s.profession AS "salary.profession",
+		s.pay_monthly AS "salary.payMonthly",
+		u1.id AS "user.id",
+		u1.name AS "user.name",
+		u1.login_name AS "user.loginName",
+		c.id AS "user.company.id",
+		c.name AS "user.company.name",
+		o.name AS "user.office.name",
+		o.id AS "user.office.id"
+	</sql>
+	
+	<sql id="userSalaryRelationJoins">
+		RIGHT JOIN sys_user u1 ON u1.id = a.user_id
+		LEFT JOIN sys_office o ON o.id = u1.office_id
+		LEFT JOIN sys_office c ON c.id = u1.company_id
+		LEFT JOIN salary_level s ON s.id = a.salary_id
+	</sql>
+    
+	<select id="get" resultType="UserSalaryRelation">
+		SELECT 
+			<include refid="userSalaryRelationColumns"/>
+		FROM user_salary_relation a
+		<include refid="userSalaryRelationJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="UserSalaryRelation">
+		SELECT 
+			<include refid="userSalaryRelationColumns"/>
+		FROM user_salary_relation a
+		<include refid="userSalaryRelationJoins"/>
+		<where>
+			u1.del_flag = #{DEL_FLAG_NORMAL}
+			<!-- 不显示超级管理员用户 -->
+			AND u1.id != '1'
+			<if test="user !=null and user.company!= null and user.company.id != null and user.company.id != ''">
+				AND (c.id = #{user.company.id} OR c.parent_ids LIKE 
+						<if test="dbName == 'oracle'">'%,'||#{user.company.id}||',%')</if>
+						<if test="dbName == 'mssql'">'%,'+#{user.company.id}+',%')</if>
+						<if test="dbName == 'mysql'">CONCAT('%,', #{user.company.id}, ',%'))</if>
+			</if>
+			<if test="user != null and user.office != null and user.office.id != null and user.office.id != ''">
+				AND (o.id = #{user.office.id} OR o.parent_ids LIKE 
+						<if test="dbName == 'oracle'">'%,'||#{user.office.id}||',%')</if>
+						<if test="dbName == 'mssql'">'%,'+#{user.office.id}+',%')</if>
+						<if test="dbName == 'mysql'">CONCAT('%,', #{user.office.id}, ',%'))</if>
+			</if>
+			<if test="user !=null and user.loginName != null and user.loginName != ''">
+				AND u1.login_name like 
+						<if test="dbName == 'oracle'">'%'||#{user.loginName}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{user.loginName}+'%'</if>
+						<if test="dbName == 'mysql'">CONCAT('%', #{user.loginName}, '%')</if>
+			</if>
+			<if test="user !=null and user.name != null and user.name != ''">
+				AND u1.name like 
+						<if test="dbName == 'oracle'">'%'||#{user.name}||'%'</if>
+						<if test="dbName == 'mssql'">'%'+#{user.name}+'%'</if>
+						<if test="dbName == 'mysql'">CONCAT('%', #{user.name}, '%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="UserSalaryRelation">
+		SELECT 
+			<include refid="userSalaryRelationColumns"/>
+		FROM user_salary_relation a
+		<include refid="userSalaryRelationJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO user_salary_relation(
+			user_id,
+			salary_id,
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			proc_ins_id,
+			process_status
+		) VALUES (
+			#{user.id},
+			#{salary.id},
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{procInsId},
+			#{processStatus}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE user_salary_relation SET 	
+			user_id = #{user.id},
+			salary_id = #{salary.id},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			proc_ins_id = #{procInsId},
+			process_status = #{processStatus}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE user_salary_relation SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<select id="getByParam" parameterType="hashmap" resultType="UserSalaryRelation">
+		SELECT
+			<include refid="userSalaryRelationColumns"/>
+		FROM user_salary_relation a
+			<include refid="userSalaryRelationJoins"/>
+		WHERE 1 = 1
+			<if test="userId != null and userId != ''">
+				AND a.user_id = #{userId}
+			</if>
+	</select>
+	
+</mapper>

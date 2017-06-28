@@ -1,0 +1,194 @@
+/**
+ * Copyright &copy; 2012-2014 <a href="https://github.com/thinkgem/jeesite">JeeSite</a> All rights reserved.
+ */
+package com.thinkgem.jeesite.modules.project.web.bidding;
+
+import com.thinkgem.jeesite.common.config.Global;
+import com.thinkgem.jeesite.common.persistence.Page;
+import com.thinkgem.jeesite.common.service.BaseService;
+import com.thinkgem.jeesite.common.utils.StringUtils;
+import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.act.entity.Act;
+import com.thinkgem.jeesite.modules.act.service.ActTaskService;
+import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
+import com.thinkgem.jeesite.modules.project.entity.bidding.ProjectBidding;
+import com.thinkgem.jeesite.modules.project.service.bidding.ProjectBiddingService;
+import com.thinkgem.jeesite.modules.sys.utils.ExportUtils;
+import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 项目投标Controller
+ * @author jicdata
+ * @version 2016-03-08
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/project/bidding/projectBidding")
+public class ProjectBiddingController extends BaseController {
+
+	@Autowired
+	private ProjectBiddingService projectBiddingService;
+	@Autowired
+	private ActTaskService actTaskService;
+
+    /**
+     * 如果把@ModelAttribute放在方法的注解上时，代表的是：该Controller的所有方法在调用前，先执行此@ModelAttribute方法
+     * @param id
+     * @return
+     */
+	@ModelAttribute
+	public ProjectBidding get(@RequestParam(required=false) String id) {
+		ProjectBidding entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = projectBiddingService.get(id);
+		}
+		if (entity == null){
+			entity = new ProjectBidding();
+		}
+		return entity;
+	}
+	
+	@RequiresPermissions("project:bidding:projectBidding:view")
+	@RequestMapping(value = {"list", ""})
+	public String list(ProjectBidding projectBidding, HttpServletRequest request, HttpServletResponse response, Model model) {
+		projectBidding.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+		Page<ProjectBidding> page = projectBiddingService.findPage(new Page<ProjectBidding>(request, response), projectBidding); 
+		model.addAttribute("page", page);
+		return "modules/project/bidding/projectBiddingList";
+	}
+
+	/**
+	 * 查看审批表单，来源：审批单列表，待办任务列表
+	 * @param projectBidding
+	 * @param model
+	 * @return
+	 */
+	@RequiresPermissions("project:bidding:projectBidding:view")
+	@RequestMapping(value = "form")
+	public String form(ProjectBidding projectBidding, Model model) {
+		String view = "projectBiddingForm";
+		if (StringUtils.isNotBlank(projectBidding.getId())){
+
+			// 环节编号
+			String taskDefKey = projectBidding.getAct().getTaskDefKey();
+			
+			if(projectBidding.getAct().isFinishTask()){
+				view = "projectBiddingView";
+			}	
+			// 修改环节
+			else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ){
+				view = "projectBiddingForm";
+			}
+			// 某审批环节
+			else if ("apply_end".equals(taskDefKey)){
+				view = "projectBiddingAudit";
+			} else {
+				view = "projectBiddingAudit";
+			}
+		} else {  // 从已办任务过来，如果流程已结束，流程实例就没有了，业务id就没有了，只有act对象，这时就根据act.procInsId来查询业务表，加载业务对象用来查看
+			if (projectBidding.hasAct()) {
+				view = "projectBiddingView";
+				Act oldAct = projectBidding.getAct();
+				projectBidding = projectBiddingService.findByProcInsId(projectBidding.getAct().getProcInsId());
+				projectBidding.setAct(oldAct);
+			}
+		}
+
+		model.addAttribute("projectBidding", projectBidding);
+		return "modules/project/bidding/" + view;
+	}
+
+	@RequiresPermissions("project:bidding:projectBidding:modify")
+	@RequestMapping(value = "modify")
+	public String modify(ProjectBidding projectBidding, Model model) {
+		model.addAttribute("projectBidding", projectBidding);
+		return "modules/project/bidding/projectBiddingForm";
+	}
+
+	/**
+	 * 启动流程、保存申请单、销毁流程、删除申请单。
+	 * @param projectBidding
+	 * @param model
+	 * @param redirectAttributes
+	 * @return
+	 */
+	@RequiresPermissions("project:bidding:projectBidding:edit")
+	@RequestMapping(value = "save")
+	public String save(ProjectBidding projectBidding, Model model, RedirectAttributes redirectAttributes) {
+		if (!beanValidator(model, projectBidding)){
+			return form(projectBidding, model);
+		}
+		String flag = projectBidding.getAct().getFlag();
+
+//		flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
+		if ("saveOnly".equals(flag)) { // 只保存表单数据
+			projectBiddingService.saveOnly(projectBidding);
+		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
+			projectBiddingService.saveFinishProcess(projectBidding);
+		} else if ("yes".equals(flag)) {
+			projectBiddingService.save(projectBidding);
+		} else if ("no".equals(flag)) {
+			projectBiddingService.save(projectBidding);
+		}
+
+		addMessage(redirectAttributes, "保存项目投标成功");
+		
+		String usertask_owner = projectBidding.getAct().getTaskDefKey();
+		if (UserTaskType.UT_OWNER.equals(usertask_owner)) { // 待办任务页面
+			return "redirect:" + adminPath + "/act/task/todo/";
+		} else { // 列表页面
+			return "redirect:"+Global.getAdminPath()+"/project/bidding/projectBidding/?repage";
+		}
+	}
+	
+	@RequiresPermissions("project:bidding:projectBidding:edit")
+	@RequestMapping(value = "delete")
+	public String delete(ProjectBidding projectBidding, RedirectAttributes redirectAttributes) {
+		projectBiddingService.delete(projectBidding);
+		addMessage(redirectAttributes, "删除项目投标成功");
+		return "redirect:"+Global.getAdminPath()+"/project/bidding/projectBidding/?repage";
+	}
+	
+	@RequestMapping(value = "saveAudit")
+	public String saveAudit(ProjectBidding projectBidding, Model model) {
+		if (StringUtils.isBlank(projectBidding.getAct().getFlag())
+				|| StringUtils.isBlank(projectBidding.getAct().getComment())){
+			addMessage(model, "请填写审核意见。");
+			return form(projectBidding, model);
+		}
+		projectBiddingService.auditSave(projectBidding);
+		return "redirect:" + adminPath + "/act/task/todo/";
+	}
+	
+	
+	/**
+	 * 使用的导出
+	 * @param request
+	 * @param response
+	 * @param redirectAttributes
+	 * @param map
+	 * @param model
+	 * @return
+	 */
+	@RequiresPermissions("project:bidding:projectBidding:view")
+	@RequestMapping(value = "export")
+	public void export(HttpServletRequest request, HttpServletResponse response,Map map) {
+		ProjectBidding projectBidding=(ProjectBidding) map.get("projectBidding");
+		List<Act> actList =actTaskService.histoicFlowListPass(projectBidding.getProcessInstanceId(),null, null);
+		String  fileReturnName=projectBidding.getApply().getProjectName()+"_投标审批表";
+		String workBookFileRealPathName =request.getSession().getServletContext().getRealPath("/")+"WEB-INF/excel/project/ProjectBidding.xls";
+		ExportUtils.export(response, projectBidding, actList, workBookFileRealPathName, fileReturnName,"yyyy-MM-dd");
+	}
+}

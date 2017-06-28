@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.crm.visit.dao.ClientVisitDao">
+    
+	<sql id="columns">
+		a.id AS "id",
+		a.client_id AS "client.id",
+		a.contact_id AS "contact.id",
+		a.title AS "title",
+		a.content AS "content",
+		a.visit_date AS "visitDate",
+
+		client.customer_name AS "client.customerName",
+
+
+		u4.name AS "createBy.name",
+
+		s5.id AS "createBy.office.id",
+		s5.name AS "createBy.office.name",
+
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="joins">
+		LEFT JOIN crm_client client ON client.id = a.client_id
+		LEFT JOIN crm_client_contact contact ON contact.id = a.contact_id
+
+		LEFT JOIN sys_user u4 ON u4.id = a.create_by
+		LEFT JOIN sys_office s5 ON s5.id = u4.office_id
+	</sql>
+    
+	<select id="get" resultType="ClientVisit">
+		SELECT 
+			<include refid="columns"/>
+		FROM crm_client_visit a
+		<include refid="joins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ClientVisit">
+		SELECT 
+			<include refid="columns"/>
+		FROM crm_client_visit a
+		<include refid="joins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="title != null and title != ''">
+				AND a.title LIKE
+					<if test="dbName == 'oracle'">'%'||#{title}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{title}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{title},'%')</if>
+			</if>
+			<if test="client != null and client.id != null and client.id != ''">
+				AND a.client_id = #{client.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ClientVisit">
+		SELECT 
+			<include refid="columns"/>
+		FROM crm_client_visit a
+		<include refid="joins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO crm_client_visit(
+			id,
+			client_id,
+			contact_id,
+			title,
+			content,
+			visit_date,
+
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{client.id},
+			#{contact.id},
+			#{title},
+			#{content},
+			#{visitDate},
+
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE crm_client_visit SET
+			client_id = #{client.id},
+			contact_id = #{contact.id},
+			title = #{title},
+			content = #{content},
+			visit_date = #{visitDate},
+
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE crm_client_visit SET
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE client_id = #{client.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+</mapper>

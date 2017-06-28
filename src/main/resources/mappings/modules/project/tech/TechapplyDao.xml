@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.project.dao.tech.TechapplyDao">
+    
+	<sql id="techapplyColumns">
+		a.id AS "id",
+		a.applicant_id AS "applicant.id",
+		a.project_id AS "project.id",
+		a.project_progress AS "projectProgress",
+		a.project_progress_extra AS "projectProgressExtra",
+		a.office_id AS "office.id",
+		a.apply_reason AS "applyReason",
+		a.apply_date AS "applyDate",
+		a.process_status AS "processStatus",
+		a.proc_ins_id, 
+		a.assign_flag AS "assignFlag",
+		u1.login_name AS "office.primaryPerson.loginName", 
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		o5.name AS "office.name",
+		u.name AS "applicant.name",
+		p.project_name AS "project.projectName",
+		p.project_code AS "project.projectCode",
+		c.customer_name AS "project.customer.customerName",
+		cc.contact_name AS "project.customerContact.contactName"
+	</sql>
+	
+	<sql id="techapplyJoins">
+		LEFT JOIN sys_office o5 ON o5.id = a.office_id
+		LEFT JOIN sys_user u ON u.id = a.applicant_id
+		LEFT JOIN project_apply_external p ON p.id = a.project_id
+		LEFT JOIN customer c ON c.id = p.customer_id
+		LEFT JOIN customer_contact cc ON cc.id = p.customer_contact_id
+		LEFT JOIN sys_office o1 ON o1.id = u.office_id
+		LEFT JOIN sys_user u1 ON u1.id = o5.PRIMARY_PERSON
+	</sql>
+    
+	<select id="get" resultType="Techapply">
+		SELECT 
+			<include refid="techapplyColumns"/>
+		FROM project_techapply a
+		<include refid="techapplyJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Techapply">
+		SELECT 
+			<include refid="techapplyColumns"/>
+		FROM project_techapply a
+		<include refid="techapplyJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="applicant != null and applicant.id != null and applicant.id != ''">
+				AND a.applicant_id = #{applicant.id}
+			</if>
+			<if test="project != null and project.id != null and project.id != ''">
+				AND a.project_id = #{project.id}
+			</if>
+			<if test="office != null and office.id != null and office.id != ''">
+				AND a.office_id = #{office.id}
+			</if>
+			<if test="beginApplyDate != null and endApplyDate != null and beginApplyDate != '' and endApplyDate != ''">
+				AND a.apply_date BETWEEN #{beginApplyDate} AND #{endApplyDate}
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Techapply">
+		SELECT 
+			<include refid="techapplyColumns"/>
+		FROM project_techapply a
+		<include refid="techapplyJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO project_techapply(
+			id,
+			applicant_id,
+			project_id,
+			project_progress,
+			project_progress_extra,
+			office_id,
+			apply_reason,
+			apply_date,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			process_status,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{applicant.id},
+			#{project.id},
+			#{projectProgress},
+			#{projectProgressExtra},
+			#{office.id},
+			#{applyReason},
+			#{applyDate},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{processStatus},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE project_techapply SET 	
+			applicant_id = #{applicant.id},
+			project_id = #{project.id},
+			project_progress = #{projectProgress},
+			project_progress_extra = #{projectProgressExtra},
+			office_id = #{office.id},
+			apply_reason = #{applyReason},
+			apply_date = #{applyDate},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			process_status = #{processStatus},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE project_techapply SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="update4AssignFlag">
+		UPDATE project_techapply SET
+			assign_flag = #{assignFlag}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

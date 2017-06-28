@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.project.dao.tech.AssigningDao">
+
+    <sql id="assigningColumns">
+		a.id AS "id",
+		a.techapply_id AS "techapply.id",
+		a.assigningor_id AS "assigningor.id",
+		a.assigning_date AS "assigningDate",
+		a.completed AS "completed",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		u.name AS "assigningor.name",
+		u1.name AS "techapply.applicant.name",
+		t.apply_date AS "techapply.applyDate",
+		p.project_code AS "techapply.project.projectCode",
+		p.project_name AS "techapply.project.projectName",
+		p.id AS "techapply.project.id",
+		u1.id AS "techapply.applicant.id"
+	</sql>
+
+    <sql id="assigningJoins">
+		LEFT JOIN sys_user u ON u.id = a.assigningor_id
+		LEFT JOIN project_techapply t ON t.id = a.techapply_id
+		LEFT JOIN project_apply_external p ON p.id = t.project_id
+		LEFT JOIN sys_user u1 ON u1.id = t.applicant_id
+		LEFT JOIN sys_office s ON s.id = u.office_id
+	</sql>
+
+    <select id="get" resultType="Assigning">
+        SELECT
+        <include refid="assigningColumns"/>
+        FROM project_techapply_assigning a
+        <include refid="assigningJoins"/>
+        WHERE a.id = #{id}
+    </select>
+
+    <select id="findList" resultType="Assigning">
+        SELECT
+        <include refid="assigningColumns"/>
+        FROM project_techapply_assigning a
+        <include refid="assigningJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="techapply != null and techapply.project != null and techapply.project.id != null and techapply.project.id != ''">
+                AND p.id = #{techapply.project.id}
+            </if>
+            <if test="techapply != null and techapply.applicant != null and techapply.applicant.id != null and techapply.applicant.id != ''">
+                AND u1.id = #{techapply.applicant.id}
+            </if>
+            <if test="beginAssigningDate != null and endAssigningDate != null and beginAssigningDate != '' and endAssigningDate != ''">
+                AND a.assigning_date BETWEEN #{beginAssigningDate} AND #{endAssigningDate}
+            </if>
+			${sqlMap.dsf}
+        </where>
+        <choose>
+            <when test="page !=null and page.orderBy != null and page.orderBy != ''">
+                ORDER BY ${page.orderBy}
+            </when>
+            <otherwise>
+                ORDER BY a.update_date DESC
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="findAllList" resultType="Assigning">
+        SELECT
+        <include refid="assigningColumns"/>
+        FROM project_techapply_assigning a
+        <include refid="assigningJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+        </where>
+        <choose>
+            <when test="page !=null and page.orderBy != null and page.orderBy != ''">
+                ORDER BY ${page.orderBy}
+            </when>
+            <otherwise>
+                ORDER BY a.update_date DESC
+            </otherwise>
+        </choose>
+    </select>
+
+    <insert id="insert">
+		INSERT INTO project_techapply_assigning(
+			id,
+			techapply_id,
+			assigningor_id,
+			assigning_date,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{techapply.id},
+			#{assigningor.id},
+			#{assigningDate},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+
+    <update id="update">
+		UPDATE project_techapply_assigning SET
+			techapply_id = #{techapply.id},
+			assigningor_id = #{assigningor.id},
+			assigning_date = #{assigningDate},
+			completed = #{completed},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+
+    <update id="delete">
+		UPDATE project_techapply_assigning SET
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.project.dao.contract.ProjectContractDao">
+    
+	<sql id="projectContractColumns">
+		a.project_id AS "apply.id",
+		a.project_manager_id AS "projectManager.id",
+		a.stage AS "stage",
+		a.attachment AS "attachment",
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.proc_ins_id AS "procInsId",
+		a.process_status AS "processStatus",
+		u5.name AS "projectManager.name",
+		u5.login_name AS "projectManager.loginName",
+		
+		pro_apply.project_code AS "apply.projectCode",
+		pro_apply.project_name AS "apply.projectName",
+		pro_apply.pro_main_stage AS "apply.proMainStage",
+		pro_apply.category AS "apply.category",
+		pro_apply.estimated_contract_amount AS "apply.estimatedContractAmount",
+		pro_apply.estimated_gross_profit_margin AS "apply.estimatedGrossProfitMargin", 
+		
+		pro_apply.outsourcing AS "apply.outsourcing",
+		
+		c5.customer_name AS "apply.customer.customerName",
+		c5.phone AS "apply.customer.phone",
+		c6.contact_name AS "apply.customerContact.contactName"
+		
+	</sql>
+	
+	<sql id="projectContractJoins">
+		LEFT JOIN project_apply_external pro_apply ON pro_apply.id = a.project_id
+		LEFT JOIN customer c5 ON c5.id = pro_apply.customer_id
+		LEFT JOIN customer_contact c6 ON c6.id = pro_apply.customer_contact_id
+		LEFT JOIN sys_user u4 ON u4.id = pro_apply.saler_id
+		LEFT JOIN sys_user u5 ON u5.id = a.project_manager_id
+		LEFT JOIN sys_office s5 on s5.id =u4.office_id
+	</sql>
+    
+	<select id="get" resultType="ProjectContract">
+		SELECT 
+			<include refid="projectContractColumns"/>
+		FROM project_contract a
+		<include refid="projectContractJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findByProcInsId" resultType="ProjectContract">
+		SELECT
+		<include refid="projectContractColumns"/>
+		FROM project_contract a
+		<include refid="projectContractJoins"/>
+		WHERE a.proc_ins_id = #{procInsId}
+	</select>
+	
+	<select id="findContractByPrjId" resultType="ProjectContract">
+		SELECT 
+			<include refid="projectContractColumns"/>
+		FROM project_contract a
+		<include refid="projectContractJoins"/>
+		WHERE pro_apply.id = #{prjId}
+	</select>
+	
+	<select id="findList" resultType="ProjectContract">
+		SELECT 
+			<include refid="projectContractColumns"/>
+		FROM project_contract a
+		<include refid="projectContractJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="apply!=null and apply.projectCode != null and apply.projectCode != ''">
+				AND pro_apply.project_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{apply.projectCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{apply.projectCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{apply.projectCode},'%')</if>
+			</if>
+			<if test="apply!=null and apply.projectName != null and apply.projectName != ''">
+				AND pro_apply.project_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{apply.projectName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{apply.projectName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{apply.projectName},'%')</if>
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ProjectContract">
+		SELECT 
+			<include refid="projectContractColumns"/>
+		FROM project_contract a
+		<include refid="projectContractJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO project_contract(
+			project_id,
+			project_manager_id,
+			stage,
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			proc_ins_id,
+			process_status,
+			attachment
+		) VALUES (
+			#{apply.id},
+			#{projectManager.id},
+			#{stage},
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{procInsId},
+			#{processStatus},
+			#{attachment}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE project_contract SET 	
+			project_id = #{apply.id},
+			project_manager_id = #{projectManager.id},
+			stage = #{stage},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			attachment = #{attachment},
+			proc_ins_id = #{procInsId},
+			process_status = #{processStatus}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE project_contract SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

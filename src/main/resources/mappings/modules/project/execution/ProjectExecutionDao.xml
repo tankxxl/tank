@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--在mybatis中，映射文件中的namespace是用于绑定Dao接口的，即面向接口编程。
+mybatis会通过该绑定自动帮你找到对应要执行的SQL语句，请注意接口中的方法与xml映射文件中的SQL语句的ID一一对应。
+-->
+<mapper namespace="com.thinkgem.jeesite.modules.project.dao.execution.ProjectExecutionDao">
+
+    <!--使用sql别名转换字段和属性名-->
+	<sql id="columns">
+        a.id AS "id",
+		a.project_id AS "apply.id",
+		a.contract_id AS "contract.id",
+		a.contract_item_id AS "contractItem.id",
+
+		contract_item.contract_code AS "contractItem.contractCode",
+		contract_item.contract_amount AS "contractItem.contractAmount",
+		contract_item.gross_profit_margin AS "contractItem.grossProfitMargin",
+
+		a.attachment AS "attachment",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.proc_ins_id AS "procInsId",
+		a.proc_status AS "procStatus",
+
+
+		a.execution_contract_no AS "executionContractNo",
+        a.amount AS "amount",
+        a.gross_margin AS "grossMargin",
+        a.payment_term AS "paymentTerm",
+        a.execution_basis AS "executionBasis",
+
+        a.delivery_address AS "deliveryAddress",
+        a.delivery_person AS "deliveryPerson",
+        a.delivery_phone AS "deliveryPhone",
+		
+		pro_apply.project_code AS "apply.projectCode",
+		pro_apply.project_name AS "apply.projectName",
+		pro_apply.pro_main_stage AS "apply.proMainStage",
+		pro_apply.category AS "apply.category",
+		pro_apply.estimated_contract_amount AS "apply.estimatedContractAmount",
+		pro_apply.estimated_gross_profit_margin AS "apply.estimatedGrossProfitMargin",
+		pro_apply.outsourcing AS "apply.outsourcing",
+
+        u4.id AS "apply.saler.id",
+		u4.name AS "apply.saler.name",
+
+        s5.id AS "apply.saler.office.id",
+		s5.name AS "apply.saler.office.name",
+		
+		c5.customer_name AS "apply.customer.customerName",
+		c5.phone AS "apply.customer.phone",
+		c5.customer_category AS "apply.customer.customerCategory",
+		c5.industry AS "apply.customer.industry",
+
+		c6.contact_name AS "apply.customerContact.contactName",
+		c6.position AS "apply.customerContact.position",
+		c6.phone AS "apply.customerContact.phone"
+		
+	</sql>
+
+    <!--或者用resultMap字段属性名转换，在<select>标签加上resultMap="projectExecutionMap"也能进行字段名和属性名 转换-->
+    <resultMap id="projectExecutionMap" type="ProjectExecution">
+        <id property="id" column="id" />
+        <result property="create_date" column="createDate" />
+    </resultMap>
+
+
+	<sql id="joins">
+		LEFT JOIN project_apply_external pro_apply ON pro_apply.id = a.project_id
+		LEFT JOIN project_contract contract ON contract.project_id = a.project_id
+		LEFT JOIN project_contract_item contract_item ON contract_item.contract_id = contract.id
+		LEFT JOIN customer c5 ON c5.id = pro_apply.customer_id
+		LEFT JOIN customer_contact c6 ON c6.id = pro_apply.customer_contact_id
+		LEFT JOIN sys_user u4 ON u4.id = pro_apply.saler_id
+		LEFT JOIN sys_office s5 on s5.id =u4.office_id
+	</sql>
+    
+	<select id="get" resultType="ProjectExecution">
+		SELECT 
+			<include refid="columns"/>
+		FROM project_execution a
+		<include refid="joins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findByProcInsId" resultType="ProjectExecution">
+		SELECT
+		<include refid="columns"/>
+		FROM project_execution a
+		<include refid="joins"/>
+		WHERE a.proc_ins_id = #{procInsId}
+	</select>
+	
+	<select id="findByExecutionContractNo" resultType="ProjectExecution">
+		SELECT 
+			<include refid="columns"/>
+		FROM project_execution a
+		<include refid="joins"/>
+		WHERE a.execution_contract_no = #{executionContractNo}
+	</select>
+	
+	<select id="findList" resultType="ProjectExecution">
+		SELECT 
+			<include refid="columns"/>
+		FROM project_execution a
+		<include refid="joins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="apply!=null and apply.projectCode != null and apply.projectCode != ''">
+				AND pro_apply.project_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{apply.projectCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{apply.projectCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{apply.projectCode},'%')</if>
+			</if>
+			<if test="apply!=null and apply.projectName != null and apply.projectName != ''">
+				AND pro_apply.project_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{apply.projectName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{apply.projectName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{apply.projectName},'%')</if>
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ProjectExecution">
+		SELECT 
+			<include refid="columns"/>
+		FROM project_execution a
+		<include refid="joins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO project_execution(
+		    id,
+			project_id,
+			contract_id,
+			contract_item_id,
+
+			execution_contract_no,
+			amount,
+			gross_margin,
+			payment_term,
+			execution_basis,
+
+			delivery_address,
+			delivery_person,
+			delivery_phone,
+
+			attachment,
+
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			proc_ins_id,
+			proc_status
+		) VALUES (
+		    #{id},
+			#{apply.id},
+			#{contract.id},
+			#{contractItem.id},
+
+			#{executionContractNo},
+			#{amount},
+			#{grossMargin},
+			#{paymentTerm},
+			#{executionBasis},
+
+			#{deliveryAddress},
+            #{deliveryPerson},
+            #{deliveryPhone},
+
+            #{attachment},
+
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{procInsId},
+			#{procStatus}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE project_execution
+		<set>
+			<if test="apply!=null and apply.id != null and apply.id != ''">project_id = #{apply.id},</if>
+			<if test="contract != null and contract.id != null and contract.id != ''">contract_id = #{contract.id},</if>
+
+			<if test="contractItem != null and contractItem.id != null and contractItem.id != ''">contract_item_id = #{contractItem.id},</if>
+
+			execution_contract_no = #{executionContractNo},
+			<if test="amount != null">amount = #{amount},</if>
+			<if test="grossMargin != null">gross_margin = #{grossMargin},</if>
+
+			payment_term = #{paymentTerm},
+			execution_basis = #{executionBasis},
+			delivery_address = #{deliveryAddress},
+			delivery_person = #{deliveryPerson},
+			delivery_phone = #{deliveryPhone},
+			attachment = #{attachment},
+
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			proc_ins_id = #{procInsId},
+			proc_status = #{procStatus}
+		</set>
+
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE project_execution SET
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+		;
+        UPDATE project_execution_item SET
+        del_flag = #{DEL_FLAG_DELETE}
+        WHERE execution_id = #{id}
+	</update>
+
+	<!--开关变量，二目-->
+	<update id="audit">
+		update project_execution set del_flag=(CASE WHEN del_flag=0 THEN 1 ELSE 0 END)
+		where id = #{id}
+	</update>
+
+	<select id="getMysqlVsesion" resultType="String">
+		select version();
+	</select>
+	
+</mapper>

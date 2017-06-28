@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.project.dao.contract.ProjectContractItemDao">
+    
+	<sql id="projectContractItemColumns">
+		a.contract_id AS "contract.id",
+		a.contract_code AS "contractCode",
+		a.contract_amount AS "contractAmount",
+		a.gross_margin AS "grossMargin",
+		a.gross_profit_margin AS "grossProfitMargin",
+		a.terms_of_payment AS "termsOfPayment",
+		a.terms_of_warranty AS "termsOfWarranty",
+		a.contract_start_time AS "contractStartTime",
+		a.contract_end_time AS "contractEndTime",
+		a.training_or_outsourcing AS "trainingOrOutsourcing",
+		a.other AS "other",
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.proc_ins_id AS "procInsId",
+		a.process_status AS "processStatus"
+	</sql>
+	
+	<sql id="projectContractItemJoins">
+		LEFT JOIN project_contract b ON b.id = a.contract_id
+
+		LEFT JOIN project_apply_external apply ON apply.id = b.project_id
+	</sql>
+    
+	<select id="get" resultType="ProjectContractItem">
+		SELECT 
+			<include refid="projectContractItemColumns"/>
+		FROM project_contract_item a
+		<include refid="projectContractItemJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ProjectContractItem">
+		SELECT 
+			<include refid="projectContractItemColumns"/>
+		FROM project_contract_item a
+		<include refid="projectContractItemJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="contract!=null and contract.id != null and contract.id != ''">
+				AND a.contract_id = #{contract.id}
+			</if>
+
+            <if test="contract!=null and contract.apply!=null and contract.apply.id!=null and contract.apply.id != ''">
+                AND apply.id = #{contract.apply.id}
+            </if>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ProjectContractItem">
+		SELECT 
+			<include refid="projectContractItemColumns"/>
+		FROM project_contract_item a
+		<include refid="projectContractItemJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO project_contract_item(
+			contract_id,
+			contract_code,
+			contract_amount,
+			gross_margin,
+			gross_profit_margin,
+			terms_of_payment,
+			terms_of_warranty,
+			contract_start_time,
+			contract_end_time,
+			training_or_outsourcing,
+			other,
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			proc_ins_id,
+			process_status
+		) VALUES (
+			#{contract.id},
+			#{contractCode},
+			#{contractAmount},
+			#{grossMargin},
+			#{grossProfitMargin},
+			#{termsOfPayment},
+			#{termsOfWarranty},
+			#{contractStartTime},
+			#{contractEndTime},
+			#{trainingOrOutsourcing},
+			#{other},
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{procInsId},
+			#{processStatus}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE project_contract_item SET 	
+			contract_id = #{contract.id},
+			contract_code = #{contractCode},
+			contract_amount = #{contractAmount},
+			gross_margin = #{grossMargin},
+			gross_profit_margin = #{grossProfitMargin},
+			terms_of_payment = #{termsOfPayment},
+			terms_of_warranty = #{termsOfWarranty},
+			contract_start_time = #{contractStartTime},
+			contract_end_time = #{contractEndTime},
+			training_or_outsourcing = #{trainingOrOutsourcing},
+			other = #{other},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			proc_ins_id = #{procInsId},
+			process_status = #{processStatus}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE project_contract_item SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE contract_id = #{contract.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+</mapper>

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceItemDao">
+
+    <sql id="columns">
+        a.project_id AS "apply.id",
+        a.invoice_id AS "invoice.id",
+        a.contract_id AS "contract.id",
+        a.contract_item_id AS "contractItem.id",
+        contractItem.contract_code AS "contractItem.contractCode",
+
+        a.goods_name AS "goodsName",
+        a.spec AS "spec",
+        a.num AS "num",
+        a.price AS "price",
+        a.amount AS "amount",
+        a.cost_amount AS "costAmount",
+
+        a.attachment AS "attachment",
+
+        a.id AS "id",
+        a.create_by AS "createBy.id",
+        a.create_date AS "createDate",
+        a.update_by AS "updateBy.id",
+        a.update_date AS "updateDate",
+        a.remarks AS "remarks",
+        a.del_flag AS "delFlag",
+        a.proc_ins_id AS "procInsId",
+        a.proc_status AS "procStatus"
+    </sql>
+
+    <sql id="joins">
+        LEFT JOIN project_invoice b ON b.id = a.invoice_id
+        LEFT JOIN project_apply_external apply ON apply.id = b.project_id
+        LEFT JOIN project_contract contract ON contract.id = b.contract_id
+        LEFT JOIN project_contract_item contractItem ON contractItem.id = b.contract_item_id
+    </sql>
+
+    <select id="get" resultType="ProjectInvoiceItem">
+        SELECT
+        <include refid="columns"/>
+        FROM project_invoice_item a
+        <include refid="joins"/>
+        WHERE a.id = #{id}
+    </select>
+
+    <select id="findList" resultType="ProjectInvoiceItem">
+        SELECT
+        <include refid="columns"/>
+        FROM project_invoice_item a
+        <include refid="joins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="invoice!=null and invoice.id != null and invoice.id != ''">
+                AND a.invoice_id = #{invoice.id}
+            </if>
+        </where>
+        <choose>
+            <when test="page !=null and page.orderBy != null and page.orderBy != ''">
+                ORDER BY ${page.orderBy}
+            </when>
+            <otherwise>
+                ORDER BY a.create_date ASC
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="findAllList" resultType="ProjectInvoiceItem">
+        SELECT
+        <include refid="columns"/>
+        FROM project_invoice_item a
+        <include refid="joins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+        </where>
+        <choose>
+            <when test="page !=null and page.orderBy != null and page.orderBy != ''">
+                ORDER BY ${page.orderBy}
+            </when>
+            <otherwise>
+                ORDER BY a.create_date ASC
+            </otherwise>
+        </choose>
+    </select>
+
+    <insert id="insert">
+        INSERT INTO project_invoice_item(
+        id,
+        project_id,
+        invoice_id,
+        contract_id,
+        contract_item_id,
+
+        goods_name,
+        spec,
+        num,
+        price,
+        amount,
+        cost_amount,
+
+        attachment,
+
+        create_by,
+        create_date,
+        update_by,
+        update_date,
+        remarks,
+        del_flag,
+        proc_ins_id,
+        proc_status
+        ) VALUES (
+        #{id},
+        #{invoice.apply.id},
+        #{invoice.id},
+        #{invoice.contract.id},
+        #{invoice.contractItem.id},
+
+        #{goodsName},
+        #{spec},
+        #{num},
+        #{price},
+        #{amount},
+        #{costAmount},
+
+        #{attachment},
+
+        #{createBy.id},
+        #{createDate},
+        #{updateBy.id},
+        #{updateDate},
+        #{remarks},
+        #{delFlag},
+        #{procInsId},
+        #{procStatus}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE project_invoice_item SET
+        project_id = #{apply.id},
+        invoice_id = #{invoice.id},
+        contract_id = #{contract.id},
+        contract_item_id = #{contractItem.id},
+
+        goods_name = #{goodsName},
+        spec = #{spec},
+        num  = #{num},
+        price = #{price},
+        amount = #{amount},
+        cost_amount = #{costAmount},
+
+        attachment = #{attachment},
+
+        update_by = #{updateBy.id},
+        update_date = #{updateDate},
+        remarks = #{remarks},
+        proc_ins_id = #{procInsId},
+        proc_status = #{procStatus}
+        WHERE id = #{id}
+    </update>
+
+    <update id="delete">
+        UPDATE project_invoice_item SET
+        del_flag = #{DEL_FLAG_DELETE}
+        <choose>
+            <when test="id !=null and id != ''">
+                WHERE id = #{id}
+            </when>
+            <otherwise>
+                WHERE invoice_id = #{invoice.id}
+            </otherwise>
+        </choose>
+    </update>
+
+</mapper>

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.project.dao.approval.ProjectDao">
+    
+	<sql id="projectColumns">
+		a.id AS "id",
+		a.project_code AS "projectCode",
+		a.project_name AS "projectName",
+		a.saler_id AS "user.id",
+		a.customer_id AS "customer.id",
+		a.customer_contact_id AS "customerContact.id",
+		a.estimated_contract_amount AS "estimatedContractAmount",
+		a.estimated_gross_profit_margin AS "estimatedGrossProfitMargin",
+		a.estimated_time_of_signing AS "estimatedTimeOfSigning",
+		a.category AS "category",
+		a.description AS "description",
+		a.estimated_gross_profit_margin_description AS "estimatedGrossProfitMarginDescription",
+		a.risk_analysis AS "riskAnalysis",
+		a.document_attachment_path AS "documentAttachmentPath",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		u4.name AS "user.name",
+		c5.customer_name AS "customer.customerName",
+		c6.contact_name AS "customerContact.contactName"
+	</sql>
+	
+	<sql id="projectJoins">
+		LEFT JOIN sys_user u4 ON u4.id = a.saler_id
+		LEFT JOIN customer c5 ON c5.id = a.customer_id
+		LEFT JOIN customer_contact c6 ON c6.id = a.customer_contact_id
+	</sql>
+    
+	<select id="get" resultType="Project">
+		SELECT 
+			<include refid="projectColumns"/>
+		FROM project a
+		<include refid="projectJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Project">
+		SELECT 
+			<include refid="projectColumns"/>
+		FROM project a
+		<include refid="projectJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="projectCode != null and projectCode != ''">
+				AND a.project_code = #{projectCode}
+			</if>
+			<if test="projectName != null and projectName != ''">
+				AND a.project_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{projectName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{projectName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{projectName},'%')</if>
+			</if>
+			<if test="user != null and user.id != null and user.id != ''">
+				AND a.saler_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{user.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{user.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{user.id},'%')</if>
+			</if>
+			<if test="customer != null and customer.id != null and customer.id != ''">
+				AND a.customer_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{customer.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{customer.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{customer.id},'%')</if>
+			</if>
+			<if test="category != null and category != ''">
+				AND a.category = #{category}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Project">
+		SELECT 
+			<include refid="projectColumns"/>
+		FROM project a
+		<include refid="projectJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO project(
+			id,
+			project_code,
+			project_name,
+			saler_id,
+			customer_id,
+			customer_contact_id,
+			estimated_contract_amount,
+			estimated_gross_profit_margin,
+			estimated_time_of_signing,
+			category,
+			description,
+			estimated_gross_profit_margin_description,
+			risk_analysis,
+			document_attachment_path,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{projectCode},
+			#{projectName},
+			#{user.id},
+			#{customer.id},
+			#{customerContact.id},
+			#{estimatedContractAmount},
+			#{estimatedGrossProfitMargin},
+			#{estimatedTimeOfSigning},
+			#{category},
+			#{description},
+			#{estimatedGrossProfitMarginDescription},
+			#{riskAnalysis},
+			#{documentAttachmentPath},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE project SET 	
+			project_code = #{projectCode},
+			project_name = #{projectName},
+			saler_id = #{user.id},
+			customer_id = #{customer.id},
+			customer_contact_id = #{customerContact.id},
+			estimated_contract_amount = #{estimatedContractAmount},
+			estimated_gross_profit_margin = #{estimatedGrossProfitMargin},
+			estimated_time_of_signing = #{estimatedTimeOfSigning},
+			category = #{category},
+			description = #{description},
+			estimated_gross_profit_margin_description = #{estimatedGrossProfitMarginDescription},
+			risk_analysis = #{riskAnalysis},
+			document_attachment_path = #{documentAttachmentPath},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE project SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

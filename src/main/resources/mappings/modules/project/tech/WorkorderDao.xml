@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.project.dao.tech.WorkorderDao">
+    
+	<sql id="workorderColumns">
+		a.id AS "id",
+		a.assigning_id AS "assigning.id",
+		a.user_id AS "user.id",
+		a.level AS "level",
+		a.desc_content AS "descContent",
+		a.desc_location AS "descLocation",
+		a.desc_time_begin AS "descTimeBegin",
+		a.desc_time_end AS "descTimeEnd",
+		a.man_hour AS "manHour",
+		a.workorder_date AS "workorderDate",
+		a.confirmed AS "confirmed",
+		a.completed AS "completed",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		u3.name AS "user.name",
+		pae.project_name AS "assigning.techapply.project.projectName"
+	</sql>
+	
+	<sql id="workorderJoins">
+		LEFT JOIN sys_user u3 ON u3.id = a.user_id
+		LEFT JOIN project_techapply_assigning pta ON pta.id = a.assigning_id
+		LEFT JOIN project_techapply pt ON pt.id = pta.techapply_id
+		LEFT JOIN project_apply_external pae ON pae.id = pt.project_id
+		LEFT JOIN sys_office s ON s.id = u3.office_id
+	</sql>
+    
+	<select id="get" resultType="Workorder">
+		SELECT 
+			<include refid="workorderColumns"/>
+		FROM project_techapply_workorder a
+		<include refid="workorderJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Workorder">
+		SELECT 
+			<include refid="workorderColumns"/>
+		FROM project_techapply_workorder a
+		<include refid="workorderJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="assigning != null and assigning.id != null and assigning.id != ''">
+				AND a.assigning_id = #{assigning.id}
+			</if>
+			<if test="beginWorkorderDate != null and endWorkorderDate != null and beginWorkorderDate != '' and endWorkorderDate != ''">
+				AND a.workorder_date BETWEEN #{beginWorkorderDate} AND #{endWorkorderDate}
+			</if>
+			<if test="completed != null and completed != ''">
+				AND a.completed = #{completed}
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Workorder">
+		SELECT 
+			<include refid="workorderColumns"/>
+		FROM project_techapply_workorder a
+		<include refid="workorderJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO project_techapply_workorder(
+			id,
+			assigning_id,
+			user_id,
+			level,
+			desc_content,
+			desc_location,
+			desc_time_begin,
+			desc_time_end,
+			man_hour,
+			workorder_date,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{assigning.id},
+			#{user.id},
+			#{level},
+			#{descContent},
+			#{descLocation},
+			#{descTimeBegin},
+			#{descTimeEnd},
+			#{manHour},
+			#{workorderDate},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE project_techapply_workorder SET 	
+			assigning_id = #{assigning.id},
+			user_id = #{user.id},
+			level = #{level},
+			desc_content = #{descContent},
+			desc_location = #{descLocation},
+			desc_time_begin = #{descTimeBegin},
+			desc_time_end = #{descTimeEnd},
+			man_hour = #{manHour},
+			confirmed = #{confirmed},
+			completed = #{completed},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE project_techapply_workorder SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>
