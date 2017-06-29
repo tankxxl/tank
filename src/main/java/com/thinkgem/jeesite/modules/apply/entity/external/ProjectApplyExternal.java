@@ -13,7 +13,6 @@ import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Digits;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
@@ -68,6 +67,7 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 	private String target; // bjkj-项目目标/阶段性目标
 	private String analysis; // bjkj-项目盈利分析
 	private String resource; // bjkj-项目需要资源
+	private String membersName; // 合成字段，用于前台展示，数据来源于数据库
 
 
 
@@ -394,6 +394,13 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 	public void setResource(String resource) {
 		this.resource = resource;
 	}
-	
+
+	public String getMembersName() {
+		return membersName;
+	}
+
+	public void setMembersName(String membersName) {
+		this.membersName = membersName;
+	}
 	
 }

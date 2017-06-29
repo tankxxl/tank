@@ -168,7 +168,7 @@
 			<td>
 				<sys:treeselect id="projectMembers" name="projectMembers"
 								value="${projectApplyExternal.projectMembers}" labelName="projectMembers"
-								labelValue="${projectApplyExternal.projectMembers}"
+								labelValue="${projectApplyExternal.membersName}"
 								checked="true"
 								dataMsgRequired="项目成员必填" title="项目成员" url="/sys/office/treeData?type=3"
 								cssClass="required"  allowClear="true" notAllowSelectParent="true" />

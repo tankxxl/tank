@@ -48,6 +48,8 @@
 		a.target AS "target",
 		a.analysis AS "analysis",
 		a.resource AS "resource",
+
+		( select group_concat(m.name) from sys_user m where FIND_in_set(m.id, a.project_members) ) AS "membersName",
 		
 		u4.name AS "saler.name",
 		s5.id AS "saler.office.id",
