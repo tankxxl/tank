@@ -54,22 +54,6 @@
 				$("#inputForm").validate().element($("#ownership"));
 			});
 			
-			$("#estimatedGrossProfitMargin").change(function(){
-				if(isNaN(this.value) ){
-					return false;
-				}
-				//若毛利率低于公司的设置百分比，弹出提示，毛利率说明必填
-				if(parseFloat(this.value)< ${fns:getDictLabel("key", 'estimatedGrossProfitMargin', '5')}){
-					alert("毛利率低于公司设置标准 ${fns:getDictLabel("key", 'estimatedGrossProfitMargin', '5')}(%)，请填写毛利率说明");
-					$("#estimatedGrossProfitMarginDescription").after("<span class='help-inline'><font color='red'>*</font> </span>");
-					$("#estimatedGrossProfitMarginDescription").addClass('required');
-				}
-				else{
-					$("#estimatedGrossProfitMarginDescription").nextAll().remove();
-					$("#estimatedGrossProfitMarginDescription").removeClass('required');
-				}
-			});
-			
 			// 只能输入数字，并且关闭输入法
 			$(".checkNum").keypress(function(event) {
 				var keyCode = event.which;
@@ -111,31 +95,6 @@
 		    $("#customerContactId").val("");
 		    $("#customerContactName").val("");
 		}
-		
-// 		function changeCustomerContactBefore(){
-// 			//执行客户联系点击前要执行的判断
-// 			var customerId =$("#customerId").val();
-// 			if(customerId ==""){
-// 				alert("请先选择客户,再选择客户联系人");
-// 				return false;	
-// 			}
-// 		}
-		
-// 		function changeCustomerContact(){
-// 			//下面代码是将关联custoemr的职务、联系方式自动设置
-// 			var url ="${ctx }/customer/customer/customerConcat4ProjectApplyExternal?customerConcatId="+$("#customerContactId").val();
-// 		    $.ajax( {  
-// 		        type : "get",  
-// 		        url : url,  
-// 		        dataType:"json",
-// 		        success : function(contact) {
-// 		            //alert("Data Saved: " + contact.phone+"--"+contact.position);
-// 		            $("#customerContact_phone_label").text(contact.phone);
-// 		            $("#customerContact_position_label").text(contact.position);
-		            
-// 		        }  
-// 		    });  
-// 		}
 	</script>
 	<style type="text/css">
 		.tit_content{
@@ -194,11 +153,11 @@
 		<c:if test="${not empty projectApplyExternal.saler.name}">
 			<tr>
 				<td  class="tit" colspan="1">销售人员</td>
-				<td   class="tit" colspan="1">
+				<td colspan="1">
 					<label>${projectApplyExternal.saler.name }</label>
 				</td>
 				<td  class="tit">部&nbsp;&nbsp;门</td>
-				<td   class="tit" colspan="1">
+				<td colspan="1">
 					${projectApplyExternal.saler.office.name  }
 				</td>
 			</tr>
@@ -215,7 +174,7 @@
 			</td>
 			<td  class="tit">是否涉及自研</td>
 			<td  class="">
-				<form:select path="category" class="input-medium required">
+				<form:select path="selfDev" class="input-medium required">
 					<form:options items="${fns:getDictList('yes_no')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
 				</form:select>
 				<span class="help-inline"><font color="red">*</font> </span>
@@ -241,15 +200,15 @@
 		<tr>
 			<td class="tit">预计开始时间</td>
 			<td>
-				<input name="estimatedTimeOfSigning" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate required"
-					value="<fmt:formatDate value="${projectApplyExternal.estimatedTimeOfSigning}" pattern="yyyy-MM-dd"/>"
+				<input name="beginDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate required"
+					value="<fmt:formatDate value="${projectApplyExternal.beginDate}" pattern="yyyy-MM-dd"/>"
 					onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
 					<span class="help-inline"><font color="red">*</font> </span>
 			</td>
 			<td class="tit">预计截止时间</td>
 			<td>
-				<input name="estimatedTimeOfSigning" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate required"
-					   value="<fmt:formatDate value="${projectApplyExternal.estimatedTimeOfSigning}" pattern="yyyy-MM-dd"/>"
+				<input name="endDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate required"
+					   value="<fmt:formatDate value="${projectApplyExternal.endDate}" pattern="yyyy-MM-dd"/>"
 					   onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
 				<span class="help-inline"><font color="red">*</font> </span>
 			</td>
@@ -258,9 +217,9 @@
 		<tr>
 			<td class="tit">项目经理</td>
 			<td>
-				<sys:treeselect id="saler" name="saler.id"
-								value="${projectApplyExternal.saler.id}" labelName="saler.name"
-								labelValue="${projectApplyExternal.saler.name}"
+				<sys:treeselect id="projectManager" name="projectManager.id"
+								value="${projectApplyExternal.projectManager.id}" labelName="projectManager.name"
+								labelValue="${projectApplyExternal.projectManager.name}"
 								dataMsgRequired="经理必填" title="经理" url="/sys/office/treeData?type=3"
 								cssClass="required"  allowClear="true" notAllowSelectParent="true" />
 				<span class="help-inline"><font color="red">*</font> </span>
@@ -268,9 +227,9 @@
 
 			<td class="tit">项目组成员</td>
 			<td>
-				<sys:treeselect id="createBy" name="createBy.id"
-								value="${projectApplyExternal.createBy.id}" labelName="createBy.name"
-								labelValue="${projectApplyExternal.createBy.name}"
+				<sys:treeselect id="projectMembers" name="projectMembers"
+								value="${projectApplyExternal.projectMembers}" labelName="projectMembers"
+								labelValue="${projectApplyExternal.projectMembers}"
 								checked="true"
 								dataMsgRequired="项目成员必填" title="项目成员" url="/sys/office/treeData?type=3"
 								cssClass="required"  allowClear="true" notAllowSelectParent="true" />
@@ -282,7 +241,7 @@
 			<td  class="tit">项目开展背景、概述</td>
 			<td  colspan="3">
 				<div style="white-space:nowrap;">
-				<form:textarea path="estimatedGrossProfitMarginDescription"
+				<form:textarea path="description"
 							   style="width:98%"  htmlEscape="false"  maxlength="255"
 							   placeholder="项目背景及机遇，请描述需求内容，即项目设计说明，目的是让审批人了解该项目的目前情况。"/>
 				</div>
@@ -293,7 +252,7 @@
 			<td  class="tit">项目业务模式/产品形式</td>
 			<td  colspan="3">
 				<div style="white-space:nowrap;">
-					<form:textarea path="estimatedGrossProfitMarginDescription"
+					<form:textarea path="pattern"
 								   style="width:98%"  htmlEscape="false"  maxlength="255"
 								   placeholder="请描述对客户的需求，制定市场/产品/销售/服务等应对的策略。及产品形式需求的特定满足形式。"/>
 				</div>
@@ -304,7 +263,7 @@
 			<td  class="tit">项目目标/阶段性目标</td>
 			<td  colspan="3">
 				<div style="white-space:nowrap;">
-					<form:textarea path="estimatedGrossProfitMarginDescription"
+					<form:textarea path="target"
 								   style="width:98%"  htmlEscape="false"  maxlength="255"
 								   placeholder="是否有预期的实现目标（工作要求，达到目标），请再此说明；
 重点说明项目的投入对公司的价值贡献，包括公司收入/利润、其他重要价值。"/>
@@ -316,7 +275,7 @@
 			<td  class="tit">项目盈利分析</td>
 			<td  colspan="3">
 				<div style="white-space:nowrap;">
-					<form:textarea path="estimatedGrossProfitMarginDescription"
+					<form:textarea path="analysis"
 								   style="width:98%"  htmlEscape="false"  maxlength="255"
 								   rows="4"
 								   placeholder="项目的商业模式，请在此明确；
@@ -331,7 +290,7 @@
 			<td class="tit">项目需要资源</td>
 			<td  colspan="3">
 				<div style="white-space:nowrap;">
-					<form:textarea path="estimatedGrossProfitMarginDescription"
+					<form:textarea path="resource"
 								   style="width:98%"  htmlEscape="false"  maxlength="255"
 								   rows="7"
 								   placeholder="1）公司的资质：资质要求
@@ -350,7 +309,7 @@
 			<td  class="tit">项目风险预测</td>
 			<td  colspan="3">
 				<div style="white-space:nowrap;">
-					<form:textarea path="estimatedGrossProfitMarginDescription"
+					<form:textarea path="riskAnalysis"
 								   style="width:98%"  htmlEscape="false"  maxlength="255"
 								   placeholder="如果有其他需要提前说明的事项，特别是项目的风险，请在这里做出说明。"/>
 				</div>

@@ -97,6 +97,7 @@ public class ProjectApplyExternalService extends CrudService<ProjectApplyExterna
 	 */
 	@Transactional(readOnly = false)
 	public void saveOnly(ProjectApplyExternal projectApplyExternal) {
+		projectApplyExternal.preInsert4ProInteralApply();
 		super.save(projectApplyExternal);
 
 	}

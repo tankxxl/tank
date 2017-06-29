@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp"%>
 <html>
 <head>
-	<title>外部立项申请管理</title>
+	<title>立项申请管理</title>
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
@@ -43,8 +43,8 @@
 </head>
 <body>
 	<ul class="nav nav-tabs">
-		<li class="active"><a href="${ctx}/apply/external/projectApplyExternal/">外部立项申请列表</a></li>
-		<shiro:hasPermission name="apply:external:projectApplyExternal:edit"><li><a href="${ctx}/apply/external/projectApplyExternal/form">外部立项申请添加</a></li></shiro:hasPermission>
+		<li class="active"><a href="${ctx}/apply/external/projectApplyExternal/">立项申请列表</a></li>
+		<shiro:hasPermission name="apply:external:projectApplyExternal:edit"><li><a href="${ctx}/apply/external/projectApplyExternal/form">立项申请添加</a></li></shiro:hasPermission>
 	</ul>
 	<form:form id="searchForm" modelAttribute="projectApplyExternal" action="${ctx}/apply/external/projectApplyExternal/" method="post" class="breadcrumb form-search">
 		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
@@ -60,10 +60,7 @@
 				<sys:treeselect id="saler" name="saler.id" value="${projectApplyExternal.saler.id}" labelName="saler.name" labelValue="${projectApplyExternal.saler.name}"
 					title="用户" url="/sys/office/treeData?type=3" cssClass="input-small" allowClear="true" notAllowSelectParent="true"/>
 			</li>
-			<li><label>客户：</label>
-				<sys:treeselect id="customer" name="customer.id" value="${projectApplyExternal.customer.id}" labelName="customer.customerName" labelValue="${projectApplyExternal.customer.customerName}"
-					title="客户" url="/customer/customer/treeData?type=2" cssClass="input-small" allowClear="true" notAllowSelectParent="true"/>
-			</li>
+
 			<li><label>项目类别：</label>
 				<form:select path="category" class="input-medium">
 					<form:option value="" label=""/>
@@ -87,7 +84,6 @@
 				<th>项目编码</th>
 				<th>项目名称</th>
 				<th>销售人员</th>
-				<th>客户</th>
 				<th>项目类别</th>
 				<th>更新时间</th>
 				<th>审批状态</th>
@@ -112,9 +108,6 @@
 				</td>
 				<td>
 					${projectApplyExternal.saler.name}
-				</td>
-				<td>
-					${projectApplyExternal.customer.customerName}
 				</td>
 				<td>
 					${fns:getDictLabel(projectApplyExternal.category, 'pro_category', '')}

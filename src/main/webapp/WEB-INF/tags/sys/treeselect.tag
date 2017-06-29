@@ -50,7 +50,7 @@
 
 	$("#${id}Button, #${id}Name").click(function(event){
 
-	    console.log("treeUrl=" + treeGetParam);
+//	    console.log("treeUrl=" + treeGetParam);
 
 		// 是否限制选择，如果限制，设置为disabled
 		if ($("#${id}Button").hasClass("disabled")){

@@ -37,6 +37,17 @@
 		a.outsourcing AS "outsourcing",
 
 		a.docPath AS "docPath",
+
+		a.self_dev AS "selfDev",
+		a.begin_date AS "beginDate",
+		a.end_date AS "endDate",
+		a.project_manager_id AS "projectManager.id",
+		pm.name AS "projectManager.name",
+		a.project_members AS "projectMembers",
+		a.pattern AS "pattern",
+		a.target AS "target",
+		a.analysis AS "analysis",
+		a.resource AS "resource",
 		
 		u4.name AS "saler.name",
 		s5.id AS "saler.office.id",
@@ -54,6 +65,7 @@
 		LEFT JOIN customer c5 ON c5.id = a.customer_id
 		LEFT JOIN sys_office s5 on s5.id =u4.office_id
 		LEFT JOIN customer_contact c6 ON c6.id = a.customer_contact_id
+		LEFT JOIN sys_user pm ON pm.id = a.project_manager_id
 	</sql>
     
 	<select id="get" resultType="ProjectApplyExternal">
@@ -201,6 +213,16 @@
 			proc_ins_id,
 			process_status,
 
+			self_dev,
+			begin_date,
+			end_date,
+			project_manager_id,
+			project_members,
+			pattern,
+			target,
+			analysis,
+			resource,
+
 			docPath
 		) VALUES (
 			#{id},
@@ -228,6 +250,16 @@
 			#{proStage},
 			#{processInstanceId},
 			#{processStatus},
+
+			#{selfDev},
+			#{beginDate},
+			#{endDate},
+			#{projectManager.id},
+			#{projectMembers},
+			#{pattern},
+			#{target},
+			#{analysis},
+			#{resource},
 
 			#{docPath}
 		)
@@ -264,9 +296,18 @@
 			
 			outsourcing = #{outsourcing},
 
+			self_dev = #{selfDev},
+			begin_date = #{beginDate},
+			end_date = #{endDate},
+			project_manager_id = #{projectManager.id},
+			project_members = #{projectMembers},
+			pattern = #{pattern},
+			target = #{target},
+			analysis = #{analysis},
+			resource = #{resource},
+
 			docPath = #{docPath}
-			
-			
+
 		WHERE id = #{id}
 	</update>
 	

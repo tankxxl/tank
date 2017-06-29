@@ -59,6 +59,18 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 
     private String docPath; // 项目路径标识，参与附件路径，uuid
 
+	private String selfDev; // bjkj-是否涉及自研
+	private Date beginDate; // bjkj-预计开始时间
+	private Date endDate; // bjkj-预计截止时间
+	private User projectManager; // bjkj-项目经理
+	private String projectMembers; // bjkj-项目组成员
+	private String pattern; // bjkj-项目业务模式/产品形式
+	private String target; // bjkj-项目目标/阶段性目标
+	private String analysis; // bjkj-项目盈利分析
+	private String resource; // bjkj-项目需要资源
+
+
+
     public String getDocPath() {
         return docPath;
     }
@@ -97,7 +109,7 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 		this.projectCode = projectCode;
 	}
 
-	@Length(min = 1, max = 64, message = "项目名称长度必须介于 1 和 64 之间")
+	@Length(min = 1, max = 200, message = "项目名称长度必须介于 1 和 64 之间")
 	public String getProjectName() {
 		return projectName;
 	}
@@ -114,7 +126,7 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 		this.saler = saler;
 	}
 
-	@NotNull(message = "客户不能为空")
+	// @NotNull(message = "客户不能为空")
 	public Customer getCustomer() {
 		return customer;
 	}
@@ -123,7 +135,7 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 		this.customer = customer;
 	}
 
-	@NotNull(message = "客户联系人不能为空")
+	// @NotNull(message = "客户联系人不能为空")
 	public CustomerContact getCustomerContact() {
 		return customerContact;
 	}
@@ -307,6 +319,80 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 
 	public void setOutsourcing(String outsourcing) {
 		this.outsourcing = outsourcing;
+	}
+
+
+
+	public String getSelfDev() {
+		return selfDev;
+	}
+
+	public void setSelfDev(String selfDev) {
+		this.selfDev = selfDev;
+	}
+
+	public Date getBeginDate() {
+		return beginDate;
+	}
+
+	public void setBeginDate(Date beginDate) {
+		this.beginDate = beginDate;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
+
+	public User getProjectManager() {
+		return projectManager;
+	}
+
+	public void setProjectManager(User projectManager) {
+		this.projectManager = projectManager;
+	}
+
+	public String getProjectMembers() {
+		return projectMembers;
+	}
+
+	public void setProjectMembers(String projectMembers) {
+		this.projectMembers = projectMembers;
+	}
+
+	public String getPattern() {
+		return pattern;
+	}
+
+	public void setPattern(String pattern) {
+		this.pattern = pattern;
+	}
+
+	public String getTarget() {
+		return target;
+	}
+
+	public void setTarget(String target) {
+		this.target = target;
+	}
+
+	public String getAnalysis() {
+		return analysis;
+	}
+
+	public void setAnalysis(String analysis) {
+		this.analysis = analysis;
+	}
+
+	public String getResource() {
+		return resource;
+	}
+
+	public void setResource(String resource) {
+		this.resource = resource;
 	}
 	
 	

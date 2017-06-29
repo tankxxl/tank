@@ -72,7 +72,7 @@ public class ProjectApplyExternalController extends BaseController {
 		projectApplyExternal.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
 		Page<ProjectApplyExternal> page = applyService.findPage(new Page<ProjectApplyExternal>(request, response), projectApplyExternal);
 		model.addAttribute("page", page);
-		return "modules/apply/external/projectApplyExternalList";
+		return "modules/apply/bjkj/projectApplyExternalList";
 	}
 
 	@RequestMapping(value = "updateDocPath")
@@ -116,13 +116,16 @@ public class ProjectApplyExternalController extends BaseController {
 			}
 			// 项目管理专员审核环节-要可以生成项目编号，选择项目类型，然后点击按钮生成项目编号。
 			else if (UserTaskType.UT_SPECIALIST.equals(taskDefKey)){
-				view = "projectApplyExternalForm4specialist";
+				// view = "projectApplyExternalForm4specialist";
+				view = "projectApplyExternalView";
 			}
 			// 审核环节2
 			else if ("usertask_software_leader".equals(taskDefKey)){
-				view = "projectApplyExternalAudit";
+				// view = "projectApplyExternalAudit";
+				view = "projectApplyExternalView";
 			} else {
-				view = "projectApplyExternalAudit";
+				// view = "projectApplyExternalAudit";
+				view = "projectApplyExternalView";
 			}
 		} else {  // 从已办任务过来，如果流程已结束，流程实例就没有了，业务id就没有了，只有act对象，这时就根据act.procInsId来查询业务表，加载业务对象用来查看
 			if (projectApplyExternal.hasAct()) {
@@ -140,7 +143,7 @@ public class ProjectApplyExternalController extends BaseController {
 	@RequestMapping(value = "modify")
 	public String modify(ProjectApplyExternal projectApplyExternal, Model model) {
 		model.addAttribute("projectApplyExternal", projectApplyExternal);
-		return "modules/apply/external/projectApplyExternalForm";
+		return "modules/apply/bjkj/projectApplyExternalForm";
 	}
 
 	/**
