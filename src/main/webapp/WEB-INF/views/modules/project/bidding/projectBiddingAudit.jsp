@@ -121,8 +121,7 @@
 				<td colspan="1" class="tit">毛利分析表附件</td>
 				<td class="" colspan="5">
 					<form:hidden id="profitMarginFile" path="profitMarginFile" htmlEscape="false" maxlength="2000" class="input-xlarge required"/>
-					<sys:ckfinder input="profitMarginFile" type="files" uploadPath="/project/bidding/projectBidding" selectMultiple="true"/>
-					<span class="help-inline"><font color="red">*</font> </span>
+					<sys:ckfinder input="profitMarginFile" type="files" uploadPath="/project/bidding/projectBidding" selectMultiple="true" readonly="true"/>
 				</td>
 				<script type="text/javascript">
 					$(document).ready(function() {
