@@ -11,6 +11,7 @@ import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import org.hibernate.validator.constraints.Length;
 
 import javax.xml.bind.annotation.XmlTransient;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,6 +38,24 @@ public class ProjectBidding extends ActEntity<ProjectBidding> {
 	private String outsourcing; // 是否有外包，0：没有；1：有
 
     private String result; // 投标结果
+
+	private Date issueDate; // 北京科技-发标日期
+	private Date biddingDate; // 北京科技-投标日期
+	private Date openDate; // 北京科技-开标日期
+	private String tenderee; // 北京科技-招标单位
+	private String tendereeInfo; // 北京科技-招标方情况
+	private String judgeInfo; // 北京科技-评委情况
+	private String cobidderInfo; // 北京科技-参标公司情况
+	private String prepare; // 北京科技-投标前期准备工作内容
+	private String biddingPrice; //  北京科技-投标价格
+	private String biddingInfo; //  北京科技-投标主要内容
+	private String finalPrice; // 北京科技-最终价格
+	private String finalInfo; // 北京科技-修改内容
+	private String biddingIssue; // 北京科技-投标过程中的问题
+	private boolean winFlag; // 北京科技-是否中标
+	private boolean archiveFlag; // 北京科技-是否归档
+	private boolean alterFlag; // 北京科技-投标前后是否有变化
+	private String lostInfo; // 北京科技-丟标分析
 
 	public ProjectBidding() {
 		super();
@@ -223,5 +242,141 @@ public class ProjectBidding extends ActEntity<ProjectBidding> {
 		}else{
 			return DictUtils.getDictLabels(printingPaste, "tender_printing_paste", "");
 		}
+	}
+
+	public Date getIssueDate() {
+		return issueDate;
+	}
+
+	public void setIssueDate(Date issueDate) {
+		this.issueDate = issueDate;
+	}
+
+	public Date getBiddingDate() {
+		return biddingDate;
+	}
+
+	public void setBiddingDate(Date biddingDate) {
+		this.biddingDate = biddingDate;
+	}
+
+	public Date getOpenDate() {
+		return openDate;
+	}
+
+	public void setOpenDate(Date openDate) {
+		this.openDate = openDate;
+	}
+
+	public String getTenderee() {
+		return tenderee;
+	}
+
+	public void setTenderee(String tenderee) {
+		this.tenderee = tenderee;
+	}
+
+	public String getTendereeInfo() {
+		return tendereeInfo;
+	}
+
+	public void setTendereeInfo(String tendereeInfo) {
+		this.tendereeInfo = tendereeInfo;
+	}
+
+	public String getJudgeInfo() {
+		return judgeInfo;
+	}
+
+	public void setJudgeInfo(String judgeInfo) {
+		this.judgeInfo = judgeInfo;
+	}
+
+	public String getCobidderInfo() {
+		return cobidderInfo;
+	}
+
+	public void setCobidderInfo(String cobidderInfo) {
+		this.cobidderInfo = cobidderInfo;
+	}
+
+	public String getPrepare() {
+		return prepare;
+	}
+
+	public void setPrepare(String prepare) {
+		this.prepare = prepare;
+	}
+
+	public String getBiddingPrice() {
+		return biddingPrice;
+	}
+
+	public void setBiddingPrice(String biddingPrice) {
+		this.biddingPrice = biddingPrice;
+	}
+
+	public String getBiddingInfo() {
+		return biddingInfo;
+	}
+
+	public void setBiddingInfo(String biddingInfo) {
+		this.biddingInfo = biddingInfo;
+	}
+
+	public String getFinalPrice() {
+		return finalPrice;
+	}
+
+	public void setFinalPrice(String finalPrice) {
+		this.finalPrice = finalPrice;
+	}
+
+	public String getFinalInfo() {
+		return finalInfo;
+	}
+
+	public void setFinalInfo(String finalInfo) {
+		this.finalInfo = finalInfo;
+	}
+
+	public String getBiddingIssue() {
+		return biddingIssue;
+	}
+
+	public void setBiddingIssue(String biddingIssue) {
+		this.biddingIssue = biddingIssue;
+	}
+
+	public boolean isWinFlag() {
+		return winFlag;
+	}
+
+	public void setWinFlag(boolean winFlag) {
+		this.winFlag = winFlag;
+	}
+
+	public boolean isArchiveFlag() {
+		return archiveFlag;
+	}
+
+	public void setArchiveFlag(boolean archiveFlag) {
+		this.archiveFlag = archiveFlag;
+	}
+
+	public boolean isAlterFlag() {
+		return alterFlag;
+	}
+
+	public void setAlterFlag(boolean alterFlag) {
+		this.alterFlag = alterFlag;
+	}
+
+	public String getLostInfo() {
+		return lostInfo;
+	}
+
+	public void setLostInfo(String lostInfo) {
+		this.lostInfo = lostInfo;
 	}
 }

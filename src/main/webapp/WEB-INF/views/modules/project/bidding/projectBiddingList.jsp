@@ -39,11 +39,13 @@
 	</script>
 </head>
 <body>
-	<ul class="nav nav-tabs">
-		<li class="active"><a href="${ctx}/project/bidding/projectBidding/">项目投标列表</a></li>
-		<shiro:hasPermission name="project:bidding:projectBidding:edit"><li><a href="${ctx}/project/bidding/projectBidding/form">项目投标添加</a></li></shiro:hasPermission>
-	</ul>
-	<form:form id="searchForm" modelAttribute="projectBidding" action="${ctx}/project/bidding/projectBidding/" method="post" class="breadcrumb form-search">
+<ul class="nav nav-tabs">
+	<li class="active"><a href="${ctx}/project/bidding/projectBidding/">投标申请列表</a></li>
+	<shiro:hasPermission name="project:bidding:projectBidding:edit">
+		<li><a href="${ctx}/project/bidding/projectBidding/form">投标添加</a></li></shiro:hasPermission>
+</ul>
+	<form:form id="searchForm" modelAttribute="projectBidding" htmlEscape="false"
+			   action="${ctx}/project/bidding/projectBidding/" method="post" class="breadcrumb form-search">
 		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
 		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 		<ul class="ul-form">
@@ -117,6 +119,7 @@
 					<c:if test="${projectBidding.processStatus == '2'}">
 					<input export="btnExport" class="btn btn-primary" type="button" proId="${projectBidding.id}" value="导出"/>
 					</c:if>
+					<a href="${ctx}/project/bidding/projectBidding/form?id=${projectBidding.id}">备案申请</a>
     				<a href="${ctx}/project/bidding/projectBidding/form?id=${projectBidding.id}">详情</a>
     				
     				<c:if test="${projectBidding.processStatus != '2'}">

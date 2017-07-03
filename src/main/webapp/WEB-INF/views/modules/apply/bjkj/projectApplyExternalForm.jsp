@@ -110,7 +110,8 @@
 	<li class="active"><a href="${ctx}/apply/external/projectApplyExternal/form?id=${projectApplyExternal.id}">立项申请<shiro:hasPermission name="apply:external:projectApplyExternal:edit">${not empty projectApplyExternal.id?'修改':'添加'}</shiro:hasPermission><shiro:lacksPermission name="apply:external:projectApplyExternal:edit">查看</shiro:lacksPermission></a></li>
 </ul><br/>
 
-<form:form id="inputForm" modelAttribute="projectApplyExternal" action="${ctx}/apply/external/projectApplyExternal/save" method="post" class="form-horizontal">
+<form:form id="inputForm" modelAttribute="projectApplyExternal" htmlEscape="false"
+		   action="${ctx}/apply/external/projectApplyExternal/save" method="post" class="form-horizontal">
 	<form:hidden path="id"/>
 	<form:hidden path="act.taskId"/>
 	<form:hidden path="act.taskName"/>
@@ -229,7 +230,7 @@
 			<td>
 				<sys:treeselect id="projectMembers" name="projectMembers"
 								value="${projectApplyExternal.projectMembers}" labelName="projectMembers"
-								labelValue="${projectApplyExternal.projectMembers}"
+								labelValue="${projectApplyExternal.membersName}"
 								checked="true"
 								dataMsgRequired="项目成员必填" title="项目成员" url="/sys/office/treeData?type=3"
 								cssClass="required"  allowClear="true" notAllowSelectParent="true" />

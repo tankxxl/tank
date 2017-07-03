@@ -1,6 +1,5 @@
 package com.thinkgem.jeesite.modules.apply.utils;
 
-import com.thinkgem.jeesite.common.annotation.Loggable;
 import com.thinkgem.jeesite.common.utils.SpringContextHolder;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.service.ActTaskService;
@@ -10,7 +9,6 @@ import org.activiti.engine.delegate.TaskListener;
 import org.activiti.engine.task.IdentityLink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -60,14 +58,12 @@ public class MailTaskListener implements TaskListener {
 
 		String taskKey = delegateTask.getTaskDefinitionKey();
 		String taskId = delegateTask.getId();
-		// if ("usertask_specialist".equalsIgnoreCase(taskKey)) {
+
+		// todo 直接通过某个节点
+		// if ("usertask_business_leader".equalsIgnoreCase(taskKey)) {
 		// 	actTaskService.complete(taskId , null, null, null);
 		// 	return;
 		// }
-		if ("usertask_business_leader".equalsIgnoreCase(taskKey)) {
-			actTaskService.complete(taskId , null, null, null);
-			return;
-		}
 
 		Set<IdentityLink> candidates = delegateTask.getCandidates();
 		Iterator<IdentityLink> iterator = candidates.iterator();

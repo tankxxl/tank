@@ -15,7 +15,6 @@ import com.thinkgem.jeesite.modules.apply.dao.external.ProjectApplyExternalDao;
 import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
 import com.thinkgem.jeesite.modules.mail.entity.Email;
 import com.thinkgem.jeesite.modules.mail.service.MailService;
-import com.thinkgem.jeesite.modules.project.entity.bidding.ProjectBidding;
 import com.thinkgem.jeesite.modules.project.utils.MyDictUtils;
 import com.thinkgem.jeesite.modules.sys.dao.RoleDao;
 import com.thinkgem.jeesite.modules.sys.entity.Role;
@@ -128,13 +127,10 @@ public class ProjectApplyExternalService extends CrudService<ProjectApplyExterna
 			String key = projectApplyExternal.getClass().getSimpleName();
 			// 设置流程变量
 			Map<String, Object> varMap = new HashMap<String, Object>();
-			varMap.put("apply", projectApplyExternal.getSaler().getLoginName());
+			// varMap.put("apply", projectApplyExternal.getSaler().getLoginName());
 			varMap.put("classType", key);
 			varMap.put("objId", projectApplyExternal.getId());
 			varMap.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
-			// enable usertask skip expression   
-			varMap.put("_ACTIVITI_SKIP_EXPRESSION_ENABLED", true);
-
 
 			actTaskService.startProcessEatFirstTask(
 						ActUtils.PD_PROJECTAPPLYEXTERNAL[0],

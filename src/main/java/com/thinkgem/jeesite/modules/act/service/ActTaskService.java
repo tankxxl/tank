@@ -406,6 +406,9 @@ public class ActTaskService extends BaseService {
 		}
 
         vars.put(ActUtils.VAR_APPLY, UserUtils.getUser().getLoginName());
+
+		// enable usertask skip expression
+		vars.put("_ACTIVITI_SKIP_EXPRESSION_ENABLED", true);
 		
 		// 启动流程(processDefinitionKey、businessKey、variables)
 		ProcessInstance procIns = runtimeService.startProcessInstanceByKey(procDefKey, businessTable+":"+businessId, vars);
