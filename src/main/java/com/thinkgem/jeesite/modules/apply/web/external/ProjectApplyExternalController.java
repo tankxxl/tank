@@ -133,7 +133,7 @@ public class ProjectApplyExternalController extends BaseController {
 			}
 		}
 		model.addAttribute("projectApplyExternal", projectApplyExternal);
-		return "modules/apply/bjkj/" + view;
+		return "modules/apply/external/" + view;
 	}
 
 	@RequiresPermissions("apply:external:projectApplyExternal:modify")

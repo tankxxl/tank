@@ -134,7 +134,7 @@
 								labelName="apply.projectName"
 								labelValue="${projectBidding.apply.projectName}"
 								title="项目"
-								url="/apply/external/projectApplyExternal/treeData?proMainStage=11"
+								url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=10"
 								cssClass="required"
 								cssStyle="width: 250px;"
 								dataMsgRequired="项目必选"
@@ -190,13 +190,13 @@
 					<form:input path="price" style="width:122px" htmlEscape="false" maxlength="64" class="input-xlarge number"/>
 				</td>
 
-				<td colspan="1" class="tit">投标结果</td>
-				<td colspan="1" class="">
-					<form:select path="outsourcing">
-						<form:options items="${fns:getDictList('yes_no')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
-					</form:select>
-					<span class="help-inline"><font color="red">*</font></span>
-				</td>
+				<%--<td colspan="1" class="tit">投标结果</td>--%>
+				<%--<td colspan="1" class="">--%>
+					<%--<form:select path="outsourcing">--%>
+						<%--<form:options items="${fns:getDictList('yes_no')}" itemLabel="label" itemValue="value" htmlEscape="false"/>--%>
+					<%--</form:select>--%>
+					<%--<span class="help-inline"><font color="red">*</font></span>--%>
+				<%--</td>--%>
 
 			</tr>
 			<tr>
