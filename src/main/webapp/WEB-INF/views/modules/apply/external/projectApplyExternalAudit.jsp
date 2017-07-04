@@ -175,7 +175,7 @@
 				<td class="tit" >文件附件</td>
 				<td   colspan="6">
 					<form:hidden id="documentAttachmentPath" path="documentAttachmentPath" htmlEscape="false" maxlength="20000"  />
-					<sys:ckfinder input="documentAttachmentPath" type="files" uploadPath="/apply/external/projectApplyExternal" selectMultiple="true"/>
+					<sys:ckfinder input="documentAttachmentPath" type="files" uploadPath="/apply/external/projectApplyExternal" selectMultiple="true" readonly="true"/>
 				</td>
 				<script type="text/javascript">
 					$(document).ready(function() {
