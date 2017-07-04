@@ -75,6 +75,7 @@ public class AuditStartListener implements ExecutionListener{
         JicActService jicActService = null;
         String stageValue = null;
 
+        // 根据各个流程定义KEY，得到根各个流程相关的数据
         if (ActUtils.PD_PROJECTAPPLYEXTERNAL[0].equalsIgnoreCase(defKey)) {
             stageValue = DictUtils.getDictValue("立项审批中", "jic_pro_main_stage", "0");
         } else if (ActUtils.PD_PROJECTBIDDING[0].equalsIgnoreCase(defKey)) {
@@ -82,6 +83,7 @@ public class AuditStartListener implements ExecutionListener{
         } else if (ActUtils.PD_PROJECTCONTRACT[0].equalsIgnoreCase(defKey)) {
             stageValue = DictUtils.getDictValue("合同审批中", "jic_pro_main_stage", "0");
         } else if (ActUtils.PD_execution[0].equalsIgnoreCase(defKey)) {
+
             jicActService = SpringContextHolder.getBean(ProjectExecutionService.class);
             stageValue = DictUtils.getDictValue("执行审批中", "jic_pro_main_stage", "0");
         } else if (ActUtils.PD_purchase[0].equalsIgnoreCase(defKey)) {

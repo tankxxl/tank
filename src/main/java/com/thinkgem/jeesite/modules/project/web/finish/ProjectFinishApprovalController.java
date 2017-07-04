@@ -50,7 +50,10 @@ public class ProjectFinishApprovalController extends BaseController {
 	
 	@RequiresPermissions("project:finish:projectFinishApproval:view")
 	@RequestMapping(value = {"list", ""})
-	public String list(ProjectFinishApproval projectFinishApproval, HttpServletRequest request, HttpServletResponse response, Model model) {
+	public String list(ProjectFinishApproval projectFinishApproval,
+					   HttpServletRequest request,
+					   HttpServletResponse response,
+					   Model model) {
 		projectFinishApproval.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
 		Page<ProjectFinishApproval> page = projectFinishApprovalService.findPage(new Page<ProjectFinishApproval>(request, response), projectFinishApproval); 
 		model.addAttribute("page", page);
@@ -60,44 +63,63 @@ public class ProjectFinishApprovalController extends BaseController {
 	@RequiresPermissions("project:finish:projectFinishApproval:view")
 	@RequestMapping(value = "form")
 	public String form(ProjectFinishApproval projectFinishApproval, Model model) {
+		String prefix = "modules/project/finish/";
 		String view = "projectFinishApprovalForm";
-		
-		// 查看审批申请单
-		if (StringUtils.isNotBlank(projectFinishApproval.getId())){//.getAct().getProcInsId())){
-
-			// 环节编号
-			String taskDefKey = projectFinishApproval.getAct().getTaskDefKey();
-			// 查看工单
-			if(projectFinishApproval.getAct().isFinishTask()){
-				
-				view = "projectFinishApprovalView";
-			}	
-			// 修改环节
-			else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ) {
-				view = "projectFinishApprovalForm";
-			} else {
-				view = "projectFinishApprovalAudit";
-			}
-		}
 		model.addAttribute("projectFinishApproval", projectFinishApproval);
-		return "modules/project/finish/" + view;
-//		return "modules/project/finish/projectFinishApprovalForm";
+
+		if (projectFinishApproval.getIsNewRecord()) {
+			if (projectFinishApproval.hasAct()) {
+				view = "projectFinishApprovalView";
+				projectFinishApproval = projectFinishApprovalService.findByProcInsId(projectFinishApproval);
+				if (projectFinishApproval == null) {
+					projectFinishApproval = new ProjectFinishApproval();
+				}
+			}
+			return prefix + view;
+		}
+
+		// 环节编号
+		String taskDefKey = projectFinishApproval.getAct().getTaskDefKey();
+
+		// 查看
+		if(projectFinishApproval.getAct().isFinishTask()){
+			view = "projectFinishApprovalView";
+		}
+		// 修改环节
+		else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ){
+			view = "projectFinishApprovalForm";
+		}
+		// 商务部专员-要填写供应商的联系人信息
+		// else if (UserTaskType.UT_COMMERCE_SPECIALIST.equals(taskDefKey)) {
+		// 	view = "ExecutionView4Commerce";
+		// }
+		// 某审批环节
+		else if ("apply_end".equals(taskDefKey)){
+			view = "projectFinishApprovalView";  // replace ExecutionAudit
+		} else {
+			view = "projectFinishApprovalView";
+		}
+		return prefix + view;
 	}
 
 	@RequiresPermissions("project:finish:projectFinishApproval:edit")
 	@RequestMapping(value = "save")
-	public String save(ProjectFinishApproval projectFinishApproval, Model model, RedirectAttributes redirectAttributes) {
+	public String save(ProjectFinishApproval projectFinishApproval,
+					   Model model,
+					   RedirectAttributes redirectAttributes) {
 		if (!beanValidator(model, projectFinishApproval)){
 			return form(projectFinishApproval, model);
 		}
 
 		String flag = projectFinishApproval.getAct().getFlag();
-		if (StringUtils.isBlank(flag)) {
-			projectFinishApprovalService.onlySave(projectFinishApproval);
-		} else {
+//		flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
+		if ("saveOnly".equals(flag)) { // 只保存表单数据
 			projectFinishApprovalService.save(projectFinishApproval);
+		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
+			projectFinishApprovalService.saveFinishProcess(projectFinishApproval);
+		} else {
+			projectFinishApprovalService.saveLaunch(projectFinishApproval);
 		}
-
 //		projectFinishApprovalService.save(projectFinishApproval);
 		addMessage(redirectAttributes, "保存结项审批成功");
 		

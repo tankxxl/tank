@@ -5,13 +5,11 @@ package com.thinkgem.jeesite.common.service;
 
 import com.thinkgem.jeesite.common.annotation.Loggable;
 import com.thinkgem.jeesite.common.persistence.ActEntity;
-import com.thinkgem.jeesite.common.persistence.CrudDao;
 import com.thinkgem.jeesite.common.persistence.JicDao;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.entity.Act;
 import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
-import com.thinkgem.jeesite.modules.project.entity.purchase.ProjectPurchase;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -147,11 +145,16 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
         return entity;
     }
 
+    // 审批流程
     public void saveAuditBase(ActEntity actEntity, Map<String, Object> vars) {
+        // 如果业务数据没有变化，在此处的保存多余。
         save((T) actEntity); // 更新一下记录，有些审批节点有多个数据需要填写
+        //
         actTaskService.complateByAct(actEntity.getAct(), vars);
     }
 
+    // 启动流程
+    // 来源：1、发起人新建流程。2、发起人修改表单后，重新发起流程。
     public String launchWorkflowBase(ActEntity actEntity,
                    boolean isNewRecord,
                    String title,
@@ -179,7 +182,7 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
                 actTaskService.complateByAct(actEntity.getAct(), vars);
             } else {
                 delete((T) actEntity);
-                actTaskService.deleteProcIns(actEntity.getProcInsId(), "");
+                actTaskService.deleteProcIns(actEntity.getProcInsId(), "发起人主动销毁");
             }
 
             return actEntity.getProcInsId();

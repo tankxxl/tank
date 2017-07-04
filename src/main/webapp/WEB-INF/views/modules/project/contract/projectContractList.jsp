@@ -39,25 +39,26 @@
 	</script>
 </head>
 <body>
-	<ul class="nav nav-tabs">
-		<li class="active"><a href="${ctx}/project/contract/projectContract/">合同列表</a></li>
-		<shiro:hasPermission name="project:contract:projectContract:edit"><li><a href="${ctx}/project/contract/projectContract/form">合同添加</a></li></shiro:hasPermission>
+<ul class="nav nav-tabs">
+	<li class="active"><a href="${ctx}/project/contract/projectContract/">合同列表</a></li>
+	<shiro:hasPermission name="project:contract:projectContract:edit"><li><a href="${ctx}/project/contract/projectContract/form">合同添加</a></li></shiro:hasPermission>
+</ul>
+<form:form id="searchForm" modelAttribute="projectContract" htmlEscape="false"
+		   action="${ctx}/project/contract/projectContract/" method="post" class="breadcrumb form-search">
+	<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+	<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+	<ul class="ul-form">
+		<li><label>项目编号：</label>
+			<form:input path="apply.projectCode" maxlength="64" class="input-medium"/>
+		</li>
+		<li><label>项目名称：</label>
+			<form:input path="apply.projectName" maxlength="64" class="input-medium"/>
+		</li>
+		<li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/></li>
+		<li class="clearfix"></li>
 	</ul>
-	<form:form id="searchForm" modelAttribute="projectContract" action="${ctx}/project/contract/projectContract/" method="post" class="breadcrumb form-search">
-		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
-		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
-		<ul class="ul-form">
-			<li><label>项目编号：</label>
-				<form:input path="apply.projectCode" htmlEscape="false" maxlength="64" class="input-medium"/>
-			</li>
-			<li><label>项目名称：</label>
-				<form:input path="apply.projectName" htmlEscape="false" maxlength="64" class="input-medium"/>
-			</li>
-			<li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/></li>
-			<li class="clearfix"></li>
-		</ul>
-	</form:form>
-	<sys:message content="${message}"/>
+</form:form>
+<sys:message content="${message}"/>
 	<table id="contentTable" class="table table-striped table-bordered table-condensed">
 		<thead>
 			<tr>
@@ -108,14 +109,14 @@
 					</c:if>
 
 
-					<a href="${ctx}/project/execution/view?id=${projectPurchase.execution.id}" target="_jeesnsOpen"
-					   title="${projectPurchase.apply.projectName}" width="800px" height="500px">
-						<span class="label label-info">开票回款信息</span>
-					</a>
-					<a href="${ctx}/project/execution/view?id=${projectPurchase.execution.id}" target="_jeesnsOpen"
-					   title="${projectPurchase.apply.projectName}" width="800px" height="500px">
-						<span class="label label-info">开票申请</span>
-					</a>
+					<%--<a href="${ctx}/project/execution/view?id=${projectPurchase.execution.id}" target="_jeesnsOpen"--%>
+					   <%--title="${projectPurchase.apply.projectName}" width="800px" height="500px">--%>
+						<%--<span class="label label-info">开票回款信息</span>--%>
+					<%--</a>--%>
+					<%--<a href="${ctx}/project/execution/view?id=${projectPurchase.execution.id}" target="_jeesnsOpen"--%>
+					   <%--title="${projectPurchase.apply.projectName}" width="800px" height="500px">--%>
+						<%--<span class="label label-info">开票申请</span>--%>
+					<%--</a>--%>
 
 				
     				<%-- <a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}">详情</a>
