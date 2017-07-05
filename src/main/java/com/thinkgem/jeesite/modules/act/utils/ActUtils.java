@@ -90,6 +90,8 @@ public class ActUtils {
     public static final String VAR_SKIP_BOSS = "skip_boss";
     public static final String VAR_SKIP_HR = "skip_hr";
 	public static final String VAR_SKIP_inout = "skip_inout";
+	// 1为skip，bjkj，是否需要技术开发中心审批
+	public static final String VAR_SKIP_DEV = "skip_dev";
 
     public static final String PROC_NAME_APPLY = "项目立项审批流程";
     public static final String PROC_NAME_BIDDING = "项目投标审批流程";
