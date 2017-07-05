@@ -241,7 +241,7 @@ public class ProjectInvoiceController extends BaseController {
 		if ("save".equalsIgnoreCase(projectInvoice.getAct().getFlag())) {
 			invoiceService.save(projectInvoice);
 		} else {
-			invoiceService.auditSave(projectInvoice);
+			invoiceService.saveAudit(projectInvoice);
 		}
 
 		return "redirect:" + adminPath + "/act/task/todo/";

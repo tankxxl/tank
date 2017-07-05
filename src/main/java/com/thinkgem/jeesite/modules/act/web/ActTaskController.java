@@ -112,7 +112,7 @@ public class ActTaskController extends BaseController {
 	@RequestMapping(value = "form")
 	public String form(Act act, HttpServletRequest request, Model model){
 
-        // TODO rgz先签收任务再办理
+        // rgz先签收任务再办理
         if ( "claim".equals(act.getStatus()) ) {
             String userLoginName = UserUtils.getUser().getLoginName();
             actTaskService.claim(act.getTaskId(), userLoginName);

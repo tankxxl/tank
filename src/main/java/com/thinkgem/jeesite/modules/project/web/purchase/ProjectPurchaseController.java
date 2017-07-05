@@ -128,10 +128,12 @@ public class ProjectPurchaseController extends BaseController {
         return prefix + view;
 	}
 
+	// 新增采购审批入口，采购审批是在合同执行处添加的
+	// 所以此处把execution实体查询出来，再新建一个purchase实体，把purchase跟这个execution实体关联起来就ok了。
 	@RequestMapping(value = "exec2Purchase")
 	public String exec2Purchase(@RequestParam(required=false) String execId, Model model) {
-		String view = "PurchaseForm";
 		String prefix = "modules/project/purchase/";
+		String view = "PurchaseForm";
 
 		ProjectExecution execution = null;
 		if (StringUtils.isNotBlank(execId)){
@@ -152,6 +154,7 @@ public class ProjectPurchaseController extends BaseController {
 		return prefix + view;
 	}
 
+	// 自由修改表单
 	@RequiresPermissions("project:purchase:admin")
 	@RequestMapping(value = "modify")
 	public String modify(ProjectPurchase projectPurchase, Model model) {
@@ -208,7 +211,7 @@ public class ProjectPurchaseController extends BaseController {
 			addMessage(model, "请填写审核意见。");
 			return form(projectPurchase, model);
 		}
-		purchaseService.auditSave(projectPurchase);
+		purchaseService.saveAudit(projectPurchase);
 		return "redirect:" + adminPath + "/act/task/todo/";
 	}
 	

@@ -39,34 +39,31 @@
 	</script>
 </head>
 <body>
-	<ul class="nav nav-tabs">
-		<li class="active"><a href="${ctx}/project/purchase/">合同采购列表</a></li>
-		<%--<shiro:hasPermission name="project:purchase:edit"><li><a href="${ctx}/project/purchase/form">合同采购添加</a></li></shiro:hasPermission>--%>
-	</ul>
-	<form:form id="searchForm"
-               modelAttribute="projectPurchase"
-               action="${ctx}/project/purchase/"
-               method="post"
-               class="breadcrumb form-search">
-		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
-		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+<ul class="nav nav-tabs">
+	<li class="active"><a href="${ctx}/project/purchase/">合同采购列表</a></li>
+	<%--<shiro:hasPermission name="project:purchase:edit"><li><a href="${ctx}/project/purchase/form">合同采购添加</a></li></shiro:hasPermission>--%>
+</ul>
+<form:form id="searchForm" modelAttribute="projectPurchase" htmlEscape="false"
+		   action="${ctx}/project/purchase/" method="post" class="breadcrumb form-search">
+	<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+	<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 
-		<ul class="ul-form">
-			<li><label>项目编号：</label>
-				<form:input path="apply.projectCode" type="text" placeholder="项目编号" htmlEscape="false" maxlength="64" class="input-medium"/>
-			</li>
-			<li><label>项目名称：</label>
-				<form:input path="apply.projectName" type="text" placeholder="项目名称" htmlEscape="false" maxlength="64" class="input-medium"/>
-			</li>
-            <li class="btns">
-                <input id="btnSubmit" class="btn btn-primary" type="submit" value="查询">
-                    <i class="icon-search"></i>
-                </input>
-            </li>
-			<li class="clearfix"></li>
-		</ul>
-	</form:form>
-	<sys:message content="${message}"/>
+	<ul class="ul-form">
+		<li><label>项目编号：</label>
+			<form:input path="apply.projectCode" type="text" placeholder="项目编号" maxlength="64" class="input-medium"/>
+		</li>
+		<li><label>项目名称：</label>
+			<form:input path="apply.projectName" type="text" placeholder="项目名称" maxlength="64" class="input-medium"/>
+		</li>
+		<li class="btns">
+			<input id="btnSubmit" class="btn btn-primary" type="submit" value="查询">
+				<i class="icon-search"></i>
+			</input>
+		</li>
+		<li class="clearfix"></li>
+	</ul>
+</form:form>
+<sys:message content="${message}"/>
 	<table id="contentTable" class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
@@ -84,17 +81,9 @@
 				<td><a href="${ctx}/project/purchase/form?id=${purchase.id}">
 					${purchase.apply.projectCode}
 				</a></td>
-				<td>
-					${purchase.apply.projectName}
-				</td>
-
-                <td>
-                    ${purchase.contractItem.contractCode}
-                </td>
-
-				<td>
-					<fmt:formatDate value="${purchase.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/>
-				</td>
+				<td>${purchase.apply.projectName}</td>
+                <td>${purchase.contractItem.contractCode}</td>
+				<td><fmt:formatDate value="${purchase.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
 
 				<c:choose>
 					<c:when test="${purchase.procStatus != '2'}">
