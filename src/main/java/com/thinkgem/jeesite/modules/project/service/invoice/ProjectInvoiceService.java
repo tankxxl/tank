@@ -3,14 +3,9 @@
  */
 package com.thinkgem.jeesite.modules.project.service.invoice;
 
-import com.google.common.collect.Maps;
 import com.thinkgem.jeesite.common.service.JicActService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
-import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
-import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
-import com.thinkgem.jeesite.modules.apply.service.external.ProjectApplyExternalService;
-import com.thinkgem.jeesite.modules.mail.service.MailService;
 import com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceDao;
 import com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceItemDao;
 import com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceReturnDao;
@@ -80,21 +75,40 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
 	@Transactional(readOnly = false)
 	public void saveFinishProcess(ProjectInvoice projectInvoice) {
         // 保存
-        save(projectInvoice);
+        // save(projectInvoice);
         // 开启流程
-        String procInsId = launchWorkflow(projectInvoice);
+        // String procInsId = launchWorkflow(projectInvoice);
+        String procInsId = saveLaunch(projectInvoice);
         // 结束流程
         endProcess(procInsId);
 	}
 
     /**
      * 保存表单数据，并启动流程
+     *
+     * 申请人发起流程，申请人重新发起流程入口
+     * 在form界面
+     *
      * @param projectInvoice
      */
     @Transactional(readOnly = false)
-    public void saveLaunch(ProjectInvoice projectInvoice) {
-        save(projectInvoice);
-        launchWorkflow(projectInvoice);
+    public String saveLaunch(ProjectInvoice projectInvoice) {
+        if (projectInvoice.getIsNewRecord()) {
+            // 启动流程的时候，把业务数据放到流程变量里
+            Map<String, Object> varMap = new HashMap<String, Object>();
+            varMap.put(ActUtils.VAR_PRJ_ID, projectInvoice.getApply().getId());
+
+            // varMap.put(ActUtils.VAR_PROC_NAME, ActUtils.PROC_NAME_invoice);
+            varMap.put(ActUtils.VAR_PRJ_TYPE, projectInvoice.getApply().getCategory());
+
+            varMap.put(ActUtils.VAR_TITLE, projectInvoice.getApply().getProjectName());
+
+            return launch(projectInvoice, varMap);
+        } else { // 把驳回到申请人(重新修改业务表单，重新发起流程、销毁流程)也当成一个特殊的审批节点
+            // 只要不是启动流程，其它任意节点的跳转都当成节点审批
+            saveAudit(projectInvoice);
+            return null;
+        }
     }
 
     /**
@@ -104,61 +118,61 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
     @Override
     @Transactional(readOnly = false)
     public void save(ProjectInvoice projectInvoice) {
-        isNewRecord = projectInvoice.getIsNewRecord();
+        // isNewRecord = projectInvoice.getIsNewRecord();
         super.save(projectInvoice);
         saveItem(projectInvoice);
     }
 
-    /**
-     * 审批人审批入口
-     * @param projectInvoice
-     */
-    @Transactional(readOnly = false)
-    public void auditSave(ProjectInvoice projectInvoice) {
-        // 设置意见
-        projectInvoice.getAct().setComment((projectInvoice.getAct().getFlagBoolean() ?
-                "[同意] ":"[驳回] ") + projectInvoice.getAct().getComment());
-        Map<String, Object> vars = Maps.newHashMap();
-        vars.put(ActUtils.VAR_PASS, projectInvoice.getAct().getFlagNumber());
+    // /**
+    //  * 审批人审批入口
+    //  * @param projectInvoice
+    //  */
+    // @Transactional(readOnly = false)
+    // public void auditSave(ProjectInvoice projectInvoice) {
+    //     // 设置意见
+    //     projectInvoice.getAct().setComment((projectInvoice.getAct().getFlagBoolean() ?
+    //             "[同意] ":"[驳回] ") + projectInvoice.getAct().getComment());
+    //     Map<String, Object> vars = Maps.newHashMap();
+    //     vars.put(ActUtils.VAR_PASS, projectInvoice.getAct().getFlagNumber());
+    //
+    //     // 对不同环节的业务逻辑进行操作
+    //     String taskDefKey = projectInvoice.getAct().getTaskDefKey();
+    //
+    //     if (UserTaskType.UT_BUSINESS_LEADER.equals(taskDefKey)){
+    //
+    //         if ("03".equals(projectInvoice.getApply().getCategory()) ) {
+    //             vars.put("type", "2");
+    //         } else {
+    //             vars.put("type", "1");
+    //         }
+    //         // 项目类型
+    //         vars.put(ActUtils.VAR_PRJ_TYPE, projectInvoice.getApply().getCategory());
+    //         // 都需要总经理审批
+    //         vars.put(ActUtils.VAR_BOSS_AUDIT, "1");
+    //
+    //     } else if ("".equals(taskDefKey)) {
+    //
+    //     }
+    //     // 提交流程任务
+    //     saveAuditBase(projectInvoice, vars);
+    // }
 
-        // 对不同环节的业务逻辑进行操作
-        String taskDefKey = projectInvoice.getAct().getTaskDefKey();
 
-        if (UserTaskType.UT_BUSINESS_LEADER.equals(taskDefKey)){
-
-            if ("03".equals(projectInvoice.getApply().getCategory()) ) {
-                vars.put("type", "2");
-            } else {
-                vars.put("type", "1");
-            }
-            // 项目类型
-            vars.put(ActUtils.VAR_PRJ_TYPE, projectInvoice.getApply().getCategory());
-            // 都需要总经理审批
-            vars.put(ActUtils.VAR_BOSS_AUDIT, "1");
-
-        } else if ("".equals(taskDefKey)) {
-
-        }
-        // 提交流程任务
-        saveAuditBase(projectInvoice, vars);
-    }
-
-
-    private String launchWorkflow(ProjectInvoice projectInvoice) {
-        // 设置流程变量
-        Map<String, Object> varMap = new HashMap<String, Object>();
-        varMap.put(ActUtils.VAR_PRJ_ID, projectInvoice.getApply().getId());
-
-        varMap.put(ActUtils.VAR_PROC_NAME, ActUtils.PROC_NAME_invoice);
-        varMap.put(ActUtils.VAR_PRJ_TYPE, projectInvoice.getApply().getCategory());
-        varMap.put("_ACTIVITI_SKIP_EXPRESSION_ENABLED", true);
-
-        varMap.put(ActUtils.VAR_SKIP_inout, 0); // 1为skip
-
-        String title = projectInvoice.getApply().getProjectName();
-
-        return launchWorkflowBase(projectInvoice, isNewRecord, title, varMap);
-    }
+    // private String launchWorkflow(ProjectInvoice projectInvoice) {
+    //     // 设置流程变量
+    //     Map<String, Object> varMap = new HashMap<String, Object>();
+    //     varMap.put(ActUtils.VAR_PRJ_ID, projectInvoice.getApply().getId());
+    //
+    //     varMap.put(ActUtils.VAR_PROC_NAME, ActUtils.PROC_NAME_invoice);
+    //     varMap.put(ActUtils.VAR_PRJ_TYPE, projectInvoice.getApply().getCategory());
+    //     varMap.put("_ACTIVITI_SKIP_EXPRESSION_ENABLED", true);
+    //
+    //     varMap.put(ActUtils.VAR_SKIP_inout, 0); // 1为skip
+    //
+    //     String title = projectInvoice.getApply().getProjectName();
+    //
+    //     return launchWorkflowBase(projectInvoice, isNewRecord, title, varMap);
+    // }
 
     private void saveItem(ProjectInvoice projectInvoice) {
         for (ProjectInvoiceItem item : projectInvoice.getInvoiceItemList()){

@@ -83,8 +83,8 @@ public class ActUtils {
     // 项目专员的loginName
     public static final String VAR_SPECIALIST = "specialist";
 
-    // 发邮件时使用，用于生成邮件标题
-    public static final String VAR_PROC_NAME = "procName";
+    // 发邮件时使用，用于生成邮件标题，此变量不需要了，可以通过ProcessDefCache.get(task.getProcessDefinitionId())获得
+    // public static final String VAR_PROC_NAME = "procName";
 
     // 1为skip
     public static final String VAR_SKIP_BOSS = "skip_boss";

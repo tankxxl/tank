@@ -10,7 +10,6 @@ import com.thinkgem.jeesite.modules.sys.entity.Office;
 import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.service.OfficeService;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
-import jdk.internal.org.objectweb.asm.tree.TryCatchBlockNode;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -115,7 +114,7 @@ public class AssigneeService extends BaseService {
         return role;
     }
 
-    // 北京科技的流程使用
+    // bj used only.
 	public String findMarketBoss(String apply) {
 
 		Office office = new Office();
@@ -134,6 +133,24 @@ public class AssigneeService extends BaseService {
 			boss = "thinkgem";
 		}
 		return boss;
+	}
+
+	// sd used only.
+	public String findEngineerRole(String apply) {
+
+		User user = UserUtils.getByLoginName(apply);
+		String engineerRole = null;
+		try {
+			engineerRole = user.getOffice().getAddress();
+		} catch (Exception e) {
+			engineerRole = "system";
+		}
+		if (StringUtils.isEmpty(engineerRole)) {
+			logger.info(apply + "-此用户所在部门没有对应的联系地址信息。");
+			engineerRole = "system";
+		}
+		// 把部门地址作为任务的办理者角色
+		return engineerRole;
 	}
 
 

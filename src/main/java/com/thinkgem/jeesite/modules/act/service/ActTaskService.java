@@ -407,8 +407,8 @@ public class ActTaskService extends BaseService {
 
         vars.put(ActUtils.VAR_APPLY, UserUtils.getUser().getLoginName());
 
-		// enable usertask skip expression
 		vars.put("_ACTIVITI_SKIP_EXPRESSION_ENABLED", true);
+		vars.put(ActUtils.VAR_OBJ_ID, businessId);
 		
 		// 启动流程(processDefinitionKey、businessKey、variables)
 		ProcessInstance procIns = runtimeService.startProcessInstanceByKey(procDefKey, businessTable+":"+businessId, vars);
@@ -870,13 +870,16 @@ public class ActTaskService extends BaseService {
     @Transactional(readOnly = false)
     public String startProcEatFirstTask(ActEntity actEntity, String title, Map<String, Object> vars) {
 
-    	// 实体名称=流程标识，所以在画流程图的时候定义的名称要和java类里的实体名称一致
+    	// 实体名称=流程定义标识KEY，所以在画流程图的时候定义的流程名称要和java类里的实体名称一致
         String procDefKey = actEntity.getClass().getSimpleName();
         String businessTable = ActUtils.getBusinessTableByClassName(procDefKey);
         String businessId = actEntity.getId();
         if (StringUtils.isEmpty(procDefKey) || StringUtils.isEmpty(businessTable) || StringUtils.isEmpty(businessId)) {
             return "";
         }
+        // 设置id
+		vars.put(ActUtils.VAR_OBJ_ID, actEntity.getId());
+
         String procInsId = startProcess(procDefKey, businessTable, businessId, title, vars);
         completeFirstTask(procInsId);
         return procInsId;

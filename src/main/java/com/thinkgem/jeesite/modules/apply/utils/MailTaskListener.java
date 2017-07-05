@@ -58,8 +58,10 @@ public class MailTaskListener implements TaskListener {
 
 		String taskKey = delegateTask.getTaskDefinitionKey();
 		String taskId = delegateTask.getId();
-
-		// todo 直接通过某个节点
+		// if ("usertask_specialist".equalsIgnoreCase(taskKey)) {
+		// 	actTaskService.complete(taskId , null, null, null);
+		// 	return;
+		// }
 		// if ("usertask_business_leader".equalsIgnoreCase(taskKey)) {
 		// 	actTaskService.complete(taskId , null, null, null);
 		// 	return;

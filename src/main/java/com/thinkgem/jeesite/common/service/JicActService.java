@@ -3,15 +3,15 @@
  */
 package com.thinkgem.jeesite.common.service;
 
+import com.google.common.collect.Maps;
 import com.thinkgem.jeesite.common.annotation.Loggable;
 import com.thinkgem.jeesite.common.persistence.ActEntity;
-import com.thinkgem.jeesite.common.persistence.CrudDao;
 import com.thinkgem.jeesite.common.persistence.JicDao;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.entity.Act;
 import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
-import com.thinkgem.jeesite.modules.project.entity.purchase.ProjectPurchase;
+import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -147,49 +147,112 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
         return entity;
     }
 
-    public void saveAuditBase(ActEntity actEntity, Map<String, Object> vars) {
-        save((T) actEntity); // 更新一下记录，有些审批节点有多个数据需要填写
-        actTaskService.complateByAct(actEntity.getAct(), vars);
+    // 启动流程
+    protected String launch(T entity, Map<String, Object> vars) {
+        // 先保存业务数据
+        save(entity);
+        return actTaskService.startProcEatFirstTask( entity,
+                null, vars );
     }
 
-    public String launchWorkflowBase(ActEntity actEntity,
-                   boolean isNewRecord,
-                   String title,
-                   Map<String, Object> vars) {
+    // 重新启动流程
+    // 算一次特殊的审批，可以修改业务数据(不是主要的)，还可以销毁流程(跟审批的主要区别)
+    // 可以把申请人的重新提交跟审批人的审批合并。
+    // protected String reLaunch(T entity, Map<String, Object> vars) {
+    //     // 先保存业务数据
+    //     save(entity);
+    //     // 格式化审批意见
+    //     entity.getAct().setComment(
+    //             (entity.getAct().getFlagBoolean()?"[重申] ":"[销毁] ")
+    //                     + entity.getAct().getComment()
+    //     );
+    //     // 前端传过来的值
+    //     if (entity.getAct().getFlagBoolean()) { // 重新提交申请单
+    //         // 完成流程任务
+    //         actTaskService.complateByAct(entity.getAct(), vars);
+    //     } else {
+    //         delete((T) entity);
+    //         actTaskService.deleteProcIns(entity.getProcInsId(), "");
+    //     }
+    //     return entity.getProcInsId();
+    // }
 
-        if (isNewRecord) {  // 新建申请单
-
-            vars.put(ActUtils.VAR_OBJ_ID, actEntity.getId());
-
-            return actTaskService.startProcEatFirstTask(
-                    actEntity,
-                    title,
-                    vars
-            );
-
-        } else {  // 修改申请单
-            actEntity.getAct().setComment(
-                    (actEntity.getAct().getFlagBoolean()?"[重申] ":"[销毁] ")
-                            + actEntity.getAct().getComment()
-            );
-            // 前端传过来的值
-            if (actEntity.getAct().getFlagBoolean()) { // 重新提交申请单
-                // 完成流程任务
-                vars.put(ActUtils.VAR_PASS, actEntity.getAct().getFlagNumber());
-                actTaskService.complateByAct(actEntity.getAct(), vars);
-            } else {
-                delete((T) actEntity);
-                actTaskService.deleteProcIns(actEntity.getProcInsId(), "");
-            }
-
-            return actEntity.getProcInsId();
-        }
-    }
+    // public String launchWorkflowBase(ActEntity actEntity,
+    //                boolean isNewRecord,
+    //                String title,
+    //                Map<String, Object> vars) {
+    //
+    //     if (isNewRecord) {  // 新建申请单
+    //         return actTaskService.startProcEatFirstTask(
+    //                 actEntity,
+    //                 title,
+    //                 vars
+    //         );
+    //
+    //     } else {  // 修改申请单
+    //         actEntity.getAct().setComment(
+    //                 (actEntity.getAct().getFlagBoolean()?"[重申] ":"[销毁] ")
+    //                         + actEntity.getAct().getComment()
+    //         );
+    //         // 前端传过来的值
+    //         if (actEntity.getAct().getFlagBoolean()) { // 重新提交申请单
+    //             // 完成流程任务
+    //             vars.put(ActUtils.VAR_PASS, actEntity.getAct().getFlagNumber());
+    //             actTaskService.complateByAct(actEntity.getAct(), vars);
+    //         } else {
+    //             delete((T) actEntity);
+    //             actTaskService.deleteProcIns(actEntity.getProcInsId(), "");
+    //         }
+    //
+    //         return actEntity.getProcInsId();
+    //     }
+    // }
 
     public void endProcess(String procInsId) {
+        if (StringUtils.isEmpty(procInsId))
+            return;
         actTaskService.deleteProcIns(procInsId, "");
     }
 
+    // 审批人入口
+    @Transactional(readOnly = false)
+    public void saveAudit(T entity) {
+        // 设置意见
+        entity.getAct().setComment((entity.getAct().getFlagBoolean() ?
+                "[同意] ":"[驳回] ") + entity.getAct().getComment());
+        Map<String, Object> vars = Maps.newHashMap();
+        vars.put(ActUtils.VAR_PASS, entity.getAct().getFlagNumber());
 
+        processAudit(entity, vars);
+        // 普通审批人：通过、驳回
+        // 申请人：发起、销毁*
+        String taskDefKey = entity.getAct().getTaskDefKey();
+        // 把申请人重新发起、销毁流程特殊处理
+        if (UserTaskType.UT_OWNER.equals(taskDefKey)) {
+            // 看看是不是想销毁表单
+            if (entity.getAct().getFlagBoolean()) { // 申请人特有的comment
+                // 必须保存业务数据，其它审批节点处的业务数据在子类中保存。
+                save(entity);
+                entity.getAct().setComment(
+                                        (entity.getAct().getFlagBoolean()?"[重申] ":"[销毁] ")
+                                                + entity.getAct().getComment() );
+            } else { // 申请人特有的操作
+                delete(entity);
+                actTaskService.deleteProcIns(entity.getProcInsId(), "");
+                return;
+            }
+        } // end if taskDefKey
+        // 提交流程任务
+        actTaskService.complateByAct(entity.getAct(), vars);
+    }
+
+    /**
+     * 审批之前执行方法，子类实现
+     * 主要用来在某个审批节点，判断业务数据-添加流程变量，保存comment到业务表。
+     * 如果此审批单需要保存业务数据，请在此处实现。
+     */
+    public void processAudit(T entity, Map<String, Object> vars) {
+
+    }
 
 }
