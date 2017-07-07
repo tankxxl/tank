@@ -3,28 +3,19 @@
  */
 package com.thinkgem.jeesite.modules.sys.utils;
 
-import java.util.List;
-
+import com.thinkgem.jeesite.common.service.BaseService;
+import com.thinkgem.jeesite.common.utils.CacheUtils;
+import com.thinkgem.jeesite.common.utils.SpringContextHolder;
+import com.thinkgem.jeesite.modules.sys.dao.*;
+import com.thinkgem.jeesite.modules.sys.entity.*;
+import com.thinkgem.jeesite.modules.sys.security.SystemAuthorizingRealm.Principal;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.session.InvalidSessionException;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 
-import com.thinkgem.jeesite.common.service.BaseService;
-import com.thinkgem.jeesite.common.utils.CacheUtils;
-import com.thinkgem.jeesite.common.utils.SpringContextHolder;
-import com.thinkgem.jeesite.modules.sys.dao.AreaDao;
-import com.thinkgem.jeesite.modules.sys.dao.MenuDao;
-import com.thinkgem.jeesite.modules.sys.dao.OfficeDao;
-import com.thinkgem.jeesite.modules.sys.dao.RoleDao;
-import com.thinkgem.jeesite.modules.sys.dao.UserDao;
-import com.thinkgem.jeesite.modules.sys.entity.Area;
-import com.thinkgem.jeesite.modules.sys.entity.Menu;
-import com.thinkgem.jeesite.modules.sys.entity.Office;
-import com.thinkgem.jeesite.modules.sys.entity.Role;
-import com.thinkgem.jeesite.modules.sys.entity.User;
-import com.thinkgem.jeesite.modules.sys.security.SystemAuthorizingRealm.Principal;
+import java.util.List;
 
 /**
  * 用户工具类
@@ -292,5 +283,16 @@ public class UserUtils {
 //		}
 //		return new HashMap<String, Object>();
 //	}
-	
+
+
+	/**
+	 * rgz rest api时，用户没有登录，直接返回所有菜单
+	 * // TODO 可以删除
+	 * 获取当前用户授权菜单
+	 * @return
+	 */
+	public static List<Menu> getAllMenuList(){
+		List<Menu>	menuList = menuDao.findAllList(new Menu());
+		return menuList;
+	}
 }

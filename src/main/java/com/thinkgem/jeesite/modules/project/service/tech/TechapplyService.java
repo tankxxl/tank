@@ -4,15 +4,15 @@
 package com.thinkgem.jeesite.modules.project.service.tech;
 
 import com.google.common.collect.Maps;
-import com.thinkgem.jeesite.common.persistence.Page;
-import com.thinkgem.jeesite.common.service.CrudService;
+import com.thinkgem.jeesite.common.service.JicActService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.entity.Act;
 import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
-import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
 import com.thinkgem.jeesite.modules.project.dao.tech.NeedDao;
 import com.thinkgem.jeesite.modules.project.dao.tech.TechapplyDao;
+import com.thinkgem.jeesite.modules.project.entity.execution.ProjectExecution;
+import com.thinkgem.jeesite.modules.project.entity.execution.ProjectExecutionItem;
 import com.thinkgem.jeesite.modules.project.entity.tech.Need;
 import com.thinkgem.jeesite.modules.project.entity.tech.Techapply;
 import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,10 +31,7 @@ import java.util.Map;
  */
 @Service
 @Transactional(readOnly = true)
-public class TechapplyService extends CrudService<TechapplyDao, Techapply> {
-	
-	@Autowired
-	ActTaskService actTaskService;
+public class TechapplyService extends JicActService<TechapplyDao, Techapply> {
 
 	@Autowired
 	private NeedDao needDao;
@@ -45,72 +41,51 @@ public class TechapplyService extends CrudService<TechapplyDao, Techapply> {
 		techapply.setNeedList(needDao.findList(new Need(techapply)));
 		return techapply;
 	}
-	
-	public List<Techapply> findList(Techapply techapply) {
-		return super.findList(techapply);
+
+	/**
+	 * 保存并结束流程
+	 * @param techapply
+	 */
+	@Transactional(readOnly = false)
+	public void saveFinishProcess(Techapply techapply) {
+		// 开启流程
+		String procInsId = saveLaunch(techapply);
+		// 结束流程
+		endProcess(procInsId);
 	}
-	
-	public Page<Techapply> findPage(Page<Techapply> page, Techapply techapply) {
-		return super.findPage(page, techapply);
+
+	/**
+	 * 保存表单数据，并启动流程
+	 *
+	 * 申请人发起流程，申请人重新发起流程入口
+	 * 在form界面
+	 *
+	 * @param techapply
+	 */
+	@Transactional(readOnly = false)
+	public String saveLaunch(Techapply techapply) {
+
+		if (techapply.getIsNewRecord()) {
+			// 启动流程的时候，把业务数据放到流程变量里
+			Map<String, Object> varMap = new HashMap<String, Object>();
+			varMap.put(ActUtils.VAR_PRJ_ID, techapply.getProject().getId());
+
+			varMap.put(ActUtils.VAR_PRJ_TYPE, techapply.getProject().getCategory());
+
+			varMap.put(ActUtils.VAR_TITLE, techapply.getProject().getProjectName());
+
+			return launch(techapply, varMap);
+		} else { // 把驳回到申请人(重新修改业务表单，重新发起流程、销毁流程)也当成一个特殊的审批节点
+			// 只要不是启动流程，其它任意节点的跳转都当成节点审批
+			saveAudit(techapply);
+			return null;
+		}
 	}
 	
 	@Transactional(readOnly = false)
 	public void save(Techapply techapply) {
-		Act act = techapply.getAct();
-		
-		// 申请发起
-		if (StringUtils.isBlank(techapply.getId())){
-			String processStatus = DictUtils.getDictValue("审批中", "AuditStatus", "0");
-			techapply.setProcessStatus(processStatus);
-			super.save(techapply);
-			for (Need need : techapply.getNeedList()){
-				if (need.getId() == null){
-					continue;
-				}
-				if (Need.DEL_FLAG_NORMAL.equals(need.getDelFlag())){
-					if (StringUtils.isBlank(need.getId())){
-						need.setTechapply(techapply);
-						need.preInsert();
-						needDao.insert(need);
-					}else{
-						need.preUpdate();
-						needDao.update(need);
-					}
-				}else{
-					needDao.delete(need);
-				}
-			}
-						
-			// 启动流程
-			String key = techapply.getClass().getSimpleName();
-			// 设置流程变量
-			Map<String, Object> varMap = new HashMap<String, Object>();
-			varMap.put("apply", UserUtils.getUser().getLoginName());
-			varMap.put("classType", key);
-			varMap.put("objId", techapply.getId());
-			varMap.put("prjId", techapply.getProject().getId());
-			
-			actTaskService.startProcessEatFirstTask(
-					ActUtils.PD_TECHAPPLY[0], 
-					ActUtils.PD_TECHAPPLY[1], 
-					techapply.getId(), 
-					techapply.getProject().getProjectName(),
-					varMap
-			);
-			
-		} else {  // 重新编辑申请
-			techapply.preUpdate();
-			dao.update(techapply);
-			
-			act.setComment(("yes".equals(act.getFlag())?"[重申] ":"[销毁] ")+act.getComment());
-			
-			// 完成流程任务
-			Map<String, Object> vars = Maps.newHashMap();
-			vars.put(ActUtils.VAR_PASS, act.getFlagNumber());
-			vars.put(ActUtils.VAR_TITLE, techapply.getProject().getProjectName());
-			actTaskService.complateByAct(act, vars);	
-		}
-		
+		super.save(techapply);
+		saveItem(techapply);
 	}
 	
 	@Transactional(readOnly = false)
@@ -118,43 +93,63 @@ public class TechapplyService extends CrudService<TechapplyDao, Techapply> {
 		super.delete(techapply);
 		needDao.delete(new Need(techapply));
 	}
-	
-	
-	@Transactional(readOnly = false)
-	public void auditSave(Techapply techapply) {
-		Act act = techapply.getAct();
-		// 设置意见
-		act.setComment((act.getFlagBoolean() ? "[同意] ":"[驳回] ") + act.getComment());
-		Map<String, Object> vars = Maps.newHashMap();		
-		
-		// 对不同环节的业务逻辑进行操作
-		String taskDefKey = techapply.getAct().getTaskDefKey();
 
-		if (UserTaskType.UT_SPECIALIST.equals(taskDefKey)){
-			if ("03".equals(techapply.getProject().getCategory())) {
-				vars.put("type", "2");
-			} else {
-				vars.put("type", "1");
+	private void saveItem(Techapply techapply) {
+		for (Need need : techapply.getNeedList()) {
+			if (need.getId() == null){
+				continue;
 			}
-		} else if ("".equals(taskDefKey)) {
-			
+			if (Need.DEL_FLAG_NORMAL.equals(need.getDelFlag())) {
+				if (StringUtils.isBlank(need.getId())){
+					need.setTechapply(techapply);
+					need.preInsert();
+					needDao.insert(need);
+				}else{
+					need.preUpdate();
+					needDao.update(need);
+				}
+			}else{
+				needDao.delete(need);
+			}
 		}
-				
-		// 提交流程任务
-		vars.put(ActUtils.VAR_PASS, act.getFlagNumber());
-		vars.put(ActUtils.VAR_TITLE, techapply.getRemarks());
-		actTaskService.complateByAct(act, vars);	
 	}
+	
+	
+	// @Transactional(readOnly = false)
+	// public void auditSave(Techapply techapply) {
+	// 	Act act = techapply.getAct();
+	// 	// 设置意见
+	// 	act.setComment((act.getFlagBoolean() ? "[同意] ":"[驳回] ") + act.getComment());
+	// 	Map<String, Object> vars = Maps.newHashMap();
+	//
+	// 	// 对不同环节的业务逻辑进行操作
+	// 	String taskDefKey = techapply.getAct().getTaskDefKey();
+    //
+	// 	if (UserTaskType.UT_SPECIALIST.equals(taskDefKey)){
+	// 		if ("03".equals(techapply.getProject().getCategory())) {
+	// 			vars.put("type", "2");
+	// 		} else {
+	// 			vars.put("type", "1");
+	// 		}
+	// 	} else if ("".equals(taskDefKey)) {
+	//
+	// 	}
+	//
+	// 	// 提交流程任务
+	// 	vars.put(ActUtils.VAR_PASS, act.getFlagNumber());
+	// 	vars.put(ActUtils.VAR_TITLE, techapply.getRemarks());
+	// 	actTaskService.complateByAct(act, vars);
+	// }
 	
 	/**
 	 * 维护自己的流程状态	
-	 * @param id
-	 * @param audit
+	 // * @param id
+	 // * @param audit
 	 */
-	@Transactional(readOnly = false)
-	public void auditTo(String id, String audit) {
-		Techapply techapply = get(id);
-		techapply.setProcessStatus(audit);
-		dao.update(techapply);
-	}
+	// @Transactional(readOnly = false)
+	// public void auditTo(String id, String audit) {
+	// 	Techapply techapply = get(id);
+	// 	techapply.setProcessStatus(audit);
+	// 	dao.update(techapply);
+	// }
 }

@@ -3,10 +3,9 @@
  */
 package com.thinkgem.jeesite.modules.apply.dao.external;
 
-import com.thinkgem.jeesite.common.persistence.CrudDao;
+import com.thinkgem.jeesite.common.persistence.JicDao;
 import com.thinkgem.jeesite.common.persistence.annotation.MyBatisDao;
 import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
-import com.thinkgem.jeesite.modules.project.entity.bidding.ProjectBidding;
 
 import java.util.List;
 
@@ -16,7 +15,7 @@ import java.util.List;
  * @version 2016-02-23
  */
 @MyBatisDao
-public interface ProjectApplyExternalDao extends CrudDao<ProjectApplyExternal> {
+public interface ProjectApplyExternalDao extends JicDao<ProjectApplyExternal> {
 	
 	/**
 	 * 获取当前数据库中项目编号
@@ -31,7 +30,7 @@ public interface ProjectApplyExternalDao extends CrudDao<ProjectApplyExternal> {
 	
 	public List<ProjectApplyExternal> findList4LargerMainStage(ProjectApplyExternal projectApplyExternal);
 
-	public ProjectApplyExternal findByProcInsId(String procInsId);
+	// public ProjectApplyExternal findByProcInsId(String procInsId);
 
 
 	// public List<ProjectApplyExternal> findByMainStage(String procInsId);

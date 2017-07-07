@@ -1,6 +1,5 @@
 package com.thinkgem.jeesite.modules.apply.utils;
 
-import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import org.activiti.engine.delegate.DelegateTask;
 import org.activiti.engine.delegate.TaskListener;
 
@@ -10,12 +9,13 @@ import org.activiti.engine.delegate.TaskListener;
  * @author rgz
  *
  */
+@Deprecated
 public class SpecialistLoginNameTaskListener implements TaskListener {
 
 	@Override
 	public void notify(DelegateTask delegateTask) {
 		String specialist = delegateTask.getAssignee();
-		delegateTask.getVariables().put(ActUtils.VAR_SPECIALIST, specialist);
+		// delegateTask.getVariables().put(ActUtils.VAR_SPECIALIST, specialist);
 	}
 
 }

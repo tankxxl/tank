@@ -53,6 +53,9 @@ public class MyDictUtils extends DictUtils {
 	 * @return
 	 */
 	public static boolean isBossAudit(String amount, String gpm) {
+		if (StringUtils.isEmpty(amount) || StringUtils.isEmpty(gpm)) {
+			return true;
+		}
 		return isBossAudit(StringUtils.toDouble(amount), StringUtils.toDouble(gpm));
 	}
 	

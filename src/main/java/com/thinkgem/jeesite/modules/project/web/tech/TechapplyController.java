@@ -129,7 +129,7 @@ public class TechapplyController extends BaseController {
 		if (!beanValidator(model, techapply)){
 			return form(techapply, model);
 		}
-		techapplyService.save(techapply);
+		techapplyService.saveLaunch(techapply);
 		addMessage(redirectAttributes, "保存资源申请成功");
 		
 		String usertask_owner = techapply.getAct().getTaskDefKey();
@@ -170,7 +170,7 @@ public class TechapplyController extends BaseController {
 			assigningService.save(assigning);
 		}
 		
-		techapplyService.auditSave(techapply);
+		techapplyService.saveAudit(techapply);
 		return "redirect:" + adminPath + "/act/task/todo/";
 	}
 }

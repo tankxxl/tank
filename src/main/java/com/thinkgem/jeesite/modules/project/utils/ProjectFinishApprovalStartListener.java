@@ -9,9 +9,13 @@ import org.activiti.engine.delegate.ExecutionListener;
 
 /**
  * 在流程结束时，自动修改表单状态
+ * @deprecated 不用每个流程都定义一个监听器了，统一定义一个监听器类来监听所有的流程，判断流程定义KEY即可分辩各个流程。
+ * 使用AuditEndListener监听器
+ *
  * @author rgz
  *
  */
+@Deprecated
 public class ProjectFinishApprovalStartListener implements ExecutionListener{
 
 	/**

@@ -4,6 +4,7 @@
 <head>
 	<title>合同管理</title>
 	<meta name="decorator" content="default"/>
+	<%-- Deprecated replaced by xxxView.jsp --%>
 	<script type="text/javascript">
 		$(document).ready(function() {
 			//$("#name").focus();

@@ -97,43 +97,46 @@ public class ProjectApplyExternalController extends BaseController {
 
 	@RequiresPermissions("apply:external:projectApplyExternal:view")
 	@RequestMapping(value = "form")
-	public String form(ProjectApplyExternal projectApplyExternal, Model model) { 
+	public String form(ProjectApplyExternal projectApplyExternal, Model model) {
+		String prefix = "modules/apply/external/";
 		String view = "projectApplyExternalForm";
 
-		// 查看审批申请单
-		if (StringUtils.isNotBlank(projectApplyExternal.getId())) {//.getAct().getProcInsId())){
-
-			// 环节编号
-			String taskDefKey = projectApplyExternal.getAct().getTaskDefKey();
-			// 查看工单
-			if(projectApplyExternal.getAct().isFinishTask()){
-				
-				view = "projectApplyExternalView";
-			}	
-			// 修改环节
-			else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ) {
-				view = "projectApplyExternalForm";
-			}
-			// 项目管理专员审核环节-要可以生成项目编号，选择项目类型，然后点击按钮生成项目编号。
-			else if (UserTaskType.UT_SPECIALIST.equals(taskDefKey)){
-				view = "projectApplyExternalForm4specialist";
-			}
-			// 审核环节2
-			else if ("usertask_software_leader".equals(taskDefKey)){
-				view = "projectApplyExternalAudit";
-			} else {
-				view = "projectApplyExternalAudit";
-			}
-		} else {  // 从已办任务过来，如果流程已结束，流程实例就没有了，业务id就没有了，只有act对象，这时就根据act.procInsId来查询业务表，加载业务对象用来查看
-			if (projectApplyExternal.hasAct()) {
-				view = "projectApplyExternalView";
-				Act oldAct = projectApplyExternal.getAct();
-				projectApplyExternal = applyService.findByProcInsId(projectApplyExternal.getAct().getProcInsId());
-				projectApplyExternal.setAct(oldAct);
-			}
-		}
 		model.addAttribute("projectApplyExternal", projectApplyExternal);
-		return "modules/apply/bjkj/" + view;
+
+		// 待办、已办入口界面传的act是一样的，只是act中的status不一样。
+		if (projectApplyExternal.getIsNewRecord()) {
+			// 入口1：新建表单，直接返回空实体
+			if (projectApplyExternal.hasAct()) {
+				// 入口2：从已办任务界面来的请求，1、实体是新建的，2、act是activi框架填充的。
+				// 此时实体应该由流程id来查询。
+				view = "projectApplyExternalView";
+				projectApplyExternal = applyService.findByProcInsId(projectApplyExternal);
+				if (projectApplyExternal == null) {
+					projectApplyExternal = new ProjectApplyExternal();
+				}
+			}
+			return prefix + view;
+		}
+
+		// 入口3：在流程图中配置，从待办任务界面来的请求，entity和act都已加载。
+		// 环节编号
+		String taskDefKey = projectApplyExternal.getAct().getTaskDefKey();
+
+		// 查看
+		if(projectApplyExternal.getAct().isFinishTask()){
+			view = "projectApplyExternalView";
+		}
+		// 修改环节
+		else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ){
+			view = "projectApplyExternalForm";
+		}
+		// 某审批环节
+		else if ("apply_end".equals(taskDefKey)){
+			view = "projectApplyExternalView";  // replace ExecutionAudit
+		} else {
+			view = "projectApplyExternalView";
+		}
+		return prefix + view;
 	}
 
 	@RequiresPermissions("apply:external:projectApplyExternal:modify")
@@ -159,14 +162,12 @@ public class ProjectApplyExternalController extends BaseController {
 		String flag = projectApplyExternal.getAct().getFlag();
 
 //		flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
-		if ("saveOnly".equals(flag)) { // 只保存表单数据
-			applyService.saveOnly(projectApplyExternal);
+		if ("saveOnly".equals(flag) ) { // 只保存表单数据
+			applyService.save(projectApplyExternal);
 		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
 			applyService.saveFinishProcess(projectApplyExternal);
-		} else if ("yes".equals(flag)) {
-			applyService.save(projectApplyExternal);
-		} else if ("no".equals(flag)) {
-			applyService.save(projectApplyExternal);
+		} else {
+			applyService.saveLaunch(projectApplyExternal);
 		}
 
 		addMessage(redirectAttributes, "保存成功！");
@@ -200,7 +201,7 @@ public class ProjectApplyExternalController extends BaseController {
 			addMessage(model, "请填写审核意见。");
 			return form(projectApplyExternal, model);
 		}
-		applyService.auditSave(projectApplyExternal);
+		applyService.saveAudit(projectApplyExternal);
 		return "redirect:" + adminPath + "/act/task/todo/";
 	}
 	
@@ -259,7 +260,7 @@ public class ProjectApplyExternalController extends BaseController {
                         RedirectAttributes redirectAttributes,
                         Map map) {
 		ProjectApplyExternal apply = (ProjectApplyExternal) map.get("projectApplyExternal");
-		List<Act> actList =actTaskService.histoicFlowListPass(apply.getProcessInstanceId(),null, null);
+		List<Act> actList =actTaskService.histoicFlowListPass(apply.getProcInsId(),null, null);
 		apply.setActs(actList);
 		String  fileReturnName = apply.getProjectName()+"_立项审批表";
 //		String templateFile =request.getSession().getServletContext().getRealPath("/")+"WEB-INF/excel/project/ProjectApplyExternal.xls";
@@ -297,6 +298,10 @@ public class ProjectApplyExternalController extends BaseController {
 
 	/**
 	 * 获取外部申请列表（已通过的审批的立项）
+	 * 单独使用一个实体属性来传递多个项目阶段给sql
+	 *
+	 * eg: treeData?proMainStage=11,21,30,31
+	 *
 	 * @param response
 	 * @param proMainStage 项目阶段
 	 * @return
@@ -434,7 +439,11 @@ public class ProjectApplyExternalController extends BaseController {
 	public ProjectApplyExternal getAsJson(@RequestParam(required=false) String id, Model model) {
         model.addAttribute("prjId", id);
 
-		return get(id);
+		ProjectApplyExternal apply = get(id);
+		// 转换字典数据
+		apply.setCategory(DictUtils.getDictLabel(apply.getCategory(), "pro_category", ""));
+
+		return apply;
 	}
 
 

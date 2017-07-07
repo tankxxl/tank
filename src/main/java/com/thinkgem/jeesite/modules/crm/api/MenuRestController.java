@@ -1,13 +1,17 @@
 package com.thinkgem.jeesite.modules.crm.api;
 
 
+import com.google.common.collect.Lists;
 import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.web.BaseController;
 import com.thinkgem.jeesite.modules.api.model.RespModel;
 import com.thinkgem.jeesite.modules.crm.client.entity.Client;
 import com.thinkgem.jeesite.modules.crm.client.entity.MyClient;
 import com.thinkgem.jeesite.modules.crm.client.service.ClientService;
+import com.thinkgem.jeesite.modules.sys.dao.MenuDao;
+import com.thinkgem.jeesite.modules.sys.entity.Menu;
 import com.thinkgem.jeesite.modules.sys.service.SystemService;
+import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,11 +29,17 @@ import java.util.List;
  * Created by rgz on 28/04/2017.
  */
 @RestController
-@RequestMapping(value = "${apiPath}/account")
-public class AccountRestController extends BaseController {
+@RequestMapping(value = "${apiPath}/menu")
+public class MenuRestController extends BaseController {
 
     @Autowired
     private SystemService systemService;
+
+    @Autowired
+    MenuDao menuDao;
+
+    @Autowired
+    ClientService clientService;
 
     public static final class Constants {
         // 根据客户Id得到账户列表
@@ -37,27 +47,24 @@ public class AccountRestController extends BaseController {
         // 得到所有未关联的账户列表
         public static final String get = "/get";
         // 关联账户
-        public static final String attach = "/attach";
+        public static final String list = "/list";
         // 取消关联
         public static final String detach = "/detach";
 
     }
-    
-    @Autowired
-    ClientService clientService;
 
     // Retrieve All Client
-    @RequestMapping(value = "/all", method = RequestMethod.GET)
-    public ResponseEntity<List<Client>> listAllClients() {
-        List<Client>  clients = clientService.findList(new Client());
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    public ResponseEntity<RespModel<List<Menu>>> listAllClients() {
+        List<Menu> list = Lists.newArrayList();
+        List<Menu> sourcelist = UserUtils.getAllMenuList();
 
-        if (clients.isEmpty()) {
-            // You may decide to return HttpStatus.NOT_FOUND
-            return new ResponseEntity<List<Client>>(HttpStatus.NO_CONTENT);
-        }
-        RespModel<List<Client>> respModel = new RespModel<List<Client>>("0");
-        respModel.setData(clients);
-        return new ResponseEntity<List<Client>>(clients, HttpStatus.OK);
+        Menu.sortList(list, sourcelist, Menu.getRootId(), true);
+
+        RespModel<List<Menu>> respModel = new RespModel<List<Menu>>("0");
+        respModel.setData(list);
+
+        return new ResponseEntity<RespModel<List<Menu>>>(respModel, HttpStatus.OK);
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)

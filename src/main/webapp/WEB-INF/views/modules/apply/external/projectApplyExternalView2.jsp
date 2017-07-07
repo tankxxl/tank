@@ -3,28 +3,44 @@
 <html>
 <head>
 	<title>外部立项申请管理</title>
-	<%-- Deprecated replaced by xxxView.jsp --%>
 	<meta name="decorator" content="default"/>
-		
+	<%-- Deprecated replaced by xxxView.jsp --%>
 	<script type="text/javascript">
-	
 		$(document).ready(function() {
-			//$("#name").focus();
-			$("#inputForm").validate({
-				submitHandler: function(form){
-					loading('正在提交，请稍等...');
-					form.submit();
-				},
-				errorContainer: "#messageBox",
-				errorPlacement: function(error, element) {
-					$("#messageBox").text("输入有误，请先更正。");
-					if (element.is(":checkbox")||element.is(":radio")||element.parent().is(".input-append")){
-						error.appendTo(element.parent().parent());
-					}else {
-						error.insertAfter(element);
-					}
-				}
-			});
+
+            $("#project_code_button").click(function(){
+                if($("#category").val() ==""){
+                    alert("请先选择项目类型");
+                    return false;
+                }
+                if($("#ownership").val()==""){
+                    alert("请先选择项目归属");
+                    return false;
+                }
+                var url ="${ctx }/apply/external/projectApplyExternal/projectCodeGenerate?category="+$("#category").val()+"&ownership="+$("#ownership").val();
+                $.ajax( {
+                    type : "get",
+                    url : url,
+                    dataType:"json",
+                    success : function(data) {
+                        //alert("Data Saved: " + customer.industry+"--"+customer.customerCategory);
+                        //alert($("#customer\\.customerCategory").val());
+                        console.log(data);
+                        if(data.error){
+                            alert(data.error);
+                            return;
+                        }else{
+                            $("#projectCode").val(data.data);
+                        }
+                    }
+                });
+            });
+
+
+            $("#category,#ownership").change(function changeProCode(){
+                top.$.jBox.tip("你修改了了 项目类型或项目归属，请重新生成项目编号");
+                $("#projectCode").val("");
+            });
 		});
 	</script>
 	
@@ -35,14 +51,15 @@
 	</style>
 </head>
 <body>
-	<ul class="nav nav-tabs">
-	<li class="active"><a>外部立项审批</a></li>
-		<%-- <li><a href="${ctx}/apply/external/projectApplyExternal/">外部立项申请列表</a></li> --%>
-		<%-- <li class="active"><a href="${ctx}/apply/external/projectApplyExternal/form?id=${projectApplyExternal.id}">外部立项申请<shiro:hasPermission name="apply:external:projectApplyExternal:edit">${not empty projectApplyExternal.id?'修改':'添加'}</shiro:hasPermission><shiro:lacksPermission name="apply:external:projectApplyExternal:edit">查看</shiro:lacksPermission></a></li> --%>
-	</ul><br/>
-	
-	
-	<form:form id="inputForm" modelAttribute="projectApplyExternal" action="${ctx}/apply/external/projectApplyExternal/saveAudit" method="post" class="form-horizontal">
+<ul class="nav nav-tabs">
+	<c:if test="${ empty projectApplyExternal.act.taskId}">
+		<li><a href="${ctx}/apply/external/projectApplyExternal/">外部立项申请列表</a></li>
+	</c:if>
+	 <li class="active"><a href="${ctx}/apply/external/projectApplyExternal/form?id=${projectApplyExternal.id}">外部立项申请<shiro:hasPermission name="apply:external:projectApplyExternal:edit">${not empty projectApplyExternal.id?'修改':'添加'}</shiro:hasPermission><shiro:lacksPermission name="apply:external:projectApplyExternal:edit">查看</shiro:lacksPermission></a></li>
+</ul><br/>
+
+	<form:form id="inputForm" modelAttribute="projectApplyExternal" htmlEscape="false"
+			   action="${ctx}/apply/external/projectApplyExternal/saveAudit" method="post" class="form-horizontal">
 		
 		<form:hidden path="id"/>
 		<form:hidden path="act.taskId"/>
@@ -51,8 +68,7 @@
 		<form:hidden path="act.procInsId"/>
 		<form:hidden path="act.procDefId"/>
 		<form:hidden id="flag" path="act.flag"/>
-		<sys:message content="${message}"/>
-		
+		<sys:message content="${message}"/>		
 		<table class="table-form">
 			<tr>
 				<td colspan="2" class="tit">项目编号</td>
@@ -76,7 +92,7 @@
 					<td  class="tit">部&nbsp;&nbsp;门</td>
 					<td   class="tit_content" colspan="2">
 						<%--${projectApplyExternal.saleOffice.name  }--%>
-						${projectApplyExternal.saler.office.name  }
+								${projectApplyExternal.saler.office.name  }
 					</td>
 				</tr>
 			</c:if>
@@ -112,12 +128,11 @@
 					${projectApplyExternal.customerContact.phone }
 				</td>
 			</tr>
-			<tr>
-				<td class="tit" >主要供应商</td>
-				<td colspan="6">
-
-				</td>
-			</tr>
+			<%--<tr>--%>
+				<%--<td class="tit" >主要供应商</td>--%>
+				<%--<td colspan="6">--%>
+				<%--</td>--%>
+			<%--</tr>--%>
 			<tr>
 				<td  class="tit" rowspan="4">项目描述</td>
 				<td class="tit">预计合同金额￥万元</td>
@@ -150,7 +165,7 @@
 			</tr>
 
 			<tr>
-				<td  class="tit"rowspan="2" >项目毛利率说明</td>
+				<td  class="tit"rowspan="2" >项目毛利率说明</label></td>
 				<td  colspan="6"><label class="small_label">（当预计毛利率低于公司要求时，须加以说明）</label></td>
 			</tr>
 			<tr>
@@ -198,32 +213,12 @@
 				</div>
 				</td>
 			</tr>
-			
-			<tr>
-				<td class="tit">您的意见</td>
-				<td colspan="6">
-					<form:textarea path="act.comment" class="required" rows="5" maxlength="4000" value="同意" cssStyle="width:500px"/>
-					<span class="help-inline"><font color="red">*</font></span>
-				</td>
-			</tr>
-			
 		</table>
 		
+		<act:histoicFlow procInsId="${projectApplyExternal.processInstanceId}" />
 		<div class="form-actions">
-			<shiro:hasPermission name="apply:external:projectApplyExternal:edit">
-			
-				<c:if test="${projectApplyExternal.act.taskDefKey eq 'apply_end'}">
-					<input id="btnSubmit" class="btn btn-primary" type="submit" value="兑 现" onclick="$('#flag').val('yes')"/>&nbsp;
-				</c:if>
-				<c:if test="${projectApplyExternal.act.taskDefKey ne 'apply_end'}">
-					<input id="btnSubmit" class="btn btn-primary" type="submit" value="同 意" onclick="$('#flag').val('yes')"/>&nbsp;
-					<input id="btnSubmit" class="btn btn-inverse" type="submit" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;
-				</c:if>
-			
-			</shiro:hasPermission>
 			<input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.go(-1)"/>
 		</div>
-		<act:histoicFlow procInsId="${projectApplyExternal.act.procInsId}"/>
 	</form:form>
 </body>
 </html>

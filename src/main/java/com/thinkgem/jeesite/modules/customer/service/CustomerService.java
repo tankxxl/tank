@@ -37,6 +37,11 @@ public class CustomerService extends CrudService<CustomerDao, Customer> {
 	@Override
 	public Customer get(String id) {
 		Customer customer = super.get(id);
+
+		// In case id is not customerId.
+		if (customer == null)
+			return customer;
+
 		customer.setCustomerContactList(customerContactDao.findList(new CustomerContact(customer)));
 		return customer;
 	}

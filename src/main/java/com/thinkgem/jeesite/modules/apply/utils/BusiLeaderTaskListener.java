@@ -10,9 +10,13 @@ import org.activiti.engine.delegate.TaskListener;
  * 申请人所在部门的分管领导
  * 用在【业务部分管领导审批】节点
  * 得到申请人的部门-分管领导
+ *
+ * 不使用监听器来自动设置审批节点的处理人了，使用bean.method集中处理
+ *
  * @author rgz
  *
  */
+@Deprecated
 public class BusiLeaderTaskListener implements TaskListener {
 
 	@Override

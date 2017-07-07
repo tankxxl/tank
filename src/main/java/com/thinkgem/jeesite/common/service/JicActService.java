@@ -10,7 +10,6 @@ import com.thinkgem.jeesite.common.persistence.JicDao;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.entity.Act;
 import com.thinkgem.jeesite.modules.act.service.ActTaskService;
-import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -221,7 +220,6 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
         entity.getAct().setComment((entity.getAct().getFlagBoolean() ?
                 "[同意] ":"[驳回] ") + entity.getAct().getComment());
         Map<String, Object> vars = Maps.newHashMap();
-        vars.put(ActUtils.VAR_PASS, entity.getAct().getFlagNumber());
 
         processAudit(entity, vars);
         // 普通审批人：通过、驳回
