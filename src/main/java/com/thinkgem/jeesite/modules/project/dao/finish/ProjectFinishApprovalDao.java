@@ -4,6 +4,7 @@
 package com.thinkgem.jeesite.modules.project.dao.finish;
 
 import com.thinkgem.jeesite.common.persistence.CrudDao;
+import com.thinkgem.jeesite.common.persistence.JicDao;
 import com.thinkgem.jeesite.common.persistence.annotation.MyBatisDao;
 import com.thinkgem.jeesite.modules.project.entity.finish.ProjectFinishApproval;
 
@@ -13,6 +14,6 @@ import com.thinkgem.jeesite.modules.project.entity.finish.ProjectFinishApproval;
  * @version 2016-03-11
  */
 @MyBatisDao
-public interface ProjectFinishApprovalDao extends CrudDao<ProjectFinishApproval> {
+public interface ProjectFinishApprovalDao extends JicDao<ProjectFinishApproval> {
 	
 }

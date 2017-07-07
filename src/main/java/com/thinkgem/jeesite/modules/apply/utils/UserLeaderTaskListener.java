@@ -13,6 +13,7 @@ import org.activiti.engine.delegate.TaskListener;
  * @author rgz
  *
  */
+@Deprecated
 public class UserLeaderTaskListener implements TaskListener {
 
 	@Override

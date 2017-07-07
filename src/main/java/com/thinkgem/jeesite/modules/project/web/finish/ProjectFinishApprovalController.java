@@ -9,6 +9,7 @@ import com.thinkgem.jeesite.common.service.BaseService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.web.BaseController;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
+import com.thinkgem.jeesite.modules.project.entity.execution.ProjectExecution;
 import com.thinkgem.jeesite.modules.project.entity.finish.ProjectFinishApproval;
 import com.thinkgem.jeesite.modules.project.service.finish.ProjectFinishApprovalService;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
@@ -60,28 +61,46 @@ public class ProjectFinishApprovalController extends BaseController {
 	@RequiresPermissions("project:finish:projectFinishApproval:view")
 	@RequestMapping(value = "form")
 	public String form(ProjectFinishApproval projectFinishApproval, Model model) {
+		String prefix = "modules/project/finish/";
 		String view = "projectFinishApprovalForm";
-		
-		// 查看审批申请单
-		if (StringUtils.isNotBlank(projectFinishApproval.getId())){//.getAct().getProcInsId())){
 
-			// 环节编号
-			String taskDefKey = projectFinishApproval.getAct().getTaskDefKey();
-			// 查看工单
-			if(projectFinishApproval.getAct().isFinishTask()){
-				
-				view = "projectFinishApprovalView";
-			}	
-			// 修改环节
-			else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ) {
-				view = "projectFinishApprovalForm";
-			} else {
-				view = "projectFinishApprovalAudit";
-			}
-		}
 		model.addAttribute("projectFinishApproval", projectFinishApproval);
-		return "modules/project/finish/" + view;
-//		return "modules/project/finish/projectFinishApprovalForm";
+
+		// 待办、已办入口界面传的act是一样的，只是act中的status不一样。
+
+		if (projectFinishApproval.getIsNewRecord()) {
+			// 入口1：新建表单，直接返回空实体
+			if (projectFinishApproval.hasAct()) {
+				// 入口2：从已办任务界面来的请求，1、实体是新建的，2、act是activi框架填充的。
+				// 此时实体应该由流程id来查询。
+				view = "ExecutionView";
+				projectFinishApproval = projectFinishApprovalService.findByProcInsId(projectFinishApproval);
+				if (projectFinishApproval == null) {
+					projectFinishApproval = new ProjectFinishApproval();
+				}
+			}
+			return prefix + view;
+		}
+
+		// 入口3：在流程图中配置，从待办任务界面来的请求，entity和act都已加载。
+		// 环节编号
+		String taskDefKey = projectFinishApproval.getAct().getTaskDefKey();
+
+		// 查看
+		if(projectFinishApproval.getAct().isFinishTask()){
+			view = "projectFinishApprovalView";
+		}
+		// 修改环节
+		else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ){
+			view = "projectFinishApprovalForm";
+		}
+		// 某审批环节
+		else if ("apply_end".equals(taskDefKey)){
+			view = "projectFinishApprovalView";  // replace ExecutionAudit
+		} else {
+			view = "projectFinishApprovalView";
+		}
+		return prefix + view;
 	}
 
 	@RequiresPermissions("project:finish:projectFinishApproval:edit")
@@ -92,12 +111,14 @@ public class ProjectFinishApprovalController extends BaseController {
 		}
 
 		String flag = projectFinishApproval.getAct().getFlag();
-		if (StringUtils.isBlank(flag)) {
-			projectFinishApprovalService.onlySave(projectFinishApproval);
-		} else {
+//		flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
+		if ("saveOnly".equals(flag)) { // 只保存表单数据
 			projectFinishApprovalService.save(projectFinishApproval);
+		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
+			projectFinishApprovalService.saveFinishProcess(projectFinishApproval);
+		} else {
+			projectFinishApprovalService.saveLaunch(projectFinishApproval);
 		}
-
 //		projectFinishApprovalService.save(projectFinishApproval);
 		addMessage(redirectAttributes, "保存结项审批成功");
 		
@@ -126,7 +147,7 @@ public class ProjectFinishApprovalController extends BaseController {
 			return form(projectFinishApproval, model);
 		}
 		
-		projectFinishApprovalService.auditSave(projectFinishApproval);
+		projectFinishApprovalService.saveAudit(projectFinishApproval);
 		return "redirect:" + adminPath + "/act/task/todo/";
 	}
 	

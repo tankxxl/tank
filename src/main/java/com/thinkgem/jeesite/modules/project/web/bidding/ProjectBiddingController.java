@@ -78,36 +78,50 @@ public class ProjectBiddingController extends BaseController {
 	@RequiresPermissions("project:bidding:projectBidding:view")
 	@RequestMapping(value = "form")
 	public String form(ProjectBidding projectBidding, Model model) {
+		String prefix = "modules/project/bidding/";
 		String view = "projectBiddingForm";
-		if (StringUtils.isNotBlank(projectBidding.getId())){
-
-			// 环节编号
-			String taskDefKey = projectBidding.getAct().getTaskDefKey();
-			
-			if(projectBidding.getAct().isFinishTask()){
-				view = "projectBiddingView";
-			}	
-			// 修改环节
-			else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ){
-				view = "projectBiddingForm";
-			}
-			// 某审批环节
-			else if ("apply_end".equals(taskDefKey)){
-				view = "projectBiddingAudit";
-			} else {
-				view = "projectBiddingAudit";
-			}
-		} else {  // 从已办任务过来，如果流程已结束，流程实例就没有了，业务id就没有了，只有act对象，这时就根据act.procInsId来查询业务表，加载业务对象用来查看
-			if (projectBidding.hasAct()) {
-				view = "projectBiddingView";
-				Act oldAct = projectBidding.getAct();
-				projectBidding = projectBiddingService.findByProcInsId(projectBidding.getAct().getProcInsId());
-				projectBidding.setAct(oldAct);
-			}
-		}
 
 		model.addAttribute("projectBidding", projectBidding);
-		return "modules/project/bidding/" + view;
+
+		// 待办、已办入口界面传的act是一样的，只是act中的status不一样。
+
+		if (projectBidding.getIsNewRecord()) {
+			// 入口1：新建表单，直接返回空实体
+			if (projectBidding.hasAct()) {
+				// 入口2：从已办任务界面来的请求，1、实体是新建的，2、act是activi框架填充的。
+				// 此时实体应该由流程id来查询。
+				view = "projectBiddingView";
+				projectBidding = projectBiddingService.findByProcInsId(projectBidding);
+				if (projectBidding == null) {
+					projectBidding = new ProjectBidding();
+				}
+			}
+			return prefix + view;
+		}
+
+		// 入口3：在流程图中配置，从待办任务界面来的请求，entity和act都已加载。
+		// 环节编号
+		String taskDefKey = projectBidding.getAct().getTaskDefKey();
+
+		// 查看
+		if(projectBidding.getAct().isFinishTask()){
+			view = "projectBiddingView";
+		}
+		// 修改环节
+		else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ){
+			view = "projectBiddingForm";
+		}
+		// 商务部专员-要填写供应商的联系人信息
+		// else if (UserTaskType.UT_COMMERCE_SPECIALIST.equals(taskDefKey)) {
+		// 	view = "ExecutionView4Commerce";
+		// }
+		// 某审批环节
+		else if ("apply_end".equals(taskDefKey)){
+			view = "projectBiddingView";  // replace ExecutionAudit
+		} else {
+			view = "projectBiddingView";
+		}
+		return prefix + view;
 	}
 
 	@RequiresPermissions("project:bidding:projectBidding:modify")
@@ -134,13 +148,11 @@ public class ProjectBiddingController extends BaseController {
 
 //		flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
 		if ("saveOnly".equals(flag)) { // 只保存表单数据
-			projectBiddingService.saveOnly(projectBidding);
+			projectBiddingService.save(projectBidding);
 		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
 			projectBiddingService.saveFinishProcess(projectBidding);
-		} else if ("yes".equals(flag)) {
-			projectBiddingService.save(projectBidding);
-		} else if ("no".equals(flag)) {
-			projectBiddingService.save(projectBidding);
+		} else {
+			projectBiddingService.saveLaunch(projectBidding);
 		}
 
 		addMessage(redirectAttributes, "保存项目投标成功");
@@ -168,7 +180,7 @@ public class ProjectBiddingController extends BaseController {
 			addMessage(model, "请填写审核意见。");
 			return form(projectBidding, model);
 		}
-		projectBiddingService.auditSave(projectBidding);
+		projectBiddingService.saveAudit(projectBidding);
 		return "redirect:" + adminPath + "/act/task/todo/";
 	}
 	
@@ -177,16 +189,14 @@ public class ProjectBiddingController extends BaseController {
 	 * 使用的导出
 	 * @param request
 	 * @param response
-	 * @param redirectAttributes
 	 * @param map
-	 * @param model
 	 * @return
 	 */
 	@RequiresPermissions("project:bidding:projectBidding:view")
 	@RequestMapping(value = "export")
 	public void export(HttpServletRequest request, HttpServletResponse response,Map map) {
 		ProjectBidding projectBidding=(ProjectBidding) map.get("projectBidding");
-		List<Act> actList =actTaskService.histoicFlowListPass(projectBidding.getProcessInstanceId(),null, null);
+		List<Act> actList =actTaskService.histoicFlowListPass(projectBidding.getProcInsId(),null, null);
 		String  fileReturnName=projectBidding.getApply().getProjectName()+"_投标审批表";
 		String workBookFileRealPathName =request.getSession().getServletContext().getRealPath("/")+"WEB-INF/excel/project/ProjectBidding.xls";
 		ExportUtils.export(response, projectBidding, actList, workBookFileRealPathName, fileReturnName,"yyyy-MM-dd");

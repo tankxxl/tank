@@ -23,8 +23,8 @@
 		a.update_date AS "updateDate",
 		a.remarks AS "remarks",
 		a.del_flag AS "delFlag",
-		a.proc_ins_id AS "processInstanceId",
-		a.process_status AS "processStatus",
+		a.proc_ins_id AS "procInsId",
+		a.process_status AS "procStatus",
 		a.ownership AS "ownership",
 		a.pro_main_stage AS	"proMainStage",
 		a.pro_stage	AS	"proStage",
@@ -117,8 +117,8 @@
 			<if test="category != null and category != ''">
 				AND a.category = #{category}
 			</if>
-			<if test="processStatus != null and processStatus != ''">
-				AND a.process_status = #{processStatus}
+			<if test="procStatus != null and procStatus != ''">
+				AND a.process_status = #{procStatus}
 			</if>
 			<if test="proMainStage != null and proMainStage != ''">
 				AND a.pro_main_stage = #{proMainStage}
@@ -250,8 +250,8 @@
 			#{delFlag},
 			#{proMainStage},
 			#{proStage},
-			#{processInstanceId},
-			#{processStatus},
+			#{procInsId},
+			#{procStatus},
 
 			#{selfDev},
 			#{beginDate},
@@ -287,8 +287,8 @@
 			ownership = #{ownership},
 			pro_main_stage =	#{proMainStage},
 			pro_stage	=	#{proStage},
-			proc_ins_id = #{processInstanceId},
-			process_status = #{processStatus},
+			proc_ins_id = #{procInsId},
+			process_status = #{procStatus},
 			
 			
 			apply_flag = #{applyFlag},

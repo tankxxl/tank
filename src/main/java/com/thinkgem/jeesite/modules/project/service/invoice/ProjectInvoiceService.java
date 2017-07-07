@@ -45,7 +45,7 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
 	// @Autowired
 	// private ProjectApplyExternalService projectApplyExternalService;
 
-    private boolean isNewRecord;
+    // private boolean isNewRecord;
 
 
     @Override

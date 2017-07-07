@@ -35,17 +35,15 @@
 </head>
 <body>
 	<ul class="nav nav-tabs">
-	<li class="active"><a>项目投标审批</a></li>
+		<c:if test="${ empty projectBidding.act.taskId}">
+			<li><a href="${ctx}/project/bidding/projectBidding/">项目投标列表</a></li>
+		</c:if>
+		
 		<%-- <li class="active"><a href="${ctx}/project/bidding/projectBidding/form?id=${projectBidding.id}">项目投标<shiro:hasPermission name="project:bidding:projectBidding:edit">${not empty projectBidding.id?'修改':'添加'}</shiro:hasPermission><shiro:lacksPermission name="project:bidding:projectBidding:edit">查看</shiro:lacksPermission></a></li> --%>
+		<li class="active"><a>项目投标查看</a></li>
 	</ul><br/>
-	<form:form id="inputForm" modelAttribute="projectBidding" action="${ctx}/project/bidding/projectBidding/saveAudit" method="post" class="form-horizontal">
+	<form:form id="inputForm" modelAttribute="projectBidding" action="${ctx}/project/bidding/projectBidding/save" method="post" class="form-horizontal">
 		<form:hidden path="id"/>
-		<form:hidden path="act.taskId"/>
-		<form:hidden path="act.taskName"/>
-		<form:hidden path="act.taskDefKey"/>
-		<form:hidden path="act.procInsId"/>
-		<form:hidden path="act.procDefId"/>
-		<form:hidden id="flag" path="act.flag"/>
 		<sys:message content="${message}"/>	
 		<table class="table-form">
 			<tr>
@@ -74,9 +72,15 @@
 			</tr>
 			<tr>
 				<td colspan="1" class="tit">招标方(若无第三方，可不填)</td>
-				<td class="tit_content" colspan="5">
+				<td class="tit_content" colspan="3">
 					${projectBidding.tenderer }
 				</td>
+				
+				<td colspan="1" class="tit">是否有外包</td>
+				<td colspan="1" class="">
+					${fns:getDictLabel(projectBidding.outsourcing, 'yes_no', '否')}
+				</td>
+				
 			</tr>
 			<tr>
 				<td colspan="1" class="tit">标书种类</td>
@@ -107,10 +111,11 @@
                         ${projectBidding.grossMargin }
                 </td>
 
-				<td colspan="1" class="tit">毛利率％</td>
-				<td class="tit_content" colspan="1">
-					${projectBidding.profitMargin }
-				</td>
+                <td colspan="1" class="tit">毛利率％</td>
+                <td class="tit_content" colspan="1">
+                        ${projectBidding.profitMargin }
+                </td>
+
 			</tr>
 			<tr>
 				<td colspan="1" class="tit">投标内容与立项内容偏差说明</td>
@@ -123,7 +128,6 @@
 				<td class="" colspan="5">
 					<form:hidden id="profitMarginFile" path="profitMarginFile" htmlEscape="false" maxlength="2000" class="input-xlarge required"/>
 					<sys:ckfinder input="profitMarginFile" type="files" uploadPath="/project/bidding/projectBidding" selectMultiple="true"/>
-					<span class="help-inline"><font color="red">*</font> </span>
 				</td>
 				<script type="text/javascript">
 					$(document).ready(function() {
@@ -146,30 +150,13 @@
 				</div>
 				</td>
 			</tr>
-			<tr>
-				<td class="tit">您的意见</td>
-				<td colspan="6">
-                    <form:textarea path="act.comment" class="required" rows="5" maxlength="4000" value="同意" cssStyle="width:500px" />
-					<span class="help-inline"><font color="red">*</font></span>
-				</td>
-			</tr>
+			
 		</table>	
 		
+		<act:histoicFlow procInsId="${projectBidding.processInstanceId}" />
 		<div class="form-actions">
-			<shiro:hasPermission name="project:bidding:projectBidding:edit">
-			
-				<c:if test="${projectBidding.act.taskDefKey eq 'apply_end'}">
-					<input id="btnSubmit" class="btn btn-primary" type="submit" value="兑 现" onclick="$('#flag').val('yes')"/>&nbsp;
-				</c:if>
-				<c:if test="${projectBidding.act.taskDefKey ne 'apply_end'}">
-					<input id="btnSubmit" class="btn btn-primary" type="submit" value="同 意" onclick="$('#flag').val('yes')"/>&nbsp;
-					<input id="btnSubmit" class="btn btn-inverse" type="submit" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;
-				</c:if>
-			
-			</shiro:hasPermission>
-			<input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.back()"/>
+			<input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.go(-1)"/>
 		</div>
-		<act:histoicFlow procInsId="${projectBidding.act.procInsId}"/>
 	</form:form>
 </body>
 </html>

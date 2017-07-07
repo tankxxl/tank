@@ -61,12 +61,15 @@ public class ActUtils {
     public static final String[] PD_PROJECTFINISHAPPROVAL = new String[]{"ProjectFinishApproval", "project_finish_approval"};
     public static final String[] PD_TECHAPPLY = new String[]{"Techapply", "project_techapply"};
 
-    // 同意 or 驳回 申请单
-    public static final String VAR_PASS = "pass";
+    // 同意 or 驳回 申请单，不用此变量
+    // public static final String VAR_PASS = "pass";
     // 流程节点标题
     public static final String VAR_TITLE = "title";
     // 项目类型，字典中key值，在后期审批节点中需要用项目类型来查找审批角色 *
     public static final String VAR_PRJ_TYPE = "prjType";
+
+	// 根据项目类型来设置，软件类项目为2，其它类项目为1 *
+	public static final String VAR_TYPE = "type";
     // 申请单类名
     public static final String VAR_CLASS_TYPE = "classType";
     // 申请单id *
@@ -75,13 +78,14 @@ public class ActUtils {
     public static final String VAR_PRJ_ID = "prjId";
     // 申请人loginName 在后期审批节点中需要用申请人来查找审批角色 *
     public static final String VAR_APPLY = "apply";
-    // 是否需要总经理审批
-    public static final String VAR_BOSS_AUDIT = "boss";
-    // 是否需要人力部负责人审批
-    public static final String VAR_HR_AUDIT = "hr";
 
-    // 项目专员的loginName
-    public static final String VAR_SPECIALIST = "specialist";
+    // 是否需要总经理审批，此变量不再使用，使用意思相反的skip_boss变量
+    // @Deprecated
+    // public static final String VAR_BOSS_AUDIT = "boss";
+
+    // 是否需要人力部负责人审批，此变量不再使用，使用意思相反的skip_hr变量
+    // @Deprecated
+    // public static final String VAR_HR_AUDIT = "hr";
 
     // 发邮件时使用，用于生成邮件标题，此变量不需要了，可以通过ProcessDefCache.get(task.getProcessDefinitionId())获得
     // public static final String VAR_PROC_NAME = "procName";

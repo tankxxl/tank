@@ -3,9 +3,8 @@
  */
 package com.thinkgem.jeesite.modules.project.dao.contract;
 
-import com.thinkgem.jeesite.common.persistence.CrudDao;
+import com.thinkgem.jeesite.common.persistence.JicDao;
 import com.thinkgem.jeesite.common.persistence.annotation.MyBatisDao;
-import com.thinkgem.jeesite.modules.project.entity.bidding.ProjectBidding;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 
 /**
@@ -14,7 +13,7 @@ import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
  * @version 2016-03-09
  */
 @MyBatisDao
-public interface ProjectContractDao extends CrudDao<ProjectContract> {
+public interface ProjectContractDao extends JicDao<ProjectContract> {
 	
 	/**
 	 * 必须保证一个项目只出现在合同审批表中一次
@@ -22,7 +21,5 @@ public interface ProjectContractDao extends CrudDao<ProjectContract> {
 	 * @return
 	 */
 	public ProjectContract findContractByPrjId(String prjId);
-
-	public ProjectContract findByProcInsId(String procInsId);
 	
 }

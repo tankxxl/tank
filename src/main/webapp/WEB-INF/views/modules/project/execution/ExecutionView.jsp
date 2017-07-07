@@ -61,7 +61,7 @@
     </c:if>
     <li class="active"><a href="${ctx}/project/execution/form?id=${projectExecution.id}">合同执行
     <shiro:hasPermission name="project:execution:edit">
-        ${not empty projectPurchase.act.taskId?'审批':'查看'}
+        ${not empty projectExecution.act.taskId?'审批':'查看'}
     </shiro:hasPermission>
     <shiro:lacksPermission name="project:execution:edit">查看</shiro:lacksPermission></a></li>
 </ul>

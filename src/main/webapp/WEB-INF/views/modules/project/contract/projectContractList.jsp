@@ -43,7 +43,8 @@
 		<li class="active"><a href="${ctx}/project/contract/projectContract/">合同列表</a></li>
 		<shiro:hasPermission name="project:contract:projectContract:edit"><li><a href="${ctx}/project/contract/projectContract/form">合同添加</a></li></shiro:hasPermission>
 	</ul>
-	<form:form id="searchForm" modelAttribute="projectContract" action="${ctx}/project/contract/projectContract/" method="post" class="breadcrumb form-search">
+	<form:form id="searchForm" modelAttribute="projectContract" htmlEscape="false"
+			   action="${ctx}/project/contract/projectContract/" method="post" class="breadcrumb form-search">
 		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
 		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 		<ul class="ul-form">
@@ -81,41 +82,41 @@
 				<td>
 					<fmt:formatDate value="${projectContract.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/>
 				</td>
-				
+
 				<c:choose>
-					<c:when test="${projectContract.processStatus != '2'}">
-						<td style="color:red;">
+				<c:when test="${projectContract.procStatus != '2'}">
+				<td class="text-warning" >
 					</c:when>
 					<c:otherwise>
-						<td>
+				<td class="text-success">
 					</c:otherwise>
-				</c:choose>
-					${fns:getDictLabel(projectContract.processStatus, 'AuditStatus', '')}
+					</c:choose>
+						${fns:getDictLabel(projectContract.procStatus, 'AuditStatus', '')}
 				</td>
 				
 				<shiro:hasPermission name="project:contract:projectContract:edit">
 				<td>
-					<c:if test="${projectContract.processStatus == '2'}">
+					<c:if test="${projectContract.procStatus == '2'}">
 					<input export="btnExport" class="btn btn-primary" type="button" proId="${projectContract.id}" value="导出"/>
 					</c:if>
     				<a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}">详情</a>
     				
-    				<c:if test="${projectContract.processStatus != '2'}">
+    				<c:if test="${projectContract.procStatus != '2'}">
 						<a class="trace" target="_blank" procInsId="${projectContract.procInsId}" href="${ctx}/act/task/trace1?procInsId=${projectContract.procInsId}">跟踪</a>
 					</c:if>
-					<c:if test="${projectContract.processStatus == '2'}">
+					<c:if test="${projectContract.procStatus == '2'}">
 						<a href="${ctx}/project/contract/projectContract/delete?id=${projectContract.id}" onclick="return confirmx('确认要删除该合同吗？', this.href)">删除</a>
 					</c:if>
 
 
-					<a href="${ctx}/project/execution/view?id=${projectPurchase.execution.id}" target="_jeesnsOpen"
-					   title="${projectPurchase.apply.projectName}" width="800px" height="500px">
-						<span class="label label-info">开票回款信息</span>
-					</a>
-					<a href="${ctx}/project/execution/view?id=${projectPurchase.execution.id}" target="_jeesnsOpen"
-					   title="${projectPurchase.apply.projectName}" width="800px" height="500px">
-						<span class="label label-info">开票申请</span>
-					</a>
+					<%--<a href="${ctx}/project/execution/view?id=${projectPurchase.execution.id}" target="_jeesnsOpen"--%>
+					   <%--title="${projectPurchase.apply.projectName}" width="800px" height="500px">--%>
+						<%--<span class="label label-info">开票回款信息</span>--%>
+					<%--</a>--%>
+					<%--<a href="${ctx}/project/execution/view?id=${projectPurchase.execution.id}" target="_jeesnsOpen"--%>
+					   <%--title="${projectPurchase.apply.projectName}" width="800px" height="500px">--%>
+						<%--<span class="label label-info">开票申请</span>--%>
+					<%--</a>--%>
 
 				
     				<%-- <a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}">详情</a>

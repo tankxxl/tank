@@ -91,41 +91,35 @@
 				<td>
 					${fns:getDictLabels(projectBidding.category, 'tender_category', '')}
 				</td>
-				<%--<td>--%>
-					<%--${fns:getDictLabels(projectBidding.printingPaste, 'tender_printing_paste', '')}--%>
-				<%--</td>--%>
+
 				<td>
 					<fmt:formatDate value="${projectBidding.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/>
 				</td>
-				
+
 				<c:choose>
-					<c:when test="${projectBidding.processStatus != '2'}">
-						<td style="color:red;">
+				<c:when test="${projectBidding.procStatus != '2'}">
+				<td class="text-warning" >
 					</c:when>
 					<c:otherwise>
-						<td>
+				<td class="text-success">
 					</c:otherwise>
-				</c:choose>
-					${fns:getDictLabel(projectBidding.processStatus, 'AuditStatus', '')}
+					</c:choose>
+						${fns:getDictLabel(projectBidding.procStatus, 'AuditStatus', '')}
 				</td>
-				
-				<%--<td>--%>
-					<%--${projectBidding.remarks}--%>
-				<%--</td>--%>
 
 				<td>
 				<shiro:hasPermission name="project:bidding:projectBidding:edit">
 
-					<c:if test="${projectBidding.processStatus == '2'}">
+					<c:if test="${projectBidding.procStatus == '2'}">
 					<input export="btnExport" class="btn btn-primary" type="button" proId="${projectBidding.id}" value="导出"/>
 					</c:if>
 					<a href="${ctx}/project/bidding/projectBidding/form?id=${projectBidding.id}">备案申请</a>
     				<a href="${ctx}/project/bidding/projectBidding/form?id=${projectBidding.id}">详情</a>
     				
-    				<c:if test="${projectBidding.processStatus != '2'}">
-						<a class="trace" target="_blank" procInsId="${projectBidding.processInstanceId}" href="${ctx}/act/task/trace1?procInsId=${projectBidding.processInstanceId}">跟踪</a>
+    				<c:if test="${projectBidding.procStatus != '2'}">
+						<a class="trace" target="_blank" procInsId="${projectBidding.procInsId}" href="${ctx}/act/task/trace1?procInsId=${projectBidding.procInsId}">跟踪</a>
 					</c:if>
-					<c:if test="${projectBidding.processStatus == '2'}">
+					<c:if test="${projectBidding.procStatus == '2'}">
 						<a href="${ctx}/project/bidding/projectBidding/delete?id=${projectBidding.id}" onclick="return confirmx('确认要删除该项目投标吗？', this.href)">删除</a>
 					</c:if>
     				

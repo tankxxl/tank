@@ -4,6 +4,7 @@
 package com.thinkgem.jeesite.modules.project.dao.tech;
 
 import com.thinkgem.jeesite.common.persistence.CrudDao;
+import com.thinkgem.jeesite.common.persistence.JicDao;
 import com.thinkgem.jeesite.common.persistence.annotation.MyBatisDao;
 import com.thinkgem.jeesite.modules.project.entity.tech.Techapply;
 
@@ -13,7 +14,7 @@ import com.thinkgem.jeesite.modules.project.entity.tech.Techapply;
  * @version 2016-03-11
  */
 @MyBatisDao
-public interface TechapplyDao extends CrudDao<Techapply> {
+public interface TechapplyDao extends JicDao<Techapply> {
 	
 	public void update4AssignFlag(Techapply techapply);
 	

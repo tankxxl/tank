@@ -2,14 +2,10 @@
 package com.thinkgem.jeesite.modules.project.service.purchase;
 
 import com.thinkgem.jeesite.common.service.JicActService;
-import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
-import com.thinkgem.jeesite.modules.apply.service.external.ProjectApplyExternalService;
-import com.thinkgem.jeesite.modules.mail.service.MailService;
 import com.thinkgem.jeesite.modules.project.dao.purchase.ProjectPurchaseDao;
 import com.thinkgem.jeesite.modules.project.entity.purchase.ProjectPurchase;
 import com.thinkgem.jeesite.modules.project.utils.MyDictUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,16 +24,16 @@ public class ProjectPurchaseService extends JicActService<ProjectPurchaseDao, Pr
 //    @Autowired
 //    private ProjectPurchaseItemDao itemDao;
 
-    @Autowired
-    ActTaskService actTaskService;
+    // @Autowired
+    // ActTaskService actTaskService;
 
-    @Autowired
-    MailService mailService;
+    // @Autowired
+    // MailService mailService;
 
-    @Autowired
-    private ProjectApplyExternalService applyService;
+    // @Autowired
+    // private ProjectApplyExternalService applyService;
 
-    private boolean isNewRecord;
+    // private boolean isNewRecord;
 
     @Override
     public ProjectPurchase get(String id) {
@@ -167,9 +163,4 @@ public class ProjectPurchaseService extends JicActService<ProjectPurchaseDao, Pr
     //
     //     return launchWorkflowBase(purchase, isNewRecord, title, varMap);
     // }
-
-    @Override
-    public void processAudit(ProjectPurchase entity, Map<String, Object> vars) {
-
-    }
 }

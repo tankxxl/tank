@@ -152,24 +152,20 @@ public class ProjectExecutionService extends JicActService<ProjectExecutionDao, 
         String taskDefKey = projectExecution.getAct().getTaskDefKey();
         if (UserTaskType.UT_BUSINESS_LEADER.equals(taskDefKey)) {
             if ("03".equals(projectExecution.getApply().getCategory()) ) {
-                vars.put("type", "2");
+                vars.put(ActUtils.VAR_TYPE, "2");
             } else {
-                vars.put("type", "1");
+                vars.put(ActUtils.VAR_TYPE, "1");
             }
             // 项目类型
-            vars.put(ActUtils.VAR_PRJ_TYPE, projectExecution.getApply().getCategory());
+            // vars.put(ActUtils.VAR_PRJ_TYPE, projectExecution.getApply().getCategory());
             // 都需要总经理审批
-            vars.put(ActUtils.VAR_BOSS_AUDIT, "1");
-
         } else if (UserTaskType.UT_OWNER.equals(taskDefKey)) {
             // 又到自己的手里，重新提交
             // save(projectExecution);
             // projectExecution.getAct().setComment((projectExecution.getAct().getFlagBoolean() ?
             //         	"[同意] ":"[驳回] ") + projectExecution.getAct().getComment());
         } else if ("".equalsIgnoreCase(taskDefKey)) {
-
         }
-
     }
 
     // private String launchWorkflow(ProjectExecution projectExecution) {

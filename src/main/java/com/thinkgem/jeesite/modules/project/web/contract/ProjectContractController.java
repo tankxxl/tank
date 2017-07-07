@@ -13,12 +13,9 @@ import com.thinkgem.jeesite.common.web.BaseController;
 import com.thinkgem.jeesite.modules.act.entity.Act;
 import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
-import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContractItem;
-import com.thinkgem.jeesite.modules.project.entity.execution.ProjectExecution;
 import com.thinkgem.jeesite.modules.project.service.contract.ProjectContractService;
-import com.thinkgem.jeesite.modules.project.service.execution.ProjectExecutionService;
 import com.thinkgem.jeesite.modules.sys.utils.ExportUtils;
 import com.thinkgem.jeesite.modules.sys.utils.POIUtils;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
@@ -86,44 +83,50 @@ public class ProjectContractController extends BaseController {
 	@RequiresPermissions("project:contract:projectContract:view")
 	@RequestMapping(value = "form")
 	public String form(ProjectContract projectContract, Model model) {
-        model.addAttribute("projectContract", projectContract);
-        String prefix = "modules/project/contract/";
+
+		String prefix = "modules/project/contract/";
 		String view = "projectContractForm";
 
+		model.addAttribute("projectContract", projectContract);
+
+		// 待办、已办入口界面传的act是一样的，只是act中的status不一样。
+
 		if (projectContract.getIsNewRecord()) {
+			// 入口1：新建表单，直接返回空实体
 			if (projectContract.hasAct()) {
+				// 入口2：从已办任务界面来的请求，1、实体是新建的，2、act是activi框架填充的。
+				// 此时实体应该由流程id来查询。
 				view = "projectContractView";
-				Act oldAct = projectContract.getAct();
-				projectContract = contractService.findByProcInsId(projectContract.getAct().getProcInsId());
-				projectContract.setAct(oldAct);
+				projectContract = contractService.findByProcInsId(projectContract);
+				if (projectContract == null) {
+					projectContract = new ProjectContract();
+				}
 			}
 			return prefix + view;
 		}
 
+		// 入口3：在流程图中配置，从待办任务界面来的请求，entity和act都已加载。
+		// 环节编号
+		String taskDefKey = projectContract.getAct().getTaskDefKey();
 
-		// 查看审批申请单
-        // 环节编号
-        String taskDefKey = projectContract.getAct().getTaskDefKey();
-        // 查看工单
-        if (projectContract.getAct().isFinishTask()) {
-
-            view = "projectContractView";
-        }
-        // 修改环节
-        else if (UserTaskType.UT_OWNER.equals(taskDefKey)) {
-            view = "projectContractForm";
-        }
-        // 下面是技术部门设置 项目经理
-        else if ("usertask_software_development_leader".equals(taskDefKey)||"usertask_service_delivery_leader".equals(taskDefKey)) {
-            view = "projectContractAudit4HeadOfTechnology";
-        }
-        // 审核环节2
-        else if ("usertask_software_leader".equals(taskDefKey)) {
-            view = "projectContractAudit";
-        } else {
-            view = "projectContractAudit";
-        }
-
+		// 查看
+		if(projectContract.getAct().isFinishTask()){
+			view = "projectContractView";
+		}
+		// 修改环节
+		else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ){
+			view = "projectContractForm";
+		}
+		// 下面是技术部门设置 项目经理
+		else if ("usertask_software_development_leader".equals(taskDefKey)||"usertask_service_delivery_leader".equals(taskDefKey)) {
+			view = "projectContractView";
+		}
+		// 某审批环节
+		else if ("apply_end".equals(taskDefKey)){
+			view = "projectContractView";  // replace ExecutionAudit
+		} else {
+			view = "projectContractView";
+		}
 		return prefix + view;
 	}
 
@@ -135,13 +138,15 @@ public class ProjectContractController extends BaseController {
 		}
 
 		String flag = projectContract.getAct().getFlag();
-		if (StringUtils.isBlank(flag)) {
-			contractService.onlySave(projectContract);
-		} else {
+//		flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
+		if ("saveOnly".equals(flag)) { // 只保存表单数据
 			contractService.save(projectContract);
+		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
+			contractService.saveFinishProcess(projectContract);
+		} else {
+			contractService.saveLaunch(projectContract);
 		}
 
-//		contractService.save(projectContract);
 		addMessage(redirectAttributes, "保存合同成功");
 		
 		String usertask = projectContract.getAct().getTaskDefKey();
@@ -168,7 +173,7 @@ public class ProjectContractController extends BaseController {
 			addMessage(model, "请填写审核意见。");
 			return form(projectContract, model);
 		}
-		contractService.auditSave(projectContract);
+		contractService.saveAudit(projectContract);
 		return "redirect:" + adminPath + "/act/task/todo/";
 	}
 

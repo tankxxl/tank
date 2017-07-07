@@ -25,8 +25,8 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 	private ProjectApplyExternal apply;//项目立项bean
 	private User projectManager;//项目经理
 	private String stage;		// 项目步骤
-	private String procInsId;		// 流程实例ID
-	private String processStatus;		// 流程审批状态
+	// private String procInsId;		// 流程实例ID
+	// private String processStatus;		// 流程审批状态
 	private String attachment; // 文档附件
 
 	@Valid
@@ -65,26 +65,6 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 
 	public void setStage(String stage) {
 		this.stage = stage;
-	}
-	
-	@Override
-	@Length(min=0, max=100, message="流程实例ID长度必须介于 0 和 100 之间")
-	public String getProcInsId() {
-		return procInsId;
-	}
-
-	@Override
-	public void setProcInsId(String procInsId) {
-		this.procInsId = procInsId;
-	}
-	
-	@Length(min=0, max=100, message="流程审批状态长度必须介于 0 和 100 之间")
-	public String getProcessStatus() {
-		return processStatus;
-	}
-
-	public void setProcessStatus(String processStatus) {
-		this.processStatus = processStatus;
 	}
 	
 	public String getAttachment() {
