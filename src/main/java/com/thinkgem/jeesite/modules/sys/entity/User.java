@@ -3,14 +3,6 @@
  */
 package com.thinkgem.jeesite.modules.sys.entity;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.Length;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Lists;
@@ -20,6 +12,12 @@ import com.thinkgem.jeesite.common.supcan.annotation.treelist.cols.SupCol;
 import com.thinkgem.jeesite.common.utils.Collections3;
 import com.thinkgem.jeesite.common.utils.excel.annotation.ExcelField;
 import com.thinkgem.jeesite.common.utils.excel.fieldtype.RoleListType;
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.Length;
+
+import javax.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 用户Entity
@@ -105,8 +103,9 @@ public class User extends DataEntity<User> {
 	public void setCompany(Office company) {
 		this.company = company;
 	}
-	
-	@JsonIgnore
+
+	// rgz为了前端getAsJson得到实体的部门信息
+	// @JsonIgnore
 	@NotNull(message="归属部门不能为空")
 	@ExcelField(title="归属部门", align=2, sort=25)
 	public Office getOffice() {

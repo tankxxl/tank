@@ -1,7 +1,7 @@
 /**
  * Copyright &copy; 2012-2014 <a href="https://github.com/thinkgem/jeesite">JeeSite</a> All rights reserved.
  */
-package com.thinkgem.jeesite.modules.project.entity.bidding;
+package com.thinkgem.jeesite.modules.project.entity.biddingArchive;
 
 import com.google.common.collect.Lists;
 import com.thinkgem.jeesite.common.persistence.ActEntity;
@@ -19,8 +19,8 @@ import java.util.List;
  * @author jicdata
  * @version 2016-03-08
  */
-public class ProjectBidding extends ActEntity<ProjectBidding> {
-	
+public class BiddingArchive extends ActEntity<BiddingArchive> {
+
 	private static final long serialVersionUID = 1L;
 	private ProjectApplyExternal apply;		// 外部项目立项编号
 	private String tenderer;		// 招标方
@@ -32,7 +32,7 @@ public class ProjectBidding extends ActEntity<ProjectBidding> {
     private String grossMargin; // 投标毛利(元)
 	private String profitMargin;		// 毛利率
 	private String profitMarginFile;		// 毛利说明文件
-	
+
 	private String outsourcing; // 是否有外包，0：没有；1：有
 
     private String result; // 投标结果
@@ -57,11 +57,11 @@ public class ProjectBidding extends ActEntity<ProjectBidding> {
 	private String lostInfo; // 北京科技-丟标分析
 	private String membersName; // 合成字段，用于前台展示，数据来源于数据库
 
-	public ProjectBidding() {
+	public BiddingArchive() {
 		super();
 	}
 
-	public ProjectBidding(String id){
+	public BiddingArchive(String id){
 		super(id);
 	}
 
@@ -376,5 +376,17 @@ public class ProjectBidding extends ActEntity<ProjectBidding> {
 
 	public void setMembersName(String membersName) {
 		this.membersName = membersName;
+	}
+
+
+	// utils
+	public String isBossAudit() {
+		boolean ret = StringUtils.toDouble(this.biddingPrice).equals(StringUtils.toDouble(finalPrice));
+		if (ret) {
+			return "1";
+		} else {
+			return "0";
+		}
+		// return StringUtils.toDouble(this.biddingPrice) == StringUtils.toDouble(finalPrice);
 	}
 }

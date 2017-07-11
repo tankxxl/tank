@@ -6,6 +6,7 @@ import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.apply.service.external.ProjectApplyExternalService;
 import com.thinkgem.jeesite.modules.project.service.bidding.ProjectBiddingService;
+import com.thinkgem.jeesite.modules.project.service.biddingArchive.BiddingArchiveService;
 import com.thinkgem.jeesite.modules.project.service.contract.ProjectContractService;
 import com.thinkgem.jeesite.modules.project.service.execution.ProjectExecutionService;
 import com.thinkgem.jeesite.modules.project.service.finish.ProjectFinishApprovalService;
@@ -29,9 +30,6 @@ public class AuditEndListener implements ExecutionListener{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-//	@Autowired
-//    ProjectExecutionService executionService;
 
 	@Override
 	public void notify(DelegateExecution execution) throws Exception {
@@ -62,7 +60,12 @@ public class AuditEndListener implements ExecutionListener{
             jicActService = SpringContextHolder.getBean(ProjectBiddingService.class);
 
             stageValue = DictUtils.getDictValue("投标完成", "jic_pro_main_stage", "0");
-        } else if (ActUtils.PD_PROJECTCONTRACT[0].equalsIgnoreCase(defKey)) {
+        } else if (ActUtils.PD_BIDDINGARCHIVE[0].equalsIgnoreCase(defKey)) { // 投标备案
+            // 得到业务Service
+            jicActService = SpringContextHolder.getBean(BiddingArchiveService.class);
+
+            stageValue = DictUtils.getDictValue("投标备案完成", "jic_pro_main_stage", "0");
+        } else if (ActUtils.PD_PROJECTCONTRACT[0].equalsIgnoreCase(defKey)) { // 合同
             // 得到业务Service
             jicActService = SpringContextHolder.getBean(ProjectContractService.class);
 

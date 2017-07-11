@@ -85,6 +85,13 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 				varMap.put(ActUtils.VAR_TYPE, "1");
 			}
 
+			if ("1".equals(projectApplyExternal.getSelfDev()) ) {
+				varMap.put(ActUtils.VAR_SKIP_DEV, "0");
+			} else {
+				varMap.put(ActUtils.VAR_SKIP_DEV, "1");
+			}
+
+
 			boolean isBossAudit = MyDictUtils.isBossAudit(projectApplyExternal.getEstimatedContractAmount(), projectApplyExternal.getEstimatedGrossProfitMargin());
 			if (isBossAudit) { // 需要总经理审批
 				varMap.put(ActUtils.VAR_SKIP_BOSS, "0");

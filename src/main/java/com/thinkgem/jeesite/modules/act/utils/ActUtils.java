@@ -54,6 +54,7 @@ public class ActUtils {
     public static final String[] PD_TEST_AUDIT = new String[]{"test_audit", "oa_test_audit"};
     public static final String[] PD_PROJECTAPPLYEXTERNAL = new String[]{"ProjectApplyExternal", "project_apply_external"};
     public static final String[] PD_PROJECTBIDDING = new String[]{"ProjectBidding", "project_bidding"};
+	public static final String[] PD_BIDDINGARCHIVE = new String[]{"BiddingArchive", "project_bidding_archive"};
     public static final String[] PD_PROJECTCONTRACT = new String[]{"ProjectContract", "project_contract"};
     public static final String[] PD_execution = new String[]{"ProjectExecution", "project_execution"};
     public static final String[] PD_purchase = new String[]{"ProjectPurchase", "project_purchase"};
@@ -94,9 +95,13 @@ public class ActUtils {
     public static final String VAR_SKIP_BOSS = "skip_boss";
     public static final String VAR_SKIP_HR = "skip_hr";
 	public static final String VAR_SKIP_inout = "skip_inout";
-	// 1为skip，bjkj，是否需要技术开发中心审批
+	// 1为skip，bjkj，是否需要技术开发中心审批，是否自研项目
 	public static final String VAR_SKIP_DEV = "skip_dev";
+	// 1为直接跳转到结束节点，0为逐级审批，用在投标备案流程
+	public static final String VAR_END = "end";
 
+	// 此变量不需要了，可以通过ProcessDefCache.get(task.getProcessDefinitionId())获得
+	@Deprecated
     public static final String PROC_NAME_APPLY = "项目立项审批流程";
     public static final String PROC_NAME_BIDDING = "项目投标审批流程";
     public static final String PROC_NAME_CONTRACT = "项目合同审批流程";
@@ -105,6 +110,7 @@ public class ActUtils {
     public static final String PROC_NAME_invoice = "开票审批流程";
     public static final String PROC_NAME_FINISH = "项目结项审批流程";
     public static final String PROC_NAME_TECH = "技术资源申请流程";
+	// public static final String PROC_NAME_TECH = "技术资源申请流程";
 
 	/**
 	 * 流程定义Map（自动初始化）

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.thinkgem.jeesite.modules.project.dao.bidding.ProjectBiddingDao">
+<mapper namespace="com.thinkgem.jeesite.modules.project.dao.biddingArchive.BiddingArchiveDao">
     
 	<sql id="projectBiddingColumns">
 		a.apply_id AS "apply.id",
@@ -73,27 +73,27 @@
 		LEFT JOIN sys_user pm ON pm.id = pro_apply.project_manager_id
 	</sql>
     
-	<select id="get" resultType="ProjectBidding">
+	<select id="get" resultType="BiddingArchive">
 		SELECT 
 			<include refid="projectBiddingColumns"/>
-		FROM project_bidding a
+		FROM project_bidding_archive a
 		<include refid="projectBiddingJoins"/>
 		WHERE a.id = #{id}
 	</select>
 
-	<select id="findByProcInsId" resultType="ProjectBidding">
+	<select id="findByProcInsId" resultType="BiddingArchive">
 		SELECT
 		<include refid="projectBiddingColumns"/>
-		FROM project_bidding a
+		FROM project_bidding_archive a
 		<include refid="projectBiddingJoins"/>
 		WHERE a.proc_ins_id = #{procInsId}
 	</select>
 
 	
-	<select id="findList" resultType="ProjectBidding">
+	<select id="findList" resultType="BiddingArchive">
 		SELECT 
 			<include refid="projectBiddingColumns"/>
-		FROM project_bidding a
+		FROM project_bidding_archive a
 		<include refid="projectBiddingJoins"/>
 		<where>
 			a.del_flag = #{DEL_FLAG_NORMAL}
@@ -127,10 +127,10 @@
 		</choose>
 	</select>
 	
-	<select id="findAllList" resultType="ProjectBidding">
+	<select id="findAllList" resultType="BiddingArchive">
 		SELECT 
 			<include refid="projectBiddingColumns"/>
-		FROM project_bidding a
+		FROM project_bidding_archive a
 		<include refid="projectBiddingJoins"/>
 		<where>
 			a.del_flag = #{DEL_FLAG_NORMAL}
@@ -146,7 +146,7 @@
 	</select>
 	
 	<insert id="insert">
-		INSERT INTO project_bidding(
+		INSERT INTO project_bidding_archive(
 			apply_id,
 			tenderer,
 			category,
@@ -234,7 +234,7 @@
 	</insert>
 	
 	<update id="update">
-		UPDATE project_bidding SET 	
+		UPDATE project_bidding_archive SET
 			apply_id = #{apply.id},
 			tenderer = #{tenderer},
 			category = #{category},
@@ -275,7 +275,7 @@
 	</update>
 	
 	<update id="delete">
-		UPDATE project_bidding SET 
+		UPDATE project_bidding_archive SET
 			del_flag = #{DEL_FLAG_DELETE}
 		WHERE id = #{id}
 	</update>

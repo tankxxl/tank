@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp"%>
 <html>
 <head>
-	<title>项目投标管理</title>
+	<title>投标备案管理</title>
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
@@ -40,12 +40,12 @@
 </head>
 <body>
 <ul class="nav nav-tabs">
-	<li class="active"><a href="${ctx}/project/bidding/projectBidding/">投标申请列表</a></li>
-	<shiro:hasPermission name="project:bidding:projectBidding:edit">
-		<li><a href="${ctx}/project/bidding/projectBidding/form">投标添加</a></li></shiro:hasPermission>
+	<li class="active"><a href="${ctx}/bidding/archive/">投标备案申请列表</a></li>
+	<%--<shiro:hasPermission name="project:bidding:projectBidding:edit">--%>
+		<%--<li><a href="${ctx}/bidding/archive/form">投标添加</a></li></shiro:hasPermission>--%>
 </ul>
-	<form:form id="searchForm" modelAttribute="projectBidding" htmlEscape="false"
-			   action="${ctx}/project/bidding/projectBidding/" method="post" class="breadcrumb form-search">
+	<form:form id="searchForm" modelAttribute="biddingArchive" htmlEscape="false"
+			   action="${ctx}/bidding/archive/" method="post" class="breadcrumb form-search">
 		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
 		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 		<ul class="ul-form">
@@ -60,9 +60,6 @@
 					<%--<form:option value="" label=""/>--%>
 					<%--<form:options items="${fns:getDictList('yes_no')}" itemLabel="label" itemValue="value" />--%>
 				<%--</form:select>--%>
-			<%--</li>--%>
-			<%--<li><label>用印内容：</label>--%>
-				<%--<form:checkboxes path="printingPaste" items="${fns:getDictList('tender_printing_paste')}" itemLabel="label" itemValue="value" htmlEscape="false"/>--%>
 			<%--</li>--%>
 			<li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/></li>
 			<li class="clearfix"></li>
@@ -83,70 +80,64 @@
 			</tr>
 		</thead>
 		<tbody>
-		<c:forEach items="${page.list}" var="projectBidding">
+		<c:forEach items="${page.list}" var="biddingArchive">
 			<tr>
-				<td><a href="${ctx}/project/bidding/projectBidding/form?id=${projectBidding.id}">
-					${projectBidding.apply.projectCode}
+				<td><a href="${ctx}/bidding/archive/form?id=${biddingArchive.id}">
+					${biddingArchive.apply.projectCode}
 				</a></td>
 				<td>
-					${projectBidding.apply.projectName}
+					${biddingArchive.apply.projectName}
 				</td>
-				<%--<td>--%>
-					<%--${fns:getDictLabels(projectBidding.category, 'tender_category', '')}--%>
-				<%--</td>--%>
-
 				<td>
-					<fmt:formatDate value="${projectBidding.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/>
+					<fmt:formatDate value="${biddingArchive.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/>
 				</td>
 
 				<c:choose>
-				<c:when test="${projectBidding.procStatus != '2'}">
+				<c:when test="${biddingArchive.procStatus != '2'}">
 				<td class="text-warning" >
 					</c:when>
 					<c:otherwise>
 				<td class="text-success">
 					</c:otherwise>
 					</c:choose>
-						${fns:getDictLabel(projectBidding.procStatus, 'AuditStatus', '')}
+						${fns:getDictLabel(biddingArchive.procStatus, 'AuditStatus', '')}
 				</td>
 
 				<%--<c:choose>--%>
-					<%--<c:when test="${projectBidding.archiveFlag != '1'}">--%>
+					<%--<c:when test="${biddingArchive.archiveFlag != '1'}">--%>
 						<%--<td class="text-warning" >--%>
 					<%--</c:when>--%>
 					<%--<c:otherwise>--%>
 						<%--<td class="text-success">--%>
 					<%--</c:otherwise>--%>
 				<%--</c:choose>--%>
-					<%--${fns:getDictLabel(projectBidding.archiveFlag, 'yes_no', '否')}--%>
+					<%--${fns:getDictLabel(biddingArchive.archiveFlag, 'yes_no', '否')}--%>
 				<%--</td>--%>
 
 				<td>
 				<shiro:hasPermission name="project:bidding:projectBidding:edit">
 
-					<c:if test="${projectBidding.procStatus == '2'}">
-					<input export="btnExport" class="btn btn-primary" type="button" proId="${projectBidding.id}" value="导出"/>
+					<c:if test="${biddingArchive.procStatus == '2'}">
+					<input export="btnExport" class="btn btn-primary" type="button" proId="${biddingArchive.id}" value="导出"/>
 					</c:if>
-					<c:if test="${projectBidding.archiveFlag != '1' && projectBidding.procStatus == '2'}">
-						<a href="${ctx}/bidding/archive/bidding2archive?biddingId=${projectBidding.id}">备案申请</a>
-					</c:if>
+					<%--<c:if test="${biddingArchive.archiveFlag != '1' && biddingArchive.procStatus == '2'}">--%>
+						<%--<a href="${ctx}/bidding/archive/form?id=${biddingArchive.id}">备案申请</a>--%>
+					<%--</c:if>--%>
 
-    				<a href="${ctx}/project/bidding/projectBidding/form?id=${projectBidding.id}">详情</a>
+    				<a href="${ctx}/bidding/archive/form?id=${biddingArchive.id}">详情</a>
     				
-    				<c:if test="${projectBidding.procStatus != '2'}">
-						<a class="trace" target="_blank" procInsId="${projectBidding.procInsId}" href="${ctx}/act/task/trace1?procInsId=${projectBidding.procInsId}">跟踪</a>
+    				<c:if test="${biddingArchive.procStatus != '2'}">
+						<a class="trace" target="_blank" procInsId="${biddingArchive.procInsId}" href="${ctx}/act/task/trace1?procInsId=${biddingArchive.procInsId}">跟踪</a>
 					</c:if>
-					<c:if test="${projectBidding.procStatus == '2'}">
-						<a href="${ctx}/project/bidding/projectBidding/delete?id=${projectBidding.id}" onclick="return confirmx('确认要删除该项目投标吗？', this.href)">删除</a>
+					<c:if test="${biddingArchive.procStatus == '2'}">
+						<a href="${ctx}/bidding/archive/delete?id=${biddingArchive.id}" onclick="return confirmx('确认要删除该项目投标吗？', this.href)">删除</a>
 					</c:if>
 				</shiro:hasPermission>
 
 					<shiro:hasPermission name="apply:external:projectApplyExternal:modify">
-						<a href="${ctx}/project/bidding/projectBidding/modify?id=${projectBidding.id}">修改</a>
+						<a href="${ctx}/bidding/archive/modify?id=${biddingArchive.id}">修改</a>
 					</shiro:hasPermission>
-
 				</td>
-
 
 			</tr>
 		</c:forEach>

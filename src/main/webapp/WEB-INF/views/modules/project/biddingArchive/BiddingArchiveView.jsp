@@ -80,19 +80,19 @@
 <body>
 <ul class="nav nav-tabs">
 <c:choose>
-	<c:when test="${ empty projectBidding.act.taskId}">
-		<li><a href="${ctx}/project/bidding/projectBidding/">投标申请列表</a></li>
-		<li class="active"><a href="${ctx}/project/bidding/projectBidding/form?id=${projectBidding.id}">项目投标
-			<shiro:hasPermission name="project:bidding:projectBidding:edit">${not empty projectBidding.id?'审批':'添加'}</shiro:hasPermission><shiro:lacksPermission name="project:bidding:projectBidding:edit">查看</shiro:lacksPermission></a></li>
+	<c:when test="${ empty biddingArchive.act.taskId}">
+		<li><a href="${ctx}/bidding/archive/">投标备案列表</a></li>
+		<li class="active"><a href="${ctx}/bidding/archive/form?id=${biddingArchive.id}">投标备案
+			<shiro:hasPermission name="project:bidding:projectBidding:edit">${not empty biddingArchive.id?'审批':'添加'}</shiro:hasPermission><shiro:lacksPermission name="project:bidding:projectBidding:edit">查看</shiro:lacksPermission></a></li>
 	</c:when>
 	<c:otherwise> <!-- 我的任务 -->
-		<li class="active"><a>项目投标<shiro:hasPermission name="project:bidding:projectBidding:edit">
-			${not empty projectBidding.id?'审批':'添加'}</shiro:hasPermission><shiro:lacksPermission name="project:bidding:projectBidding:edit">查看</shiro:lacksPermission></a></li>
+		<li class="active"><a>投标备案<shiro:hasPermission name="project:bidding:projectBidding:edit">
+			${not empty biddingArchive.id?'审批':'添加'}</shiro:hasPermission><shiro:lacksPermission name="project:bidding:projectBidding:edit">查看</shiro:lacksPermission></a></li>
 	</c:otherwise>
 </c:choose>
 </ul><br/>
-<form:form id="inputForm" modelAttribute="projectBidding" htmlEscape="false"
-		   action="${ctx}/project/bidding/projectBidding/saveAudit" method="post" class="form-horizontal">
+<form:form id="inputForm" modelAttribute="biddingArchive" htmlEscape="false"
+		   action="${ctx}/bidding/archive/saveAudit" method="post" class="form-horizontal">
 	<form:hidden path="id"/>
 	<form:hidden path="act.taskId"/>
 	<form:hidden path="act.taskName"/>
@@ -106,140 +106,137 @@
 		<tr>
 			<td  class="tit">项目名称</td>
 			<td class="" >
-				${projectBidding.apply.projectName}
+				${biddingArchive.apply.projectName}
 			</td>
 			<td  class="tit">项目编号</td>
 			<td  >
-				<input type="hidden"  id="apply_profit_margin" value="${projectBidding.apply.estimatedGrossProfitMargin }"/>
-				<label id="code_label">${projectBidding.apply.projectCode }</label>
+				<input type="hidden"  id="apply_profit_margin" value="${biddingArchive.apply.estimatedGrossProfitMargin }"/>
+				<label id="code_label">${biddingArchive.apply.projectCode }</label>
 			</td>
 			<td  class="tit">项目销售</td>
 			<td  >
-				<label id="saler_label">${projectBidding.apply.saler.name }</label>
+				<label id="saler_label">${biddingArchive.apply.saler.name }</label>
 			</td>
 		</tr>
 
 		<tr>
 			<td  class="tit">发标日期</td>
 			<td  colspan="1">
-				<fmt:formatDate value="${projectBidding.issueDate }" pattern="yyyy-MM-dd"/>
+				<fmt:formatDate value="${biddingArchive.issueDate }" pattern="yyyy-MM-dd"/>
 			</td>
 			<td  class="tit">招标单位</td>
 			<td>
-				${projectBidding.tenderee}
+				${biddingArchive.tenderee}
 			</td>
 			<td  class="tit">投标参与人员</td>
 			<td>
-				${projectBidding.membersName}
+				${biddingArchive.membersName}
 			</td>
 		</tr>
 
 		<tr>
 			<td  class="tit">投标日期</td>
 			<td colspan="1">
-				<fmt:formatDate value="${projectBidding.biddingDate }" pattern="yyyy-MM-dd"/>
+				<fmt:formatDate value="${biddingArchive.biddingDate }" pattern="yyyy-MM-dd"/>
 			</td>
 
 			<td  class="tit">项目经理</td>
 			<td>
-				<label id="pm_label">${projectBidding.apply.projectManager.name }</label>
+				<label id="pm_label">${biddingArchive.apply.projectManager.name }</label>
 			</td>
 
 			<td  class="tit">投标部门</td>
 			<td>
-				<label id="office_label">${projectBidding.apply.saler.office.name }</label>
+				<label id="office_label">${biddingArchive.apply.saler.office.name }</label>
 			</td>
 		</tr>
 
 		<tr>
 			<td  class="tit">招标方情况说明</td>
 			<td colspan="5">
-				${projectBidding.tendereeInfo }
+				${biddingArchive.tendereeInfo }
 			</td>
 		</tr>
 
 		<tr>
 			<td  class="tit">评委情况说明</td>
 			<td colspan="5">
-					${projectBidding.judgeInfo }
+					${biddingArchive.judgeInfo }
 			</td>
 		</tr>
 
 		<tr>
 			<td  class="tit">参标公司情况<br>说明</td>
 			<td colspan="5">
-					${projectBidding.cobidderInfo }
+					${biddingArchive.cobidderInfo }
 			</td>
 		</tr>
 
 		<tr>
 			<td  class="tit">投标前期准备<br>工作内容</td>
 			<td colspan="5">
-					${projectBidding.prepare }
+					${biddingArchive.prepare }
 			</td>
 		</tr>
 
 		<tr>
 			<td  class="tit">投标价格</td>
 			<td colspan="5">
-				${projectBidding.biddingPrice }
+				${biddingArchive.biddingPrice }
 			</td>
 		</tr>
 
 		<tr>
 			<td  class="tit">投标主要内容</td>
 			<td colspan="5">
-				${projectBidding.biddingInfo }
+				${biddingArchive.biddingInfo }
 			</td>
 		</tr>
 
-		<c:set var="ui" value="false"/>
-		<c:if test="${ui == 'true'}">
 		<tr>
 			<td  class="tit">最终价格</td>
 			<td colspan="5">
-					${projectBidding.finalPrice }
+					${biddingArchive.finalPrice }
 			</td>
 		</tr>
 		<tr>
 			<td  class="tit">修改内容</td>
 			<td colspan="5">
-					${projectBidding.finalInfo }
+					${biddingArchive.finalInfo }
 			</td>
 		</tr>
 
 		<tr>
 			<td  class="tit">投标过程中的问题</td>
 			<td colspan="5">
-					${projectBidding.biddingIssue }
+					${biddingArchive.biddingIssue }
 			</td>
 		</tr>
 
 		<tr>
 			<td  class="tit">开标日期</td>
 			<td>
-				<fmt:formatDate value="${projectBidding.openDate }" pattern="yyyy-MM-dd"/>
+				<fmt:formatDate value="${biddingArchive.openDate }" pattern="yyyy-MM-dd"/>
 			</td>
 			<td  class="tit">是否中标</td>
 			<td>
-				${fns:getDictLabel(projectBidding.winFlag, 'yes_no', '否')}
+				${fns:getDictLabel(biddingArchive.winFlag, 'yes_no', '否')}
 			</td>
 			<td  class="tit">合同号</td>
 			<td>无
 				<%--${projectBidding.issueDate }--%>
 			</td>
 		</tr>
-		</c:if>
 
 		<tr>
 			<td colspan="1" class="tit">附件</td>
 			<td class="" colspan="5">
-				<form:hidden id="profitMarginFile" path="profitMarginFile" htmlEscape="false" maxlength="2000" class="input-xlarge required"/>
+				<form:hidden id="profitMarginFile" path="profitMarginFile" maxlength="2000" class="input-xlarge required"/>
 				<sys:ckfinder input="profitMarginFile" type="files" uploadPath="/project/bidding/projectBidding" selectMultiple="true" readonly="true"/>
 			</td>
 		</tr>
 
-		<c:if test="${not empty projectBidding.act.taskId && projectBidding.act.status != 'finish'}">
+		<c:if test="${not empty biddingArchive.act.taskId && biddingArchive.act.status != 'finish'}">
 			<tr>
 				<td class="tit">您的意见</td>
 				<td colspan="5">
@@ -268,7 +265,7 @@
 
 	<div class="form-actions">
 		<shiro:hasPermission name="project:bidding:projectBidding:edit">
-			<c:if test="${not empty projectBidding.act.taskId && projectBidding.act.status != 'finish'}">
+			<c:if test="${not empty biddingArchive.act.taskId && biddingArchive.act.status != 'finish'}">
 				<input id="btnSubmit" class="btn btn-primary" type="submit" value="同 意" onclick="$('#flag').val('yes')"/>&nbsp;
 				<input id="btnSubmit" class="btn btn-inverse" type="submit" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;
 			</c:if>
@@ -276,8 +273,8 @@
 		<input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.back()"/>
 	</div>
 
-	<c:if test="${not empty projectBidding.id}">
-		<act:histoicFlow procInsId="${projectBidding.procInsId}" />
+	<c:if test="${not empty biddingArchive.id}">
+		<act:histoicFlow procInsId="${biddingArchive.procInsId}" />
 	</c:if>
 </form:form>
 </body>
