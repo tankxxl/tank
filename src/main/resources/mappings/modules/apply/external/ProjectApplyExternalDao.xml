@@ -38,6 +38,7 @@
 
 		a.docPath AS "docPath",
 
+		a.big_category AS "bigCategory",
 		a.self_dev AS "selfDev",
 		a.begin_date AS "beginDate",
 		a.end_date AS "endDate",
@@ -215,6 +216,7 @@
 			proc_ins_id,
 			process_status,
 
+			big_category,
 			self_dev,
 			begin_date,
 			end_date,
@@ -253,6 +255,7 @@
 			#{procInsId},
 			#{procStatus},
 
+			#{bigCategory},
 			#{selfDev},
 			#{beginDate},
 			#{endDate},
@@ -298,6 +301,7 @@
 			
 			outsourcing = #{outsourcing},
 
+			big_category = #{bigCategory},
 			self_dev = #{selfDev},
 			begin_date = #{beginDate},
 			end_date = #{endDate},

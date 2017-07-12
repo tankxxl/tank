@@ -10,6 +10,7 @@
 		    treeGetParam = "?prjId=${projectExecution.apply.id}";
 
 			//$("#name").focus();
+            // Initialize the validation object which will be called on form submit.
 			$("#inputForm").validate({
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
@@ -21,6 +22,7 @@
 					if (element.is(":checkbox")||element.is(":radio")||element.parent().is(".input-append")){
 						error.appendTo(element.parent().parent());
 					} else {
+					    // put error message behind each form element
 						error.insertAfter(element);
 					}
 				}

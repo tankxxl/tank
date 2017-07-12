@@ -94,9 +94,9 @@
 			<td colspan="1" class="" >
 				${ projectApplyExternal.projectCode }
 			</td>
-			<td colspan="1" class="tit">申请部门</td>
-			<td colspan="1">
-					${fns:getUser().office.name}
+			<td class="tit">类别</td>
+			<td>
+				${fns:getDictLabels(projectApplyExternal.bigCategory, 'jic_big_catgory', '')}
 			</td>
 		</tr>
 

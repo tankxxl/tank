@@ -12,6 +12,7 @@ $(document).ready(function() {
 			if(this.blur) {this.blur()};
 		});
 		//所有下拉框使用select2
+        // Transforms the listbox visually into a Select2.
 		$("select").select2();
 	}catch(e){
 		// blank

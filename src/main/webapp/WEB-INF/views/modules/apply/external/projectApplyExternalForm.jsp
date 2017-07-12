@@ -31,23 +31,10 @@
 					} else {
 						error.insertAfter(element);
 					}
-// 					$("#messageBox").text("输入有误，请先更正。");
-// 					if (element.is(":checkbox")||element.is(":radio")||element.parent().is(".input-append")){
-						
-// 						if(error[0].innerHTML ==''){
-// 							error[0].innerHTML= "必填信息";
-// 						}
-// 						console.log(element);
-// 						console.log(error);
-// 						error.appendTo(element.parent().parent());
-// 					}else {
-// 						error.insertAfter(element);
-// 					}
 				}
 			});
 			
 			$("#category").change(function(){
-// 				$("#inputForm").valid().element($("#category"));
 				$("#inputForm").validate().element($("#category"));
 			});
 			$("#ownership").change(function(){
@@ -69,11 +56,8 @@
 				auto 代表打开输入法 (默认)
 				disable 代表关闭输入法 */
 			});
-			
-			
 		});
-		
-		
+
 		function changeCustomer(customerId){
 			var url ="${ctx }/customer/customer/customer4projectApplyExternal?id="+customerId;
 		    $.ajax( {  
@@ -83,12 +67,10 @@
 		        success : function(customer) {
 		            $("#customer_industry_label").text(customer.industry);
 		            $("#customer_category_label").text(customer.customerCategory);
-		            
 		            //验证validate
 		            $("#inputForm").validate().element($("#customerName"));
 		        }  
 		    });
-		    
 		    //清除客户联系人的值
 		    $("#customerContact_phone_label").text("");
 		    $("#customerContact_position_label").text("");
@@ -96,18 +78,14 @@
 		    $("#customerContactName").val("");
 		}
 	</script>
-	<style type="text/css">
-		.tit_content{
-			text-align:center
-		}
-	</style>
 </head>
 <body>
 <ul class="nav nav-tabs">
 	<c:if test="${ empty projectApplyExternal.act.taskId}">
 		<li><a href="${ctx}/apply/external/projectApplyExternal/">立项申请列表</a></li>
 	</c:if>
-	<li class="active"><a href="${ctx}/apply/external/projectApplyExternal/form?id=${projectApplyExternal.id}">立项申请<shiro:hasPermission name="apply:external:projectApplyExternal:edit">${not empty projectApplyExternal.id?'修改':'添加'}</shiro:hasPermission><shiro:lacksPermission name="apply:external:projectApplyExternal:edit">查看</shiro:lacksPermission></a></li>
+	<li class="active"><a href="${ctx}/apply/external/projectApplyExternal/form?id=${projectApplyExternal.id}">
+		立项申请<shiro:hasPermission name="apply:external:projectApplyExternal:edit">${not empty projectApplyExternal.id?'修改':'添加'}</shiro:hasPermission><shiro:lacksPermission name="apply:external:projectApplyExternal:edit">查看</shiro:lacksPermission></a></li>
 </ul><br/>
 
 <form:form id="inputForm" modelAttribute="projectApplyExternal" htmlEscape="false"
@@ -123,7 +101,6 @@
 	<sys:message content="${message}"/>
 
 	<c:set var="rand" value="id"/>
-	<%--<c:if test="${}"--%>
 	<table class="table-form">
 		<caption>项目立项备案审批表</caption>
 		<tr>
@@ -134,21 +111,27 @@
 					<span class="help-inline"><font color="red">*</font></span>
 				</shiro:hasPermission>
 				<shiro:lacksPermission name="apply:external:projectApplyExternal:onlySave">
-					${projectApplyExternal.projectCode  }
+					${projectApplyExternal.projectCode }
 				</shiro:lacksPermission>
 			</td>
-			<td colspan="1" class="tit">申请部门</td>
-			<td colspan="1">
-				${fns:getUser().office.name}
+			<%--<td colspan="1" class="tit">申请部门</td>--%>
+			<%--<td colspan="1">--%>
+				<%--${fns:getUser().office.name}--%>
+			<%--</td>--%>
+
+			<td class="tit">类别</td>
+			<td>
+				<form:checkboxes path="bigCategory" items="${fns:getDictList('jic_big_catgory')}" itemLabel="label" itemValue="value" />
 			</td>
 		</tr>
 
 		<tr>
 			<td colspan="1" class="tit" >项目名称</td>
 			<td colspan="3">
-				<form:input path="projectName" style="width:95%" htmlEscape="false" maxlength="100" class="required"/>
+				<form:input path="projectName" style="width:90%" htmlEscape="false" maxlength="100" class="required"/>
 				<span class="help-inline"><font color="red">*</font> </span>
 			</td>
+
 		</tr>
 
 		<c:if test="${not empty projectApplyExternal.saler.name}">
@@ -221,7 +204,7 @@
 				<sys:treeselect id="projectManager" name="projectManager.id"
 								value="${projectApplyExternal.projectManager.id}" labelName="projectManager.name"
 								labelValue="${projectApplyExternal.projectManager.name}"
-								dataMsgRequired="经理必填" title="经理" url="/sys/office/treeData?type=3"
+								dataMsgRequired="经理必填" title="经理" url="/sys/office/treeData?type=3&isAll=true"
 								cssClass="required"  allowClear="true" notAllowSelectParent="true" />
 				<span class="help-inline"><font color="red">*</font> </span>
 			</td>
@@ -232,7 +215,7 @@
 								value="${projectApplyExternal.projectMembers}" labelName="projectMembers"
 								labelValue="${projectApplyExternal.membersName}"
 								checked="true"
-								dataMsgRequired="项目成员必填" title="项目成员" url="/sys/office/treeData?type=3"
+								dataMsgRequired="项目成员必填" title="项目成员" url="/sys/office/treeData?type=3&isAll=true"
 								cssClass="required"  allowClear="true" notAllowSelectParent="true" />
 				<span class="help-inline"><font color="red">*</font> </span>
 			</td>
@@ -318,7 +301,7 @@
 		</tr>
 
 		<tr>
-			<td class="tit" >文件附件</td>
+			<td class="tit" >请添加项目测算表</td>
 			<td   colspan="3">
 				<form:hidden id="documentAttachmentPath" path="documentAttachmentPath" htmlEscape="false" maxlength="20000"  />
 				<sys:ckfinder input="documentAttachmentPath" type="files"

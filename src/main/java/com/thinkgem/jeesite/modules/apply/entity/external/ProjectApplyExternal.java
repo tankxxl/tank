@@ -56,6 +56,7 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 
     private String docPath; // 项目路径标识，参与附件路径，uuid
 
+	private String bigCategory; // bjkj-项目大类别，销售类、服务类
 	private String selfDev; // bjkj-是否涉及自研
 	private Date beginDate; // bjkj-预计开始时间
 	private Date endDate; // bjkj-预计截止时间
@@ -302,6 +303,13 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 	}
 
 
+	public String getBigCategory() {
+		return bigCategory;
+	}
+
+	public void setBigCategory(String bigCategory) {
+		this.bigCategory = bigCategory;
+	}
 
 	public String getSelfDev() {
 		return selfDev;

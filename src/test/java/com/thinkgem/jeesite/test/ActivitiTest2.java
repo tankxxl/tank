@@ -1,14 +1,15 @@
 package com.thinkgem.jeesite.test;
 
-import com.thinkgem.jeesite.modules.mail.service.MailService;
 import com.thinkgem.jeesite.modules.project.service.approval.AssigneeService;
 import com.thinkgem.jeesite.modules.sys.entity.User;
-import com.thinkgem.jeesite.modules.sys.service.OfficeService;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
+import org.activiti.engine.ProcessEngine;
+import org.activiti.engine.ProcessEngines;
+import org.activiti.engine.repository.Deployment;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.sound.midi.Soundbank;
+import java.io.InputStream;
 
 
 public class ActivitiTest2 extends BaseTestCase {
@@ -21,6 +22,8 @@ public class ActivitiTest2 extends BaseTestCase {
 
     @Autowired
     AssigneeService assigneeService;
+
+	private ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
 
     @Test
     public void testLeader() throws Exception {
@@ -38,7 +41,29 @@ public class ActivitiTest2 extends BaseTestCase {
 	}
 
 	@Test
-	public void testDeploy() throws Exception {
+	public void testDeployByInputStream() throws Exception {
+		InputStream inBpmn = this.getClass().getResourceAsStream("xxx.bpmn");
+		InputStream inPng = this.getClass().getResourceAsStream("xxx.png");
+
+		Deployment deployment = processEngine.getRepositoryService()
+				.createDeployment()
+				.name("xx")
+				.addInputStream("xxx.bpmn", inBpmn)
+				.addInputStream("xxx.png", inPng)
+				.deploy();
+
+		// or
+		Deployment deployment1 = processEngine.getRepositoryService()
+				.createDeployment()
+				.addClasspathResource("xxx/yyy/zzz.bpmn")
+				.addClasspathResource("xxx/yyy/zzz.png")
+				.name("xxx")
+				.deploy();
+
+		System.out.println(deployment.getId());
+		System.out.println(deployment.getName());
+
+
 
 //		Email email = new Email();
 //		email.setAddressee("rgz03407@163.com;tank2xxl@gmail.com");
