@@ -180,9 +180,18 @@
 		</tr>
 
 		<tr>
+
 			<td  class="tit">投标价格</td>
-			<td colspan="5">
-				${projectBidding.biddingPrice }
+			<td >
+				<div class="input-append" >
+					<form:input path="biddingPrice" readonly="true" class="checkNum input-medium required"/><span class="add-on">元</span>
+				</div>
+			</td>
+			<td  class="tit">毛利率</td>
+			<td >
+				<div class="input-append">
+					<form:input path="profitMargin" readonly="true" class="checkNum input-medium required"/><span class="add-on">%</span>
+				</div>
 			</td>
 		</tr>
 

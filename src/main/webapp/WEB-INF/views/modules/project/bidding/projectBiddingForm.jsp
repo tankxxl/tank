@@ -213,8 +213,16 @@
 
 		<tr>
 			<td  class="tit">投标价格</td>
-			<td colspan="5">
-				<form:input path="biddingPrice" style="width:95%" maxlength="100" class="required"/>
+			<td >
+				<div class="input-append" >
+					<form:input path="biddingPrice"  number="true" min="0" max="99999999" maxlength="100" class="checkNum input-medium required"/><span class="add-on">元</span>
+				</div>
+			</td>
+			<td  class="tit">毛利率</td>
+			<td >
+				<div class="input-append">
+					<form:input path="profitMargin"  number="true" min="0" max="99999999" maxlength="100" class="checkNum input-medium required"/><span class="add-on">%</span>
+				</div>
 			</td>
 		</tr>
 

@@ -169,7 +169,7 @@
 			<td  class="tit"  colspan="1">预计合同金额</td>
 			<td class="">
 				<div class="input-append">
-					<form:input path="estimatedContractAmount" htmlEscape="false" maxlength="10" number="true" min="0" max="99999999" class="checkNum input-medium"/><span class="add-on">元</span>
+					<form:input path="estimatedContractAmount" maxlength="10" number="true" min="0" max="99999999" class="checkNum input-medium"/><span class="add-on">元</span>
 				</div>
 			</td>
 			<td  class="tit">预计公司利润率</td>
