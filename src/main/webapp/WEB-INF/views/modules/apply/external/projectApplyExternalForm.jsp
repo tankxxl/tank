@@ -358,7 +358,7 @@
 	</div>
 
 	<c:if test="${not empty projectApplyExternal.id}">
-		<act:histoicFlow procInsId="${projectApplyExternal.processInstanceId}" />
+		<act:histoicFlow procInsId="${projectApplyExternal.procInsId}" />
 	</c:if>
 </form:form>
 </body>
