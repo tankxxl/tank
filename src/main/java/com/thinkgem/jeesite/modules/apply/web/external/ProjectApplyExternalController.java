@@ -114,6 +114,7 @@ public class ProjectApplyExternalController extends BaseController {
 				if (projectApplyExternal == null) {
 					projectApplyExternal = new ProjectApplyExternal();
 				}
+				model.addAttribute("projectApplyExternal", projectApplyExternal);
 			}
 			return prefix + view;
 		}

@@ -157,7 +157,7 @@
 			<tr>
 				<td colspan="1" class="tit">项目核算表附件</td>
 				<td class="" colspan="5">
-					<form:hidden id="projectAccountingFile" path="projectAccountingFile" htmlEscape="false" maxlength="2000" class="input-xlarge required"/>
+					<form:hidden id="projectAccountingFile" path="projectAccountingFile" maxlength="2000" class="input-xlarge required"/>
 					<sys:ckfinder input="projectAccountingFile" type="files" uploadPath="/project/finish/projectFinishApproval" selectMultiple="true"/>
 					<span class="help-inline"><font color="red">*</font> </span>
 				</td>

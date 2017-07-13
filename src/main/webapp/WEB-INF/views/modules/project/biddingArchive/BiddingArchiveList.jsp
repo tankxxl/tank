@@ -55,6 +55,14 @@
 			<li><label>项目名称：</label>
 				<form:input path="apply.projectName" htmlEscape="false" maxlength="64" class="input-medium"/>
 			</li>
+
+			<li><label>项目类别：</label>
+				<form:select path="category" class="input-medium">
+					<form:option value="" label=""/>
+					<form:options items="${fns:getDictList('pro_category')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+				</form:select>
+			</li>
+
 			<%--<li><label>是否备案：</label>--%>
 				<%--<form:select path="archiveFlag" class="input-medium">--%>
 					<%--<form:option value="" label=""/>--%>
@@ -128,6 +136,7 @@
     				
     				<c:if test="${biddingArchive.procStatus != '2'}">
 						<a class="trace" target="_blank" procInsId="${biddingArchive.procInsId}" href="${ctx}/act/task/trace1?procInsId=${biddingArchive.procInsId}">跟踪</a>
+						<a class="trace" target="_blank" procInsId="${biddingArchive.procInsId}" href="${ctx}/act/task/trace2?procInsId=${biddingArchive.procInsId}">跟踪2</a>
 					</c:if>
 					<c:if test="${biddingArchive.procStatus == '2'}">
 						<a href="${ctx}/bidding/archive/delete?id=${biddingArchive.id}" onclick="return confirmx('确认要删除该项目投标吗？', this.href)">删除</a>

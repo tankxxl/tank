@@ -328,9 +328,11 @@
 	<select id="getCurrentCode" resultType="string">
 		select current_code from project_code
 	</select>
+
 	<update id="updatePorCode" >
 		UPDATE project_code SET 	
 			current_code = #{code}
+		WHERE id = '1'
 	</update>
 	
 	

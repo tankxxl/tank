@@ -28,6 +28,11 @@
 			});
 			
 			$("#inputForm").validate({
+                // hidden elements are now ignored by default
+                ignore: "",
+				rules: {
+
+				},
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
 					form.submit();

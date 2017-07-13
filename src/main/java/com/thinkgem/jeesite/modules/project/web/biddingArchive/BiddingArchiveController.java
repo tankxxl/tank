@@ -103,6 +103,7 @@ public class BiddingArchiveController extends BaseController {
 				if (archive == null) {
 					archive = new BiddingArchive();
 				}
+				model.addAttribute("biddingArchive", archive);
 			}
 			return prefix + view;
 		}
@@ -152,6 +153,7 @@ public class BiddingArchiveController extends BaseController {
 		archive.setId(null);
 		archive.setProcInsId(null);
 		archive.setProcStatus(null);
+		archive.setBidding(bidding);
 
 		model.addAttribute("biddingArchive", archive);
 

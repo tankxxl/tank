@@ -10,7 +10,9 @@
 		$(document).ready(function() {
 			//$("#name").focus();
 			$("#inputForm").validate({
-				rules: {
+				// hidden elements are now ignored by default
+                ignore: "",
+                rules: {
 					estimatedGrossProfitMargin: {
 				      	required: true,
 						number: true,
@@ -119,13 +121,13 @@
 		<tr>
 			<td colspan="1" class="tit">项目编号${rand}</td>
 			<td colspan="1" class="" >
-				<shiro:hasPermission name="apply:external:projectApplyExternal:onlySave">
-					<form:input path="projectCode" style="width:90%" htmlEscape="false" maxlength="64" class=" required"/>
-					<span class="help-inline"><font color="red">*</font></span>
-				</shiro:hasPermission>
-				<shiro:lacksPermission name="apply:external:projectApplyExternal:onlySave">
+				<%--<shiro:hasPermission name="apply:external:projectApplyExternal:onlySave">--%>
+					<%--<form:input path="projectCode" style="width:90%" htmlEscape="false" maxlength="64" class=" required"/>--%>
+					<%--<span class="help-inline"><font color="red">*</font></span>--%>
+				<%--</shiro:hasPermission>--%>
+				<%--<shiro:lacksPermission name="apply:external:projectApplyExternal:onlySave">--%>
 					${projectApplyExternal.projectCode }
-				</shiro:lacksPermission>
+				<%--</shiro:lacksPermission>--%>
 			</td>
 			<%--<td colspan="1" class="tit">申请部门</td>--%>
 			<%--<td colspan="1">--%>
@@ -316,28 +318,28 @@
 		<tr>
 			<td class="tit" >请添加项目测算表</td>
 			<td   colspan="3">
-				<form:hidden id="documentAttachmentPath" path="documentAttachmentPath" htmlEscape="false" maxlength="20000"  />
+				<form:hidden id="documentAttachmentPath" path="documentAttachmentPath" maxlength="20000" class="required" />
 				<sys:ckfinder input="documentAttachmentPath" type="files"
 							  uploadPath="/apply"
 							  selectMultiple="true" />
 			</td>
 		</tr>
 
-		<tr>
-			<td  class="tit" colspan="4">填表说明</td>
-		</tr>
-		<tr>
-			<td colspan="4">
-			<span class="help-block" >
-				1、立项经过备案后，方可进入下一步会签审批环节。<br>
-				2、立项通过审批后，原件由市场营销中心存档。（申请部门、运营管理部、财务部均留存复印件）<br>
-				3、如对项目信息有更详细的说明，可附页说明，其他文档作为附件提交。<br>
-				4、本审批表需按审批栏逐级审批。<br>
-				5、项目测算表请作为附件在审批中一并提交。<br>
-				6、打印要求：项目评审会表打印时需双面打印。
-			</span>
-			</td>
-		</tr>
+		<%--<tr>--%>
+			<%--<td  class="tit" colspan="4">填表说明</td>--%>
+		<%--</tr>--%>
+		<%--<tr>--%>
+			<%--<td colspan="4">--%>
+			<%--<span class="help-block" >--%>
+				<%--1、立项经过备案后，方可进入下一步会签审批环节。<br>--%>
+				<%--2、立项通过审批后，原件由市场营销中心存档。（申请部门、运营管理部、财务部均留存复印件）<br>--%>
+				<%--3、如对项目信息有更详细的说明，可附页说明，其他文档作为附件提交。<br>--%>
+				<%--4、本审批表需按审批栏逐级审批。<br>--%>
+				<%--5、项目测算表请作为附件在审批中一并提交。<br>--%>
+				<%--6、打印要求：项目评审会表打印时需双面打印。--%>
+			<%--</span>--%>
+			<%--</td>--%>
+		<%--</tr>--%>
 	</table>
 
 	<div class="form-actions">

@@ -26,6 +26,7 @@
 		a.outsourcing AS "outsourcing",
 
 		( select group_concat(m.name) from sys_user m where FIND_in_set(m.id, a.bidding_members) ) AS "membersName",
+		a.bidding_id AS "bidding.id",
 		a.issue_date AS "issueDate",
 		a.bidding_date AS "biddingDate",
 		a.open_date AS "openDate",
@@ -109,6 +110,12 @@
 				<if test="dbName == 'mssql'">'%'+#{apply.projectName}+'%'</if>
 				<if test="dbName == 'mysql'">concat('%',#{apply.projectName},'%')</if>
 			</if>
+			<if test="apply!=null and apply.category != null and apply.category != ''">
+				AND pro_apply.category LIKE
+				<if test="dbName == 'oracle'">'%'||#{apply.category}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{apply.category}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{apply.category},'%')</if>
+			</if>
 			<if test="category != null and category != ''">
 				AND a.category = #{category}
 			</if>
@@ -169,6 +176,7 @@
 			profit_margin_file,
 			outsourcing,
 
+			bidding_id,
 			issue_date,
 			bidding_date,
 			open_date,
@@ -211,6 +219,7 @@
 			#{profitMarginFile},
 			#{outsourcing},
 
+			#{bidding.id},
 			#{issueDate},
 			#{biddingDate},
 			#{openDate},
@@ -253,6 +262,7 @@
 			profit_margin_file = #{profitMarginFile},
 			outsourcing = #{outsourcing},
 
+			bidding_id = #{bidding.id},
 			issue_date = #{issueDate},
 			bidding_date = #{biddingDate},
 			open_date = #{openDate},

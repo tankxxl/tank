@@ -44,6 +44,7 @@ public class AuditEndListener implements ExecutionListener{
         ExecutionEntity executionEntity = (ExecutionEntity) execution;
         String defKey = executionEntity.getProcessDefinitionKey();
 
+        ProjectApplyExternalService applyExternalService = SpringContextHolder.getBean(ProjectApplyExternalService.class);
 
         JicActService jicActService = null;
         String stageValue = null;
@@ -55,6 +56,8 @@ public class AuditEndListener implements ExecutionListener{
             //
             prjId = id;
             stageValue = DictUtils.getDictValue("立项完成", "jic_pro_main_stage", "0");
+            applyExternalService.genProjectCode(prjId);
+
         } else if (ActUtils.PD_PROJECTBIDDING[0].equalsIgnoreCase(defKey)) {
             // 得到业务Service
             jicActService = SpringContextHolder.getBean(ProjectBiddingService.class);
@@ -106,8 +109,6 @@ public class AuditEndListener implements ExecutionListener{
 
 		if (StringUtils.isEmpty(prjId) || StringUtils.isEmpty(stageValue))
 		    return;
-
-		ProjectApplyExternalService applyExternalService = SpringContextHolder.getBean(ProjectApplyExternalService.class);
 
 		applyExternalService.stageTo(prjId, stageValue);
 

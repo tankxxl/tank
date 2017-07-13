@@ -95,6 +95,7 @@ public class ProjectBiddingController extends BaseController {
 				if (projectBidding == null) {
 					projectBidding = new ProjectBidding();
 				}
+				model.addAttribute("projectBidding", projectBidding);
 			}
 			return prefix + view;
 		}

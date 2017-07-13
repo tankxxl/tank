@@ -28,6 +28,8 @@
 			});
 			
 			$("#inputForm").validate({
+                // hidden elements are now ignored by default
+                ignore: "",
 				rules: {
 
 				},
@@ -122,19 +124,19 @@
 			<td  class="tit">项目名称</td>
 			<td class="" >
 				<sys:treeselect
-						id="apply"
-						name="apply.id"
-						value="${projectBidding.apply.id}"
-						labelName="apply.projectName"
-						labelValue="${projectBidding.apply.projectName}"
-						title="项目"
-						url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11"
-						cssClass="required"
-						cssStyle="width: 250px;"
-						dataMsgRequired="项目必选"
-						allowClear="true"
-						notAllowSelectParent="true"
-						customClick="changeProject"/>
+					id="apply"
+					name="apply.id"
+					value="${projectBidding.apply.id}"
+					labelName="apply.projectName"
+					labelValue="${projectBidding.apply.projectName}"
+					title="项目"
+					url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11"
+					cssClass="required"
+					cssStyle="width: 250px;"
+					dataMsgRequired="项目必选"
+					allowClear="true"
+					notAllowSelectParent="true"
+					customClick="changeProject"/>
 			</td>
 			<td  class="tit">项目编号</td>
 			<td  >

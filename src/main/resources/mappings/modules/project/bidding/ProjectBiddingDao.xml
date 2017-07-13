@@ -109,6 +109,12 @@
 				<if test="dbName == 'mssql'">'%'+#{apply.projectName}+'%'</if>
 				<if test="dbName == 'mysql'">concat('%',#{apply.projectName},'%')</if>
 			</if>
+			<if test="apply!=null and apply.category != null and apply.category != ''">
+				AND pro_apply.category LIKE
+				<if test="dbName == 'oracle'">'%'||#{apply.category}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{apply.category}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{apply.category},'%')</if>
+			</if>
 			<if test="category != null and category != ''">
 				AND a.category = #{category}
 			</if>

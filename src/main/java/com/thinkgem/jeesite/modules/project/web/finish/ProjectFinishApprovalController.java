@@ -9,7 +9,6 @@ import com.thinkgem.jeesite.common.service.BaseService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.web.BaseController;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
-import com.thinkgem.jeesite.modules.project.entity.execution.ProjectExecution;
 import com.thinkgem.jeesite.modules.project.entity.finish.ProjectFinishApproval;
 import com.thinkgem.jeesite.modules.project.service.finish.ProjectFinishApprovalService;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
@@ -78,6 +77,7 @@ public class ProjectFinishApprovalController extends BaseController {
 				if (projectFinishApproval == null) {
 					projectFinishApproval = new ProjectFinishApproval();
 				}
+				model.addAttribute("projectFinishApproval", projectFinishApproval);
 			}
 			return prefix + view;
 		}

@@ -136,6 +136,7 @@
 					<a href="${ctx}/apply/external/projectApplyExternal/form?id=${projectApplyExternal.id}">详情</a>
 					<c:if test="${projectApplyExternal.procStatus != '2'}">
 						<a class="trace" target="_blank" procInsId="${projectApplyExternal.procInsId}" href="${ctx}/act/task/trace1?procInsId=${projectApplyExternal.procInsId}">跟踪</a>
+						<a class="trace" target="_blank" procInsId="${projectApplyExternal.procInsId}" href="${ctx}/act/task/trace2?procInsId=${projectApplyExternal.procInsId}">跟踪2</a>
 					</c:if>
 					<c:if test="${projectApplyExternal.procStatus == '2'}">
 						<a href="${ctx}/apply/external/projectApplyExternal/delete?id=${projectApplyExternal.id}" onclick="return confirmx('确认要删除该外部立项申请吗？', this.href)">删除</a>

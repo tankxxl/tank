@@ -5,6 +5,7 @@ package com.thinkgem.jeesite.modules.apply.service.external;
 
 import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.service.JicActService;
+import com.thinkgem.jeesite.common.utils.DateUtils;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
@@ -23,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,21 +42,42 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 	@Autowired
 	private RoleDao roleDao;
 
-	@Override
-	public ProjectApplyExternal get(String id) {
-		return super.get(id);
-	}
+	// @Override
+	// public ProjectApplyExternal get(String id) {
+	// 	return super.get(id);
+	// }
 
 	/**
 	 * 保存并结束流程
 	 * @param projectApplyExternal
 	 */
-	@Transactional(readOnly = false)
-	public void saveFinishProcess(ProjectApplyExternal projectApplyExternal) {
-		// 开启流程
-		String procInsId = saveLaunch(projectApplyExternal);
-		// 结束流程
-		endProcess(procInsId);
+	// @Transactional(readOnly = false)
+	// public void saveFinishProcess(ProjectApplyExternal projectApplyExternal) {
+	// 	// 开启流程
+	// 	String procInsId = saveLaunch(projectApplyExternal);
+	// 	// 结束流程
+	// 	endProcess(procInsId);
+	// }
+
+	@Override
+	public void setupVariable(ProjectApplyExternal projectApplyExternal, Map<String, Object> vars) {
+		projectApplyExternal.preInsert4ProInteralApply();
+
+		vars.put(ActUtils.VAR_PRJ_ID, projectApplyExternal.getId());
+		vars.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
+
+		if ("1".equals(projectApplyExternal.getSelfDev()) ) {
+			vars.put(ActUtils.VAR_SKIP_DEV, "0");
+		} else {
+			vars.put(ActUtils.VAR_SKIP_DEV, "1");
+		}
+
+		boolean isBossAudit = MyDictUtils.isBossAudit(projectApplyExternal.getEstimatedContractAmount(), projectApplyExternal.getEstimatedGrossProfitMargin());
+		if (isBossAudit) { // 需要总经理审批
+			vars.put(ActUtils.VAR_SKIP_BOSS, "0");
+		} else {
+			vars.put(ActUtils.VAR_SKIP_BOSS, "1");
+		}
 	}
 
 	/**
@@ -67,45 +88,45 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 	 *
 	 * @param projectApplyExternal
 	 */
-	@Transactional(readOnly = false)
-	public String saveLaunch(ProjectApplyExternal projectApplyExternal) {
-		if (projectApplyExternal.getIsNewRecord()) {
-			projectApplyExternal.preInsert4ProInteralApply();//判断是否是插入还是修改，若是插入那么添加当前用户为销售
-			// 启动流程的时候，把业务数据放到流程变量里
-			Map<String, Object> varMap = new HashMap<String, Object>();
-			varMap.put(ActUtils.VAR_PRJ_ID, projectApplyExternal.getId());
-
-			varMap.put(ActUtils.VAR_PRJ_TYPE, projectApplyExternal.getCategory());
-
-			varMap.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
-
-			if ("03".equals(projectApplyExternal.getCategory()) ) {
-				varMap.put(ActUtils.VAR_TYPE, "2");
-			} else {
-				varMap.put(ActUtils.VAR_TYPE, "1");
-			}
-
-			if ("1".equals(projectApplyExternal.getSelfDev()) ) {
-				varMap.put(ActUtils.VAR_SKIP_DEV, "0");
-			} else {
-				varMap.put(ActUtils.VAR_SKIP_DEV, "1");
-			}
-
-
-			boolean isBossAudit = MyDictUtils.isBossAudit(projectApplyExternal.getEstimatedContractAmount(), projectApplyExternal.getEstimatedGrossProfitMargin());
-			if (isBossAudit) { // 需要总经理审批
-				varMap.put(ActUtils.VAR_SKIP_BOSS, "0");
-			} else {
-				varMap.put(ActUtils.VAR_SKIP_BOSS, "1");
-			}
-
-			return launch(projectApplyExternal, varMap);
-		} else { // 把驳回到申请人(重新修改业务表单，重新发起流程、销毁流程)也当成一个特殊的审批节点
-			// 只要不是启动流程，其它任意节点的跳转都当成节点审批
-			saveAudit(projectApplyExternal);
-			return null;
-		}
-	}
+	// @Transactional(readOnly = false)
+	// public String saveLaunch(ProjectApplyExternal projectApplyExternal) {
+	// 	if (projectApplyExternal.getIsNewRecord()) {
+	// 		projectApplyExternal.preInsert4ProInteralApply();//判断是否是插入还是修改，若是插入那么添加当前用户为销售
+	// 		// 启动流程的时候，把业务数据放到流程变量里
+	// 		Map<String, Object> varMap = new HashMap<String, Object>();
+	// 		varMap.put(ActUtils.VAR_PRJ_ID, projectApplyExternal.getId());
+    //
+	// 		varMap.put(ActUtils.VAR_PRJ_TYPE, projectApplyExternal.getCategory());
+    //
+	// 		varMap.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
+    //
+	// 		if ("03".equals(projectApplyExternal.getCategory()) ) {
+	// 			varMap.put(ActUtils.VAR_TYPE, "2");
+	// 		} else {
+	// 			varMap.put(ActUtils.VAR_TYPE, "1");
+	// 		}
+    //
+	// 		if ("1".equals(projectApplyExternal.getSelfDev()) ) {
+	// 			varMap.put(ActUtils.VAR_SKIP_DEV, "0");
+	// 		} else {
+	// 			varMap.put(ActUtils.VAR_SKIP_DEV, "1");
+	// 		}
+    //
+    //
+	// 		boolean isBossAudit = MyDictUtils.isBossAudit(projectApplyExternal.getEstimatedContractAmount(), projectApplyExternal.getEstimatedGrossProfitMargin());
+	// 		if (isBossAudit) { // 需要总经理审批
+	// 			varMap.put(ActUtils.VAR_SKIP_BOSS, "0");
+	// 		} else {
+	// 			varMap.put(ActUtils.VAR_SKIP_BOSS, "1");
+	// 		}
+    //
+	// 		return launch(projectApplyExternal, varMap);
+	// 	} else { // 把驳回到申请人(重新修改业务表单，重新发起流程、销毁流程)也当成一个特殊的审批节点
+	// 		// 只要不是启动流程，其它任意节点的跳转都当成节点审批
+	// 		saveAudit(projectApplyExternal);
+	// 		return null;
+	// 	}
+	// }
 
 
 	public void processAudit(ProjectApplyExternal projectApplyExternal, Map<String, Object> vars) {
@@ -228,6 +249,7 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 	// }
 	
 	/**
+	 * 项目大状态
 	 * 业务状态、项目的业务状态、立项审批中、立项完成、招标审批中、招标完成、合同、结项等。
 	 * 在各个流程引擎开始和结束时修改项目主表中的字段。
 	 * @param id
@@ -246,5 +268,36 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 	public List<ProjectApplyExternal> findList4LargerMainStage(ProjectApplyExternal projectApplyExternal){
 		return dao.findList4LargerMainStage(projectApplyExternal);
 	}
-	
+
+	public void genProjectCode(String id) {
+
+		ProjectApplyExternal external = get(id);
+		if (external == null)
+			return;
+
+		String code = autoGenericCode(dao.getCurrentCode(), 2);
+
+		external.setProjectCode(DateUtils.getDate("yyyyMMdd") + code);
+		save(external);
+
+		dao.updatePorCode(code);
+	}
+
+	/**
+	 * 不够位数的在前面补0，保留num的长度位数字
+	 * @param code
+	 * @return
+	 */
+	private String autoGenericCode(String code, int num) {
+		if (StringUtils.isBlank(code))
+			code = "0";
+
+		String result = "";
+		// 保留num的位数
+    	// 0 代表前面补充0
+		// num 代表长度为4
+		// d 代表参数为正数型
+		result = String.format("%0" + num + "d", Integer.parseInt(code) + 1);
+		return result;
+	}
 }

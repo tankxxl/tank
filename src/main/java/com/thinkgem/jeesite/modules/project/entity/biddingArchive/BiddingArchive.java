@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.thinkgem.jeesite.common.persistence.ActEntity;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
+import com.thinkgem.jeesite.modules.project.entity.bidding.ProjectBidding;
 import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import org.hibernate.validator.constraints.Length;
 
@@ -36,6 +37,8 @@ public class BiddingArchive extends ActEntity<BiddingArchive> {
 	private String outsourcing; // 是否有外包，0：没有；1：有
 
     private String result; // 投标结果
+
+	private ProjectBidding bidding;
 
 	private Date issueDate; // 北京科技-发标日期
 	private Date biddingDate; // 北京科技-投标日期
@@ -224,6 +227,14 @@ public class BiddingArchive extends ActEntity<BiddingArchive> {
 		}else{
 			return DictUtils.getDictLabels(printingPaste, "tender_printing_paste", "");
 		}
+	}
+
+	public ProjectBidding getBidding() {
+		return bidding;
+	}
+
+	public void setBidding(ProjectBidding bidding) {
+		this.bidding = bidding;
 	}
 
 	public Date getIssueDate() {

@@ -101,6 +101,7 @@ public class ProjectContractController extends BaseController {
 				if (projectContract == null) {
 					projectContract = new ProjectContract();
 				}
+				model.addAttribute("projectContract", projectContract);
 			}
 			return prefix + view;
 		}

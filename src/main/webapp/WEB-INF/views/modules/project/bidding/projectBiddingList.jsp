@@ -55,6 +55,14 @@
 			<li><label>项目名称：</label>
 				<form:input path="apply.projectName" htmlEscape="false" maxlength="64" class="input-medium"/>
 			</li>
+
+			<li><label>项目类别：</label>
+				<form:select path="category" class="input-medium">
+					<form:option value="" label=""/>
+					<form:options items="${fns:getDictList('pro_category')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+				</form:select>
+			</li>
+
 			<%--<li><label>是否备案：</label>--%>
 				<%--<form:select path="archiveFlag" class="input-medium">--%>
 					<%--<form:option value="" label=""/>--%>
@@ -128,13 +136,14 @@
 					<input export="btnExport" class="btn btn-primary" type="button" proId="${projectBidding.id}" value="导出"/>
 					</c:if>
 					<c:if test="${projectBidding.archiveFlag != '1' && projectBidding.procStatus == '2'}">
-						<a href="${ctx}/bidding/archive/bidding2archive?biddingId=${projectBidding.id}">备案申请</a>
+						<a href="${ctx}/bidding/archive/bidding2archive?biddingId=${projectBidding.id}">投标备案</a>
 					</c:if>
 
     				<a href="${ctx}/project/bidding/projectBidding/form?id=${projectBidding.id}">详情</a>
     				
     				<c:if test="${projectBidding.procStatus != '2'}">
 						<a class="trace" target="_blank" procInsId="${projectBidding.procInsId}" href="${ctx}/act/task/trace1?procInsId=${projectBidding.procInsId}">跟踪</a>
+						<a class="trace" target="_blank" procInsId="${projectBidding.procInsId}" href="${ctx}/act/task/trace2?procInsId=${projectBidding.procInsId}">跟踪2</a>
 					</c:if>
 					<c:if test="${projectBidding.procStatus == '2'}">
 						<a href="${ctx}/project/bidding/projectBidding/delete?id=${projectBidding.id}" onclick="return confirmx('确认要删除该项目投标吗？', this.href)">删除</a>
