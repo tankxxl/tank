@@ -3,13 +3,12 @@
  */
 package com.thinkgem.jeesite.modules.act.web;
 
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.thinkgem.jeesite.common.persistence.Page;
+import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.act.entity.Act;
+import com.thinkgem.jeesite.modules.act.service.ActTaskService;
+import com.thinkgem.jeesite.modules.act.utils.ActUtils;
+import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +19,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.thinkgem.jeesite.common.persistence.Page;
-import com.thinkgem.jeesite.common.web.BaseController;
-import com.thinkgem.jeesite.modules.act.entity.Act;
-import com.thinkgem.jeesite.modules.act.service.ActTaskService;
-import com.thinkgem.jeesite.modules.act.utils.ActUtils;
-import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 流程个人任务相关Controller
@@ -41,7 +39,7 @@ public class ActTaskController extends BaseController {
 	
 	/**
 	 * 获取待办列表
-	 * @param procDefKey 流程定义标识
+	 // * @param procDefKey 流程定义标识
 	 * @return
 	 */
 	@RequestMapping(value = {"todo", ""})
@@ -56,8 +54,8 @@ public class ActTaskController extends BaseController {
 	
 	/**
 	 * 获取已办任务
-	 * @param page
-	 * @param procDefKey 流程定义标识
+	 // * @param page
+	 // * @param procDefKey 流程定义标识
 	 * @return
 	 */
 	@RequestMapping(value = "historic")
@@ -73,7 +71,7 @@ public class ActTaskController extends BaseController {
 
 	/**
 	 * 获取流转历史列表
-	 * @param procInsId 流程实例
+	 // * @param procInsId 流程实例
 	 * @param startAct 开始活动节点名称
 	 * @param endAct 结束活动节点名称
 	 */
@@ -103,11 +101,11 @@ public class ActTaskController extends BaseController {
 	 * 获取流程表单
      * act参数接收流程引擎的数据，然后传递到业务表单中。
      *
-	 * @param taskId	任务ID
-	 * @param taskName	任务名称
-	 * @param taskDefKey 任务环节标识
-	 * @param procInsId 流程实例ID
-	 * @param procDefId 流程定义ID
+	 // * @param taskId	任务ID
+	 // * @param taskName	任务名称
+	 // * @param taskDefKey 任务环节标识
+	 // * @param procInsId 流程实例ID
+	 // * @param procDefId 流程定义ID
 	 */
 	@RequestMapping(value = "form")
 	public String form(Act act, HttpServletRequest request, Model model){
@@ -136,9 +134,9 @@ public class ActTaskController extends BaseController {
 	
 	/**
 	 * 启动流程
-	 * @param procDefKey 流程定义KEY
-	 * @param businessTable 业务表表名
-	 * @param businessId	业务表编号
+	 // * @param procDefKey 流程定义KEY
+	 // * @param businessTable 业务表表名
+	 // * @param businessId	业务表编号
 	 */
 	@RequestMapping(value = "start")
 	@ResponseBody
@@ -149,7 +147,7 @@ public class ActTaskController extends BaseController {
 
 	/**
 	 * 签收任务
-	 * @param taskId 任务ID
+	 // * @param taskId 任务ID
 	 */
 	@RequestMapping(value = "claim")
 	@ResponseBody
@@ -161,10 +159,10 @@ public class ActTaskController extends BaseController {
 	
 	/**
 	 * 完成任务
-	 * @param taskId 任务ID
-	 * @param procInsId 流程实例ID，如果为空，则不保存任务提交意见
-	 * @param comment 任务提交意见的内容
-	 * @param vars 任务流程变量，如下
+	 // * @param taskId 任务ID
+	 // * @param procInsId 流程实例ID，如果为空，则不保存任务提交意见
+	 // * @param comment 任务提交意见的内容
+	 // * @param vars 任务流程变量，如下
 	 * 		vars.keys=flag,pass
 	 * 		vars.values=1,true
 	 * 		vars.types=S,B  @see com.thinkgem.jeesite.modules.act.utils.PropertyType
@@ -199,6 +197,7 @@ public class ActTaskController extends BaseController {
         String procDefId = actTaskService.getProcDefIdByProcInsId(procInsId);
         String execId = actTaskService.getExecutionIdByProcInsId(procInsId);
 //		tracePhoto(procDefId, execId, response);
+		// 再次请求
         return "redirect:" + adminPath + "/act/task/trace/photo/" + procDefId +
                 "/" + execId;
     }
@@ -209,8 +208,11 @@ public class ActTaskController extends BaseController {
     @RequestMapping(value = "trace2")
     public String trace2(String procInsId, HttpServletResponse response) throws Exception {
         String procDefId = actTaskService.getProcDefIdByProcInsId(procInsId);
-        return "redirect:" + "/act/rest/diagram-viewer?processDefinitionId=" + procDefId +
-                "&processInstanceId=" + procInsId;
+        // rgz 根据webapp/act/diagram-viewer文件目录修改访问路径
+        // return "redirect:" + "/act/rest/diagram-viewer/index.html?processDefinitionId=" + procDefId +
+        //         "&processInstanceId=" + procInsId;
+		return "redirect:" + "/act/diagram-viewer/index.html?processDefinitionId=" + procDefId +
+				"&processInstanceId=" + procInsId;
     }
 	
 	/**

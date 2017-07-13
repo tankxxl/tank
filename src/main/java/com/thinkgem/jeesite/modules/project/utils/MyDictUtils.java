@@ -15,6 +15,8 @@ public class MyDictUtils extends DictUtils {
 	}
 	
 	public static boolean isContractAmountHigh(Double contractAmount) {
+		if (contractAmount == null || Double.isNaN(contractAmount))
+			return true;
 		Double dict_amount = StringUtils.toDouble(DictUtils.getDictValue("项目金额", "jic_prj_money", "0"));
 		if (contractAmount > dict_amount) {
 			return true;

@@ -12,13 +12,23 @@
 			$("#inputForm").validate({
 				rules: {
 					estimatedGrossProfitMargin: {
-				      required: true,
-				      range: [0,100]
+				      	required: true,
+						number: true,
+				      	min: 0,
+                        max: 100,
+                        minlength: 1
 				    },
 					ownership: {
-				      required: true
+				      	required: true
 				    }
 				  },
+				messages: {
+                    ownership: "请填写",
+                    estimatedGrossProfitMargin: {
+                        required: "请填写毛利率",
+                        minlength: jQuery.validator.format("至少要填写 {0} 位数字。")
+					}
+				},
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
 					form.submit();
@@ -35,12 +45,15 @@
 			});
 			
 			$("#category").change(function(){
+			    // Checks whether the selected form or selected elements are valid.
+// 				$("#inputForm").valid().element($("#category"));
+				// Validates the selected form.
 				$("#inputForm").validate().element($("#category"));
 			});
 			$("#ownership").change(function(){
 				$("#inputForm").validate().element($("#ownership"));
 			});
-			
+
 			// 只能输入数字，并且关闭输入法
 			$(".checkNum").keypress(function(event) {
 				var keyCode = event.which;
