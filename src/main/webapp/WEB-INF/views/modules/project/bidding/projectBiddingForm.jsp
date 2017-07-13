@@ -28,9 +28,25 @@
 			});
 			
 			$("#inputForm").validate({
+				rules: {
+
+				},
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
 					form.submit();
+				},
+				invalidHandler: function(event, validator) {
+					// 'this' refers to the form
+					var errors = validator.numberOfInvalids();
+					if (errors) {
+					    var message = errors == 1
+							? '你有一个字段没有填写，此字段现在高亮显示。'
+							: '你有' + errors + '个字段没有填写，现在高亮显示！'
+//						$("div.error span").html(message);
+//					    $("div.error").show();
+					} else {
+//					    $("div.error").hide();
+					}
 				},
 				errorContainer: "#messageBox",
 				errorPlacement: function(error, element) {

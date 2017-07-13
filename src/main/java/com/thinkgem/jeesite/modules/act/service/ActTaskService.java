@@ -81,7 +81,7 @@ public class ActTaskService extends BaseService {
 	
 	/**
 	 * 获取待办列表
-	 * @param procDefKey 流程定义标识
+	 // * @param procDefKey 流程定义标识
 	 * @return
 	 */
 	public List<Act> todoList(Act act){
@@ -154,7 +154,7 @@ public class ActTaskService extends BaseService {
 	/**
 	 * 获取已办任务
 	 * @param page
-	 * @param procDefKey 流程定义标识
+	 // * @param procDefKey 流程定义标识
 	 * @return
 	 */
 	public Page<Act> historicList(Page<Act> page, Act act){
@@ -551,6 +551,9 @@ public class ActTaskService extends BaseService {
 	 * @return	封装了各种节点信息
 	 */
 	public InputStream tracePhoto(String procDefId, String executionId) {
+		if (StringUtils.isBlank(procDefId) || StringUtils.isBlank(executionId))
+			return null;
+
 //		ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(executionId).singleResult();
 		BpmnModel bpmnModel = repositoryService.getBpmnModel(procDefId);
 		
@@ -779,6 +782,9 @@ public class ActTaskService extends BaseService {
      * @return
      */
     public String getProcDefIdByProcInsId(String procInsId) {
+    	if (StringUtils.isEmpty(procInsId)) {
+    		return "";
+		}
         ProcessInstance processInstance =
                 runtimeService.createProcessInstanceQuery()
                         .processInstanceId(procInsId)
@@ -795,6 +801,9 @@ public class ActTaskService extends BaseService {
      * @return
      */
     public String getExecutionIdByProcInsId(String procInsId) {
+    	if (StringUtils.isBlank(procInsId))
+    		return "";
+
         ProcessInstance processInstance =
                 runtimeService.createProcessInstanceQuery()
                         .processInstanceId(procInsId)
