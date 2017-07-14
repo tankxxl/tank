@@ -31,6 +31,10 @@
                 // hidden elements are now ignored by default
                 ignore: "",
 				rules: {
+                    biddingPrice: {
+
+					},
+
 
 				},
 				submitHandler: function(form){
@@ -152,7 +156,7 @@
 		<tr>
 			<td  class="tit">发标日期</td>
 			<td  colspan="1">
-				<input name="issueDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate required"
+				<input name="issueDate" type="text" readonly="readonly" class="input-medium Wdate required"
 					   value="<fmt:formatDate value="${projectBidding.issueDate}" pattern="yyyy-MM-dd"/>"
 					   onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
 				<span class="help-inline"><font color="red">*</font> </span>
@@ -163,12 +167,14 @@
 			</td>
 			<td  class="tit">投标参与人员</td>
 			<td>
-				<sys:treeselect id="biddingMembers" name="biddingMembers"
-								value="${projectBidding.biddingMembers}" labelName="biddingMembers"
-								labelValue="${projectBidding.membersName}"
-								checked="true"
-								dataMsgRequired="投标成员必填" title="投标参与人员" url="/sys/office/treeData?type=3"
-								cssClass="required"  allowClear="true" notAllowSelectParent="true" />
+				<sys:treeselect id="biddingMembers"
+					name="biddingMembers"
+					value="${projectBidding.biddingMembers}"
+					labelName="biddingMemberss"
+					labelValue="${projectBidding.membersName}"
+					checked="true"
+					dataMsgRequired="投标成员必填" title="投标参与人员" url="/sys/office/treeData?type=3&isAll=true"
+					cssClass="required"  allowClear="true" notAllowSelectParent="true" />
 				<span class="help-inline"><font color="red">*</font> </span>
 			</td>
 		</tr>
@@ -176,7 +182,7 @@
 		<tr>
 			<td  class="tit">投标日期</td>
 			<td colspan="1">
-				<input name="biddingDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate required"
+				<input name="biddingDate" type="text" readonly="readonly" class="input-medium Wdate required"
 					   value="<fmt:formatDate value="${projectBidding.biddingDate}" pattern="yyyy-MM-dd"/>"
 					   onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
 				<span class="help-inline"><font color="red">*</font> </span>
@@ -197,8 +203,8 @@
 			<td  class="tit">招标方情况说明</td>
 			<td colspan="5">
 				<form:textarea path="tendereeInfo"
-							   style="width:98%"  maxlength="255"
-							   placeholder="包含但不限于招标方名称；曾合作经历等与项目相关具体情况。"/>
+				   style="width:98%"  maxlength="255"
+				   placeholder="包含但不限于招标方名称；曾合作经历等与项目相关具体情况。"/>
 			</td>
 		</tr>
 
@@ -206,8 +212,8 @@
 			<td  class="tit">评委情况说明</td>
 			<td colspan="5">
 				<form:textarea path="judgeInfo"
-							   style="width:98%"  maxlength="255"
-							   placeholder="包含但不限于开标公司；评委/专家组人员介绍等基本情况。"/>
+				   style="width:98%"  maxlength="255"
+				   placeholder="包含但不限于开标公司；评委/专家组人员介绍等基本情况。"/>
 			</td>
 		</tr>
 
@@ -215,8 +221,8 @@
 			<td  class="tit">参标公司情况<br>说明</td>
 			<td colspan="5">
 				<form:textarea path="cobidderInfo"
-							   style="width:98%"  maxlength="255"
-							   placeholder="包含但不限于本次参与竞标的公司名称、实力等情况；本项目竞争分析等具体情况。"/>
+				   style="width:98%"  maxlength="255"
+				   placeholder="包含但不限于本次参与竞标的公司名称、实力等情况；本项目竞争分析等具体情况。"/>
 			</td>
 		</tr>
 
@@ -224,8 +230,8 @@
 			<td  class="tit">投标前期准备<br>工作内容</td>
 			<td colspan="5">
 				<form:textarea path="prepare"
-							   style="width:98%"  maxlength="255"
-							   placeholder="包含但不限于：项目新投标或续标，公司资质、授权书、报价单及标书等相关文件。"/>
+				   style="width:98%"  maxlength="255"
+				   placeholder="包含但不限于：项目新投标或续标，公司资质、授权书、报价单及标书等相关文件。"/>
 			</td>
 		</tr>
 
@@ -248,8 +254,8 @@
 			<td  class="tit">投标主要内容</td>
 			<td colspan="5">
 				<form:textarea path="biddingInfo"
-							   style="width:98%"  maxlength="255"
-							   placeholder="包含但不限于：项目新投标或续标，公司资质、授权书、报价单及标书等相关文件。"/>
+				   style="width:98%"  maxlength="255"
+				   placeholder="包含但不限于：项目新投标或续标，公司资质、授权书、报价单及标书等相关文件。"/>
 			</td>
 		</tr>
 
@@ -265,8 +271,8 @@
 			<td  class="tit">修改内容</td>
 			<td colspan="5">
 				<form:textarea path="finalInfo"
-							   style="width:98%"  maxlength="255"
-							   placeholder="包含但不限于：项目新投标或续标，公司资质、授权书、报价单及标书等相关文件。"/>
+				   style="width:98%"  maxlength="255"
+				   placeholder="包含但不限于：项目新投标或续标，公司资质、授权书、报价单及标书等相关文件。"/>
 			</td>
 		</tr>
 
@@ -274,15 +280,15 @@
 			<td  class="tit">投标过程中的问题</td>
 			<td colspan="5">
 				<form:textarea path="biddingIssue"
-							   style="width:98%"  maxlength="255"
-							   placeholder="包含但不限于：项目新投标或续标，公司资质、授权书、报价单及标书等相关文件。"/>
+				   style="width:98%"  maxlength="255"
+				   placeholder="包含但不限于：项目新投标或续标，公司资质、授权书、报价单及标书等相关文件。"/>
 			</td>
 		</tr>
 
 		<tr>
 			<td  class="tit">开标日期</td>
 			<td>
-				<input name="openDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate required"
+				<input name="openDate" type="text" readonly="readonly" class="input-medium Wdate required"
 					   value="<fmt:formatDate value="${projectBidding.openDate}" pattern="yyyy-MM-dd"/>"
 					   onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
 			</td>
@@ -300,8 +306,34 @@
 		</tr>
 		</c:if>
 
+		<tr>
+			<td colspan="1" class="tit">邀标函</td>
+			<td class="" colspan="5">
+				<form:hidden id="ifb" path="ifb" maxlength="2000" class="input-xlarge required"/>
+				<sys:ckfinder input="ifb" type="files" uploadPath="/project/bidding/ifb" selectMultiple="true"/>
+				<span class="help-inline"><font color="red">*</font> </span>
+			</td>
+		</tr>
 
 		<tr>
+			<td colspan="1" class="tit">含投标价格的<br>完整谈判文件</td>
+			<td class="" colspan="5">
+				<form:hidden id="negotiationFile" path="negotiationFile" maxlength="2000" class="input-xlarge required"/>
+				<sys:ckfinder input="negotiationFile" type="files" uploadPath="/project/bidding/negotiationFile" selectMultiple="true"/>
+				<span class="help-inline"><font color="red">*</font> </span>
+			</td>
+		</tr>
+
+		<tr>
+			<td colspan="1" class="tit">价格核算单</td>
+			<td class="" colspan="5">
+				<form:hidden id="priceAccountingFile" path="priceAccountingFile" maxlength="2000" class="input-xlarge required"/>
+				<sys:ckfinder input="priceAccountingFile" type="files" uploadPath="/project/bidding/priceAccountingFile" selectMultiple="true"/>
+				<span class="help-inline"><font color="red">*</font> </span>
+			</td>
+		</tr>
+
+		<%--<tr>
 			<td colspan="1" class="tit">附件</td>
 			<td class="" colspan="5">
 				<form:hidden id="profitMarginFile" path="profitMarginFile" htmlEscape="false" maxlength="2000" class="input-xlarge required"/>
@@ -309,6 +341,7 @@
 				<span class="help-inline"><font color="red">*</font> </span>
 			</td>
 		</tr>
+
 		<tr>
 			<td  class="tit" colspan="6">填表说明</td>
 		</tr>
@@ -322,7 +355,7 @@
 				5、打印要求：投标备案表打印时需双面打印。
 			</div>
 			</td>
-		</tr>
+		</tr>--%>
 
 	</table>
 

@@ -15,8 +15,21 @@
 		a.remarks AS "remarks",
 		a.del_flag AS "delFlag",
 		a.proc_ins_id AS "procInsId",
-		a.process_status AS "procStatus",
+		a.proc_status AS "procStatus",
 		a.project_accounting_file AS "projectAccountingFile",
+
+
+		a.estimated_profit_margin AS "estimatedProfitMargin",
+		a.settlement_profit_margin AS "settlementProfitMargin",
+		a.profit_margin_float AS "profitMarginFloat",
+		a.profit_margin_info AS "profitMarginInfo",
+		a.fee_info AS "feeInfo",
+		a.running_plan AS "runningPlan",
+		a.summary AS "summary",
+		a.achievement AS "achievement",
+		a.finish_date AS "finishDate",
+		a.finish_price AS "finishPrice",
+
 		
 		pro_apply.project_code AS "apply.projectCode",
 		pro_apply.project_name AS "apply.projectName",
@@ -115,7 +128,18 @@
 			remarks,
 			del_flag,
 			proc_ins_id,
-			process_status
+			proc_status,
+
+			estimated_profit_margin,
+			settlement_profit_margin,
+			profit_margin_float,
+			profit_margin_info,
+			fee_info,
+			running_plan,
+			summary,
+			achievement,
+			finish_date,
+			finish_price
 		) VALUES (
 			#{apply.id},
 			#{category},
@@ -130,7 +154,20 @@
 			#{remarks},
 			#{delFlag},
 			#{procInsId},
-			#{procStatus}
+			#{procStatus},
+
+
+			#{estimatedProfitMargin},
+			#{settlementProfitMargin},
+			#{profitMarginFloat},
+			#{profitMarginInfo},
+			#{feeInfo},
+			#{runningPlan},
+			#{summary},
+			#{achievement},
+			#{finishDate},
+			#{finishPrice}
+
 		)
 	</insert>
 	
@@ -145,7 +182,19 @@
 			update_date = #{updateDate},
 			remarks = #{remarks},
 			proc_ins_id = #{procInsId},
-			process_status = #{procStatus}
+			proc_status = #{procStatus},
+
+			estimated_profit_margin = #{estimatedProfitMargin},
+			settlement_profit_margin = #{settlementProfitMargin},
+		 	profit_margin_float = #{profitMarginFloat},
+		    profit_margin_info = #{profitMarginInfo},
+		    fee_info = #{feeInfo},
+		    running_plan = #{runningPlan},
+		    summary = #{summary},
+		    achievement = #{achievement},
+		    finish_date = #{finishDate},
+		    finish_price = #{finishPrice}
+
 		WHERE id = #{id}
 	</update>
 	

@@ -269,6 +269,10 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 		return dao.findList4LargerMainStage(projectApplyExternal);
 	}
 
+	/**
+	 * 流程结束时自动执行
+	 * @param id
+	 */
 	public void genProjectCode(String id) {
 
 		ProjectApplyExternal external = get(id);
@@ -285,8 +289,9 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 
 	/**
 	 * 不够位数的在前面补0，保留num的长度位数字
+	 *
 	 * @param code
-	 * @return
+	 * @return 返回定长的、自增1的数字字符串
 	 */
 	private String autoGenericCode(String code, int num) {
 		if (StringUtils.isBlank(code))

@@ -119,7 +119,6 @@ public class ProjectFinishApprovalController extends BaseController {
 		} else {
 			projectFinishApprovalService.saveLaunch(projectFinishApproval);
 		}
-//		projectFinishApprovalService.save(projectFinishApproval);
 		addMessage(redirectAttributes, "保存结项审批成功");
 		
 		String usertask_owner = projectFinishApproval.getAct().getTaskDefKey();

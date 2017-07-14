@@ -11,7 +11,6 @@ import com.thinkgem.jeesite.modules.project.utils.MyDictUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -31,14 +30,39 @@ public class ProjectFinishApprovalService extends JicActService<ProjectFinishApp
 
 	/**
 	 * 保存并结束流程
-	 * @param projectFinishApproval
+	 // * @param projectFinishApproval
 	 */
-	@Transactional(readOnly = false)
-	public void saveFinishProcess(ProjectFinishApproval projectFinishApproval) {
-		// 开启流程
-		String procInsId = saveLaunch(projectFinishApproval);
-		// 结束流程
-		endProcess(procInsId);
+	// @Transactional(readOnly = false)
+	// public void saveFinishProcess(ProjectFinishApproval projectFinishApproval) {
+	// 	// 开启流程
+	// 	String procInsId = saveLaunch(projectFinishApproval);
+	// 	// 结束流程
+	// 	endProcess(procInsId);
+	// }
+
+
+	@Override
+	public void setupVariable(ProjectFinishApproval finish, Map<String, Object> vars) {
+		vars.put(ActUtils.VAR_PRJ_ID, finish.getApply().getId());
+
+		vars.put(ActUtils.VAR_PRJ_TYPE, finish.getApply().getCategory());
+
+		vars.put(ActUtils.VAR_TITLE, finish.getApply().getProjectName());
+		if ("03".equals(finish.getApply().getCategory()) ) {
+			// 分支上使用，没在节点上使用
+			vars.put(ActUtils.VAR_TYPE, "2");
+		} else {
+			vars.put(ActUtils.VAR_TYPE, "1");
+		}
+
+		boolean isBossAudit = MyDictUtils.isBossAudit(finish.getApply().getEstimatedContractAmount(),
+				finish.getApply().getEstimatedGrossProfitMargin());
+		if (isBossAudit) { // 需要总经理审批
+			// 节点上使用
+			vars.put(ActUtils.VAR_SKIP_BOSS, "0");
+		} else {
+			vars.put(ActUtils.VAR_SKIP_BOSS, "1");
+		}
 	}
 
 	/**
@@ -49,39 +73,39 @@ public class ProjectFinishApprovalService extends JicActService<ProjectFinishApp
 	 *
 	 * @param projectFinishApproval
 	 */
-	@Transactional(readOnly = false)
-	public String saveLaunch(ProjectFinishApproval projectFinishApproval) {
-
-		if (projectFinishApproval.getIsNewRecord()) {
-			// 启动流程的时候，把业务数据放到流程变量里
-			Map<String, Object> varMap = new HashMap<String, Object>();
-			varMap.put(ActUtils.VAR_PRJ_ID, projectFinishApproval.getApply().getId());
-
-			varMap.put(ActUtils.VAR_PRJ_TYPE, projectFinishApproval.getApply().getCategory());
-
-			varMap.put(ActUtils.VAR_TITLE, projectFinishApproval.getApply().getProjectName());
-
-			if ("03".equals(projectFinishApproval.getApply().getCategory()) ) {
-				varMap.put(ActUtils.VAR_TYPE, "2");
-			} else {
-				varMap.put(ActUtils.VAR_TYPE, "1");
-			}
-
-			boolean isBossAudit = MyDictUtils.isBossAudit(projectFinishApproval.getApply().getEstimatedContractAmount(),
-					projectFinishApproval.getApply().getEstimatedGrossProfitMargin());
-			if (isBossAudit) { // 需要总经理审批
-				varMap.put(ActUtils.VAR_SKIP_BOSS, "0");
-			} else {
-				varMap.put(ActUtils.VAR_SKIP_BOSS, "1");
-			}
-
-			return launch(projectFinishApproval, varMap);
-		} else { // 把驳回到申请人(重新修改业务表单，重新发起流程、销毁流程)也当成一个特殊的审批节点
-			// 只要不是启动流程，其它任意节点的跳转都当成节点审批
-			saveAudit(projectFinishApproval);
-			return null;
-		}
-	}
+	// @Transactional(readOnly = false)
+	// public String saveLaunch(ProjectFinishApproval projectFinishApproval) {
+    //
+	// 	if (projectFinishApproval.getIsNewRecord()) {
+	// 		// 启动流程的时候，把业务数据放到流程变量里
+	// 		Map<String, Object> varMap = new HashMap<String, Object>();
+	// 		varMap.put(ActUtils.VAR_PRJ_ID, projectFinishApproval.getApply().getId());
+    //
+	// 		varMap.put(ActUtils.VAR_PRJ_TYPE, projectFinishApproval.getApply().getCategory());
+    //
+	// 		varMap.put(ActUtils.VAR_TITLE, projectFinishApproval.getApply().getProjectName());
+    //
+	// 		if ("03".equals(projectFinishApproval.getApply().getCategory()) ) {
+	// 			varMap.put(ActUtils.VAR_TYPE, "2");
+	// 		} else {
+	// 			varMap.put(ActUtils.VAR_TYPE, "1");
+	// 		}
+    //
+	// 		boolean isBossAudit = MyDictUtils.isBossAudit(projectFinishApproval.getApply().getEstimatedContractAmount(),
+	// 				projectFinishApproval.getApply().getEstimatedGrossProfitMargin());
+	// 		if (isBossAudit) { // 需要总经理审批
+	// 			varMap.put(ActUtils.VAR_SKIP_BOSS, "0");
+	// 		} else {
+	// 			varMap.put(ActUtils.VAR_SKIP_BOSS, "1");
+	// 		}
+    //
+	// 		return launch(projectFinishApproval, varMap);
+	// 	} else { // 把驳回到申请人(重新修改业务表单，重新发起流程、销毁流程)也当成一个特殊的审批节点
+	// 		// 只要不是启动流程，其它任意节点的跳转都当成节点审批
+	// 		saveAudit(projectFinishApproval);
+	// 		return null;
+	// 	}
+	// }
 	
 //	@Transactional(readOnly = false)
 //	public void auditing(String id) {

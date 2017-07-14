@@ -103,6 +103,8 @@
 	<form:hidden path="act.taskDefKey"/>
 	<form:hidden path="act.procInsId"/>
 	<form:hidden path="act.procDefId"/>
+	<%-- 前端再给后台 --%>
+	<form:hidden path="bidding.id"/>
 	<form:hidden id="flag" path="act.flag"/>
 	<sys:message content="${message}"/>
 	<table class="table-form">
@@ -150,11 +152,12 @@
 			</td>
 			<td  class="tit">投标参与人员</td>
 			<td>
+				<%-- name backend --%>
 				<sys:treeselect id="biddingMembers" name="biddingMembers"
-					value="${biddingArchive.biddingMembers}" labelName="biddingMembers"
+					value="${biddingArchive.biddingMembers}" labelName="biddingMemberss"
 					labelValue="${biddingArchive.membersName}"
 					checked="true"
-					dataMsgRequired="投标成员必填" title="投标参与人员" url="/sys/office/treeData?type=3"
+					dataMsgRequired="投标成员必填" title="投标参与人员" url="/sys/office/treeData?type=3&isAll=true"
 					cssClass="required"  allowClear="true" notAllowSelectParent="true" />
 				<span class="help-inline"><font color="red">*</font> </span>
 			</td>
@@ -276,8 +279,34 @@
 			</td>
 		</tr>
 
+		<tr>
+			<td colspan="1" class="tit">邀标函</td>
+			<td class="" colspan="5">
+				<form:hidden id="ifb" path="ifb" maxlength="2000" class="input-xlarge required"/>
+				<sys:ckfinder input="ifb" type="files" uploadPath="/project/bidding/ifb" selectMultiple="true"/>
+				<span class="help-inline"><font color="red">*</font> </span>
+			</td>
+		</tr>
 
 		<tr>
+			<td colspan="1" class="tit">含投标价格的<br>完整谈判文件</td>
+			<td class="" colspan="5">
+				<form:hidden id="negotiationFile" path="negotiationFile" maxlength="2000" class="input-xlarge required"/>
+				<sys:ckfinder input="negotiationFile" type="files" uploadPath="/project/bidding/negotiationFile" selectMultiple="true"/>
+				<span class="help-inline"><font color="red">*</font> </span>
+			</td>
+		</tr>
+
+		<tr>
+			<td colspan="1" class="tit">价格核算单</td>
+			<td class="" colspan="5">
+				<form:hidden id="priceAccountingFile" path="priceAccountingFile" maxlength="2000" class="input-xlarge required"/>
+				<sys:ckfinder input="priceAccountingFile" type="files" uploadPath="/project/bidding/priceAccountingFile" selectMultiple="true"/>
+				<span class="help-inline"><font color="red">*</font> </span>
+			</td>
+		</tr>
+
+		<%--<tr>
 			<td colspan="1" class="tit">附件</td>
 			<td class="" colspan="5">
 				<form:hidden id="profitMarginFile" path="profitMarginFile" maxlength="2000" class="input-xlarge required"/>
@@ -285,6 +314,7 @@
 				<span class="help-inline"><font color="red">*</font> </span>
 			</td>
 		</tr>
+
 		<tr>
 			<td  class="tit" colspan="6">填表说明</td>
 		</tr>
@@ -298,7 +328,7 @@
 				5、打印要求：投标备案表打印时需双面打印。
 			</div>
 			</td>
-		</tr>
+		</tr>--%>
 
 	</table>
 

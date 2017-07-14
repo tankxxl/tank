@@ -57,6 +57,10 @@ public class ProjectBidding extends ActEntity<ProjectBidding> {
 	private String lostInfo; // 北京科技-丟标分析
 	private String membersName; // 合成字段，用于前台展示，数据来源于数据库
 
+	private String ifb; // 邀标函文件
+	private String negotiationFile; // 含投标价格的谈判文件
+	private String priceAccountingFile; // 价格核算表
+
 	public ProjectBidding() {
 		super();
 	}
@@ -376,5 +380,30 @@ public class ProjectBidding extends ActEntity<ProjectBidding> {
 
 	public void setMembersName(String membersName) {
 		this.membersName = membersName;
+	}
+
+
+	public String getIfb() {
+		return ifb;
+	}
+
+	public void setIfb(String ifb) {
+		this.ifb = ifb;
+	}
+
+	public String getNegotiationFile() {
+		return negotiationFile;
+	}
+
+	public void setNegotiationFile(String negotiationFile) {
+		this.negotiationFile = negotiationFile;
+	}
+
+	public String getPriceAccountingFile() {
+		return priceAccountingFile;
+	}
+
+	public void setPriceAccountingFile(String priceAccountingFile) {
+		this.priceAccountingFile = priceAccountingFile;
 	}
 }

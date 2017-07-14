@@ -86,7 +86,7 @@
 				<%--<th>用印内容</th>--%>
 				<th>更新时间</th>
 				<th>审批状态</th>
-				<%--<th>是否备案</th>--%>
+				<th>是否备案</th>
 				<shiro:hasPermission name="project:bidding:projectBidding:edit"><th>操作</th></shiro:hasPermission>
 			</tr>
 		</thead>
@@ -118,16 +118,16 @@
 						${fns:getDictLabel(projectBidding.procStatus, 'AuditStatus', '')}
 				</td>
 
-				<%--<c:choose>--%>
-					<%--<c:when test="${projectBidding.archiveFlag != '1'}">--%>
-						<%--<td class="text-warning" >--%>
-					<%--</c:when>--%>
-					<%--<c:otherwise>--%>
-						<%--<td class="text-success">--%>
-					<%--</c:otherwise>--%>
-				<%--</c:choose>--%>
-					<%--${fns:getDictLabel(projectBidding.archiveFlag, 'yes_no', '否')}--%>
-				<%--</td>--%>
+				<c:choose>
+					<c:when test="${projectBidding.archiveFlag != '1'}">
+						<td class="text-warning" >
+					</c:when>
+					<c:otherwise>
+						<td class="text-success">
+					</c:otherwise>
+				</c:choose>
+					${fns:getDictLabel(projectBidding.archiveFlag, 'yes_no', '否')}
+				</td>
 
 				<td>
 				<shiro:hasPermission name="project:bidding:projectBidding:edit">

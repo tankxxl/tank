@@ -241,12 +241,36 @@
 		</c:if>
 
 		<tr>
+			<td colspan="1" class="tit">邀标函</td>
+			<td class="" colspan="5">
+				<form:hidden id="ifb" path="ifb" maxlength="2000" class="input-xlarge required"/>
+				<sys:ckfinder input="ifb" type="files" uploadPath="/project/bidding/ifb" readonly="true"/>
+			</td>
+		</tr>
+
+		<tr>
+			<td colspan="1" class="tit">含投标价格的<br>完整谈判文件</td>
+			<td class="" colspan="5">
+				<form:hidden id="negotiationFile" path="negotiationFile" maxlength="2000" class="input-xlarge required"/>
+				<sys:ckfinder input="negotiationFile" type="files" uploadPath="/project/bidding/negotiationFile" readonly="true"/>
+			</td>
+		</tr>
+
+		<tr>
+			<td colspan="1" class="tit">价格核算单</td>
+			<td class="" colspan="5">
+				<form:hidden id="priceAccountingFile" path="priceAccountingFile" maxlength="2000" class="input-xlarge required"/>
+				<sys:ckfinder input="priceAccountingFile" type="files" uploadPath="/project/bidding/priceAccountingFile" readonly="true"/>
+			</td>
+		</tr>
+
+		<%--<tr>
 			<td colspan="1" class="tit">附件</td>
 			<td class="" colspan="5">
 				<form:hidden id="profitMarginFile" path="profitMarginFile" htmlEscape="false" maxlength="2000" class="input-xlarge required"/>
 				<sys:ckfinder input="profitMarginFile" type="files" uploadPath="/project/bidding/projectBidding" selectMultiple="true" readonly="true"/>
 			</td>
-		</tr>
+		</tr>--%>
 
 		<c:if test="${not empty projectBidding.act.taskId && projectBidding.act.status != 'finish'}">
 			<tr>
@@ -258,7 +282,7 @@
 			</tr>
 		</c:if>
 
-		<tr>
+		<%--<tr>
 			<td  class="tit" colspan="6">填表说明</td>
 		</tr>
 		<tr>
@@ -271,7 +295,7 @@
 				5、打印要求：投标备案表打印时需双面打印。
 			</div>
 			</td>
-		</tr>
+		</tr>--%>
 
 	</table>
 

@@ -245,7 +245,7 @@
 			</tr>
 		</c:if>
 
-		<tr>
+		<%--<tr>
 			<td  class="tit" colspan="4">填表说明</td>
 		</tr>
 		<tr>
@@ -259,7 +259,7 @@
 				6、打印要求：项目评审会表打印时需双面打印。
 			</span>
 			</td>
-		</tr>
+		</tr>--%>
 	</table>
 
 	<div class="form-actions">

@@ -20,6 +20,12 @@
                         max: 100,
                         minlength: 1
 				    },
+                    estimatedContractAmount: {
+                        required: true,
+                        number: true,
+                        min: 0,
+                        max: 100000000,
+					},
 					ownership: {
 				      	required: true
 				    }
@@ -134,17 +140,16 @@
 				<%--${fns:getUser().office.name}--%>
 			<%--</td>--%>
 
-			<td class="tit">类别</td>
+			<td class="tit">类别<span class="help-inline"><font color="red">*</font></span></td>
 			<td>
-				<form:checkboxes path="bigCategory" items="${fns:getDictList('jic_big_catgory')}" itemLabel="label" itemValue="value" />
+				<form:checkboxes path="bigCategory" items="${fns:getDictList('jic_big_catgory')}" itemLabel="label" itemValue="value" cssClass="required"/>
 			</td>
 		</tr>
 
 		<tr>
-			<td colspan="1" class="tit" >项目名称</td>
+			<td colspan="1" class="tit" >项目名称<span class="help-inline"><font color="red">*</font></span></td>
 			<td colspan="3">
-				<form:input path="projectName" style="width:90%" htmlEscape="false" maxlength="100" class="required"/>
-				<span class="help-inline"><font color="red">*</font> </span>
+				<form:input path="projectName" style="width:90%" maxlength="200" class="required"/>
 			</td>
 
 		</tr>
@@ -163,121 +168,115 @@
 		</c:if>
 
 		<tr>
-			<td  class="tit" colspan="1">项目类别</td>
+			<td  class="tit" colspan="1">项目类别<span class="help-inline"><font color="red">*</font></span></td>
 			<td>
 				<form:select path="category" class="input-medium required" >
 					<form:option value="" label=""/>
-					<form:options items="${fns:getDictList('pro_category')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+					<form:options items="${fns:getDictList('pro_category')}" itemLabel="label" itemValue="value"/>
 				</form:select>
-				<span class="help-inline"><font color="red">*</font> </span>
 			</td>
-			<td  class="tit">是否涉及自研</td>
+			<td  class="tit">是否涉及自研<span class="help-inline"><font color="red">*</font></span></td>
 			<td  class="">
 				<form:select path="selfDev" class="input-medium required">
-					<form:options items="${fns:getDictList('yes_no')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+					<form:options items="${fns:getDictList('yes_no')}" itemLabel="label" itemValue="value"/>
 				</form:select>
-				<span class="help-inline"><font color="red">*</font> </span>
 			</td>
 		</tr>
 
 		<tr>
-			<td  class="tit"  colspan="1">预计合同金额</td>
+			<td  class="tit">预计合同金额<span class="help-inline"><font color="red">*</font></span></td>
 			<td class="">
 				<div class="input-append">
-					<form:input path="estimatedContractAmount" maxlength="10" number="true" min="0" max="99999999" class="checkNum input-medium"/><span class="add-on">元</span>
+					<form:input path="estimatedContractAmount" maxlength="10" number="true" class="checkNum input-medium"/><span class="add-on">元</span>
 				</div>
 			</td>
-			<td  class="tit">预计公司利润率</td>
+			<td  class="tit">预计公司利润率<span class="help-inline"><font color="red">*</font></span></td>
 			<td class="">
 				<div class="input-append">
-					<form:input path="estimatedGrossProfitMargin"  style="width:80px" htmlEscape="false" maxlength="5" number="true" min="0" max="999" class="checkNum input-medium"/>
+					<form:input path="estimatedGrossProfitMargin"  style="width:80px" maxlength="5" number="true" class="checkNum input-medium"/>
 					<span class="add-on">%</span>
 				</div>
 			</td>
 		</tr>
 
 		<tr>
-			<td class="tit">预计开始时间</td>
+			<td class="tit">预计开始时间<span class="help-inline"><font color="red">*</font></span></td>
 			<td>
-				<input name="beginDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate required"
+				<input name="beginDate" type="text" readonly="readonly" class="input-medium Wdate required"
 					value="<fmt:formatDate value="${projectApplyExternal.beginDate}" pattern="yyyy-MM-dd"/>"
 					onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
-					<span class="help-inline"><font color="red">*</font> </span>
 			</td>
-			<td class="tit">预计截止时间</td>
+			<td class="tit">预计截止时间<span class="help-inline"><font color="red">*</font></span></td>
 			<td>
-				<input name="endDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate required"
+				<input name="endDate" type="text" readonly="readonly" class="input-medium Wdate required"
 					   value="<fmt:formatDate value="${projectApplyExternal.endDate}" pattern="yyyy-MM-dd"/>"
 					   onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
-				<span class="help-inline"><font color="red">*</font> </span>
 			</td>
 		</tr>
 
 		<tr>
-			<td class="tit">项目经理</td>
+			<td class="tit">项目经理<span class="help-inline"><font color="red">*</font></span></td>
 			<td>
 				<sys:treeselect id="projectManager" name="projectManager.id"
-								value="${projectApplyExternal.projectManager.id}" labelName="projectManager.name"
-								labelValue="${projectApplyExternal.projectManager.name}"
-								dataMsgRequired="经理必填" title="经理" url="/sys/office/treeData?type=3&isAll=true"
-								cssClass="required"  allowClear="true" notAllowSelectParent="true" />
-				<span class="help-inline"><font color="red">*</font> </span>
+					value="${projectApplyExternal.projectManager.id}" labelName="projectManager.name"
+					labelValue="${projectApplyExternal.projectManager.name}"
+					title="经理" url="/sys/office/treeData?type=3&isAll=true"
+					cssClass="required"  allowClear="true" notAllowSelectParent="true" />
 			</td>
 
-			<td class="tit">项目组成员</td>
+			<td class="tit">项目组成员<span class="help-inline"><font color="red">*</font></span></td>
 			<td>
 				<sys:treeselect id="projectMembers" name="projectMembers"
-								value="${projectApplyExternal.projectMembers}" labelName="projectMembers"
-								labelValue="${projectApplyExternal.membersName}"
-								checked="true"
-								dataMsgRequired="项目成员必填" title="项目成员" url="/sys/office/treeData?type=3&isAll=true"
-								cssClass="required"  allowClear="true" notAllowSelectParent="true" />
-				<span class="help-inline"><font color="red">*</font> </span>
+					value="${projectApplyExternal.projectMembers}" labelName="projectMemberss"
+					labelValue="${projectApplyExternal.membersName}"
+					checked="true" cssClass="required"  allowClear="true"
+					title="项目成员" url="/sys/office/treeData?type=3&isAll=true"
+					notAllowSelectParent="true" />
 			</td>
 		</tr>
 
 		<tr>
-			<td  class="tit">项目开展背景、概述</td>
+			<td  class="tit">项目开展背景、概述<span class="help-inline"><font color="red">*</font></span></td>
 			<td  colspan="3">
 				<div style="white-space:nowrap;">
 				<form:textarea path="description"
-							   style="width:98%"  htmlEscape="false"  maxlength="255"
-							   placeholder="项目背景及机遇，请描述需求内容，即项目设计说明，目的是让审批人了解该项目的目前情况。"/>
+				   style="width:98%"  cssClass="required" maxlength="500"
+				   placeholder="项目背景及机遇，请描述需求内容，即项目设计说明，目的是让审批人了解该项目的目前情况。"/>
 				</div>
 			</td>
 		</tr>
 
 		<tr>
-			<td  class="tit">项目业务模式/产品形式</td>
+			<td  class="tit">项目业务模式/产品形式<span class="help-inline"><font color="red">*</font></span></td>
 			<td  colspan="3">
 				<div style="white-space:nowrap;">
 					<form:textarea path="pattern"
-								   style="width:98%"  htmlEscape="false"  maxlength="255"
-								   placeholder="请描述对客户的需求，制定市场/产品/销售/服务等应对的策略。及产品形式需求的特定满足形式。"/>
+					   style="width:98%"  cssClass="required"  maxlength="500"
+					   placeholder="请描述对客户的需求，制定市场/产品/销售/服务等应对的策略。及产品形式需求的特定满足形式。"/>
 				</div>
 			</td>
 		</tr>
 
 		<tr>
-			<td  class="tit">项目目标/阶段性目标</td>
+			<td  class="tit">项目目标/阶段性目标<span class="help-inline"><font color="red">*</font></span></td>
 			<td  colspan="3">
 				<div style="white-space:nowrap;">
 					<form:textarea path="target"
-								   style="width:98%"  htmlEscape="false"  maxlength="255"
-								   placeholder="是否有预期的实现目标（工作要求，达到目标），请再此说明；
+					   style="width:98%"  cssClass="required"  maxlength="500"
+					   placeholder="是否有预期的实现目标（工作要求，达到目标），请再此说明；
 重点说明项目的投入对公司的价值贡献，包括公司收入/利润、其他重要价值。"/>
 				</div>
 			</td>
 		</tr>
 
 		<tr>
-			<td  class="tit">项目盈利分析</td>
+			<td  class="tit">项目盈利分析<span class="help-inline"><font color="red">*</font></span></td>
 			<td  colspan="3">
 				<div style="white-space:nowrap;">
 					<form:textarea path="analysis"
-								   style="width:98%"  htmlEscape="false"  maxlength="255"
-								   rows="4"
-								   placeholder="项目的商业模式，请在此明确；
+					   style="width:98%"  cssClass="required"  maxlength="500"
+					   rows="4"
+					   placeholder="项目的商业模式，请在此明确；
 项目的整体收益情况进行分析，附上详细测算说明，并明确测算的基本假设；
 1.如果是短期的项目（一年以内），请对整个项目周期进行损益预测（按照季度或月度预测）。
 2.如果是长期运作项目（一年以上），请预测3年的收益及资金投入情况（按照季度或半年预测）。"/>
@@ -286,13 +285,13 @@
 		</tr>
 
 		<tr>
-			<td class="tit">项目需要资源</td>
+			<td class="tit">项目需要资源<span class="help-inline"><font color="red">*</font></span></td>
 			<td  colspan="3">
 				<div style="white-space:nowrap;">
 					<form:textarea path="resource"
-								   style="width:98%"  htmlEscape="false"  maxlength="255"
-								   rows="7"
-								   placeholder="1）公司的资质：资质要求
+					   style="width:98%" cssClass="required" maxlength="500"
+					   rows="7"
+					   placeholder="1）公司的资质：资质要求
 2）人员配置：该部分内容要与业务目标及盈利预测部分匹配，且与其中人工成本预测数据相符
 3）资金需求
 4）发票种类及发票量需求
@@ -305,18 +304,18 @@
 		</tr>
 
 		<tr>
-			<td  class="tit">项目风险预测</td>
+			<td  class="tit">项目风险预测<span class="help-inline"><font color="red">*</font></span></td>
 			<td  colspan="3">
 				<div style="white-space:nowrap;">
 					<form:textarea path="riskAnalysis"
-								   style="width:98%"  htmlEscape="false"  maxlength="255"
-								   placeholder="如果有其他需要提前说明的事项，特别是项目的风险，请在这里做出说明。"/>
+					   style="width:98%"  cssClass="required" maxlength="500"
+					   placeholder="如果有其他需要提前说明的事项，特别是项目的风险，请在这里做出说明。"/>
 				</div>
 			</td>
 		</tr>
 
 		<tr>
-			<td class="tit" >请添加项目测算表</td>
+			<td class="tit" >请添加项目测算表<span class="help-inline"><font color="red">*</font></span></td>
 			<td   colspan="3">
 				<form:hidden id="documentAttachmentPath" path="documentAttachmentPath" maxlength="20000" class="required" />
 				<sys:ckfinder input="documentAttachmentPath" type="files"

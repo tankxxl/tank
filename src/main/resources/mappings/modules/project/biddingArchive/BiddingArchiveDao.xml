@@ -46,6 +46,10 @@
 		a.archive_flag AS "archiveFlag",
 		a.alter_flag AS "alterFlag",
 
+		a.ifb AS "ifb",
+		a.negotiation_file AS "negotiationFile",
+		a.price_accounting_file AS "priceAccountingFile",
+
 
 		pro_apply.project_code AS "apply.projectCode",
 		pro_apply.project_name AS "apply.projectName",
@@ -194,7 +198,11 @@
 			win_flag,
 			lost_info,
 			archive_flag,
-			alter_flag
+			alter_flag,
+
+			ifb,
+			negotiation_file,
+			price_accounting_file
 
 		) VALUES (
 			#{apply.id},
@@ -237,7 +245,11 @@
 			#{winFlag},
 			#{lostInfo},
 			#{archiveFlag},
-			#{alterFlag}
+			#{alterFlag},
+
+			#{ifb},
+			#{negotiationFile},
+			#{priceAccountingFile}
 
 		)
 	</insert>
@@ -280,7 +292,12 @@
 			win_flag = #{winFlag},
 			lost_info = #{lostInfo},
 			archive_flag = #{archiveFlag},
-			alter_flag = #{alterFlag}
+			alter_flag = #{alterFlag},
+
+			ifb = #{ifb},
+			negotiation_file = #{negotiationFile},
+			price_accounting_file = #{priceAccountingFile}
+
 		WHERE id = #{id}
 	</update>
 	
