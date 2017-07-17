@@ -17,10 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
@@ -65,6 +62,82 @@ public class MenuRestController extends BaseController {
         respModel.setData(list);
 
         return new ResponseEntity<RespModel<List<Menu>>>(respModel, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/treeData")
+    public RespModel<List<MyMenu>> treeData(@RequestParam(required=false) String extId,
+                                              @RequestParam(required=false) String isShowHide) {
+
+        List<MyMenu> myList = Lists.newArrayList();
+
+        MyMenu menu = new MyMenu();
+        menu.setName("菜单1");
+        menu.setHref("http://www.baidu.com");
+        menu.setIcon("asd");
+        for (int i = 0; i < 3; i++) {
+            MyMenu menuChild = new MyMenu();
+            menuChild.setName("菜单1-" + (i + 1));
+            menuChild.setHref("http://www.baidu.com");
+            menuChild.setIcon("asd");
+            menu.getChildren().add(menuChild);
+        }
+        myList.add(menu);
+
+        MyMenu menu1 = new MyMenu();
+        menu1.setName("菜单2");
+        menu1.setHref("http://www.baidu.com");
+        menu1.setIcon("asd");
+        for (int i = 0; i < 2; i++) {
+            MyMenu menuChild = new MyMenu();
+            menuChild.setName("菜单2-" + (i + 1));
+            menuChild.setHref("http://www.baidu.com");
+            menuChild.setIcon("asd");
+            menu1.getChildren().add(menuChild);
+        }
+        myList.add(menu1);
+
+        MyMenu menu2 = new MyMenu();
+        menu2.setName("菜单3");
+        menu2.setHref("http://www.baidu.com");
+        menu2.setIcon("asd");
+        for (int i = 0; i < 2; i++) {
+            MyMenu menuChild = new MyMenu();
+            menuChild.setName("菜单3-" + (i + 1));
+            menuChild.setHref("http://www.baidu.com");
+            menuChild.setIcon("asd");
+            menu2.getChildren().add(menuChild);
+        }
+        myList.add(menu2);
+
+        MyMenu menu3 = new MyMenu();
+        menu3.setName("菜单4");
+        menu3.setHref("http://www.baidu.com");
+        menu3.setIcon("asd");
+        for (int i = 0; i < 2; i++) {
+            MyMenu menuChild = new MyMenu();
+            menuChild.setName("菜单4-" + (i + 1));
+            menuChild.setHref("http://www.baidu.com");
+            menuChild.setIcon("asd");
+            menu3.getChildren().add(menuChild);
+        }
+        myList.add(menu3);
+
+        MyMenu menu4 = new MyMenu();
+        menu4.setName("菜单5");
+        menu4.setHref("http://www.baidu.com");
+        menu4.setIcon("asd");
+        for (int i = 0; i < 2; i++) {
+            MyMenu menuChild = new MyMenu();
+            menuChild.setName("菜单5-" + (i + 1));
+            menuChild.setHref("http://www.baidu.com");
+            menuChild.setIcon("asd");
+            menu4.getChildren().add(menuChild);
+        }
+        myList.add(menu4);
+
+        RespModel<List<MyMenu>> respModel = new RespModel<List<MyMenu>>("0");
+        respModel.setData(myList);
+        return respModel;
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET)
