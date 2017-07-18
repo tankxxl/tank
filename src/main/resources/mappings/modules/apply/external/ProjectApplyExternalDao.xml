@@ -169,6 +169,27 @@
 			</otherwise>
 		</choose>
 	</select>
+
+	<select id="findAllList4LargerMainStage" resultType="ProjectApplyExternal">
+		SELECT
+		<include refid="projectApplyExternalColumns"/>
+		FROM project_apply_external a
+		<include refid="projectApplyExternalJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="proMainStage != null and proMainStage != ''">
+				AND a.pro_main_stage <![CDATA[ >= #{proMainStage} ]]>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
 	
 	<select id="findAllList" resultType="ProjectApplyExternal">
 		SELECT 
@@ -306,6 +327,9 @@
 			begin_date = #{beginDate},
 			end_date = #{endDate},
 			project_manager_id = #{projectManager.id},
+
+			saler_id = #{saler.id},
+
 			project_members = #{projectMembers},
 			pattern = #{pattern},
 			target = #{target},

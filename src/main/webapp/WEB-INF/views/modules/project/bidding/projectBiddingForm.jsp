@@ -134,7 +134,7 @@
 					labelName="apply.projectName"
 					labelValue="${projectBidding.apply.projectName}"
 					title="项目"
-					url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11"
+					url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11&isAll=true"
 					cssClass="required"
 					cssStyle="width: 250px;"
 					dataMsgRequired="项目必选"

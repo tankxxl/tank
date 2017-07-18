@@ -167,6 +167,19 @@
 			</tr>
 		</c:if>
 
+		<shiro:hasPermission name="apply:external:projectApplyExternal:super">
+		<tr>
+			<td class="tit">项目销售人<span class="help-inline"><font color="red">*</font></span></td>
+			<td>
+				<sys:treeselect id="saler" name="saler.id"
+								value="${projectApplyExternal.saler.id}" labelName="saler.name"
+								labelValue="${projectApplyExternal.saler.name}"
+								title="项目销售人" url="/sys/office/treeData?type=3&isAll=true"
+								cssClass="required"  allowClear="true" notAllowSelectParent="true" />
+			</td>
+		</tr>
+		</shiro:hasPermission>
+
 		<tr>
 			<td  class="tit" colspan="1">项目类别<span class="help-inline"><font color="red">*</font></span></td>
 			<td>

@@ -30,6 +30,8 @@ public interface ProjectApplyExternalDao extends JicDao<ProjectApplyExternal> {
 	
 	public List<ProjectApplyExternal> findList4LargerMainStage(ProjectApplyExternal projectApplyExternal);
 
+	public List<ProjectApplyExternal> findAllList4LargerMainStage(ProjectApplyExternal projectApplyExternal);
+
 	// public ProjectApplyExternal findByProcInsId(String procInsId);
 
 

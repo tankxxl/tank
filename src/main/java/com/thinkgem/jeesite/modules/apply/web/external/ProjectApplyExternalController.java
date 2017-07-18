@@ -326,20 +326,25 @@ public class ProjectApplyExternalController extends BaseController {
 	}
 	/**
 	 * 获取 mainstage为更大的值的项目 如（proMainStage 为11 则查询 20，21，30，31等）
-	 * @param response
 	 * @param proMainStage 项目阶段
 	 * @return
 	 */
 	@ResponseBody
 	@RequestMapping(value = "treeData4LargerMainStage")
-	public List<Map<String, Object>> treeData4LargerMainStage(HttpServletResponse response,String proMainStage) {
+	public List<Map<String, Object>> treeData4LargerMainStage(@RequestParam(required=false) String proMainStage,
+															  @RequestParam(required=false) Boolean isAll) {
 		ProjectApplyExternal applyExternal = new ProjectApplyExternal();
 
 		proMainStage = StringUtils.substringBefore(proMainStage, "?");
 		applyExternal.setProMainStage(proMainStage);
-		
-		applyExternal.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
-		List<ProjectApplyExternal> list = applyService.findList4LargerMainStage(applyExternal);
+
+		List<ProjectApplyExternal> list = null;
+		if (isAll != null && isAll) {
+			list = applyService.findAllList4LargerMainStage(applyExternal);
+		} else {
+			applyExternal.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+			list = applyService.findList4LargerMainStage(applyExternal);
+		}
 		return toMapList(list);
 	}
 	
@@ -463,6 +468,9 @@ public class ProjectApplyExternalController extends BaseController {
 
     private List<Map<String, Object>> toMapList(List<ProjectApplyExternal> list) {
         List<Map<String, Object>> mapList = Lists.newArrayList();
+        if (list == null || list.isEmpty())
+        	return mapList;
+
         for (int i=0; i<list.size(); i++) {
             ProjectApplyExternal e = list.get(i);
             Map<String, Object> map = Maps.newHashMap();

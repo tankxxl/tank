@@ -33,13 +33,15 @@ public class ScheduledTask {
     Logger logger;
 
     // @Scheduled(fixedDelay = 100)
-    @Scheduled(cron="0/10 * *  * * ? ")   //每10秒执行一次
+    // 0 0 2 * * ?
+    // 0 0 1 * * ?
+    @Scheduled(cron="0 0 1 * * ? ")   // 每天凌晨1点执行一次
     public void pushQuestionna() {
 
         System.out.println("定时任务1，自动执行:" + format.format(new Date()));
         logger.info("定时任务1，自动执行:" + format.format(new Date()));
 
-        // applyExternalDao.updatePorCode("1");
+        applyExternalDao.updatePorCode("1");
     }
 
 

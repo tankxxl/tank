@@ -269,6 +269,10 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 		return dao.findList4LargerMainStage(projectApplyExternal);
 	}
 
+	public List<ProjectApplyExternal> findAllList4LargerMainStage(ProjectApplyExternal projectApplyExternal){
+		return dao.findAllList4LargerMainStage(projectApplyExternal);
+	}
+
 	/**
 	 * 流程结束时自动执行
 	 * @param id
