@@ -22,7 +22,7 @@ public class MyMenu extends Menu {
 	private static final long serialVersionUID = 1L;
 	private MyMenu parent;	// 父级菜单
 	private String parentIds; // 所有父级编号
-	private String name; 	// 名称
+	private String subTitle; 	// sub
 	private String href; 	// 链接
 	private String target; 	// 目标（ mainFrame、_blank、_self、_parent、_top）
 	private String icon; 	// 图标
@@ -62,14 +62,13 @@ public class MyMenu extends Menu {
 	public void setParentIds(String parentIds) {
 		this.parentIds = parentIds;
 	}
-	
-	@Length(min=1, max=100)
-	public String getName() {
-		return name;
+
+	public String getSubTitle() {
+		return subTitle;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setSubTitle(String subTitle) {
+		this.subTitle = subTitle;
 	}
 
 	@Length(min=0, max=2000)
@@ -151,8 +150,4 @@ public class MyMenu extends Menu {
 		this.children = children;
 	}
 
-	@Override
-	public String toString() {
-		return name;
-	}
 }

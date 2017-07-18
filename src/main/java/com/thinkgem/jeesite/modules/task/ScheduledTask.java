@@ -55,16 +55,17 @@ public class ScheduledTask {
     // @Scheduled(cron = "0 10-30 9 * * ?")
     public void pushQuestionnaire2() {  
   
-        System.out.println("定时任务2，自动执行:" + format.format(new Date()));
-        logger.info("定时任务2，自动执行:" + format.format(new Date()));
-
+        System.out.println(Thread.currentThread().getName() +
+                "定时任务2，自动执行:" + format.format(new Date()));
+        // logger.info("定时任务2，自动执行:" + format.format(new Date()));
     }  
     
-    @Scheduled(cron="0/5 * *  * * ? ")   //每5秒执行一次
-    public void pushQuestionnaire3() {  
-    	  
-        System.out.println("定时任务3，自动执行:" + format.format(new Date()));
-        logger.info("定时任务3，自动执行:" + format.format(new Date()));
+    // @Scheduled(cron="0/5 * *  * * ? ")   //每5秒执行一次
+    public void pushQuestionnaire3() {
+        // System.out.println(Thread.currentThread().getName());
+        System.out.println(Thread.currentThread().getName() +
+                "定时任务3，自动执行:" + format.format(new Date()));
+        // logger.info("定时任务3，自动执行:" + format.format(new Date()));
     }
 
     // @Scheduled(cron = "0 * * * * ?")

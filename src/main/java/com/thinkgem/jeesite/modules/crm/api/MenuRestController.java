@@ -3,6 +3,7 @@ package com.thinkgem.jeesite.modules.crm.api;
 
 import com.google.common.collect.Lists;
 import com.thinkgem.jeesite.common.persistence.Page;
+import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.web.BaseController;
 import com.thinkgem.jeesite.modules.api.model.RespModel;
 import com.thinkgem.jeesite.modules.crm.client.entity.Client;
@@ -10,6 +11,7 @@ import com.thinkgem.jeesite.modules.crm.client.entity.MyClient;
 import com.thinkgem.jeesite.modules.crm.client.service.ClientService;
 import com.thinkgem.jeesite.modules.sys.dao.MenuDao;
 import com.thinkgem.jeesite.modules.sys.entity.Menu;
+import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.service.SystemService;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,15 +71,19 @@ public class MenuRestController extends BaseController {
                                               @RequestParam(required=false) String isShowHide) {
 
         List<MyMenu> myList = Lists.newArrayList();
+        String title = null;
 
         MyMenu menu = new MyMenu();
         menu.setName("菜单1");
-        menu.setHref("http://www.baidu.com");
+        menu.setSubTitle("菜单1说明");
+        menu.setHref("https://www.baidu.com");
         menu.setIcon("asd");
         for (int i = 0; i < 3; i++) {
             MyMenu menuChild = new MyMenu();
-            menuChild.setName("菜单1-" + (i + 1));
-            menuChild.setHref("http://www.baidu.com");
+            title = "菜单1-" + (i + 1);
+            menuChild.setName(title);
+            menuChild.setSubTitle(title + "说明");
+            menuChild.setHref("https://www.baidu.com");
             menuChild.setIcon("asd");
             menu.getChildren().add(menuChild);
         }
@@ -85,12 +91,15 @@ public class MenuRestController extends BaseController {
 
         MyMenu menu1 = new MyMenu();
         menu1.setName("菜单2");
-        menu1.setHref("http://www.baidu.com");
+        menu1.setSubTitle("菜单2说明");
+        menu1.setHref("https://www.baidu.com");
         menu1.setIcon("asd");
         for (int i = 0; i < 2; i++) {
             MyMenu menuChild = new MyMenu();
-            menuChild.setName("菜单2-" + (i + 1));
-            menuChild.setHref("http://www.baidu.com");
+            title = "菜单2-" + (i + 1);
+            menuChild.setName(title);
+            menuChild.setSubTitle(title + "说明");
+            menuChild.setHref("https://www.baidu.com");
             menuChild.setIcon("asd");
             menu1.getChildren().add(menuChild);
         }
@@ -98,25 +107,31 @@ public class MenuRestController extends BaseController {
 
         MyMenu menu2 = new MyMenu();
         menu2.setName("菜单3");
-        menu2.setHref("http://www.baidu.com");
+        menu2.setSubTitle("菜单3说明");
+        menu2.setHref("https://www.baidu.com");
         menu2.setIcon("asd");
         for (int i = 0; i < 2; i++) {
             MyMenu menuChild = new MyMenu();
-            menuChild.setName("菜单3-" + (i + 1));
-            menuChild.setHref("http://www.baidu.com");
+            title = "菜单3-" + (i + 1);
+            menuChild.setName(title);
+            menuChild.setSubTitle(title + "说明");
+            menuChild.setHref("https://www.baidu.com");
             menuChild.setIcon("asd");
-            menu2.getChildren().add(menuChild);
+            // menu2.getChildren().add(menuChild);
         }
         myList.add(menu2);
 
         MyMenu menu3 = new MyMenu();
         menu3.setName("菜单4");
-        menu3.setHref("http://www.baidu.com");
+        menu3.setSubTitle("菜单4说明");
+        menu3.setHref("https://www.baidu.com");
         menu3.setIcon("asd");
         for (int i = 0; i < 2; i++) {
             MyMenu menuChild = new MyMenu();
-            menuChild.setName("菜单4-" + (i + 1));
-            menuChild.setHref("http://www.baidu.com");
+            title = "菜单4-" + (i + 1);
+            menuChild.setName(title);
+            menuChild.setSubTitle(title + "说明");
+            menuChild.setHref("https://www.baidu.com");
             menuChild.setIcon("asd");
             menu3.getChildren().add(menuChild);
         }
@@ -124,12 +139,15 @@ public class MenuRestController extends BaseController {
 
         MyMenu menu4 = new MyMenu();
         menu4.setName("菜单5");
-        menu4.setHref("http://www.baidu.com");
+        menu4.setSubTitle("菜单5说明");
+        menu4.setHref("https://www.baidu.com");
         menu4.setIcon("asd");
         for (int i = 0; i < 2; i++) {
             MyMenu menuChild = new MyMenu();
-            menuChild.setName("菜单5-" + (i + 1));
-            menuChild.setHref("http://www.baidu.com");
+            title = "菜单5-" + (i + 1);
+            menuChild.setName(title);
+            menuChild.setSubTitle(title + "说明");
+            menuChild.setHref("https://www.baidu.com");
             menuChild.setIcon("asd");
             menu4.getChildren().add(menuChild);
         }
@@ -137,6 +155,125 @@ public class MenuRestController extends BaseController {
 
         RespModel<List<MyMenu>> respModel = new RespModel<List<MyMenu>>("0");
         respModel.setData(myList);
+        return respModel;
+    }
+
+
+    @RequestMapping(value = "/adView")
+    public RespModel<List<MyMenu>> adView(@RequestParam(required=false) String extId,
+                                            @RequestParam(required=false) String isShowHide) {
+
+        List<MyMenu> myList = Lists.newArrayList();
+        String title = null;
+
+        MyMenu menu = new MyMenu();
+        menu.setName("菜单1");
+        menu.setSubTitle("菜单1说明");
+        menu.setIcon("http://pic24.nipic.com/20121008/3822951_094451200000_2.jpg");
+        menu.setHref("http://www.163.com");
+        for (int i = 0; i < 3; i++) {
+            MyMenu menuChild = new MyMenu();
+            title = "菜单1-" + (i + 1);
+            menuChild.setName(title);
+            menuChild.setSubTitle(title + "说明");
+            menuChild.setHref("https://www.baidu.com");
+            menuChild.setIcon("asd");
+            // menu.getChildren().add(menuChild);
+        }
+        myList.add(menu);
+
+        MyMenu menu1 = new MyMenu();
+        menu1.setName("菜单2");
+        menu1.setSubTitle("菜单2说明");
+        menu1.setIcon("http://pic24.nipic.com/20121008/3822951_094451200000_2.jpg");
+        menu1.setHref("http://www.qq.com");
+        for (int i = 0; i < 2; i++) {
+            MyMenu menuChild = new MyMenu();
+            title = "菜单2-" + (i + 1);
+            menuChild.setName(title);
+            menuChild.setSubTitle(title + "说明");
+            menuChild.setHref("https://www.baidu.com");
+            menuChild.setIcon("asd");
+            // menu1.getChildren().add(menuChild);
+        }
+        myList.add(menu1);
+
+        MyMenu menu2 = new MyMenu();
+        menu2.setName("菜单3");
+        menu2.setSubTitle("菜单3说明");
+        menu2.setIcon("http://img.taopic.com/uploads/allimg/140326/235113-1403260U22059.jpg");
+        menu2.setHref("http://www.qq.com");
+        for (int i = 0; i < 2; i++) {
+            MyMenu menuChild = new MyMenu();
+            title = "菜单3-" + (i + 1);
+            menuChild.setName(title);
+            menuChild.setSubTitle(title + "说明");
+            menuChild.setHref("https://www.baidu.com");
+            menuChild.setIcon("asd");
+            // menu2.getChildren().add(menuChild);
+        }
+        myList.add(menu2);
+
+        MyMenu menu3 = new MyMenu();
+        menu3.setName("菜单4");
+        menu3.setSubTitle("菜单4说明");
+        menu3.setIcon("http://img.taopic.com/uploads/allimg/140326/235113-1403260U22059.jpg");
+        menu3.setHref("http://www.qq.com");
+        for (int i = 0; i < 2; i++) {
+            MyMenu menuChild = new MyMenu();
+            title = "菜单4-" + (i + 1);
+            menuChild.setName(title);
+            menuChild.setSubTitle(title + "说明");
+            menuChild.setHref("https://www.baidu.com");
+            menuChild.setIcon("asd");
+            // menu3.getChildren().add(menuChild);
+        }
+        myList.add(menu3);
+
+        MyMenu menu4 = new MyMenu();
+        menu4.setName("菜单5");
+        menu4.setSubTitle("菜单5说明");
+        menu4.setIcon("http://pic18.nipic.com/20111130/8366510_125653691355_2.jpg");
+        menu4.setHref("http://www.qq.com");
+        for (int i = 0; i < 2; i++) {
+            MyMenu menuChild = new MyMenu();
+            title = "菜单5-" + (i + 1);
+            menuChild.setName(title);
+            menuChild.setSubTitle(title + "说明");
+            menuChild.setHref("https://www.baidu.com");
+            menuChild.setIcon("asd");
+            // menu4.getChildren().add(menuChild);
+        }
+        myList.add(menu4);
+
+        RespModel<List<MyMenu>> respModel = new RespModel<List<MyMenu>>("0");
+        respModel.setData(myList);
+        return respModel;
+    }
+
+    @RequestMapping(value = "/login")
+    public RespModel<User> login(@RequestParam(required=false) String userId,
+                                          @RequestParam(required=false) String password) {
+
+        List<MyMenu> myList = Lists.newArrayList();
+        String title = null;
+
+        RespModel<User> respModel = null;
+
+        if (StringUtils.isEmpty(userId) || StringUtils.isEmpty(password)) {
+            respModel = new RespModel<User>("-2");
+            return respModel;
+        }
+
+        if ("test".equals(userId)) {
+            respModel = new RespModel<User>("-1");
+            return respModel;
+        }
+
+        respModel = new RespModel<User>("0");
+        User user = UserUtils.get("1");
+        respModel.setData(user);
+
         return respModel;
     }
 
