@@ -269,6 +269,13 @@
 				<input id="btnSubmit" class="btn btn-primary" type="submit" value="同 意" onclick="$('#flag').val('yes')"/>&nbsp;
 				<input id="btnSubmit" class="btn btn-inverse" type="submit" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;
 			</c:if>
+
+
+			<c:if test="${projectApplyExternal.act.taskDefKey eq 'usertask_market_leader'}">
+				<input id="btnSubmit" class="btn btn-primary" type="submit" value="结束流程" onclick="$('#flag').val('end')"/>
+			</c:if>
+
+
 		</shiro:hasPermission>
 
 		<input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.back()"/>

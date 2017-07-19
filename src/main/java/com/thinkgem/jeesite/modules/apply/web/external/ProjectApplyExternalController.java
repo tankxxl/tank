@@ -167,6 +167,8 @@ public class ProjectApplyExternalController extends BaseController {
 			applyService.save(projectApplyExternal);
 		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
 			applyService.saveFinishProcess(projectApplyExternal);
+		} else if ("end".equalsIgnoreCase(flag)) {
+
 		} else {
 			applyService.saveLaunch(projectApplyExternal);
 		}
@@ -202,7 +204,15 @@ public class ProjectApplyExternalController extends BaseController {
 			addMessage(model, "请填写审核意见。");
 			return form(projectApplyExternal, model);
 		}
-		applyService.saveAudit(projectApplyExternal);
+		String flag = projectApplyExternal.getAct().getFlag();
+
+//		flag在前台View.jsp中传送过来，在此进行判断要进行的操作
+		if ("end".equals(flag) ) {
+			applyService.endProcess(projectApplyExternal.getProcInsId());
+		} else {
+			applyService.saveAudit(projectApplyExternal);
+		}
+
 		return "redirect:" + adminPath + "/act/task/todo/";
 	}
 	
