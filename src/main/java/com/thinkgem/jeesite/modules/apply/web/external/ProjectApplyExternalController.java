@@ -207,11 +207,16 @@ public class ProjectApplyExternalController extends BaseController {
 		String flag = projectApplyExternal.getAct().getFlag();
 
 //		flag在前台View.jsp中传送过来，在此进行判断要进行的操作
-		if ("end".equals(flag) ) {
-			applyService.endProcess(projectApplyExternal.getProcInsId());
-		} else {
-			applyService.saveAudit(projectApplyExternal);
-		}
+
+		// if ("yes_end".equals(flag) ) {
+		//     projectApplyExternal.getAct().setFlag("yes");
+         //    applyService.saveAudit(projectApplyExternal);
+		// 	applyService.endProcess(projectApplyExternal.getProcInsId());
+		// } else {
+         //    applyService.saveAudit(projectApplyExternal);
+		// }
+
+        applyService.saveAudit(projectApplyExternal);
 
 		return "redirect:" + adminPath + "/act/task/todo/";
 	}

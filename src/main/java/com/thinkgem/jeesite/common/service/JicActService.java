@@ -219,6 +219,7 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
      *
      * @param procInsId
      */
+    @Transactional(readOnly = false)
     public void endProcess(String procInsId) {
         if (StringUtils.isEmpty(procInsId))
             return;
@@ -268,8 +269,14 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
     @Transactional(readOnly = false)
     public void saveAudit(T entity) {
         // 设置意见
-        entity.getAct().setComment((entity.getAct().getFlagBoolean() ?
-                "[同意] ":"[驳回] ") + entity.getAct().getComment());
+        // 审批时可以有多种状态
+        if ("yes_end".equals(entity.getAct().getFlag())) {
+            entity.getAct().setComment("[同意] " + entity.getAct().getComment());
+        } else {
+            entity.getAct().setComment((entity.getAct().getFlagBoolean() ?
+                    "[同意] ":"[驳回] ") + entity.getAct().getComment());
+        }
+
         Map<String, Object> vars = Maps.newHashMap();
         //
         processAudit(entity, vars);

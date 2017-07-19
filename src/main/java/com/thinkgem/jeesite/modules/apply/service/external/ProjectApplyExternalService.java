@@ -277,6 +277,7 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 	 * 流程结束时自动执行
 	 * @param id
 	 */
+	@Transactional(readOnly = false)
 	public void genProjectCode(String id) {
 
 		ProjectApplyExternal external = get(id);

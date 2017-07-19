@@ -17,6 +17,18 @@ public class SpringTest extends BaseTestCase {
 //    @Autowired
 //    MailService mailService;
 
+
+   @Test
+   public void contains() {
+      String flag = "yes_end";
+
+      if (flag.contains("no")) {
+         System.out.println("true");
+      } else {
+         System.out.println("no");
+      }
+   }
+
    @Test
    public void testSpringAsync() throws InterruptedException {
 //        mailService.doBusiness();

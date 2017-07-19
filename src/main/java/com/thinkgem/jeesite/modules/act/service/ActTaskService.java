@@ -846,17 +846,31 @@ public class ActTaskService extends BaseService {
     }
 
     /**
-     * rgz
+     * rgz 审批时可以有多种状态
      * @param act
      * @param vars
      */
     @Transactional(readOnly = false)
     public void complateByAct(Act act, Map<String, Object> vars) {
-        if (act.getFlagBoolean()) {
-            complete(act.getTaskId(), act.getProcInsId(), act.getComment(), null, vars);
-        } else {
-            processCustomService.jumpToOwner(act, vars);
-        }
+    	// 审批时可以有多种状态
+    	if ("yes_end".equals(act.getFlag())) {
+			try {
+				processCustomService.jumpTo(act, "endevent1", vars);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if ("yes".equals(act.getFlag())) {
+			complete(act.getTaskId(), act.getProcInsId(), act.getComment(), null, vars);
+		} else {
+			processCustomService.jumpToOwner(act, vars);
+		}
+
+
+        // if (act.getFlagBoolean()) {
+        //     complete(act.getTaskId(), act.getProcInsId(), act.getComment(), null, vars);
+        // } else {
+        //     processCustomService.jumpToOwner(act, vars);
+        // }
     }
 
 

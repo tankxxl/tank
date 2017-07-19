@@ -272,7 +272,7 @@
 
 
 			<c:if test="${projectApplyExternal.act.taskDefKey eq 'usertask_market_leader'}">
-				<input id="btnSubmit" class="btn btn-primary" type="submit" value="结束流程" onclick="$('#flag').val('end')"/>
+				<input id="btnSubmit" class="btn btn-primary" type="submit" value="同意并结束流程" onclick="$('#flag').val('yes_end')"/>
 			</c:if>
 
 
