@@ -6,6 +6,7 @@ package com.thinkgem.jeesite.modules.project.service.contract;
 import com.thinkgem.jeesite.common.service.JicActService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
+import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
 import com.thinkgem.jeesite.modules.project.dao.contract.ProjectContractDao;
 import com.thinkgem.jeesite.modules.project.dao.contract.ProjectContractItemDao;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
@@ -68,6 +69,10 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 		vars.put(ActUtils.VAR_PROC_DEF_KEY, projectContract.getDictRemarks());
 
 		vars.put(ActUtils.VAR_TITLE, projectContract.getApply().getProjectName());
+
+		// 设置合同金额
+		vars.put(ActUtils.VAR_AMOUNT, projectContract.getAmount());
+
 		if ("03".equals(projectContract.getApply().getCategory()) ) {
 			System.out.println("");
 			// 分支上使用，没在节点上使用
@@ -179,21 +184,22 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 		projectContractItemDao.delete(new ProjectContractItem(projectContract));
 	}
 
-	// public void processAudit(ProjectContract projectContract, Map<String, Object> vars) {
-	// 	// 对不同环节的业务逻辑进行操作
-	// 	String taskDefKey = projectContract.getAct().getTaskDefKey();
-    //
-	// 	if (UserTaskType.UT_SERVICE_DELIVERY_LEADER.equals(taskDefKey) ||
-	// 			UserTaskType.UT_SOFTWARE_DEVELOPMENT_LEADER.equals(taskDefKey)){
-	// 		if(StringUtils.isNotBlank(projectContract.getProjectManager().getId())){
-	// 			// 保存选择的项目经理
-	// 			save(projectContract);
-	// 		}
-	// 	} else if (UserTaskType.UT_COMMERCE_LEADER.equalsIgnoreCase(taskDefKey)) {
-	// 		// 保存合同编号
-	// 		save(projectContract);
-	// 	}
-	// }
+	@Override
+	public void processAudit(ProjectContract projectContract, Map<String, Object> vars) {
+		// 对不同环节的业务逻辑进行操作
+		String taskDefKey = projectContract.getAct().getTaskDefKey();
+
+		if ( UserTaskType.UT_SPECIALIST.equals(taskDefKey) ) {
+			if(StringUtils.isNotBlank(projectContract.getContractCode())){
+				// 保存合同编号
+				save(projectContract);
+			}
+		}
+		// else if (UserTaskType.UT_COMMERCE_LEADER.equalsIgnoreCase(taskDefKey)) {
+		// 	// 保存合同编号
+		// 	save(projectContract);
+		// }
+	}
 
 	/**
 	 * 维护自己的流程状态	

@@ -293,6 +293,9 @@ $.extend($.fn, {
     setTabActive: function(orderKey) {
         var lastTab = $.fn.jerichoTab.tabpage.children('li').filter('.tab_selected');
         if (lastTab.length > 0) lastTab.swapTabEnable();
+        // rgz rengangzai
+        // $('#jerichotab_' + orderKey).loadData(true);//每次点击都刷新页面.[添加这一句即可每次点击页签都刷新内容]
+
         return $('#jerichotab_' + orderKey).swapTabEnable();
     },
     addEvent: function(e, h) {

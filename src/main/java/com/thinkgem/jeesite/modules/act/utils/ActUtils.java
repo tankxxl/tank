@@ -109,6 +109,10 @@ public class ActUtils {
     // 1为skip，是否跳过风控部门
 	public static final String VAR_SKIP_RISK = "skip_risk";
     public static final String VAR_SKIP_HR = "skip_hr";
+    // 传入流程中的金额，用于在流程中进行数字判断，如：金额>10W需要分管领导节点审批等，这是在流程图进行判断，
+	// 如果在流程图中写表达式来判断，就不用在程序中设置skip_vp等字段了。
+
+    public static final String VAR_AMOUNT = "amount";
 	public static final String VAR_SKIP_inout = "skip_inout";
 	// 1为skip，bjkj，是否需要技术开发中心审批，是否自研项目
 	public static final String VAR_SKIP_DEV = "skip_dev";

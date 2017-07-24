@@ -76,21 +76,32 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 	}
 
 	public String getView() {
+		if (contractType.equals("1") || contractType.equals("2")) {
+			return getDictRemarks("1") + "View";
+		}
 		return getDictRemarks() + "View";
 	}
 
 	public String getForm() {
+		if (contractType.equals("1") || contractType.equals("2")) {
+			return getDictRemarks("1") + "Form";
+		}
 		return getDictRemarks() + "Form";
 	}
 
-	public String getDictRemarks() {
-		if (StringUtils.isEmpty(contractType)) {
+	// Remarks保存的是自己的前缀，或者是自己的工作流key
+	public String getDictRemarks(String aType) {
+		String aContractType = aType;
+		if (StringUtils.isEmpty(aContractType)) {
+			aContractType = this.contractType;
+		}
+		if (StringUtils.isEmpty(aContractType)) {
 			return "";
 		}
 		String view = "";
 		List<Dict> typeList = DictUtils.getDictList("jic_contract_type");
 		for (Dict dict : typeList) {
-			if ( contractType.equals(dict.getValue()) ) {
+			if ( aContractType.equals(dict.getValue()) ) {
 				view = dict.getRemarks();
 				break;
 			}
@@ -99,6 +110,11 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 			return "";
 		}
 		return view;
+	}
+
+
+	public String getDictRemarks() {
+		return getDictRemarks(contractType);
 	}
 
 	public ProjectApplyExternal getApply() {

@@ -45,6 +45,8 @@
 		<li><a href="${ctx}/project/contract/projectContract/form?contractType=1">服务合同添加</a></li>
 		<li><a href="${ctx}/project/contract/projectContract/form?contractType=2">管理合同添加</a></li>
 		<li><a href="${ctx}/project/contract/projectContract/form?contractType=3">销售合同添加</a></li>
+		<li><a href="${ctx}/project/contract/projectContract/form?contractType=4">采购合同添加</a></li>
+		<li><a href="${ctx}/project/contract/projectContract/form?contractType=5">消费金融合同添加</a></li>
 	</shiro:hasPermission>
 </ul>
 	<form:form id="searchForm" modelAttribute="projectContract" htmlEscape="false"

@@ -7,6 +7,9 @@
 	<script type="text/javascript">
 		$(document).ready(function() {
 			//$("#name").focus();
+
+            $("#rmb").text(digitUppercase(${projectContract.amount }));
+
 			$("#inputForm").validate({
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
@@ -76,16 +79,7 @@
 		<tr>
 			<td class="tit">项目名称</td>
 			<td >
-				<sys:treeselect id="apply" name="apply.id"
-					value="${projectContract.apply.id}"
-					labelName="apply.projectName"
-					labelValue="${projectContract.apply.projectName}"
-					title="项目名称"
-
-					url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11"
-					cssClass="required"  allowClear="true" notAllowSelectParent="true"
-					customClick="changeProject"/>
-				<span class="help-inline"><font color="red">*</font> </span>
+				${projectContract.apply.projectName}
 			</td>
 
 			<td class="tit">项目编码</td>
@@ -95,7 +89,13 @@
 		<tr>
 			<td class="tit">合同编号</td>
 			<td colspan="1" class="">
-				<form:input path="contractCode" style="width:90%"/>
+				<c:if test="${projectContract.act.taskDefKey eq 'usertask_specialist'}">
+					<form:input path="contractCode" style="width:90%" cssClass="required"/>
+					<span class="help-inline"><font color="red">*</font> </span>
+				</c:if>
+				<c:if test="${projectContract.act.taskDefKey ne 'usertask_specialist'}">
+					${projectContract.contractCode}
+				</c:if>
 			</td>
 
 			<td class="tit">合同类型</td>
@@ -104,17 +104,26 @@
 			</td>
 		</tr>
 
+		<c:if test="${projectContract.contractType eq '2'}">
+			<tr>
+				<td class="tit">事权审批OA号</td>
+				<td colspan="3" class="">
+					${projectContract.oaNo}
+				</td>
+			</tr>
+		</c:if>
+
 		<tr>
 			<td class="tit">申请部门</td>
-			<td class=""><label id="customer_name">${projectContract.apply.customer.customerName }</label></td>
-			<td class="tit">申请日期</td>
-			<td class=""><label id="customer_contact_name">${projectContract.apply.customerContact.contactName }</label></td>
+			<td class=""><label id="customer_name">${projectContract.createBy.office.name}</label></td>
+			<td class="tit">申请人</td>
+			<td class=""><label id="customer_contact_name">${projectContract.createBy.name}</label></td>
 		</tr>
 
 		<tr>
 			<td class="tit">合同对方名称</td>
 			<td colspan="3" class="">
-				<form:input path="clientName" style="width:90%"/>
+				${projectContract.clientName}
 			</td>
 		</tr>
 
@@ -122,57 +131,58 @@
 			<td class="tit">合同总金额</td>
 			<td colspan="1" class="">
 				<div class="input-append">
-					<form:input path="amount" style="width:122px" maxlength="10" number="true" min="0" max="99999999" class="checkNum input-medium"/><span class="add-on">元</span>
+					<form:input path="amount" style="width:122px" readonly="true" class="checkNum input-medium"/><span class="add-on">元</span>
 				</div>
-				<%--<form:input path="remarks" style="width:90%"/>--%>
 			</td>
 			<td class="tit">大写</td>
-			<td colspan="1" class=""><label>${projectContract.apply.customer.customerName }</label></td>
+			<td colspan="1" class=""><label id="rmb">${projectContract.apply.customer.customerName }</label></td>
 		</tr>
-
 
 		<tr>
 			<td  class="tit" >合同金额明细</td>
-			<td  colspan="3"><form:textarea path="amountDetail" style="width:98%" maxlength="255"/></td>
+			<td  colspan="3">
+				${projectContract.amountDetail}
+			</td>
 		</tr>
 
 		<tr>
 			<td class="tit">合同有效期</td>
 			<td colspan="1" class="">
-				<input name="beginDate" type="text" readonly="readonly" class="input-medium Wdate required"
-					   value="<fmt:formatDate value="${projectContract.beginDate}" pattern="yyyy-MM-dd"/>"
-					   onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
+				<fmt:formatDate value="${projectContract.beginDate}" pattern="yyyy-MM-dd"/>
 			</td>
 			<td class="tit">至</td>
 			<td colspan="1" class="">
-				<input name="endDate" type="text" readonly="readonly" class="input-medium Wdate required"
-					   value="<fmt:formatDate value="${projectContract.endDate}" pattern="yyyy-MM-dd"/>"
-					   onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
+				<fmt:formatDate value="${projectContract.endDate}" pattern="yyyy-MM-dd"/>
 			</td>
 		</tr>
 
 		<tr>
 			<td  class="tit" >合同内容摘要</td>
-			<td  colspan="3"><form:textarea path="contentSummary" style="width:98%" maxlength="255"/></td>
+			${projectContract.contentSummary}
+			</td>
 		</tr>
 
 		<tr>
 			<td  class="tit" >是否为续签合同</td>
 			<td  colspan="1">
-				<form:radiobuttons path="resignFlag" items="${fns:getDictList('yes_no')}" itemLabel="label" itemValue="value" />
+				${fns:getDictLabel(projectContract.resignFlag , 'yes_no', '')}
 			</td>
 			<td  class="tit" >原合同号</td>
-			<td  colspan="1"><form:input path="remarks" style="width:90%"/></td>
+			<td  colspan="1">
+				${projectContract.originCode}
+			</td>
 		</tr>
 		<tr>
 			<td  class="tit" >续签合同说明</td>
-			<td  colspan="3"><form:textarea path="resignInfo" style="width:98%" maxlength="255"/></td>
+			<td  colspan="3">
+				${projectContract.resignInfo}
+			</td>
 		</tr>
 
 		<tr>
 			<td  class="tit" >印章类型</td>
 			<td  colspan="1">
-				<form:checkboxes path="sealType" items="${fns:getDictList('jic_seal_type')}" itemLabel="label" itemValue="value" />
+				${fns:getDictLabels(projectContract.sealType, 'jic_seal_type', '')}
 			</td>
 		</tr>
 
@@ -181,7 +191,7 @@
 			<td  colspan="3">
 				<form:hidden id="attachment" path="attachment" maxlength="20000"  />
 				<sys:ckfinder input="attachment" type="files" uploadPath="/project/contract/projectContract"
-					selectMultiple="true" />
+					readonly="true" />
 			</td>
 		</tr>
 

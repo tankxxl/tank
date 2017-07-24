@@ -35,6 +35,24 @@ $(document).ready(function() {
          auto 代表打开输入法 (默认)
          disable 代表关闭输入法 */
     });
+
+	// 扩展getElementsByClassName函数（兼容IE低版本）
+    if (!document.getElementsByClassName ) {
+        document.getElementsByClassName = function (cls) {
+            var nodeArr = [];
+            var nodes = document.getElementsByTagName('*');
+            if (nodes && nodes.length > 0) {
+                for (var i = 0; i < nodes.length; i++) {
+                    if (hasClass(nodes[i], cls)) {
+                        nodeArr.push(nodes[i]);
+                    }
+                }
+            }
+            return nodeArr;
+        }
+    }
+
+
 });
 
 // 给dom元素增加required属性
@@ -46,6 +64,102 @@ function addRequired(id) {
 function removeRequired(id) {
     $(id).nextAll().remove();
     $(id).removeClass('required');
+}
+
+// 查询节点是否包含某个样式
+function hasClass(tag, clsName) {
+    var arr = tag.className.split(/\s+/);
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i] == clsName) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+function isString(value) {
+    if (value && typeof value === 'object') {
+        return value.constructor === String;
+    }
+    return typeof value === 'string';
+}
+
+function isNumber(value) {
+    return typeof value === 'number' && isFinite(value);
+}
+
+function isArray(value) {
+    return value && typeof value === 'object' && value.constructor === Array;
+}
+
+function isFunction(value) {
+    return typeof value === 'function';
+}
+
+function isObject(value) {
+    return value && typeof value === 'object' && value.constructor === Object;
+}
+
+function isNull(value) {
+    return value === null;
+}
+
+function isUndefined(value) {
+    return typeof value === 'undefined';
+}
+
+function isBoolean(value) {
+    return typeof value === 'boolean';
+}
+
+function isRegExp (value) {
+    return value && typeof value === 'object' && value.constructor === RegExp;
+}
+
+function isDate (value) {
+    return value instanceof Date;
+}
+
+/** 数字金额大写转换(可以处理整数,小数,负数) */
+function digitUppercase(n) {
+    if (isNaN(n)) {
+        return ;
+    }
+
+    if (isString(n)) {
+        n = parseFloat(n);
+    }
+
+
+    var fraction = ['角', '分'];
+    var digit = [
+        '零', '壹', '贰', '叁', '肆',
+        '伍', '陆', '柒', '捌', '玖'
+    ];
+    var unit = [
+        ['元', '万', '亿'],
+        ['', '拾', '佰', '仟']
+    ];
+    var head = n < 0 ? '欠' : '';
+    n = Math.abs(n);
+    var s = '';
+    for (var i = 0; i < fraction.length; i++) {
+        s += (digit[Math.floor(n * 10 * Math.pow(10, i)) % 10] + fraction[i]).replace(/零./, '');
+    }
+    s = s || '整';
+    n = Math.floor(n);
+    for (var i = 0; i < unit[0].length && n > 0; i++) {
+        var p = '';
+        for (var j = 0; j < unit[1].length && n > 0; j++) {
+            p = digit[n % 10] + unit[1][j] + p;
+            n = Math.floor(n / 10);
+        }
+        s = p.replace(/(零.)*零$/, '').replace(/^$/, '零') + unit[0][i] + s;
+    }
+    return head + s.replace(/(零.)*零元/, '元')
+        .replace(/(零.)+/g, '零')
+        .replace(/^整$/, '零元整');
 }
 
 // 引入js和css文件

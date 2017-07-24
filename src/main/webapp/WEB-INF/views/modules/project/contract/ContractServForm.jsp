@@ -4,9 +4,13 @@
 <head>
 	<title>合同管理</title>
 	<meta name="decorator" content="default"/>
+	<%-- 服务合同和管理合同共用 --%>
 	<script type="text/javascript">
 		$(document).ready(function() {
 			//$("#name").focus();
+
+            $("#rmb").text(digitUppercase(${projectContract.amount }));
+
 			$("#inputForm").validate({
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
@@ -24,8 +28,23 @@
 			});
 
 			//
-            $("#resignFlag").change(function changeProCode(){
-                top.$.jBox.tip("你修改了了 项目类型或项目归属，请重新生成项目编号");
+            $("#resignFlag").change(function(){
+//                    top.$.jBox.tip("select.value=" + this.value);
+				if (this.value == 1) {
+                    addRequired("#originCode");
+//                    $("#originCode").after("<span class='help-inline'><font color='red'>*</font> </span>");
+//                    $("#originCode").addClass('required');
+				} else {
+                    removeRequired("#originCode");
+//                    $("#originCode").nextAll().remove();
+//                    $("#originCode").removeClass('required');
+				}
+            });
+
+//            digitUppercase
+			$("#amount").keyup(function () {
+//                top.$.jBox.tip("input.value=" + digitUppercase(parseFloat(this.value)));
+				$("#rmb").text(digitUppercase(parseFloat(this.value)));
             });
 		});
 
@@ -99,16 +118,25 @@
 		</tr>
 
 		<tr>
-			<td class="tit">合同编号</td>
-			<td colspan="1" class="">
-				<form:input path="contractCode" style="width:90%"/>
-			</td>
+			<%--<td class="tit">合同编号</td>--%>
+			<%--<td colspan="1" class="">--%>
+				<%--<form:input path="contractCode" style="width:90%"/>--%>
+			<%--</td>--%>
 
 			<td class="tit">合同类型</td>
 			<td colspan="1" class="">
 				${fns:getDictLabel(projectContract.contractType, 'jic_contract_type', '')}
 			</td>
 		</tr>
+
+		<c:if test="${projectContract.contractType eq '2'}">
+			<tr>
+				<td class="tit">事权审批OA号</td>
+				<td colspan="3" class="">
+					<form:input path="oaNo" style="width:90%"/>
+				</td>
+			</tr>
+		</c:if>
 
 		<tr>
 			<td class="tit">申请部门</td>
@@ -132,7 +160,7 @@
 				</div>
 			</td>
 			<td class="tit">大写</td>
-			<td colspan="1" class=""><label>${projectContract.apply.customer.customerName }</label></td>
+			<td colspan="1" class=""><label id="rmb">${projectContract.apply.customer.customerName }</label></td>
 		</tr>
 
 		<tr>
@@ -164,16 +192,18 @@
 			<td  class="tit" >是否为续签合同</td>
 			<td  colspan="1">
 				<form:select path="resignFlag" class="input-medium required">
+					<form:option value="" label=""/>
 					<form:options items="${fns:getDictList('yes_no')}" itemLabel="label" itemValue="value"/>
 				</form:select>
 				&nbsp;&nbsp;&nbsp;&nbsp;注：若为续签合同，请标明续签合同的合同号
 			</td>
 			<td  class="tit" >原合同号</td>
-			<td  colspan="1"><form:input path="remarks" style="width:90%"/></td>
+			<td  colspan="1"><form:input path="originCode" style="width:90%"/></td>
 		</tr>
 		<tr>
 			<td  class="tit" >续签合同说明</td>
-			<td  colspan="3"><form:textarea path="resignInfo" style="width:98%" maxlength="255"/></td>
+			<td  colspan="3"><form:textarea path="resignInfo" style="width:98%" maxlength="255"
+			placeholder="若续签合同的相关条款与原合同不一致，请进行说明"/></td>
 		</tr>
 
 		<tr>
