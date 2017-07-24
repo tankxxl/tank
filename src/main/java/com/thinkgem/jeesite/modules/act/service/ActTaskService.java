@@ -894,7 +894,13 @@ public class ActTaskService extends BaseService {
     public String startProcEatFirstTask(ActEntity actEntity, String title, Map<String, Object> vars) {
 
     	// 实体名称=流程定义标识KEY，所以在画流程图的时候定义的流程名称要和java类里的实体名称一致
-        String procDefKey = actEntity.getClass().getSimpleName();
+
+        String procDefKey = (String) vars.get(ActUtils.VAR_PROC_DEF_KEY);
+
+        if (StringUtils.isEmpty(procDefKey)) {
+			procDefKey = actEntity.getClass().getSimpleName();
+		}
+
         String businessTable = ActUtils.getBusinessTableByClassName(procDefKey);
         String businessId = actEntity.getId();
         if (StringUtils.isEmpty(procDefKey) || StringUtils.isEmpty(businessTable) || StringUtils.isEmpty(businessId)) {

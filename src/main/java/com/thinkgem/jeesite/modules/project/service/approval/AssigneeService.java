@@ -15,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * 根据loginName得到相应的节点审批人
  * 当使用表达式设置candidateUsers、Groups时，这些方法查找出来的返回值必须是String或List<String>
@@ -133,6 +136,16 @@ public class AssigneeService extends BaseService {
 			boss = "thinkgem";
 		}
 		return boss;
+	}
+
+	// bj used only.
+	// 返回职能部门(办公室 财务部 运营管理部)所对应的三个审批角色
+	public List<String> findFuncDeptRole(String apply) {
+
+		String[] role = {"usertask_finance_leader", "usertask_boss", "usertask_market_leader"};
+		List<String> list = Arrays.asList(role);
+
+		return list;
 	}
 
 	// sd used only.

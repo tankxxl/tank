@@ -39,10 +39,14 @@
 	</script>
 </head>
 <body>
-	<ul class="nav nav-tabs">
-		<li class="active"><a href="${ctx}/project/contract/projectContract/">合同列表</a></li>
-		<shiro:hasPermission name="project:contract:projectContract:edit"><li><a href="${ctx}/project/contract/projectContract/form">合同添加</a></li></shiro:hasPermission>
-	</ul>
+<ul class="nav nav-tabs">
+	<li class="active"><a href="${ctx}/project/contract/projectContract/">合同列表</a></li>
+	<shiro:hasPermission name="project:contract:projectContract:edit">
+		<li><a href="${ctx}/project/contract/projectContract/form?contractType=1">服务合同添加</a></li>
+		<li><a href="${ctx}/project/contract/projectContract/form?contractType=2">管理合同添加</a></li>
+		<li><a href="${ctx}/project/contract/projectContract/form?contractType=3">销售合同添加</a></li>
+	</shiro:hasPermission>
+</ul>
 	<form:form id="searchForm" modelAttribute="projectContract" htmlEscape="false"
 			   action="${ctx}/project/contract/projectContract/" method="post" class="breadcrumb form-search">
 		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
@@ -54,6 +58,18 @@
 			<li><label>项目名称：</label>
 				<form:input path="apply.projectName" htmlEscape="false" maxlength="64" class="input-medium"/>
 			</li>
+			<li><label>项目类别：</label>
+				<form:select path="apply.category" class="input-medium">
+					<form:option value="" label=""/>
+					<form:options items="${fns:getDictList('pro_category')}" itemLabel="label" itemValue="value" />
+				</form:select>
+			</li>
+			<li><label>合同类型：</label>
+				<form:select path="contractType" class="input-medium">
+					<form:option value="" label=""/>
+					<form:options items="${fns:getDictList('jic_contract_type')}" itemLabel="label" itemValue="value" />
+				</form:select>
+			</li>
 			<li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/></li>
 			<li class="clearfix"></li>
 		</ul>
@@ -64,6 +80,8 @@
 			<tr>
 				<th>项目编号</th>
 				<th>项目名称</th>
+				<th>项目类别</th>
+				<th>合同类型</th>
 				<th>更新时间</th>
 				<th>审批状态</th>
 				<shiro:hasPermission name="project:contract:projectContract:edit"><th>操作</th></shiro:hasPermission>
@@ -78,7 +96,13 @@
 				<td>
 					${projectContract.apply.projectName}
 				</td>
-				
+
+				<td>
+					${fns:getDictLabel(projectContract.apply.category, 'pro_category', '')}
+				</td>
+				<td>
+					${fns:getDictLabel(projectContract.contractType, 'jic_contract_type', '')}
+					</td>
 				<td>
 					<fmt:formatDate value="${projectContract.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/>
 				</td>

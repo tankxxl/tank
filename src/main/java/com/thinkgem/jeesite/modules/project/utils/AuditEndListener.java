@@ -68,7 +68,8 @@ public class AuditEndListener implements ExecutionListener{
             jicActService = SpringContextHolder.getBean(BiddingArchiveService.class);
 
             stageValue = DictUtils.getDictValue("投标备案完成", "jic_pro_main_stage", "0");
-        } else if (ActUtils.PD_PROJECTCONTRACT[0].equalsIgnoreCase(defKey)) { // 合同
+        // } else if (ActUtils.PD_PROJECTCONTRACT[0].equalsIgnoreCase(defKey)) { // 合同
+        } else if (defKey.contains("Contract")) { // 合同，合同分为5个流程，所以只要包含contract就行。不能使用完全匹配
             // 得到业务Service
             jicActService = SpringContextHolder.getBean(ProjectContractService.class);
 

@@ -62,6 +62,12 @@ public class ActUtils {
     public static final String[] PD_PROJECTFINISHAPPROVAL = new String[]{"ProjectFinishApproval", "project_finish_approval"};
     public static final String[] PD_TECHAPPLY = new String[]{"Techapply", "project_techapply"};
 
+	public static final String[] PD_contract_1 = new String[]{"ContractManage", "project_contract"};
+	public static final String[] PD_contract_2 = new String[]{"ContractPurchase", "project_contract"};
+	public static final String[] PD_contract_3 = new String[]{"ContractSale", "project_contract"};
+	public static final String[] PD_contract_4 = new String[]{"ContractServ", "project_contract"};
+	public static final String[] PD_contract_5 = new String[]{"ContractPurServ", "project_contract"};
+
     // 同意 or 驳回 申请单，不用此变量
     // public static final String VAR_PASS = "pass";
     // 流程节点标题
@@ -77,6 +83,13 @@ public class ActUtils {
     public static final String VAR_OBJ_ID = "objId";
     // 项目id *
     public static final String VAR_PRJ_ID = "prjId";
+
+    // 流程定义key，用于启动流程
+	public static final String VAR_PROC_DEF_KEY = "proc_def_key";
+
+    // 强制结束流程标识，用于表示直接退出流程，可以用在流程监听器中，用来区分流程是否正常结束
+	public static final String VAR_FORCE_END = "force_end";
+
     // 申请人loginName 在后期审批节点中需要用申请人来查找审批角色 *
     public static final String VAR_APPLY = "apply";
 
@@ -93,6 +106,8 @@ public class ActUtils {
 
     // 1为skip
     public static final String VAR_SKIP_BOSS = "skip_boss";
+    // 1为skip，是否跳过风控部门
+	public static final String VAR_SKIP_RISK = "skip_risk";
     public static final String VAR_SKIP_HR = "skip_hr";
 	public static final String VAR_SKIP_inout = "skip_inout";
 	// 1为skip，bjkj，是否需要技术开发中心审批，是否自研项目

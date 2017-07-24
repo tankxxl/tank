@@ -14,6 +14,21 @@
 		a.contract_end_time AS "contractEndTime",
 		a.training_or_outsourcing AS "trainingOrOutsourcing",
 		a.other AS "other",
+
+		a.project_id AS "apply.id",
+		a.goods_name AS "goodsName",
+		a.num AS "num",
+		a.unit_price AS "unitPrice",
+		a.amount AS "amount",
+		a.maintenance_date AS "maintenanceDate",
+
+		apply.project_code AS "apply.projectCode",
+		apply.project_name AS "apply.projectName",
+		apply.pro_main_stage AS "apply.proMainStage",
+		apply.category AS "apply.category",
+		apply.estimated_contract_amount AS "apply.estimatedContractAmount",
+		apply.estimated_gross_profit_margin AS "apply.estimatedGrossProfitMargin",
+
 		a.id AS "id",
 		a.create_by AS "createBy.id",
 		a.create_date AS "createDate",
@@ -22,12 +37,11 @@
 		a.remarks AS "remarks",
 		a.del_flag AS "delFlag",
 		a.proc_ins_id AS "procInsId",
-		a.process_status AS "processStatus"
+		a.proc_status AS "procStatus"
 	</sql>
 	
 	<sql id="projectContractItemJoins">
 		LEFT JOIN project_contract b ON b.id = a.contract_id
-
 		LEFT JOIN project_apply_external apply ON apply.id = b.project_id
 	</sql>
     
@@ -96,6 +110,14 @@
 			contract_end_time,
 			training_or_outsourcing,
 			other,
+
+			project_id,
+			goods_name,
+			num,
+			unit_price,
+			amount,
+			maintenance_date,
+
 			id,
 			create_by,
 			create_date,
@@ -104,7 +126,7 @@
 			remarks,
 			del_flag,
 			proc_ins_id,
-			process_status
+			proc_status
 		) VALUES (
 			#{contract.id},
 			#{contractCode},
@@ -117,6 +139,14 @@
 			#{contractEndTime},
 			#{trainingOrOutsourcing},
 			#{other},
+
+			#{apply.id},
+			#{goodsName},
+			#{num},
+			#{unitPrice},
+			#{amount},
+			#{maintenanceDate},
+
 			#{id},
 			#{createBy.id},
 			#{createDate},
@@ -125,7 +155,7 @@
 			#{remarks},
 			#{delFlag},
 			#{procInsId},
-			#{processStatus}
+			#{procStatus}
 		)
 	</insert>
 	
@@ -142,11 +172,19 @@
 			contract_end_time = #{contractEndTime},
 			training_or_outsourcing = #{trainingOrOutsourcing},
 			other = #{other},
+
+			project_id = #{apply.id},
+			goods_name = #{goodsName},
+			num = #{num},
+			unit_price = #{unitPrice},
+			amount = #{amount},
+			maintenance_date = #{maintenanceDate},
+
 			update_by = #{updateBy.id},
 			update_date = #{updateDate},
 			remarks = #{remarks},
 			proc_ins_id = #{procInsId},
-			process_status = #{processStatus}
+			proc_status = #{procStatus}
 		WHERE id = #{id}
 	</update>
 	

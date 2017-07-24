@@ -57,7 +57,7 @@
 			</li>
 
 			<li><label>项目类别：</label>
-				<form:select path="category" class="input-medium">
+				<form:select path="apply.category" class="input-medium">
 					<form:option value="" label=""/>
 					<form:options items="${fns:getDictList('pro_category')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
 				</form:select>

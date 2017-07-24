@@ -3,11 +3,31 @@
 <mapper namespace="com.thinkgem.jeesite.modules.project.dao.contract.ProjectContractDao">
     
 	<sql id="projectContractColumns">
+		a.id AS "id",
 		a.project_id AS "apply.id",
 		a.project_manager_id AS "projectManager.id",
 		a.stage AS "stage",
-		a.attachment AS "attachment",
-		a.id AS "id",
+
+		a.contract_code AS "contractCode",
+		a.client_name AS "clientName",
+		a.amount AS "amount",
+		a.amount_detail AS "amountDetail",
+		a.content_summary AS "contentSummary",
+		a.begin_date AS "beginDate",
+		a.end_date AS "endDate",
+		a.resign_flag AS "resignFlag",
+		a.resign_info AS "resignInfo",
+		a.payment_type AS "paymentType",
+		a.purchase_code AS "purchaseCode",
+		a.supplier_name AS "supplierName",
+		a.profit_margin AS "profitMargin",
+		a.delivery_date AS "deliveryDate",
+		a.delivery_address AS "deliveryAddress",
+		a.oa_no AS "oaNo",
+		a.seal_type AS "sealType",
+		a.contract_type AS "contractType",
+		a.origin_code AS "originCode",
+
 		a.create_by AS "createBy.id",
 		a.create_date AS "createDate",
 		a.update_by AS "updateBy.id",
@@ -15,7 +35,9 @@
 		a.remarks AS "remarks",
 		a.del_flag AS "delFlag",
 		a.proc_ins_id AS "procInsId",
-		a.process_status AS "procStatus",
+		a.proc_status AS "procStatus",
+		a.attachment AS "attachment",
+
 		u5.name AS "projectManager.name",
 		u5.login_name AS "projectManager.loginName",
 		
@@ -27,6 +49,12 @@
 		pro_apply.estimated_gross_profit_margin AS "apply.estimatedGrossProfitMargin", 
 		
 		pro_apply.outsourcing AS "apply.outsourcing",
+
+		u4.id AS "apply.saler.id",
+		u4.name AS "apply.saler.name",
+
+		s5.id AS "apply.saler.office.id",
+		s5.name AS "apply.saler.office.name",
 		
 		c5.customer_name AS "apply.customer.customerName",
 		c5.phone AS "apply.customer.phone",
@@ -86,6 +114,15 @@
 					<if test="dbName == 'mssql'">'%'+#{apply.projectName}+'%'</if>
 					<if test="dbName == 'mysql'">concat('%',#{apply.projectName},'%')</if>
 			</if>
+			<if test="apply!=null and apply.category != null and apply.category != ''">
+				AND pro_apply.category LIKE
+				<if test="dbName == 'oracle'">'%'||#{apply.category}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{apply.category}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{apply.category},'%')</if>
+			</if>
+			<if test="contractType != null and contractType != ''">
+				AND a.contract_type = #{contractType}
+			</if>
 			${sqlMap.dsf}
 		</where>
 		<choose>
@@ -122,6 +159,27 @@
 			project_manager_id,
 			stage,
 			id,
+
+			contract_code ,
+			client_name ,
+			amount ,
+			amount_detail ,
+			content_summary ,
+			begin_date ,
+			end_date ,
+			resign_flag ,
+			resign_info ,
+			payment_type ,
+			purchase_code ,
+			supplier_name ,
+			profit_margin ,
+			delivery_date ,
+			delivery_address ,
+			oa_no ,
+			seal_type ,
+			contract_type ,
+			origin_code ,
+
 			create_by,
 			create_date,
 			update_by,
@@ -129,13 +187,34 @@
 			remarks,
 			del_flag,
 			proc_ins_id,
-			process_status,
+			proc_status,
 			attachment
 		) VALUES (
 			#{apply.id},
 			#{projectManager.id},
 			#{stage},
 			#{id},
+
+			#{contractCode},
+			#{clientName},
+			#{amount},
+			#{amountDetail},
+			#{contentSummary},
+			#{beginDate},
+			#{endDate},
+			#{resignFlag},
+			#{resignInfo},
+			#{paymentType},
+			#{purchaseCode},
+			#{supplierName},
+			#{profitMargin},
+			#{deliveryDate},
+			#{deliveryAddress},
+			#{oaNo},
+			#{sealType},
+			#{contractType},
+			#{originCode},
+
 			#{createBy.id},
 			#{createDate},
 			#{updateBy.id},
@@ -153,12 +232,33 @@
 			project_id = #{apply.id},
 			project_manager_id = #{projectManager.id},
 			stage = #{stage},
+
+			contract_code = #{contractCode},
+			client_name = #{clientName},
+			amount = #{amount},
+			amount_detail = #{amountDetail},
+			content_summary = #{contentSummary},
+			begin_date = #{beginDate},
+			end_date = #{endDate},
+			resign_flag = #{resignFlag},
+			resign_info = #{resignInfo},
+			payment_type = #{paymentType},
+			purchase_code = #{purchaseCode},
+			supplier_name = #{supplierName},
+			profit_margin = #{profitMargin},
+			delivery_date = #{deliveryDate},
+			delivery_address = #{deliveryAddress},
+			oa_no = #{oaNo},
+			seal_type = #{sealType},
+			contract_type = #{contractType},
+			origin_code = #{originCode},
+
 			update_by = #{updateBy.id},
 			update_date = #{updateDate},
 			remarks = #{remarks},
 			attachment = #{attachment},
 			proc_ins_id = #{procInsId},
-			process_status = #{procStatus}
+			proc_status = #{procStatus}
 		WHERE id = #{id}
 	</update>
 	

@@ -97,7 +97,8 @@ public class AuditStartListener implements ExecutionListener{
             jicActService = SpringContextHolder.getBean(BiddingArchiveService.class);
 
             stageValue = DictUtils.getDictValue("投标备案审批中", "jic_pro_main_stage", "0");
-        } else if (ActUtils.PD_PROJECTCONTRACT[0].equalsIgnoreCase(defKey)) {
+        // } else if (ActUtils.PD_PROJECTCONTRACT[0].equalsIgnoreCase(defKey)) {
+        } else if (defKey.contains("Contract")) { // 合同，合同分为5个流程，所以只要包含contract就行。不能使用完全匹配
             // 得到业务Service
             jicActService = SpringContextHolder.getBean(ProjectContractService.class);
 

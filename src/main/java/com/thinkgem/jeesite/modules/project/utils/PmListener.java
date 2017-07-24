@@ -25,7 +25,8 @@ public class PmListener implements TaskListener {
 //		String id = (String) delegateTask.getVariable("objId");
 		String prjId = (String) delegateTask.getVariable(ActUtils.VAR_PRJ_ID);
 		ProjectContractService service = SpringContextHolder.getBean(ProjectContractService.class);
-		ProjectContract contract = service.findContractByPrjId(prjId);
+		// ProjectContract contract = service.findContractByPrjId(prjId);
+		ProjectContract contract = null;
 		if (contract == null) {
 			logger.error("找不到此合同审批单。");
 			delegateTask.setAssignee("thinkgem");

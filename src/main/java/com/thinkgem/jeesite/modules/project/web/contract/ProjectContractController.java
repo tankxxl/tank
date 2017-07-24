@@ -71,8 +71,10 @@ public class ProjectContractController extends BaseController {
 
 	@RequiresPermissions("project:contract:projectContract:view")
 	@RequestMapping(value = { "list", "" })
-	public String list(ProjectContract projectContract, HttpServletRequest request, HttpServletResponse response,
-			Model model) {
+	public String list(ProjectContract projectContract,
+					   HttpServletRequest request,
+					   HttpServletResponse response,
+					   Model model) {
 		projectContract.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
 		Page<ProjectContract> page = contractService.findPage(new Page<ProjectContract>(request, response),
 				projectContract);
@@ -86,6 +88,7 @@ public class ProjectContractController extends BaseController {
 
 		String prefix = "modules/project/contract/";
 		String view = "projectContractForm";
+		view = projectContract.getForm();
 
 		model.addAttribute("projectContract", projectContract);
 
@@ -97,6 +100,7 @@ public class ProjectContractController extends BaseController {
 				// 入口2：从已办任务界面来的请求，1、实体是新建的，2、act是activi框架填充的。
 				// 此时实体应该由流程id来查询。
 				view = "projectContractView";
+				view = projectContract.getView();
 				projectContract = contractService.findByProcInsId(projectContract);
 				if (projectContract == null) {
 					projectContract = new ProjectContract();
@@ -113,20 +117,25 @@ public class ProjectContractController extends BaseController {
 		// 查看
 		if(projectContract.getAct().isFinishTask()){
 			view = "projectContractView";
+			view = projectContract.getView();
 		}
 		// 修改环节
 		else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ){
 			view = "projectContractForm";
+			view = projectContract.getForm();
 		}
 		// 下面是技术部门设置 项目经理
 		else if ("usertask_software_development_leader".equals(taskDefKey)||"usertask_service_delivery_leader".equals(taskDefKey)) {
 			view = "projectContractView";
+			view = projectContract.getView();
 		}
 		// 某审批环节
 		else if ("apply_end".equals(taskDefKey)){
 			view = "projectContractView";  // replace ExecutionAudit
+			view = projectContract.getView();
 		} else {
 			view = "projectContractView";
+			view = projectContract.getView();
 		}
 		return prefix + view;
 	}
@@ -141,6 +150,7 @@ public class ProjectContractController extends BaseController {
 		String flag = projectContract.getAct().getFlag();
 //		flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
 		if ("saveOnly".equals(flag)) { // 只保存表单数据
+			System.out.println("");
 			contractService.save(projectContract);
 		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
 			contractService.saveFinishProcess(projectContract);
