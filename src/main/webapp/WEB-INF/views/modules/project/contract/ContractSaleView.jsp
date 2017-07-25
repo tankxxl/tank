@@ -78,12 +78,12 @@
 	</c:if>
 	<li class="active"><a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}&contractType=3">销售合同
 		<shiro:hasPermission name="project:contract:projectContract:edit">
-			${not empty projectContract.id?'修改':'添加'}
+			${not empty projectContract.act.taskId?'审批':'查看'}
 		</shiro:hasPermission>
 		<shiro:lacksPermission name="project:contract:projectContract:edit">查看</shiro:lacksPermission></a></li>
 </ul><br/>
 <form:form id="inputForm" modelAttribute="projectContract" htmlEscape="false"
-		   action="${ctx}/project/contract/projectContract/save" method="post" class="form-horizontal">
+		   action="${ctx}/project/contract/projectContract/saveAudit" method="post" class="form-horizontal">
 	<form:hidden path="id"/>
 	<form:hidden path="act.taskId"/>
 	<form:hidden path="act.taskName"/>
@@ -100,16 +100,7 @@
 		<tr>
 			<td class="tit">项目名称</td>
 			<td >
-				<sys:treeselect id="apply" name="apply.id"
-					value="${projectContract.apply.id}"
-					labelName="apply.projectName"
-					labelValue="${projectContract.apply.projectName}"
-					title="项目名称"
-					cssStyle="width:80%;"
-					url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11"
-					cssClass="required"  allowClear="true" notAllowSelectParent="true"
-					customClick="changeProject"/>
-				<span class="help-inline"><font color="red">*</font> </span>
+				${projectContract.apply.projectName}
 			</td>
 
 			<td class="tit">项目编码</td>
@@ -117,10 +108,16 @@
 		</tr>
 
 		<tr>
-			<%--<td class="tit">合同编号</td>--%>
-			<%--<td colspan="1" class="">--%>
-			<%--<form:input path="contractCode" style="width:90%"/>--%>
-			<%--</td>--%>
+			<td class="tit">合同编号</td>
+			<td colspan="1" class="">
+				<c:if test="${projectContract.act.taskDefKey eq 'usertask_specialist'}">
+					<form:input path="contractCode" style="width:90%" cssClass="required"/>
+					<span class="help-inline"><font color="red">*</font> </span>
+				</c:if>
+				<c:if test="${projectContract.act.taskDefKey ne 'usertask_specialist'}">
+					${projectContract.contractCode}
+				</c:if>
+			</td>
 
 			<td class="tit">合同类型</td>
 			<td colspan="1" class="">
@@ -130,15 +127,15 @@
 
 		<tr>
 			<td class="tit">申请部门</td>
-			<td class=""><label id="customer_name">${projectContract.apply.customer.customerName }</label></td>
-			<td class="tit">申请日期</td>
-			<td class=""><label id="customer_contact_name">${projectContract.apply.customerContact.contactName }</label></td>
+			<td class=""><label id="customer_name">${projectContract.createBy.office.name}</label></td>
+			<td class="tit">申请人</td>
+			<td class=""><label id="customer_contact_name">${projectContract.createBy.name}</label></td>
 		</tr>
 
 		<tr>
 			<td class="tit">客户名称</td>
 			<td colspan="3" class="">
-				<form:input path="clientName" style="width:90%"/>
+				${projectContract.clientName}
 			</td>
 		</tr>
 
@@ -146,7 +143,7 @@
 			<td class="tit">合同总金额</td>
 			<td colspan="1" class="">
 				<div class="input-append">
-					<form:input path="amount" style="width:122px" maxlength="10" number="true" min="0" max="99999999" class="checkNum input-medium"/><span class="add-on">元</span>
+					<form:input path="amount" style="width:122px" readonly="true" class="checkNum input-medium"/><span class="add-on">元</span>
 				</div>
 			</td>
 			<td class="tit">大写</td>
@@ -156,32 +153,32 @@
 		<tr>
 			<td class="tit">合同有效期</td>
 			<td colspan="1" class="">
-				<input name="beginDate" type="text" readonly="readonly" class="input-medium Wdate required"
-					   value="<fmt:formatDate value="${projectContract.beginDate}" pattern="yyyy-MM-dd"/>"
-					   onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
+				<fmt:formatDate value="${projectContract.beginDate}" pattern="yyyy-MM-dd"/>
 			</td>
 			<td class="tit">至</td>
 			<td colspan="1" class="">
-				<input name="endDate" type="text" readonly="readonly" class="input-medium Wdate required"
-					   value="<fmt:formatDate value="${projectContract.endDate}" pattern="yyyy-MM-dd"/>"
-					   onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
+				<fmt:formatDate value="${projectContract.endDate}" pattern="yyyy-MM-dd"/>
 			</td>
 		</tr>
 
 		<tr>
 			<td  class="tit" >交货时间及地点</td>
-			<td  colspan="3"><form:input path="deliveryAddress" style="width:90%"/></td>
+			<td  colspan="3">
+				${projectContract.deliveryAddress}
+			</td>
 		</tr>
 
 		<tr>
 			<td  class="tit" >付款方式</td>
-			<td  colspan="3"><form:input path="paymentType" style="width:90%"/></td>
+			<td  colspan="3">
+				${projectContract.paymentType}
+			</td>
 		</tr>
 
 		<tr>
 			<td  class="tit" >印章类型</td>
 			<td  colspan="1">
-				<form:checkboxes path="sealType" items="${fns:getDictList('jic_seal_type')}" itemLabel="label" itemValue="value" />
+				${fns:getDictLabels(projectContract.sealType, 'jic_seal_type', '')}
 			</td>
 		</tr>
 
@@ -190,71 +187,65 @@
 			<td  colspan="3">
 				<form:hidden id="attachment" path="attachment" maxlength="20000"  />
 				<sys:ckfinder input="attachment" type="files" uploadPath="/project/contract/projectContract"
-							  selectMultiple="true" />
+							  readonly="true" />
 			</td>
 		</tr>
+
+		<c:if test="${not empty projectContract.act.taskId && projectContract.act.status != 'finish'}">
+			<tr>
+				<td class="tit">您的意见</td>
+				<td colspan="3">
+					<form:textarea path="act.comment" class="required" rows="5" maxlength="4000" style="width:95%"/>
+					<span class="help-inline"><font color="red">*</font></span>
+				</td>
+			</tr>
+		</c:if>
 
 	</table>
 	<br/><br/>
 	<div class="">
 		<table id="contentTable" class="table table-striped table-bordered table-condensed">
 			<thead>
-				<tr><td class="tit" colspan="5">合同标的物明细</td><td colspan="6" class="tit"></td> <tr>
+				<tr><td class="tit" colspan="5">合同标的物明细</td>
+					<%--<td colspan="6" class="tit"></td> --%>
+				<tr>
 				<tr>
 					<th>货物/商品名称</th>
 					<th>数量</th>
 					<th>单价(元)</th>
 					<th>金额(元)</th>
 					<th>维保时间</th>
-					<shiro:hasPermission name="project:contract:projectContract:edit"><th width="10">&nbsp;</th></shiro:hasPermission>
+					<%--<shiro:hasPermission name="project:contract:projectContract:edit"><th width="10">&nbsp;</th></shiro:hasPermission>--%>
 				</tr>
 			</thead>
 			<tbody id="projectContractItemList">
 			</tbody>
-			<shiro:hasPermission name="project:contract:projectContract:edit"><tfoot>
-				<tr>
-					<td colspan="6">
-						<a href="javascript:" onclick="addRow('#projectContractItemList', projectContractItemRowIdx, projectContractItemTpl); projectContractItemRowIdx = projectContractItemRowIdx + 1;"
-						   class="btn">新增</a>
-					</td>
-				</tr>
-			</tfoot></shiro:hasPermission>
+			<%--<shiro:hasPermission name="project:contract:projectContract:edit"><tfoot>--%>
+				<%--<tr>--%>
+					<%--<td colspan="6">--%>
+						<%--<a href="javascript:" onclick="addRow('#projectContractItemList', projectContractItemRowIdx, projectContractItemTpl); projectContractItemRowIdx = projectContractItemRowIdx + 1;"--%>
+						   <%--class="btn">新增</a>--%>
+					<%--</td>--%>
+				<%--</tr>--%>
+			<%--</tfoot></shiro:hasPermission>--%>
 		</table>
 		<script type="text/template" id="projectContractItemTpl">//<!--
 			<tr id="projectContractItemList{{idx}}">
 					<input id="projectContractItemList{{idx}}_id" name="projectContractItemList[{{idx}}].id" type="hidden" value="{{row.id}}"/>
 					<input id="projectContractItemList{{idx}}_delFlag" name="projectContractItemList[{{idx}}].delFlag" type="hidden" value="0"/>
-				<td>
-					<input id="projectContractItemList{{idx}}_goodsName" style="width:90%" name="projectContractItemList[{{idx}}].goodsName" type="text" value="{{row.goodsName}}" maxlength="64" class="input-small"/>
-				</td>
-				<td>
-					<input id="projectContractItemList{{idx}}_num" style="width:90%" name="projectContractItemList[{{idx}}].num" type="text" value="{{row.num}}" class="checkNum input-small required"/>
-				</td>
 
-				<td>
-					<input id="projectContractItemList{{idx}}_unitPrice" style="width:90%" name="projectContractItemList[{{idx}}].unitPrice" type="text" value="{{row.unitPrice}}" class="checkNum input-small required"/>
-				</td>
+				<td>{{row.goodsName}}</td>
+				<td>{{row.num}}</td>
+				<td>{{row.unitPrice}}</td>
+				<td>{{row.amount}}</td>
+				<td>{{row.maintenanceDate}}</td>
 
-				<td>
-					<input id="projectContractItemList{{idx}}_amount" style="width:90%" name="projectContractItemList[{{idx}}].amount" type="text" value="{{row.amount}}" maxlength="255" class="checkNum input-small required"/>
-				</td>
-				<td>
-					<input id="projectContractItemList{{idx}}_maintenanceDate" style="width:90%" name="projectContractItemList[{{idx}}].maintenanceDate" type="text" value="{{row.maintenanceDate}}" maxlength="255" class="input-small required"/>
-				</td>
-
-				<shiro:hasPermission name="project:contract:projectContract:edit"><td class="text-center" width="10">
-					{{#delBtn}}<span class="close" onclick="delRow(this, '#projectContractItemList{{idx}}')" title="删除">&times;</span>{{/delBtn}}
-				</td></shiro:hasPermission>
 			</tr>//-->
 		</script>
 		<script type="text/javascript">
 			var projectContractItemRowIdx = 0, projectContractItemTpl = $("#projectContractItemTpl").html().replace(/(\/\/\<!\-\-)|(\/\/\-\->)/g,"");
 			$(document).ready(function() {
 				var data = ${fns:toJson(projectContract.projectContractItemList)};
-                <%--console.log('${projectContract.projectContractItemList}');--%>
-                <%--console.log(${fns:toJson(projectContract)});--%>
-//                console.log("asdf");
-//                var data = "";
 				for (var i=0; i<data.length; i++){
 					addRow('#projectContractItemList', projectContractItemRowIdx, projectContractItemTpl, data[i]);
 					projectContractItemRowIdx = projectContractItemRowIdx + 1;
@@ -285,15 +276,10 @@
 	</div>
 	<div class="form-actions">
 		<shiro:hasPermission name="project:contract:projectContract:edit">
-		<input id="btnSubmit" class="btn btn-primary" type="submit" value="提交申请" onclick="$('#flag').val('yes')"/>&nbsp;
-			<c:if test="${not empty projectContract.id}">
-				<input id="btnSubmit2" class="btn btn-inverse" type="submit" value="销毁申请" onclick="$('#flag').val('no')"/>&nbsp;
+			<c:if test="${not empty projectContract.act.taskId && projectContract.act.status != 'finish'}">
+				<input id="btnSubmit" class="btn btn-primary" type="submit" value="同 意" onclick="$('#flag').val('yes')"/>&nbsp;
+				<input id="btnSubmit" class="btn btn-inverse" type="submit" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;
 			</c:if>
-		</shiro:hasPermission>
-
-		<shiro:hasPermission name="apply:external:projectApplyExternal:super">
-			<input id="btnSubmit" class="btn btn-primary" type="submit" value="保存并结束流程" onclick="$('#flag').val('saveFinishProcess')" data-toggle="tooltip" title="小心操作！"/>&nbsp;
-			<input id="btnSubmit" class="btn btn-primary" type="submit" value="只保存表单数据" onclick="$('#flag').val('saveOnly')" data-toggle="tooltip" title="管理员才能操作！"/>&nbsp;
 		</shiro:hasPermission>
 
 		<input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.back()"/>

@@ -35,9 +35,7 @@
 		a.update_by AS "updateBy.id",
 		a.update_date AS "updateDate",
 		a.remarks AS "remarks",
-		a.del_flag AS "delFlag",
-		a.proc_ins_id AS "procInsId",
-		a.proc_status AS "procStatus"
+		a.del_flag AS "delFlag"
 	</sql>
 	
 	<sql id="projectContractItemJoins">
@@ -124,9 +122,7 @@
 			update_by,
 			update_date,
 			remarks,
-			del_flag,
-			proc_ins_id,
-			proc_status
+			del_flag
 		) VALUES (
 			#{contract.id},
 			#{contractCode},
@@ -140,7 +136,7 @@
 			#{trainingOrOutsourcing},
 			#{other},
 
-			#{apply.id},
+			#{contract.apply.id},
 			#{goodsName},
 			#{num},
 			#{unitPrice},
@@ -153,9 +149,7 @@
 			#{updateBy.id},
 			#{updateDate},
 			#{remarks},
-			#{delFlag},
-			#{procInsId},
-			#{procStatus}
+			#{delFlag}
 		)
 	</insert>
 	
@@ -182,9 +176,7 @@
 
 			update_by = #{updateBy.id},
 			update_date = #{updateDate},
-			remarks = #{remarks},
-			proc_ins_id = #{procInsId},
-			proc_status = #{procStatus}
+			remarks = #{remarks}
 		WHERE id = #{id}
 	</update>
 	

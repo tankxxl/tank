@@ -75,7 +75,7 @@
 	<sys:message content="${message}"/>
 	<table class="table-form">
 		<%--<tr><th colspan="6" class="tit">项目信息</th></tr>--%>
-		<caption>项目信息-我是服务合同</caption>
+		<caption>项目信息-服务合同</caption>
 		<tr>
 			<td class="tit">项目名称</td>
 			<td >

@@ -62,11 +62,11 @@ public class ActUtils {
     public static final String[] PD_PROJECTFINISHAPPROVAL = new String[]{"ProjectFinishApproval", "project_finish_approval"};
     public static final String[] PD_TECHAPPLY = new String[]{"Techapply", "project_techapply"};
 
-	public static final String[] PD_contract_1 = new String[]{"ContractManage", "project_contract"};
-	public static final String[] PD_contract_2 = new String[]{"ContractPurchase", "project_contract"};
+	public static final String[] PD_contract_1 = new String[]{"ContractServ", "project_contract"};
+	public static final String[] PD_contract_2 = new String[]{"ContractManage", "project_contract"};
 	public static final String[] PD_contract_3 = new String[]{"ContractSale", "project_contract"};
-	public static final String[] PD_contract_4 = new String[]{"ContractServ", "project_contract"};
-	public static final String[] PD_contract_5 = new String[]{"ContractPurServ", "project_contract"};
+	public static final String[] PD_contract_4 = new String[]{"ContractPurchase", "project_contract"};
+	public static final String[] PD_contract_5 = new String[]{"ContractConsumerFinance", "project_contract"};
 
     // 同意 or 驳回 申请单，不用此变量
     // public static final String VAR_PASS = "pass";

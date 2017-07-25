@@ -3,6 +3,7 @@
  */
 package com.thinkgem.jeesite.modules.project.entity.contract;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Lists;
 import com.thinkgem.jeesite.common.persistence.ActEntity;
 import com.thinkgem.jeesite.common.utils.StringUtils;
@@ -75,21 +76,32 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 		super(id);
 	}
 
+	@JsonIgnore
 	public String getView() {
-		if (contractType.equals("1") || contractType.equals("2")) {
+		if (StringUtils.isEmpty(contractType))
+			return "";
+		if (contractType.equals("1")
+				|| contractType.equals("2")
+				|| contractType.equals("5") ) {
 			return getDictRemarks("1") + "View";
 		}
 		return getDictRemarks() + "View";
 	}
 
+	@JsonIgnore
 	public String getForm() {
-		if (contractType.equals("1") || contractType.equals("2")) {
+		if (StringUtils.isEmpty(contractType))
+			return "";
+		if (contractType.equals("1")
+				|| contractType.equals("2")
+				|| contractType.equals("5") ) {
 			return getDictRemarks("1") + "Form";
 		}
 		return getDictRemarks() + "Form";
 	}
 
 	// Remarks保存的是自己的前缀，或者是自己的工作流key
+	@JsonIgnore
 	public String getDictRemarks(String aType) {
 		String aContractType = aType;
 		if (StringUtils.isEmpty(aContractType)) {
@@ -112,7 +124,7 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 		return view;
 	}
 
-
+	@JsonIgnore
 	public String getDictRemarks() {
 		return getDictRemarks(contractType);
 	}
