@@ -56,7 +56,8 @@
 	<c:if test="${ empty projectContract.act.taskId}">
 		<li><a href="${ctx}/project/contract/projectContract/">合同列表</a></li>
 	</c:if>
-	<li class="active"><a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}&contractType=1">服务合同
+	<li class="active"><a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}&contractType=1">
+		${fns:getDictLabel(projectContract.contractType, 'jic_contract_type', '合同')}
 		<shiro:hasPermission name="project:contract:projectContract:edit">
 			${not empty projectContract.act.taskId?'审批':'查看'}
 		</shiro:hasPermission>

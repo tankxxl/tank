@@ -6,10 +6,13 @@ package com.thinkgem.jeesite.modules.project.service.approval;
 import com.thinkgem.jeesite.common.annotation.Loggable;
 import com.thinkgem.jeesite.common.service.BaseService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
+import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.sys.entity.Office;
 import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.service.OfficeService;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
+import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
+import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -142,10 +145,33 @@ public class AssigneeService extends BaseService {
 	// 返回职能部门(办公室 财务部 运营管理部)所对应的三个审批角色
 	public List<String> findFuncDeptRole(String apply) {
 
-		String[] role = {"usertask_finance_leader", "usertask_boss", "usertask_market_leader"};
+		String[] role = {
+				"usertask_finance_leader",
+				"usertask_operation_management_leader",
+				"usertask_operation_management",
+				"usertask_office_leader",
+				"usertask_lawer"};
+
 		List<String> list = Arrays.asList(role);
 
 		return list;
+	}
+
+	public boolean isComplete(ActivityExecution execution) {
+		String nodeId = execution.getActivity().getId();
+		ExecutionEntity executionEntity = (ExecutionEntity) execution;
+
+		execution.getVariable(ActUtils.VAR_OBJ_ID);
+		executionEntity.getProcessDefinitionId();
+
+		// execution.setVariable(ActUtils.VAR_OBJ_ID, "");
+
+		String roleValue = executionEntity.getVariableInstance("role").getTextValue();
+
+		if ("usertask_operation_management_leader".equalsIgnoreCase(roleValue)) {
+			return true;
+		}
+		return false;
 	}
 
 	// sd used only.

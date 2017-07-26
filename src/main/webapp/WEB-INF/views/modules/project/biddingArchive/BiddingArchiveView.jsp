@@ -228,6 +228,16 @@
 			</td>
 		</tr>
 
+		<c:if test="${not empty biddingArchive.lostInfo}">
+		<tr>
+			<td  class="tit">未中标原因</td>
+			<td colspan="5">
+					${biddingArchive.lostInfo }
+			</td>
+		</tr>
+		</c:if>
+
+
 		<tr>
 			<td colspan="1" class="tit">邀标函</td>
 			<td class="" colspan="5">

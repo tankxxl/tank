@@ -7,6 +7,8 @@
 	<script type="text/javascript">
 		$(document).ready(function() {
 			//$("#name").focus();
+            $("#rmb").text(digitUppercase(${projectContract.amount }));
+
 			$("#inputForm").validate({
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
@@ -63,10 +65,10 @@
                 {id: projectId},
                 function (apply) {
                     $("#project_code").text(apply.projectCode);
-                    $("#customer_name").text(apply.customer.customerName);
-                    $("#customer_contact_name").text(apply.customerContact.contactName);
-                    $("#customer_phone").text(apply.customerContact.phone);
-                    $("#project_category").text(apply.category);
+//                    $("#customer_name").text(apply.customer.customerName);
+//                    $("#customer_contact_name").text(apply.customerContact.contactName);
+//                    $("#customer_phone").text(apply.customerContact.phone);
+//                    $("#project_category").text(apply.category);
             });
         }
 	</script>
@@ -76,7 +78,8 @@
 	<c:if test="${ empty projectContract.act.taskId}">
 		<li><a href="${ctx}/project/contract/projectContract/">合同列表</a></li>
 	</c:if>
-	<li class="active"><a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}&contractType=3">销售合同
+	<li class="active"><a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}&contractType=3">
+		${fns:getDictLabel(projectContract.contractType, 'jic_contract_type', '合同')}
 		<shiro:hasPermission name="project:contract:projectContract:edit">
 			${not empty projectContract.act.taskId?'审批':'查看'}
 		</shiro:hasPermission>
@@ -96,7 +99,7 @@
 	<sys:message content="${message}"/>
 	<table class="table-form">
 		<%--<tr><th colspan="6" class="tit">项目信息</th></tr>--%>
-		<caption>项目信息-销售合同</caption>
+		<caption>项目信息</caption>
 		<tr>
 			<td class="tit">项目名称</td>
 			<td >
@@ -161,12 +164,14 @@
 			</td>
 		</tr>
 
+		<c:if test="${projectContract.contractType eq '3'}">
 		<tr>
 			<td  class="tit" >交货时间及地点</td>
 			<td  colspan="3">
 				${projectContract.deliveryAddress}
 			</td>
 		</tr>
+		</c:if>
 
 		<tr>
 			<td  class="tit" >付款方式</td>

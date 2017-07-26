@@ -72,7 +72,12 @@ public class BiddingArchiveController extends BaseController {
 	@RequestMapping(value = {"list", ""})
 	public String list(BiddingArchive archive,
 					   HttpServletRequest request, HttpServletResponse response, Model model) {
-		archive.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+		// 此dataScopeFilter中的s5、u4从xml的sql语句可以看出来，是根据立项人来过滤数据的。
+		// archive.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+		// 现在我们要根据自己业务表(biddingArchive)中的createBy来过滤自己的数据。
+		// 要满足立项是大家的，不管是谁立的项，大家都可以以此项目来投标、备案、合同等流程，
+		// 投标、备案、合同是自己的数据，别人不能看。
+		archive.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s6", "u6"));
 		Page<BiddingArchive> page = archiveService.findPage(new Page<BiddingArchive>(request, response), archive);
 		model.addAttribute("page", page);
 		return prefix + "BiddingArchiveList";

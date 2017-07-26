@@ -75,7 +75,10 @@ public class ProjectContractController extends BaseController {
 					   HttpServletRequest request,
 					   HttpServletResponse response,
 					   Model model) {
-		projectContract.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+		// 此dataScopeFilter中的s5、u4从xml的sql语句可以看出来，是根据立项人来过滤数据的。
+		// projectContract.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+		// 现在我们要根据自己业务表(contract)中的createBy来过滤自己的数据。
+		projectContract.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s6", "u6"));
 		Page<ProjectContract> page = contractService.findPage(new Page<ProjectContract>(request, response),
 				projectContract);
 		model.addAttribute("page", page);

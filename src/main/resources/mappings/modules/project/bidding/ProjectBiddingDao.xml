@@ -65,6 +65,10 @@
 		s5.id AS "apply.saler.office.id",
 		s5.name AS "apply.saler.office.name",
 
+		u6.name AS "createBy.name",
+		s6.id AS "createBy.office.id",
+		s6.name AS "createBy.office.name",
+
 		c5.customer_name AS "apply.customer.customerName",
 		c5.industry AS "apply.customer.industry"
 	</sql>
@@ -74,6 +78,10 @@
 		LEFT JOIN customer c5 ON c5.id = pro_apply.customer_id
 		LEFT JOIN sys_user u4 ON u4.id = pro_apply.saler_id
 		LEFT JOIN sys_office s5 on s5.id =u4.office_id
+
+		LEFT JOIN sys_user u6 ON u6.id = a.create_by
+		LEFT JOIN sys_office s6 ON s6.id = u6.office_id
+
 		LEFT JOIN sys_user pm ON pm.id = pro_apply.project_manager_id
 	</sql>
     

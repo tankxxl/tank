@@ -79,7 +79,7 @@
 							labelName="apply.projectName"
 							labelValue="${projectFinishApproval.apply.projectName}"
 							title="项目名称" cssClass="required"  allowClear="true" notAllowSelectParent="true"
-							url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11"
+							url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11&isAll=true"
 							customClick="changeProject"/>
 				</div>
 			</td>

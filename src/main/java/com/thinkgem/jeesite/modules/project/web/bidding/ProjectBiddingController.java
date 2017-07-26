@@ -63,7 +63,12 @@ public class ProjectBiddingController extends BaseController {
 	@RequiresPermissions("project:bidding:projectBidding:view")
 	@RequestMapping(value = {"list", ""})
 	public String list(ProjectBidding projectBidding, HttpServletRequest request, HttpServletResponse response, Model model) {
-		projectBidding.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+
+		// 此dataScopeFilter中的s5、u4从xml的sql语句可以看出来，是根据立项人来过滤数据的。
+		// projectBidding.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+		// 现在我们要根据自己业务表(bidding)中的createBy来过滤自己的数据。
+		projectBidding.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s6", "u6"));
+
 		Page<ProjectBidding> page = projectBiddingService.findPage(new Page<ProjectBidding>(request, response), projectBidding); 
 		model.addAttribute("page", page);
 		return "modules/project/bidding/projectBiddingList";

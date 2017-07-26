@@ -7,6 +7,8 @@
 	<script type="text/javascript">
 		$(document).ready(function() {
 			//$("#name").focus();
+            $("#lostInfoTr").hide();
+
 			changeFun  =function(){
 				if($("#applyId").val() ==''){
 					alert("请选择项目名称");
@@ -63,7 +65,19 @@
 				 auto 代表打开输入法 (默认)
 				 disable 代表关闭输入法 */
 			});
-		});
+
+
+            $("#winFlag").change(function(){
+                if (this.value == 1) {
+                    $("#lostInfoTr").show();
+                    addRequired("#lostInfo");
+                } else {
+                    $("#lostInfoTr").hide();
+                    removeRequired("#lostInfo");
+                }
+            });
+
+        });
 
         // 选择项目后触发事件
         function changeProject(projectId, idx) {
@@ -276,6 +290,15 @@
 			<td  class="tit">合同号</td>
 			<td>
 				<%--<form:input path="content" style="width:95%" maxlength="100" class="required"/>--%>
+			</td>
+		</tr>
+
+		<tr id="lostInfoTr">
+			<td  class="tit">未中标原因</td>
+			<td colspan="5">
+				<form:textarea path="lostInfo"
+							   style="width:95%"  maxlength="255"
+							   placeholder="包含但不限于：项目新投标或续标，公司资质、授权书、报价单及标书等相关文件。"/>
 			</td>
 		</tr>
 

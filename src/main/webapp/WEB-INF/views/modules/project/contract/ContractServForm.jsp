@@ -4,7 +4,7 @@
 <head>
 	<title>合同管理</title>
 	<meta name="decorator" content="default"/>
-	<%-- 服务合同和管理合同共用 --%>
+	<%-- 服务合同、管理合同、消费金融合同共用 --%>
 	<script type="text/javascript">
 		$(document).ready(function() {
 			//$("#name").focus();
@@ -55,10 +55,10 @@
                 {id: projectId},
                 function (apply) {
                     $("#project_code").text(apply.projectCode);
-                    $("#customer_name").text(apply.customer.customerName);
-                    $("#customer_contact_name").text(apply.customerContact.contactName);
-                    $("#customer_phone").text(apply.customerContact.phone);
-                    $("#project_category").text(apply.category);
+//                    $("#customer_name").text(apply.customer.customerName);
+//                    $("#customer_contact_name").text(apply.customerContact.contactName);
+//                    $("#customer_phone").text(apply.customerContact.phone);
+//                    $("#project_category").text(apply.category);
             });
         }
 	</script>
@@ -77,7 +77,8 @@
 	<c:if test="${ empty projectContract.act.taskId}">
 		<li><a href="${ctx}/project/contract/projectContract/">合同列表</a></li>
 	</c:if>
-	<li class="active"><a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}&contractType=1">服务合同
+	<li class="active"><a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}&contractType=1">
+		${fns:getDictLabel(projectContract.contractType, 'jic_contract_type', '合同')}
 		<shiro:hasPermission name="project:contract:projectContract:edit">
 			${not empty projectContract.id?'修改':'添加'}
 		</shiro:hasPermission>
@@ -97,7 +98,7 @@
 	<sys:message content="${message}"/>
 	<table class="table-form">
 		<%--<tr><th colspan="6" class="tit">项目信息</th></tr>--%>
-		<caption>项目信息-我是服务合同</caption>
+		<caption>项目信息</caption>
 		<tr>
 			<td class="tit">项目名称</td>
 			<td >
@@ -107,7 +108,7 @@
 					labelValue="${projectContract.apply.projectName}"
 					title="项目名称"
 
-					url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11"
+					url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11&isAll=true"
 					cssClass="required"  allowClear="true" notAllowSelectParent="true"
 					customClick="changeProject"/>
 				<span class="help-inline"><font color="red">*</font> </span>

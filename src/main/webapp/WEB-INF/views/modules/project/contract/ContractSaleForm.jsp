@@ -4,9 +4,12 @@
 <head>
 	<title>合同管理</title>
 	<meta name="decorator" content="default"/>
+	<%-- 销售、采购合同共用 --%>
 	<script type="text/javascript">
 		$(document).ready(function() {
 			//$("#name").focus();
+            $("#rmb").text(digitUppercase(${projectContract.amount }));
+
 			$("#inputForm").validate({
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
@@ -22,6 +25,11 @@
 					}
 				}
 			});
+
+            $("#amount").keyup(function () {
+//                top.$.jBox.tip("input.value=" + digitUppercase(parseFloat(this.value)));
+                $("#rmb").text(digitUppercase(parseFloat(this.value)));
+            });
 		});
 
 		function addRow(list, idx, tpl, row){
@@ -76,7 +84,8 @@
 	<c:if test="${ empty projectContract.act.taskId}">
 		<li><a href="${ctx}/project/contract/projectContract/">合同列表</a></li>
 	</c:if>
-	<li class="active"><a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}&contractType=3">销售合同
+	<li class="active"><a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}&contractType=3">
+		${fns:getDictLabel(projectContract.contractType, 'jic_contract_type', '合同')}
 		<shiro:hasPermission name="project:contract:projectContract:edit">
 			${not empty projectContract.id?'修改':'添加'}
 		</shiro:hasPermission>
@@ -96,7 +105,7 @@
 	<sys:message content="${message}"/>
 	<table class="table-form">
 		<%--<tr><th colspan="6" class="tit">项目信息</th></tr>--%>
-		<caption>项目信息-销售合同</caption>
+		<caption>项目信息</caption>
 		<tr>
 			<td class="tit">项目名称</td>
 			<td >
@@ -106,7 +115,7 @@
 					labelValue="${projectContract.apply.projectName}"
 					title="项目名称"
 					cssStyle="width:80%;"
-					url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11"
+					url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11&isAll=true"
 					cssClass="required"  allowClear="true" notAllowSelectParent="true"
 					customClick="changeProject"/>
 				<span class="help-inline"><font color="red">*</font> </span>
@@ -135,8 +144,25 @@
 			<td class=""><label id="customer_contact_name">${projectContract.apply.customerContact.contactName }</label></td>
 		</tr>
 
+		<c:if test="${projectContract.contractType eq '4'}">
+			<tr>
+				<td class="tit">采购申请编号</td>
+				<td colspan="3" class="">
+					<form:input path="purchaseCode" style="width:90%"/>
+				</td>
+			</tr>
+		</c:if>
+
 		<tr>
-			<td class="tit">客户名称</td>
+			<td class="tit">
+				<c:if test="${projectContract.contractType eq '3'}">
+					客户名称
+				</c:if>
+				<c:if test="${projectContract.contractType eq '4'}">
+					供应商名称
+				</c:if>
+			</td>
+
 			<td colspan="3" class="">
 				<form:input path="clientName" style="width:90%"/>
 			</td>
@@ -168,10 +194,12 @@
 			</td>
 		</tr>
 
+		<c:if test="${projectContract.contractType eq '3'}">
 		<tr>
 			<td  class="tit" >交货时间及地点</td>
 			<td  colspan="3"><form:input path="deliveryAddress" style="width:90%"/></td>
 		</tr>
+		</c:if>
 
 		<tr>
 			<td  class="tit" >付款方式</td>

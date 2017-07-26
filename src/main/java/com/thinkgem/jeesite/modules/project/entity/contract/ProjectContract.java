@@ -85,6 +85,11 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 				|| contractType.equals("5") ) {
 			return getDictRemarks("1") + "View";
 		}
+
+		if (contractType.equals("3")
+				|| contractType.equals("4") ) {
+			return getDictRemarks("3") + "View";
+		}
 		return getDictRemarks() + "View";
 	}
 
@@ -97,6 +102,12 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 				|| contractType.equals("5") ) {
 			return getDictRemarks("1") + "Form";
 		}
+
+		if (contractType.equals("3")
+				|| contractType.equals("4") ) {
+			return getDictRemarks("3") + "Form";
+		}
+
 		return getDictRemarks() + "Form";
 	}
 
