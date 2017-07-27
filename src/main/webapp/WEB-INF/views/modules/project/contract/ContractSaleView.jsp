@@ -99,7 +99,8 @@
 	<sys:message content="${message}"/>
 	<table class="table-form">
 		<%--<tr><th colspan="6" class="tit">项目信息</th></tr>--%>
-		<caption>项目信息</caption>
+		<%--<caption>项目信息</caption>--%>
+		<caption>北京建投科信科技发展股份有限公司合同审批表</caption>
 		<tr>
 			<td class="tit">项目名称</td>
 			<td >
@@ -130,9 +131,21 @@
 
 		<tr>
 			<td class="tit">申请部门</td>
-			<td class=""><label id="customer_name">${projectContract.createBy.office.name}</label></td>
-			<td class="tit">申请人</td>
-			<td class=""><label id="customer_contact_name">${projectContract.createBy.name}</label></td>
+			<td class=""><label id="customer_name">
+					${projectContract.createBy.office.name}-
+					${projectContract.createBy.name}
+			</label></td>
+			<td class="tit">申请日期</td>
+			<td class=""><label id="customer_contact_name">
+				<fmt:formatDate value="${projectContract.createDate}" pattern="yyyy-MM-dd"/>
+			</label></td>
+		</tr>
+
+		<tr>
+			<td class="tit">合同名称</td>
+			<td colspan="3" class="">
+				${projectContract.contractName}
+			</td>
 		</tr>
 
 		<tr>
@@ -182,7 +195,7 @@
 
 		<tr>
 			<td  class="tit" >印章类型</td>
-			<td  colspan="1">
+			<td  colspan="3">
 				${fns:getDictLabels(projectContract.sealType, 'jic_seal_type', '')}
 			</td>
 		</tr>

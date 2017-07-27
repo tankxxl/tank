@@ -76,7 +76,7 @@
 	<sys:message content="${message}"/>
 	<table class="table-form">
 		<%--<tr><th colspan="6" class="tit">项目信息</th></tr>--%>
-		<caption>项目信息-服务合同</caption>
+		<caption>北京建投科信科技发展股份有限公司合同审批表</caption>
 		<tr>
 			<td class="tit">项目名称</td>
 			<td >
@@ -116,9 +116,21 @@
 
 		<tr>
 			<td class="tit">申请部门</td>
-			<td class=""><label id="customer_name">${projectContract.createBy.office.name}</label></td>
-			<td class="tit">申请人</td>
-			<td class=""><label id="customer_contact_name">${projectContract.createBy.name}</label></td>
+			<td class=""><label id="customer_name">
+					${projectContract.createBy.office.name}-
+					${projectContract.createBy.name}
+			</label></td>
+			<td class="tit">申请日期</td>
+			<td class=""><label id="customer_contact_name">
+				<fmt:formatDate value="${projectContract.createDate}" pattern="yyyy-MM-dd"/>
+			</label></td>
+		</tr>
+
+		<tr>
+			<td class="tit">合同名称</td>
+			<td colspan="3" class="">
+					${projectContract.contractName}
+			</td>
 		</tr>
 
 		<tr>
@@ -136,7 +148,7 @@
 				</div>
 			</td>
 			<td class="tit">大写</td>
-			<td colspan="1" class=""><label id="rmb">${projectContract.apply.customer.customerName }</label></td>
+			<td colspan="1" class=""><label id="rmb"></label></td>
 		</tr>
 
 		<tr>
@@ -159,30 +171,45 @@
 
 		<tr>
 			<td  class="tit" >合同内容摘要</td>
-			${projectContract.contentSummary}
-			</td>
+			<td colspan="3">${projectContract.contentSummary}</td>
 		</tr>
 
 		<tr>
 			<td  class="tit" >是否为续签合同</td>
+
+			<c:choose>
+			<c:when test="${not empty projectContract.originCode}">
 			<td  colspan="1">
+			</c:when>
+
+			<c:otherwise>
+			<td  colspan="3">
+			</c:otherwise>
+			</c:choose>
+
 				${fns:getDictLabel(projectContract.resignFlag , 'yes_no', '')}
 			</td>
+
+			<c:if test="${not empty projectContract.originCode}">
 			<td  class="tit" >原合同号</td>
 			<td  colspan="1">
 				${projectContract.originCode}
 			</td>
+			</c:if>
 		</tr>
-		<tr>
-			<td  class="tit" >续签合同说明</td>
-			<td  colspan="3">
-				${projectContract.resignInfo}
-			</td>
-		</tr>
+
+		<c:if test="${not empty projectContract.resignInfo}">
+			<tr>
+				<td  class="tit" >续签合同说明</td>
+				<td  colspan="3">
+						${projectContract.resignInfo}
+				</td>
+			</tr>
+		</c:if>
 
 		<tr>
 			<td  class="tit" >印章类型</td>
-			<td  colspan="1">
+			<td  colspan="3">
 				${fns:getDictLabels(projectContract.sealType, 'jic_seal_type', '')}
 			</td>
 		</tr>

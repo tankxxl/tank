@@ -25,6 +25,7 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 
 	private static final long serialVersionUID = 1L;
 	private ProjectApplyExternal apply;//项目立项bean
+	private String contractName; // 合同名称
 	private String contractCode; // 合同编号
 	private String clientName; // 合同对方名称
 	private String amount; // 合同总金额
@@ -171,6 +172,14 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 
 	public void setAttachment(String attachment) {
 		this.attachment = attachment;
+	}
+
+	public String getContractName() {
+		return contractName;
+	}
+
+	public void setContractName(String contractName) {
+		this.contractName = contractName;
 	}
 
 	public String getContractCode() {

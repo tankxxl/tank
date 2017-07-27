@@ -176,6 +176,7 @@ public class ActTaskController extends BaseController {
 	
 	/**
 	 * 读取带跟踪的图片
+	 * trace1用到
 	 */
 	@RequestMapping(value = "trace/photo/{procDefId}/{execId}")
 	public void tracePhoto(@PathVariable("procDefId") String procDefId, @PathVariable("execId") String execId, HttpServletResponse response) throws Exception {

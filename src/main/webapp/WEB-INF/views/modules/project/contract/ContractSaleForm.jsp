@@ -71,10 +71,10 @@
                 {id: projectId},
                 function (apply) {
                     $("#project_code").text(apply.projectCode);
-                    $("#customer_name").text(apply.customer.customerName);
-                    $("#customer_contact_name").text(apply.customerContact.contactName);
-                    $("#customer_phone").text(apply.customerContact.phone);
-                    $("#project_category").text(apply.category);
+//                    $("#customer_name").text(apply.customer.customerName);
+//                    $("#customer_contact_name").text(apply.customerContact.contactName);
+//                    $("#customer_phone").text(apply.customerContact.phone);
+//                    $("#project_category").text(apply.category);
             });
         }
 	</script>
@@ -105,7 +105,8 @@
 	<sys:message content="${message}"/>
 	<table class="table-form">
 		<%--<tr><th colspan="6" class="tit">项目信息</th></tr>--%>
-		<caption>项目信息</caption>
+		<%--<caption>项目信息</caption>--%>
+		<caption>北京建投科信科技发展股份有限公司合同审批表</caption>
 		<tr>
 			<td class="tit">项目名称</td>
 			<td >
@@ -137,11 +138,25 @@
 			</td>
 		</tr>
 
+		<c:if test="${not empty projectContract.createBy.name}">
 		<tr>
 			<td class="tit">申请部门</td>
-			<td class=""><label id="customer_name">${projectContract.apply.customer.customerName }</label></td>
+			<td class=""><label id="customer_name">
+					${projectContract.createBy.office.name}-
+					${projectContract.createBy.name}
+			</label></td>
 			<td class="tit">申请日期</td>
-			<td class=""><label id="customer_contact_name">${projectContract.apply.customerContact.contactName }</label></td>
+			<td class=""><label id="customer_contact_name">
+				<fmt:formatDate value="${projectContract.createDate}" pattern="yyyy-MM-dd"/>
+			</label></td>
+		</tr>
+		</c:if>
+
+		<tr>
+			<td class="tit">合同名称</td>
+			<td colspan="3" class="">
+				<form:input path="contractName" style="width:90%"/>
+			</td>
 		</tr>
 
 		<c:if test="${projectContract.contractType eq '4'}">

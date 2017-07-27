@@ -548,15 +548,17 @@ public class ActTaskService extends BaseService {
 	/**
 	 * 读取带跟踪的图片
 	 * @param executionId	环节ID
-	 * @return	封装了各种节点信息
+	 * @return	png输入流，封装了各种节点信息
 	 */
 	public InputStream tracePhoto(String procDefId, String executionId) {
 		if (StringUtils.isBlank(procDefId) || StringUtils.isBlank(executionId))
 			return null;
 
 //		ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(executionId).singleResult();
+		// 流程定义
 		BpmnModel bpmnModel = repositoryService.getBpmnModel(procDefId);
-		
+
+		// 正在活动节点
 		List<String> activeActivityIds = Lists.newArrayList();
 		if (runtimeService.createExecutionQuery().executionId(executionId).count() > 0){
 			activeActivityIds = runtimeService.getActiveActivityIds(executionId);
@@ -569,9 +571,69 @@ public class ActTaskService extends BaseService {
 		// 使用spring注入引擎请使用下面的这行代码
 		Context.setProcessEngineConfiguration(processEngine.getProcessEngineConfiguration());
 //		return ProcessDiagramGenerator.generateDiagram(bpmnModel, "png", activeActivityIds);
+		System.out.println("ActivityFontName=" + processEngine.getProcessEngineConfiguration().getActivityFontName());
+		System.out.println("LabelFontName=" + processEngine.getProcessEngineConfiguration().getLabelFontName());
+		System.out.println("AnnotationFontName=" + processEngine.getProcessEngineConfiguration().getAnnotationFontName());
 		return processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator()
-				.generateDiagram(bpmnModel, "png", activeActivityIds);
+				.generateDiagram(
+						bpmnModel,
+						"png",
+						activeActivityIds,
+						new ArrayList(),
+						// 解决跟踪流程图时的乱码
+						processEngine.getProcessEngineConfiguration().getActivityFontName(),
+						processEngine.getProcessEngineConfiguration().getLabelFontName(),
+						processEngine.getProcessEngineConfiguration().getAnnotationFontName(),
+						null,
+						1.0
+				);
 	}
+
+
+	// public InputStream tracePhoto1(String processDefinitionId, String executionId) {
+	// 	List<String> activeActivityIds = Lists.newArrayList(), highLightedFlows = new ArrayList<String>();
+	// 	if (runtimeService.createExecutionQuery().executionId(executionId).count() > 0) {
+	// 		activeActivityIds = runtimeService.getActiveActivityIds(executionId);
+	// 	}
+	// 	/**
+	// 	 * 获得当前活动的节点
+	// 	 */
+	// 	if (this.isFinished(executionId)) {// 如果流程已经结束，则得到结束节点
+	// 		activeActivityIds.add(historyService.createHistoricActivityInstanceQuery().executionId(executionId)
+	// 				.activityType("endEvent").singleResult().getActivityId());
+	// 	} else {// 如果流程没有结束，则取当前活动节点
+	// 		// 根据流程实例ID获得当前处于活动状态的ActivityId合集
+	// 		activeActivityIds = runtimeService.getActiveActivityIds(executionId);
+	// 	}
+	// 	// 获得历史活动记录实体（通过启动时间正序排序，不然有的线可以绘制不出来）
+	// 	List<HistoricActivityInstance> historicActivityInstances = historyService.createHistoricActivityInstanceQuery()
+	// 			.executionId(executionId).orderByHistoricActivityInstanceStartTime().asc().list();
+	// 	// 计算活动线
+	// 	highLightedFlows = this
+	// 			.getHighLightedFlows((ProcessDefinitionEntity) ((RepositoryServiceImpl) repositoryService)
+	// 					.getDeployedProcessDefinition(processDefinitionId), historicActivityInstances);
+	// 	/**
+	// 	 * 绘制图形
+	// 	 */
+	// 	InputStream imageStream = null;
+	// 	if (null != activeActivityIds) {
+	// 		try {
+	// 			// 获得流程引擎配置
+	// 			ProcessEngineConfiguration processEngineConfiguration = processEngine.getProcessEngineConfiguration();
+	// 			// 根据流程定义ID获得BpmnModel
+	// 			BpmnModel bpmnModel = repositoryService.getBpmnModel(processDefinitionId);
+	// 			// 输出资源内容到相应对象
+	// 			imageStream = new DefaultProcessDiagramGenerator().generateDiagram(bpmnModel, "png", activeActivityIds,
+	// 					highLightedFlows, processEngineConfiguration.getActivityFontName(),
+	// 					processEngineConfiguration.getLabelFontName(), processEngineConfiguration.getClassLoader(),
+	// 					1.0);
+	// 			return imageStream;
+	// 		} catch (Exception e) {
+	// 			e.printStackTrace();
+	// 		}
+	// 	}
+	// 	return null;
+	// }
 	
 	/**
 	 * 流程跟踪图信息

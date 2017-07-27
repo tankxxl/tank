@@ -98,7 +98,8 @@
 	<sys:message content="${message}"/>
 	<table class="table-form">
 		<%--<tr><th colspan="6" class="tit">项目信息</th></tr>--%>
-		<caption>项目信息</caption>
+		<%--<caption>项目信息</caption>--%>
+		<caption>北京建投科信科技发展股份有限公司合同审批表</caption>
 		<tr>
 			<td class="tit">项目名称</td>
 			<td >
@@ -139,11 +140,26 @@
 			</tr>
 		</c:if>
 
+
+		<c:if test="${not empty projectContract.createBy.name}">
+			<tr>
+				<td class="tit">申请部门</td>
+				<td class=""><label id="customer_name">
+						${projectContract.createBy.office.name}-
+						${projectContract.createBy.name}
+				</label></td>
+				<td class="tit">申请日期</td>
+				<td class=""><label id="customer_contact_name">
+					<fmt:formatDate value="${projectContract.createDate}" pattern="yyyy-MM-dd"/>
+				</label></td>
+			</tr>
+		</c:if>
+
 		<tr>
-			<td class="tit">申请部门</td>
-			<td class=""><label id="customer_name">${projectContract.apply.customer.customerName }</label></td>
-			<td class="tit">申请日期</td>
-			<td class=""><label id="customer_contact_name">${projectContract.apply.customerContact.contactName }</label></td>
+			<td class="tit">合同名称</td>
+			<td colspan="3" class="">
+				<form:input path="contractName" style="width:90%"/>
+			</td>
 		</tr>
 
 		<tr>
@@ -201,7 +217,8 @@
 			<td  class="tit" >原合同号</td>
 			<td  colspan="1"><form:input path="originCode" style="width:90%"/></td>
 		</tr>
-		<tr>
+
+		<tr id="resignInfoTr">
 			<td  class="tit" >续签合同说明</td>
 			<td  colspan="3"><form:textarea path="resignInfo" style="width:98%" maxlength="255"
 			placeholder="若续签合同的相关条款与原合同不一致，请进行说明"/></td>

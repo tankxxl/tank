@@ -8,6 +8,7 @@
 		a.project_manager_id AS "projectManager.id",
 		a.stage AS "stage",
 
+		a.contract_name AS "contractName",
 		a.contract_code AS "contractCode",
 		a.client_name AS "clientName",
 		a.amount AS "amount",
@@ -167,6 +168,7 @@
 			stage,
 			id,
 
+			contract_name,
 			contract_code ,
 			client_name ,
 			amount ,
@@ -202,6 +204,7 @@
 			#{stage},
 			#{id},
 
+			#{contractName},
 			#{contractCode},
 			#{clientName},
 			#{amount},
@@ -240,6 +243,7 @@
 			project_manager_id = #{projectManager.id},
 			stage = #{stage},
 
+			contract_name = #{contractName},
 			contract_code = #{contractCode},
 			client_name = #{clientName},
 			amount = #{amount},
