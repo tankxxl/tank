@@ -213,7 +213,8 @@ public class ProjectExecutionService extends JicActService<ProjectExecutionDao, 
         String title = (String) task.getVariable(ActUtils.VAR_TITLE);
         String id = (String) task.getVariable(ActUtils.VAR_OBJ_ID);
         String prjId = (String) task.getVariable(ActUtils.VAR_PRJ_ID);
-        List<String> groupNames = new ArrayList<String>();
+        List<String> groupNames = new ArrayList<>();
+
         groupNames.add(groupName);
 
         ProjectExecution execution = null;

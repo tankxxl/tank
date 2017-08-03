@@ -70,6 +70,11 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 
 		vars.put(ActUtils.VAR_TITLE, projectContract.getApply().getProjectName());
 
+		if (StringUtils.isEmpty(projectContract.getApply().getProjectName())) {
+			vars.put(ActUtils.VAR_TITLE, projectContract.getClientName());
+		}
+
+
 		// 设置合同金额
 		vars.put(ActUtils.VAR_AMOUNT, projectContract.getAmount());
 

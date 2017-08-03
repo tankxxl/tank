@@ -6,7 +6,17 @@
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
-			
+
+            $("#btnExportList").click(function(){
+                top.$.jBox.confirm("确认要导出合同数据吗？","系统提示",function(v,h,f){
+                    if(v=="ok"){
+                        $("#searchForm").attr("action","${ctx}/project/contract/projectContract/export1");
+                        $("#searchForm").submit();
+                    }
+                },{buttonsFocus:1});
+                top.$('.jbox-body .jbox-icon').css('top','55px');
+            });
+
 			$("#contentTable").find("input[export]").each(function(){
 				$(this).click(function(){
 					var proId =$(this).attr("proId");
@@ -46,7 +56,7 @@
 		<li><a href="${ctx}/project/contract/projectContract/form?contractType=2">管理合同添加</a></li>
 		<li><a href="${ctx}/project/contract/projectContract/form?contractType=3">销售合同添加</a></li>
 		<li><a href="${ctx}/project/contract/projectContract/form?contractType=4">采购合同添加</a></li>
-		<li><a href="${ctx}/project/contract/projectContract/form?contractType=5">消费金融合同添加</a></li>
+		<li><a href="${ctx}/project/contract/projectContract/form?contractType=5">金融服务合同添加</a></li>
 	</shiro:hasPermission>
 </ul>
 	<form:form id="searchForm" modelAttribute="projectContract" htmlEscape="false"
@@ -72,8 +82,31 @@
 					<form:options items="${fns:getDictList('jic_contract_type')}" itemLabel="label" itemValue="value" />
 				</form:select>
 			</li>
-			<li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/></li>
+
+			<li><label>创建时间：</label>
+			<input id="beginDate"  name="beginDate"  type="text" readonly="readonly" maxlength="20" class="input-medium Wdate" style="width:163px;"
+				   value="<fmt:formatDate value="${act.beginDate}" pattern="yyyy-MM-dd"/>"
+				   onclick="WdatePicker({dateFmt:'yyyy-MM-dd'});"/>
+			　--　
+			<input id="endDate" name="endDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate" style="width:163px;"
+				   value="<fmt:formatDate value="${act.endDate}" pattern="yyyy-MM-dd"/>"
+				   onclick="WdatePicker({dateFmt:'yyyy-MM-dd'});"/>
+			</li>
+
+			<li><label>审批状态：</label>
+				<form:select path="procStatus" class="input-medium">
+					<form:option value="" label=""/>
+					<form:options items="${fns:getDictList('AuditStatus')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+				</form:select>
+			</li>
+
+			<li class="btns">
+				<input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/>
+				<input id="btnExportList" type="button" class="btn btn-primary" value="导出"/>
+			</li>
 			<li class="clearfix"></li>
+
+
 		</ul>
 	</form:form>
 	<sys:message content="${message}"/>
@@ -96,6 +129,7 @@
 					${projectContract.apply.projectCode}
 				</a></td>
 				<td>
+					${fns:abbr(not empty projectContract.apply.projectName ? projectContract.apply.projectName : projectContract.clientName, 60)}
 					${projectContract.apply.projectName}
 				</td>
 

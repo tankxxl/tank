@@ -77,6 +77,8 @@
 	<table class="table-form">
 		<%--<tr><th colspan="6" class="tit">项目信息</th></tr>--%>
 		<caption>北京建投科信科技发展股份有限公司合同审批表</caption>
+
+		<c:if test="${projectContract.contractType ne '2'}">
 		<tr>
 			<td class="tit">项目名称</td>
 			<td >
@@ -86,6 +88,7 @@
 			<td class="tit">项目编码</td>
 			<td ><label id="project_code" >${projectContract.apply.projectCode }</label></td>
 		</tr>
+		</c:if>
 
 		<tr>
 			<td class="tit">合同编号</td>
@@ -126,12 +129,12 @@
 			</label></td>
 		</tr>
 
-		<tr>
-			<td class="tit">合同名称</td>
-			<td colspan="3" class="">
-					${projectContract.contractName}
-			</td>
-		</tr>
+		<%--<tr>--%>
+			<%--<td class="tit">合同名称</td>--%>
+			<%--<td colspan="3" class="">--%>
+					<%--${projectContract.contractName}--%>
+			<%--</td>--%>
+		<%--</tr>--%>
 
 		<tr>
 			<td class="tit">合同对方名称</td>
@@ -224,13 +227,19 @@
 		</tr>
 
 		<c:if test="${not empty projectContract.act.taskId && projectContract.act.status != 'finish'}">
-			<tr>
-				<td class="tit">您的意见</td>
-				<td colspan="3">
-					<form:textarea path="act.comment" class="required" rows="5" maxlength="4000" style="width:95%"/>
-					<span class="help-inline"><font color="red">*</font></span>
-				</td>
-			</tr>
+
+			<c:if test="${projectContract.act.taskDefKey ne 'usertask_seal' && projectContract.act.taskDefKey ne 'usertask_specialist'}">
+
+				<tr>
+					<td class="tit">您的意见</td>
+					<td colspan="3">
+						<form:textarea path="act.comment" class="required" rows="5" maxlength="4000" style="width:95%"/>
+						<span class="help-inline"><font color="red">*</font></span>
+					</td>
+				</tr>
+
+			</c:if>
+
 		</c:if>
 	</table>
 	<br/>
@@ -238,7 +247,14 @@
 
 		<shiro:hasPermission name="project:contract:projectContract:edit">
 			<c:if test="${not empty projectContract.act.taskId && projectContract.act.status != 'finish'}">
-				<input id="btnSubmit" class="btn btn-primary" type="submit" value="同 意" onclick="$('#flag').val('yes')"/>&nbsp;
+
+				<c:if test="${projectContract.act.taskDefKey eq 'usertask_seal'}">
+					<input id="btnSubmit" class="btn btn-primary" type="submit" value="结束流程" onclick="$('#flag').val('yes')"/>&nbsp;
+				</c:if>
+				<c:if test="${projectContract.act.taskDefKey ne 'usertask_seal'}">
+					<input id="btnSubmit" class="btn btn-primary" type="submit" value="转交下一步" onclick="$('#flag').val('yes')"/>&nbsp;
+				</c:if>
+
 				<input id="btnSubmit" class="btn btn-inverse" type="submit" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;
 			</c:if>
 		</shiro:hasPermission>

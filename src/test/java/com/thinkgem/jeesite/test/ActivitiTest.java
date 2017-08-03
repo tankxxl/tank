@@ -7,6 +7,10 @@ import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.ProcessDefinition;
+import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.engine.task.Task;
+import org.activiti.engine.test.ActivitiRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -228,7 +232,22 @@ public class ActivitiTest extends BaseTestCase {
 	}
 
 
+	// or
 
+	@Rule
+	ActivitiRule activitiRule = new ActivitiRule();
+
+	@Test
+	@org.activiti.engine.test.Deployment(resources = {"org/myGroup/my-process.bpmn20.xml"})
+	public void testAnnotationDeploy() {
+		ProcessInstance processInstance = activitiRule
+				.getRuntimeService()
+				.startProcessInstanceByKey("my-process");
+		System.out.println(processInstance);
+
+		Task task = activitiRule.getTaskService().createTaskQuery().singleResult();
+		System.out.println(task.getName());
+	}
 
 
 	@Override

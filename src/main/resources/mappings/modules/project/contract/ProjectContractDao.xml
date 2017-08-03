@@ -131,6 +131,9 @@
 			<if test="contractType != null and contractType != ''">
 				AND a.contract_type = #{contractType}
 			</if>
+			<if test="procStatus != null and procStatus != ''">
+				AND a.proc_status = #{procStatus}
+			</if>
 			${sqlMap.dsf}
 		</where>
 		<choose>

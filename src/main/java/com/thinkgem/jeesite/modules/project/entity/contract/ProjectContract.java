@@ -334,6 +334,11 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 		this.contractType = contractType;
 	}
 
+	@JsonIgnore
+	public String getContractTypeValue() {
+		return DictUtils.getDictLabel(this.contractType, "jic_contract_type", "");
+	}
+
 
 	public String getOriginCode() {
 		return originCode;

@@ -1,16 +1,10 @@
 package com.thinkgem.jeesite.test;
 
 import com.thinkgem.jeesite.modules.project.service.approval.AssigneeService;
-import org.activiti.engine.RepositoryService;
-import org.activiti.engine.RuntimeService;
-import org.activiti.engine.TaskService;
-import org.activiti.engine.task.Task;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class ActivitiTest3 extends BaseTestCase {

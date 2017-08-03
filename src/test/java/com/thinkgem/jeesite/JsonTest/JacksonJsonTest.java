@@ -1,7 +1,6 @@
 package com.thinkgem.jeesite.JsonTest;
 
 import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -12,7 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.*;
 
 /**
@@ -100,7 +98,8 @@ public class JacksonJsonTest {
     @Test
     public void writeListJSON() {
         try {
-            List<AccountBean> list = new ArrayList<AccountBean>();
+            // List<AccountBean> list = new ArrayList<AccountBean>();
+            List<AccountBean> list = Collections.emptyList();
             list.add(bean);
 
             bean = new AccountBean();

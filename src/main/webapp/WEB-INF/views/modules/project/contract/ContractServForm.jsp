@@ -11,6 +11,16 @@
 
             $("#rmb").text(digitUppercase(${projectContract.amount }));
 
+            <c:if test="${projectContract.contractType eq '2'}">
+            	$("#beginDate").removeClass('required');
+            	$("#endDate").removeClass('required');
+			</c:if>
+
+            <c:if test="${projectContract.contractType ne '2'}">
+            	$("#beginDate").addClass('required');
+            	$("#endDate").addClass('required');
+            </c:if>
+
 			$("#inputForm").validate({
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
@@ -43,9 +53,10 @@
 
 //            digitUppercase
 			$("#amount").keyup(function () {
-//                top.$.jBox.tip("input.value=" + digitUppercase(parseFloat(this.value)));
 				$("#rmb").text(digitUppercase(parseFloat(this.value)));
             });
+
+
 		});
 
         // 选择项目后触发事件
@@ -100,6 +111,8 @@
 		<%--<tr><th colspan="6" class="tit">项目信息</th></tr>--%>
 		<%--<caption>项目信息</caption>--%>
 		<caption>北京建投科信科技发展股份有限公司合同审批表</caption>
+
+		<c:if test="${projectContract.contractType ne '2'}">
 		<tr>
 			<td class="tit">项目名称</td>
 			<td >
@@ -118,6 +131,7 @@
 			<td class="tit">项目编码</td>
 			<td ><label id="project_code" >${projectContract.apply.projectCode }</label></td>
 		</tr>
+		</c:if>
 
 		<tr>
 			<%--<td class="tit">合同编号</td>--%>
@@ -126,7 +140,7 @@
 			<%--</td>--%>
 
 			<td class="tit">合同类型</td>
-			<td colspan="1" class="">
+			<td colspan="3" class="">
 				${fns:getDictLabel(projectContract.contractType, 'jic_contract_type', '')}
 			</td>
 		</tr>
@@ -155,12 +169,12 @@
 			</tr>
 		</c:if>
 
-		<tr>
-			<td class="tit">合同名称</td>
-			<td colspan="3" class="">
-				<form:input path="contractName" style="width:90%"/>
-			</td>
-		</tr>
+		<%--<tr>--%>
+			<%--<td class="tit">合同名称</td>--%>
+			<%--<td colspan="3" class="">--%>
+				<%--<form:input path="contractName" style="width:90%"/>--%>
+			<%--</td>--%>
+		<%--</tr>--%>
 
 		<tr>
 			<td class="tit">合同对方名称</td>
@@ -188,13 +202,13 @@
 		<tr>
 			<td class="tit">合同有效期</td>
 			<td colspan="1" class="">
-				<input name="beginDate" type="text" readonly="readonly" class="input-medium Wdate required"
+				<input name="beginDate" id="beginDate" type="text" readonly="readonly" class="input-medium Wdate required"
 					   value="<fmt:formatDate value="${projectContract.beginDate}" pattern="yyyy-MM-dd"/>"
 					   onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
 			</td>
 			<td class="tit">至</td>
 			<td colspan="1" class="">
-				<input name="endDate" type="text" readonly="readonly" class="input-medium Wdate required"
+				<input name="endDate" id="endDate" type="text" readonly="readonly" class="input-medium Wdate required"
 					   value="<fmt:formatDate value="${projectContract.endDate}" pattern="yyyy-MM-dd"/>"
 					   onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
 			</td>

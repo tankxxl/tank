@@ -210,13 +210,19 @@
 		</tr>
 
 		<c:if test="${not empty projectContract.act.taskId && projectContract.act.status != 'finish'}">
-			<tr>
-				<td class="tit">您的意见</td>
-				<td colspan="3">
-					<form:textarea path="act.comment" class="required" rows="5" maxlength="4000" style="width:95%"/>
-					<span class="help-inline"><font color="red">*</font></span>
-				</td>
-			</tr>
+
+			<c:if test="${projectContract.act.taskDefKey ne 'usertask_seal' || projectContract.act.taskDefKey ne 'usertask_specialist'}">
+
+				<tr>
+					<td class="tit">您的意见</td>
+					<td colspan="3">
+						<form:textarea path="act.comment" class="required" rows="5" maxlength="4000" style="width:95%"/>
+						<span class="help-inline"><font color="red">*</font></span>
+					</td>
+				</tr>
+
+			</c:if>
+
 		</c:if>
 
 	</table>
@@ -295,7 +301,15 @@
 	<div class="form-actions">
 		<shiro:hasPermission name="project:contract:projectContract:edit">
 			<c:if test="${not empty projectContract.act.taskId && projectContract.act.status != 'finish'}">
-				<input id="btnSubmit" class="btn btn-primary" type="submit" value="同 意" onclick="$('#flag').val('yes')"/>&nbsp;
+
+				<c:if test="${projectContract.act.taskDefKey eq 'usertask_seal'}">
+					<input id="btnSubmit" class="btn btn-primary" type="submit" value="结束流程" onclick="$('#flag').val('yes')"/>&nbsp;
+				</c:if>
+				<c:if test="${projectContract.act.taskDefKey ne 'usertask_seal'}">
+					<input id="btnSubmit" class="btn btn-primary" type="submit" value="转交下一步" onclick="$('#flag').val('yes')"/>&nbsp;
+				</c:if>
+
+
 				<input id="btnSubmit" class="btn btn-inverse" type="submit" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;
 			</c:if>
 		</shiro:hasPermission>

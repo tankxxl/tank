@@ -104,7 +104,6 @@
         function changedContract(itemId, idx) {
             $.post('${ctx}/project/contract/projectContract/getItemAsJson',
                 {id: itemId}, function (item) {
-                console.log(item);
                 $('#contract_amount').text(item.contractAmount);
                 $('#contract_gross_margin').text(item.grossProfitMargin);
                 $('#contractId').val(item.contract.id);

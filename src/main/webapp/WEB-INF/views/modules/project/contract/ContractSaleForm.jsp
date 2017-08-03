@@ -30,7 +30,27 @@
 //                top.$.jBox.tip("input.value=" + digitUppercase(parseFloat(this.value)));
                 $("#rmb").text(digitUppercase(parseFloat(this.value)));
             });
+            
+
 		});
+
+        function numChanged(dom) {
+            var idx = $(dom).attr("idx");
+//            projectContractItemList{{idx}}_unitPrice
+            var numId = "projectContractItemList" + idx + "_num";
+            var unitPriceId = "projectContractItemList" + idx + "_unitPrice";
+			var amountId = "projectContractItemList" + idx + "_amount";
+
+            var num = $("#" + numId).val();
+            var unitPrice = $("#" + unitPriceId).val();
+
+//            alert("num=" + num + ", unitPrice=" + unitPrice);
+            if(isNaN(num) || isNaN(unitPrice) || !num || !unitPrice){
+                return ;
+            }
+            var amount = parseFloat(num) * parseFloat(unitPrice);
+            $("#" + amountId).val(amount);
+        }
 
 		function addRow(list, idx, tpl, row){
 			$(list).append(Mustache.render(tpl, {
@@ -197,13 +217,13 @@
 		<tr>
 			<td class="tit">合同有效期</td>
 			<td colspan="1" class="">
-				<input name="beginDate" type="text" readonly="readonly" class="input-medium Wdate required"
+				<input name="beginDate" type="text" readonly="readonly" class="input-medium Wdate"
 					   value="<fmt:formatDate value="${projectContract.beginDate}" pattern="yyyy-MM-dd"/>"
 					   onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
 			</td>
 			<td class="tit">至</td>
 			<td colspan="1" class="">
-				<input name="endDate" type="text" readonly="readonly" class="input-medium Wdate required"
+				<input name="endDate" type="text" readonly="readonly" class="input-medium Wdate"
 					   value="<fmt:formatDate value="${projectContract.endDate}" pattern="yyyy-MM-dd"/>"
 					   onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
 			</td>
@@ -271,15 +291,15 @@
 					<input id="projectContractItemList{{idx}}_goodsName" style="width:90%" name="projectContractItemList[{{idx}}].goodsName" type="text" value="{{row.goodsName}}" maxlength="64" class="input-small"/>
 				</td>
 				<td>
-					<input id="projectContractItemList{{idx}}_num" style="width:90%" name="projectContractItemList[{{idx}}].num" type="text" value="{{row.num}}" class="checkNum input-small required"/>
+					<input id="projectContractItemList{{idx}}_num" idx="{{idx}}" onkeyup="numChanged(this);" style="width:90%" name="projectContractItemList[{{idx}}].num" type="text" value="{{row.num}}" class="checkNum input-small required"/>
 				</td>
 
 				<td>
-					<input id="projectContractItemList{{idx}}_unitPrice" style="width:90%" name="projectContractItemList[{{idx}}].unitPrice" type="text" value="{{row.unitPrice}}" class="checkNum input-small required"/>
+					<input id="projectContractItemList{{idx}}_unitPrice" idx="{{idx}}" onkeyup="numChanged(this);" style="width:90%" name="projectContractItemList[{{idx}}].unitPrice" type="text" value="{{row.unitPrice}}" class="checkNum input-small required"/>
 				</td>
 
 				<td>
-					<input id="projectContractItemList{{idx}}_amount" style="width:90%" name="projectContractItemList[{{idx}}].amount" type="text" value="{{row.amount}}" maxlength="255" class="checkNum input-small required"/>
+					<input id="projectContractItemList{{idx}}_amount" style="width:90%" name="projectContractItemList[{{idx}}].amount" type="text" value="{{row.amount}}" maxlength="255" readonly="true" class="checkNum input-small required"/>
 				</td>
 				<td>
 					<input id="projectContractItemList{{idx}}_maintenanceDate" style="width:90%" name="projectContractItemList[{{idx}}].maintenanceDate" type="text" value="{{row.maintenanceDate}}" maxlength="255" class="input-small required"/>

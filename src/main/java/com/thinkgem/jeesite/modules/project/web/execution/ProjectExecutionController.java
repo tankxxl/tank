@@ -37,6 +37,14 @@ import java.util.Map;
 
 /**
  * 项目合同执行Controller
+ *
+ * springMVC对简单对象、Set、List、Map的数据绑定和常见问题
+ * 1、基本数据类型绑定，在Controller的方法中使用基本数据类型的包装类来接收html中传递过来的参数。
+ * 2、自定义对象类型，html中使用obj1.obj2.param1等方式，前后端要保持属性名称一致。
+ * 3、List需要绑定在对象上，而不能写在Controller方法的参数中。html使用users[0].firstName、users[1].firstName
+ * 4、Set和List类似，也需要绑定在对象上，而不能写在Controller方法的参数中。
+ * 但是，绑定Set数据时，必须先在Set对象中add相应数量的模型对象。users[0].firstName
+ *
  * @author jicdata
  * @version 2016-03-08
  */

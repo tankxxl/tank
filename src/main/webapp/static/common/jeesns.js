@@ -2,7 +2,9 @@
  * Created by zchuanzhao on 2016/10/13.
  */
 $(function () {
+    // 没有传form参数，所以是绑定事件=配置界面事件
     jeesns.submitForm();
+    // 配置界面事件，根据界面控件的参数
     jeesns.jeesnsLink();
 });
 
@@ -34,12 +36,15 @@ var jeesns = {
         'letter'     :    "必须为字母"
     },
 
+    // 生成请求参数
     getOptions : function(){
         var index;
+        // 定义options对象
         var options = {
             dataType : 'json',
             timeout : 20000,
             beforeSubmit : function (){
+                // 选择type="submit"的<input>和<button>元素
                 $(":submit").attr("disabled","disabled");
                 // form.find('.jeesns-submit').attr("disabled","disabled");
                 index = jeesnsDialog.loading();
@@ -58,12 +63,14 @@ var jeesns = {
                 }else if(res.code==1){
                     jeesnsDialog.loading();
                     jeesnsDialog.successTips(res.message);
+                    // 刷新？
                     setTimeout(function(){
                         window.location.href=window.location.href;
                     },3000);
                 }else if(res.code==2){
                     jeesnsDialog.loading();
                     jeesnsDialog.successTips(res.message);
+                    // 跳转到指定的url
                     setTimeout(function(){
                         window.location.href=res.url;
                     },3000);
@@ -80,8 +87,10 @@ var jeesns = {
                 // form.find('.jeesns-submit').removeAttr("disabled");
             }
         };
+        // 返回options对象
         return options;
     },
+    // 提交form
     submitForm : function(form){
         if(arguments[0]){//如果传入了form，马上对form进行ajax提交
             var form = typeof(form)=='object' ? $(form) : $('#'+form);
@@ -98,7 +107,7 @@ var jeesns = {
             });
         }
     },
-
+    // 检查UI
     checkForm : function(form){
         var check = true;
         form.find("input,textarea,select,redio,checkbox").each(function(){
@@ -150,7 +159,9 @@ var jeesns = {
         return check;
     },
 
+    // 绑定UI事件
     jeesnsLink : function (){
+        // 对超连接的click进行绑定，绑定的函数在将来执行，在等事件来了才执行
         $('a[target="_jeesnsLink"]').on('click',function() {
             var url = $(this).attr('href');
             var title = $(this).attr('confirm');
@@ -179,7 +190,7 @@ var jeesns = {
             return false;
         });
     },
-
+    // 执行ajax请求
     jeesnsAjax : function(url,type,data){
         var index;
         $.ajax({

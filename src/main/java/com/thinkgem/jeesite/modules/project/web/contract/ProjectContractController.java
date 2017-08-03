@@ -8,8 +8,10 @@ import com.google.common.collect.Maps;
 import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.service.BaseService;
+import com.thinkgem.jeesite.common.utils.DateUtils;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.common.web.JxlsExcelView;
 import com.thinkgem.jeesite.modules.act.entity.Act;
 import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
@@ -29,12 +31,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +88,49 @@ public class ProjectContractController extends BaseController {
 		model.addAttribute("page", page);
 		return "modules/project/contract/projectContractList";
 	}
+
+	@RequiresPermissions("project:contract:projectContract:edit")
+	@RequestMapping(value = "exportList")
+	public String exportList(ProjectContract projectContract,
+					   HttpServletRequest request,
+					   HttpServletResponse response,
+					   Model model) {
+		// 此dataScopeFilter中的s5、u4从xml的sql语句可以看出来，是根据立项人来过滤数据的。
+		// projectContract.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+		// 现在我们要根据自己业务表(contract)中的createBy来过滤自己的数据。
+		projectContract.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s6", "u6"));
+		Page<ProjectContract> page = contractService.findPage(new Page<ProjectContract>(request, response, -1),
+				projectContract);
+
+		String fileName = "合同统计"+ DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
+		// Page<User> page = systemService.findUser(new Page<User>(request, response, -1), user);
+		// new ExportExcel("用户数据", User.class).setDataList(page.getList()).write(response, fileName).dispose();
+
+		// return "modules/project/contract/projectContractList";
+		return "redirect:" + adminPath + "/project/contract/projectContract/list?repage";
+	}
+
+	@RequestMapping(value = "/export1")
+	public ModelAndView export1(ProjectContract projectContract,
+								HttpServletRequest request,
+								HttpServletResponse response,
+								Model model) {
+		// 查询数据
+		projectContract.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s6", "u6"));
+		Page<ProjectContract> page = contractService.findPage(new Page<ProjectContract>(request, response, -1),
+				projectContract);
+
+		String fileName = "合同统计"+ DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
+
+		Map<String, Object> map = new HashMap();
+
+		map.put("contracts", page.getList());
+
+		return new ModelAndView(new JxlsExcelView("contract_list_template.xlsx",fileName), map);
+
+	}
+
+
 
 	@RequiresPermissions("project:contract:projectContract:view")
 	@RequestMapping(value = "form")
@@ -182,10 +229,14 @@ public class ProjectContractController extends BaseController {
 
 	@RequestMapping(value = "saveAudit")
 	public String saveAudit(ProjectContract projectContract, Model model) {
-		if (StringUtils.isBlank(projectContract.getAct().getFlag())
-				|| StringUtils.isBlank(projectContract.getAct().getComment())) {
+		// if (StringUtils.isBlank(projectContract.getAct().getFlag())
+		// 		|| StringUtils.isBlank(projectContract.getAct().getComment())) {
+		if (StringUtils.isBlank(projectContract.getAct().getFlag()) ) {
 			addMessage(model, "请填写审核意见。");
 			return form(projectContract, model);
+		}
+		if (StringUtils.isEmpty(projectContract.getAct().getComment())) {
+			projectContract.getAct().setComment("同意");
 		}
 		contractService.saveAudit(projectContract);
 		return "redirect:" + adminPath + "/act/task/todo/";
