@@ -9,15 +9,22 @@ import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.service.BaseService;
 import com.thinkgem.jeesite.common.utils.DateUtils;
+import com.thinkgem.jeesite.common.utils.IdGen;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.web.BaseController;
 import com.thinkgem.jeesite.common.web.JxlsExcelView;
 import com.thinkgem.jeesite.modules.act.entity.Act;
 import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
+import com.thinkgem.jeesite.modules.oa.entity.OaNotify;
+import com.thinkgem.jeesite.modules.oa.entity.OaNotifyRecord;
+import com.thinkgem.jeesite.modules.oa.service.OaNotifyService;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContractItem;
 import com.thinkgem.jeesite.modules.project.service.contract.ProjectContractService;
+import com.thinkgem.jeesite.modules.sys.entity.Role;
+import com.thinkgem.jeesite.modules.sys.entity.User;
+import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import com.thinkgem.jeesite.modules.sys.utils.ExportUtils;
 import com.thinkgem.jeesite.modules.sys.utils.POIUtils;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
@@ -38,10 +45,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 合同Controller
@@ -58,8 +62,9 @@ public class ProjectContractController extends BaseController {
 	@Autowired
 	private ActTaskService actTaskService;
 
-//	@Autowired
-//	private ProjectExecutionService executionService;
+	@Autowired
+	private OaNotifyService notifyService;
+
 
 	@ModelAttribute
 	public ProjectContract get(@RequestParam(required = false) String id) {
@@ -83,7 +88,7 @@ public class ProjectContractController extends BaseController {
 		// projectContract.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
 		// 现在我们要根据自己业务表(contract)中的createBy来过滤自己的数据。
 		projectContract.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s6", "u6"));
-		Page<ProjectContract> page = contractService.findPage(new Page<ProjectContract>(request, response),
+		Page<ProjectContract> page = contractService.findPage(new Page<>(request, response),
 				projectContract);
 		model.addAttribute("page", page);
 		return "modules/project/contract/projectContractList";
@@ -117,20 +122,14 @@ public class ProjectContractController extends BaseController {
 								Model model) {
 		// 查询数据
 		projectContract.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s6", "u6"));
-		Page<ProjectContract> page = contractService.findPage(new Page<ProjectContract>(request, response, -1),
+		Page<ProjectContract> page = contractService.findPage(new Page<>(request, response, -1),
 				projectContract);
 
 		String fileName = "合同统计"+ DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
-
 		Map<String, Object> map = new HashMap();
-
 		map.put("contracts", page.getList());
-
 		return new ModelAndView(new JxlsExcelView("contract_list_template.xlsx",fileName), map);
-
 	}
-
-
 
 	@RequiresPermissions("project:contract:projectContract:view")
 	@RequestMapping(value = "form")
@@ -263,20 +262,8 @@ public class ProjectContractController extends BaseController {
             mapList.add(map);
         }
 
-//		ProjectExecution execution = new ProjectExecution();
-//		ProjectApplyExternal applyExternal = new ProjectApplyExternal();
-//		applyExternal.setId(prjId);
-//		execution.setApply(applyExternal);
-//        List<ProjectExecution> executionList = executionService.findList(execution);
-//		for (int i=0; i<executionList.size(); i++){
-//			ProjectExecution e = executionList.get(i);
-//			Map<String, Object> map = Maps.newHashMap();
-//			map.put("id", e.getExecutionContractNo());
-//			map.put("name", e.getExecutionContractNo());
-//			mapList.add(map);
-//		}
-
         return mapList;
+		// or return list;
     }
 
     /**
@@ -287,19 +274,124 @@ public class ProjectContractController extends BaseController {
     @ResponseBody
     @RequestMapping(value = "getItemAsJson")
     public ProjectContractItem getItemAsJson(@RequestParam(required=false) String id) {
-    	// 当item.id在数据库中不存在时，就说明这个id为project_execution表中execution_contract_no的值
-//		ProjectContractItem contractItem = contractService.getContractItem(id);
-//		if (contractItem == null) {
-//			contractItem = new ProjectContractItem();
-//			ProjectExecution execution = executionService.findByExecutionContractNo(id);
-//			if (execution == null)
-//				return contractItem;
-//			contractItem.setContractCode(execution.getExecutionContractNo());
-//			contractItem.setContractAmount(execution.getAmount());
-//		}
-//		return contractItem;
 		return contractService.getContractItem(id);
     }
+
+	/**
+	 * 获取我的通知数目(快到期的合同数量)
+	 */
+	@RequestMapping(value = "count")
+	@ResponseBody
+	public String count(ProjectContract contract, Model model) {
+		// contract.setReadFlag("0");
+		return String.valueOf(contractService.findPreEndCount(contract));
+	}
+
+	/**
+	 * 快到期合同列表
+	 */
+	@RequestMapping(value = "preEndList")
+	public String preEndList(ProjectContract contract,
+							 HttpServletRequest request, HttpServletResponse response,
+							 Model model) {
+		// contract.setSelf(true);
+		// Page对象由前端的request、response对象初始化
+		Page<ProjectContract> page = contractService.findPreEndPage(new Page<>(request, response),
+				contract);
+		model.addAttribute("page", page);
+		return "modules/project/contract/projectContractList";
+	}
+
+	// test 入口
+	@RequestMapping(value = "addToNotify")
+	public String addToNotify( HttpServletRequest request, HttpServletResponse response,
+							 Model model) {
+
+		ProjectContract contract = new ProjectContract();
+		List<ProjectContract> contracts = contractService.findPreEndList(contract);
+		OaNotify notify ;
+		List<OaNotifyRecord> oaNotifyRecordList;
+		OaNotifyRecord record;
+		String type;
+		List<User> userList = Collections.emptyList();
+
+		Role role = UserUtils.getRoleByEnname("usertask_specialist");
+		if (role != null && role.getUserList() != null && !role.getUserList().isEmpty()) {
+			userList.addAll(role.getUserList());
+		}
+		for (ProjectContract contract1 : contracts) {
+			// 新建
+			notify = new OaNotify();
+			oaNotifyRecordList = Lists.newArrayList();
+			notify.setOaNotifyRecordList(oaNotifyRecordList);
+
+			// master
+			type = DictUtils.getDictValue("合同预警", "oa_notify_type", "4");
+			notify.setType(type);
+			String title = StringUtils.isEmpty(contract1.getContractCode()) ? contract1.getClientName() : contract1.getContractCode();
+			notify.setTitle(title);
+			notify.setContent(contract1.getApply().getProjectName()
+					+ "\n项目编号：" + contract1.getApply().getProjectCode()
+					+ "\n合同编号：" + contract1.getContractCode()
+					+ "\n客户名称：" + contract1.getClientName()
+					+ "\n合同到期日期：" + DateUtils.formatDateTime(contract1.getEndDate()));
+			notify.setStatus("1");
+			notify.setCreateBy(UserUtils.get("1"));
+
+			// slave 可以有多个接收人
+			record = new OaNotifyRecord();
+			record.setId(IdGen.uuid());
+			record.setOaNotify(notify);
+			record.setUser(contract1.getCreateBy());
+			record.setReadFlag("0");
+			oaNotifyRecordList.add(record);
+
+			for (User user : userList) {
+				record = new OaNotifyRecord();
+				record.setId(IdGen.uuid());
+				record.setOaNotify(notify);
+				record.setUser(user);
+				record.setReadFlag("0");
+				oaNotifyRecordList.add(record);
+			}
+			// 保存
+			notifyService.save(notify);
+		}
+
+
+		// List<OaNotifyRecord> notifyRecords = new ArrayList<>();
+		// notify.setOaNotifyRecordList(notifyRecords);
+
+		// private String type;			// 类型 oa_notify_type 1, 2, 3,
+		// private String title;		// 标题
+		// private String content;		// 内容
+		// private String status;		// 状态 oa_notify_status 0, 1
+
+		// notify.setType("4");
+		// notify.setTitle("title");
+		// notify.setContent("content");
+		// notify.setStatus("1");
+
+		// OaNotifyRecord record = new OaNotifyRecord();
+		// record.setId(IdGen.uuid());
+		// record.setOaNotify(notify);
+		// User user = UserUtils.getByLoginName("limin");
+		// record.setUser(user);
+		// record.setReadFlag("0");
+		// notifyRecords.add(record);
+
+		// notifyService.save(notify);
+
+		// DictUtils
+		// notify.setType();
+		// contract.setSelf(true);
+		// Page对象由前端的request、response对象初始化
+		// Page<ProjectContract> page = contractService.findPreEndPage(new Page<>(request, response),
+		// 		contract);
+		// model.addAttribute("page", page);
+		// return "modules/project/contract/projectContractList";
+		return null;
+	}
 
 
 	@RequiresPermissions("project:contract:projectContract:view")

@@ -56,7 +56,7 @@
 		<li><a href="${ctx}/project/contract/projectContract/form?contractType=2">管理合同添加</a></li>
 		<li><a href="${ctx}/project/contract/projectContract/form?contractType=3">销售合同添加</a></li>
 		<li><a href="${ctx}/project/contract/projectContract/form?contractType=4">采购合同添加</a></li>
-		<li><a href="${ctx}/project/contract/projectContract/form?contractType=5">金融服务合同添加</a></li>
+		<li><a href="${ctx}/project/contract/projectContract/form?contractType=5">消费金融服务合同添加</a></li>
 	</shiro:hasPermission>
 </ul>
 	<form:form id="searchForm" modelAttribute="projectContract" htmlEscape="false"
@@ -130,7 +130,7 @@
 				</a></td>
 				<td>
 					${fns:abbr(not empty projectContract.apply.projectName ? projectContract.apply.projectName : projectContract.clientName, 60)}
-					${projectContract.apply.projectName}
+					<%--${projectContract.apply.projectName}--%>
 				</td>
 
 				<td>

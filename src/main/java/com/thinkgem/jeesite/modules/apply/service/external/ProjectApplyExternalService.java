@@ -201,17 +201,23 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 			List<User> users = role.getUserList();
 			if (users == null)
 				continue;
-			
-			for (int j = 0; j < users.size(); j++) {
-				user = users.get(j);
-				if (user == null)
-					continue;
-				if ("thinkgem".equals(user.getLoginName())) 
-					continue;
-				if (StringUtils.isBlank(user.getEmail()))
-					continue;
-				sbMailTo.append(user.getEmail() + ";");
-			} // end for UserList
+
+			// for (int j = 0; j < users.size(); j++) {
+			// 	user = users.get(j);
+			// 	if (user == null)
+			// 		continue;
+			// 	if ("thinkgem".equals(user.getLoginName()))
+			// 		continue;
+			// 	if (StringUtils.isBlank(user.getEmail()))
+			// 		continue;
+			// 	sbMailTo.append(user.getEmail() + ";");
+			// } // end for UserList
+		//	replaced by java8
+			users.stream()
+					.filter(userItem -> userItem != null)
+					.filter(userItem -> !"thinkgem".equals(userItem.getLoginName()))
+					.filter(userItem -> StringUtils.isNotEmpty(userItem.getEmail()))
+					.forEach(userItem -> sbMailTo.append(userItem.getEmail() + ";"));
 		} // end for groups
 		
 		String mailTo = sbMailTo.toString();

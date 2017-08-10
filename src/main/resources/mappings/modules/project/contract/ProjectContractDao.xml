@@ -16,6 +16,7 @@
 		a.content_summary AS "contentSummary",
 		a.begin_date AS "beginDate",
 		a.end_date AS "endDate",
+		a.valid_info AS "validInfo",
 		a.resign_flag AS "resignFlag",
 		a.resign_info AS "resignInfo",
 		a.payment_type AS "paymentType",
@@ -28,6 +29,7 @@
 		a.seal_type AS "sealType",
 		a.contract_type AS "contractType",
 		a.origin_code AS "originCode",
+		a.audit_end_date AS "auditEndDate",
 
 		a.create_by AS "createBy.id",
 		a.create_date AS "createDate",
@@ -163,6 +165,45 @@
 			</otherwise>
 		</choose>
 	</select>
+
+	<!-- and a.handle_flag = #{DEL_FLAG_NORMAL} -->
+	<select id="findPreEndList" resultType="ProjectContract">
+		select
+			<include refid="projectContractColumns" />
+		from project_contract a
+		<include refid="projectContractJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+
+			<![CDATA[
+				and date_sub(curdate(), INTERVAL 60 DAY) <= date(a.end_date)
+			]]>
+		</where>
+
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.end_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findPreEndCount" resultType="Long">
+		select
+			count(1)
+		from project_contract a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			and a.handle_flag = #{DEL_FLAG_NORMAL}
+			<![CDATA[
+				and date_sub(curdate(), INTERVAL 60 DAY) <= date(end_date)
+			]]>
+		</where>
+	</select>
+
+
 	
 	<insert id="insert">
 		INSERT INTO project_contract(
@@ -179,6 +220,7 @@
 			content_summary ,
 			begin_date ,
 			end_date ,
+			valid_info ,
 			resign_flag ,
 			resign_info ,
 			payment_type ,
@@ -191,6 +233,7 @@
 			seal_type ,
 			contract_type ,
 			origin_code ,
+			audit_end_date ,
 
 			create_by,
 			create_date,
@@ -215,6 +258,7 @@
 			#{contentSummary},
 			#{beginDate},
 			#{endDate},
+			#{validInfo},
 			#{resignFlag},
 			#{resignInfo},
 			#{paymentType},
@@ -227,6 +271,7 @@
 			#{sealType},
 			#{contractType},
 			#{originCode},
+			#{auditEndDate},
 
 			#{createBy.id},
 			#{createDate},
@@ -254,6 +299,7 @@
 			content_summary = #{contentSummary},
 			begin_date = #{beginDate},
 			end_date = #{endDate},
+			valid_info = #{validInfo},
 			resign_flag = #{resignFlag},
 			resign_info = #{resignInfo},
 			payment_type = #{paymentType},
@@ -266,6 +312,7 @@
 			seal_type = #{sealType},
 			contract_type = #{contractType},
 			origin_code = #{originCode},
+			audit_end_date = #{auditEndDate},
 
 			update_by = #{updateBy.id},
 			update_date = #{updateDate},
@@ -279,6 +326,12 @@
 	<update id="delete">
 		UPDATE project_contract SET 
 			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<update id="handled">
+		UPDATE project_contract SET
+		handle_flag = #{DEL_FLAG_DELETE}
 		WHERE id = #{id}
 	</update>
 	

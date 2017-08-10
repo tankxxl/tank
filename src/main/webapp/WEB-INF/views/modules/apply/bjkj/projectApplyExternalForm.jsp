@@ -221,7 +221,7 @@
 				<sys:treeselect id="projectManager" name="projectManager.id"
 								value="${projectApplyExternal.projectManager.id}" labelName="projectManager.name"
 								labelValue="${projectApplyExternal.projectManager.name}"
-								dataMsgRequired="经理必填" title="经理" url="/sys/office/treeData?type=3"
+								dataMsgRequired="经理必填" title="经理" url="/sys/office/treeData?type=3&isAll=true"
 								cssClass="required"  allowClear="true" notAllowSelectParent="true" />
 				<span class="help-inline"><font color="red">*</font> </span>
 			</td>

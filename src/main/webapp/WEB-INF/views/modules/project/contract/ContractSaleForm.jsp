@@ -156,6 +156,12 @@
 			<td colspan="1" class="">
 					${fns:getDictLabel(projectContract.contractType, 'jic_contract_type', '')}
 			</td>
+			<c:if test="${projectContract.contractType eq '4'}">
+			<td class="tit">毛利率%</td>
+			<td>
+				${projectContract.profitMargin}
+			</td>
+			</c:if>
 		</tr>
 
 		<c:if test="${not empty projectContract.createBy.name}">
@@ -348,6 +354,17 @@
 	</div>
 	<div class="form-actions">
 		<shiro:hasPermission name="project:contract:projectContract:edit">
+
+			<c:if test="${projectContract.contractType eq '4'}">
+			<label>需求部门审批人：</label>
+			<sys:treeselect id="projectManager" name="projectManager.id"
+							value="${projectContract.projectManager.id}" labelName="projectManager.name"
+							labelValue="${projectContract.projectManager.name}"
+							dataMsgRequired="需求部门必填" title="需求部门审批人" url="/sys/office/treeData?type=3&isAll=true"
+							cssClass="required"  allowClear="true" notAllowSelectParent="true" />
+
+		<span class="help-inline"><font color="red">*</font> </span>
+			</c:if>
 		<input id="btnSubmit" class="btn btn-primary" type="submit" value="提交申请" onclick="$('#flag').val('yes')"/>&nbsp;
 			<c:if test="${not empty projectContract.id}">
 				<input id="btnSubmit2" class="btn btn-inverse" type="submit" value="销毁申请" onclick="$('#flag').val('no')"/>&nbsp;

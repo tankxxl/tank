@@ -129,6 +129,21 @@
 			</td>
 		</tr>
 
+			<c:if test="${projectContract.contractType eq '4'}">
+			<tr>
+				<td class="tit">毛利率%</td>
+				<td>
+					<c:if test="${projectContract.act.taskDefKey eq 'usertask_business_leader'}">
+						<form:input path="profitMargin" style="width:80%" cssClass="checkNum required"/>
+						<span class="help-inline"><font color="red">*</font> </span>
+					</c:if>
+					<c:if test="${projectContract.act.taskDefKey ne 'usertask_business_leader'}">
+						${projectContract.profitMargin}
+					</c:if>
+				</td>
+			</tr>
+			</c:if>
+
 		<tr>
 			<td class="tit">申请部门</td>
 			<td class=""><label id="customer_name">

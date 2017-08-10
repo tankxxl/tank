@@ -92,6 +92,8 @@ public class ActUtils {
 
     // 申请人loginName 在后期审批节点中需要用申请人来查找审批角色 *
     public static final String VAR_APPLY = "apply";
+    // 需求部门分管领导，相对于采购部门分管领导，专用于采购流程，因为采购部门与需求部门不一样。
+	public static final String VAR_REQ_BOSS = "requirementBoss";
 
     // 是否需要总经理审批，此变量不再使用，使用意思相反的skip_boss变量
     // @Deprecated

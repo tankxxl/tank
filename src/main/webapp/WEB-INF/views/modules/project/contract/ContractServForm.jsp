@@ -21,6 +21,12 @@
             	$("#endDate").addClass('required');
             </c:if>
 
+			<%-- 服务合同时，date或者info必须选一 --%>
+            <c:if test="${projectContract.contractType eq '1'}">
+            $("#beginDate").removeClass('required');
+            $("#endDate").removeClass('required');
+            </c:if>
+
 			$("#inputForm").validate({
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
@@ -34,6 +40,29 @@
 					} else {
 						error.insertAfter(element);
 					}
+				},
+				groups: {
+				    username: "beginDate validInfo" // username是定义的组名，值是输入框的名字
+				},
+				rules: {
+				    beginDate: {
+						required: {
+						    depends: function() { //二选一，在此依赖另一个
+                                return ($('textarea[name=validInfo]').val().length <= 0);
+                            }
+						}
+					},
+					validInfo: {
+						required: {
+						    depends: function () { //二选一
+                                return ($('input[name=beginDate]').val().length <= 0);
+                            }
+						}
+					}
+				},
+				messages: { // 提示报错信息
+					beginDate: "合同有效期跟备注必须输入其中一个",
+                    validInfo: "合同有效期跟备注必须输入其中一个"
 				}
 			});
 
@@ -202,17 +231,25 @@
 		<tr>
 			<td class="tit">合同有效期</td>
 			<td colspan="1" class="">
-				<input name="beginDate" id="beginDate" type="text" readonly="readonly" class="input-medium Wdate required"
+				<input name="beginDate" id="beginDate" type="text" readonly="readonly" class="input-medium Wdate"
 					   value="<fmt:formatDate value="${projectContract.beginDate}" pattern="yyyy-MM-dd"/>"
 					   onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
 			</td>
 			<td class="tit">至</td>
 			<td colspan="1" class="">
-				<input name="endDate" id="endDate" type="text" readonly="readonly" class="input-medium Wdate required"
+				<input name="endDate" id="endDate" type="text" readonly="readonly" class="input-medium Wdate"
 					   value="<fmt:formatDate value="${projectContract.endDate}" pattern="yyyy-MM-dd"/>"
 					   onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
 			</td>
 		</tr>
+
+		<c:if test="${projectContract.contractType eq '1'}">
+		<tr>
+			<td  class="tit" >合同有效期备注</td>
+			<td  colspan="3"><form:textarea path="validInfo" style="width:98%" maxlength="255"
+								placeholder="若无法确定合同起止日期，请务必在此说明"/></td>
+		</tr>
+		</c:if>
 
 		<tr>
 			<td  class="tit" >合同内容摘要</td>

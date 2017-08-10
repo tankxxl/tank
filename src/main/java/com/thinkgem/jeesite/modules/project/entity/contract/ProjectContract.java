@@ -33,6 +33,9 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 	private String contentSummary; // 合同内容摘要
 	private Date beginDate; // bjkj-合同有效期
 	private Date endDate; // bjkj-合同有效期
+
+	private String validInfo; // 合同有效期说明-服务合同中当无法确定起止日期，要在此说明
+
 	private String resignFlag; // 是否为续签合同
 	private String resignInfo; // 若续签合同的相关条款与原合同不一致，请进行说明
 
@@ -64,12 +67,17 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 	// private String processStatus;		// 流程审批状态
 	private String attachment; // 文档附件
 
+	private Date auditEndDate; // 审批通过日期
+
+	protected String handleFlag; 	// 处理标记（0：未处理；1：已处理），用于到期提醒功能时，取消提醒使用。
+
 	// @Valid
 	// @NotEmpty(message = "至少要填写一个合同项。${validatedValue}")
 	private List<ProjectContractItem> projectContractItemList = Lists.newArrayList();		// 子表列表
 
 	public ProjectContract() {
 		super();
+		this.handleFlag = DEL_FLAG_NORMAL;
 		this.apply = new ProjectApplyExternal();
 	}
 
@@ -238,6 +246,14 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 		this.endDate = endDate;
 	}
 
+	public String getValidInfo() {
+		return validInfo;
+	}
+
+	public void setValidInfo(String validInfo) {
+		this.validInfo = validInfo;
+	}
+
 	public String getResignFlag() {
 		return resignFlag;
 	}
@@ -346,5 +362,21 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 
 	public void setOriginCode(String originCode) {
 		this.originCode = originCode;
+	}
+
+	public Date getAuditEndDate() {
+		return auditEndDate;
+	}
+
+	public void setAuditEndDate(Date auditEndDate) {
+		this.auditEndDate = auditEndDate;
+	}
+
+	public String getHandleFlag() {
+		return handleFlag;
+	}
+
+	public void setHandleFlag(String handleFlag) {
+		this.handleFlag = handleFlag;
 	}
 }

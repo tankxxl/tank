@@ -7,6 +7,8 @@ import com.thinkgem.jeesite.common.persistence.JicDao;
 import com.thinkgem.jeesite.common.persistence.annotation.MyBatisDao;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 
+import java.util.List;
+
 /**
  * 合同DAO接口
  * @author jicdata
@@ -21,5 +23,13 @@ public interface ProjectContractDao extends JicDao<ProjectContract> {
 	 * @return
 	 */
 	public ProjectContract findContractByPrjId(String prjId);
-	
+
+	public List<ProjectContract> findPreEndList(ProjectContract entity);
+
+	/**
+	 *
+	 * @param entity
+	 * @return
+	 */
+	public Long findPreEndCount(ProjectContract entity);
 }

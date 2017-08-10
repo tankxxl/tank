@@ -16,6 +16,7 @@ import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 用户工具类
@@ -294,5 +295,22 @@ public class UserUtils {
 	public static List<Menu> getAllMenuList(){
 		List<Menu>	menuList = menuDao.findAllList(new Menu());
 		return menuList;
+	}
+
+//	跟登录用户没有什么关系了，只是方便的入口，借用roleDao
+	public static Optional<Role> getRoleByEnnameO(String roleEnName) {
+		Role role = new Role();
+		role.setEnname(roleEnName);
+		role = roleDao.getRoleUserByEnname(role);
+
+		return Optional.ofNullable(role);
+	}
+
+	public static Role getRoleByEnname(String roleEnName) {
+		Role role = new Role();
+		role.setEnname(roleEnName);
+		role = roleDao.getRoleUserByEnname(role);
+
+		return role;
 	}
 }

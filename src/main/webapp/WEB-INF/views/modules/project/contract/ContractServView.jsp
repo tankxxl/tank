@@ -172,6 +172,13 @@
 			</td>
 		</tr>
 
+		<c:if test="${not empty projectContract.validInfo}">
+		<tr>
+			<td  class="tit" >合同有效期备注</td>
+			<td colspan="3">${projectContract.validInfo}</td>
+		</tr>
+		</c:if>
+
 		<tr>
 			<td  class="tit" >合同内容摘要</td>
 			<td colspan="3">${projectContract.contentSummary}</td>

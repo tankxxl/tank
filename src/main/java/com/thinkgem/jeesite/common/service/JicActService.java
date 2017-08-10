@@ -121,8 +121,13 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
         if (t == null) {
             return;
         }
+        processAuditEnd(t);
         t.setProcStatus(audit); // 设置业务申请表的流程状态
         save(t);
+    }
+
+    protected void processAuditEnd(T t) {
+        // 在流程结束时，处理业务对象
     }
 
     public T findByProcInsId(String procInsId) {
