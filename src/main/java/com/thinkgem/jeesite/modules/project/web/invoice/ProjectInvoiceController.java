@@ -205,6 +205,7 @@ public class ProjectInvoiceController extends BaseController {
 
         // flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
 		if ("saveOnly".equals(flag)) { // 只保存表单数据
+			System.out.println("");
 			invoiceService.save(projectInvoice);
 		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
 			invoiceService.saveFinishProcess(projectInvoice);

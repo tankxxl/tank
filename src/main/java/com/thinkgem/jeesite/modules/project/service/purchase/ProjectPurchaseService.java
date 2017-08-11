@@ -2,8 +2,10 @@
 package com.thinkgem.jeesite.modules.project.service.purchase;
 
 import com.thinkgem.jeesite.common.service.JicActService;
+import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.project.dao.purchase.ProjectPurchaseDao;
+import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.purchase.ProjectPurchase;
 import com.thinkgem.jeesite.modules.project.utils.MyDictUtils;
 import org.springframework.stereotype.Service;
@@ -41,24 +43,46 @@ public class ProjectPurchaseService extends JicActService<ProjectPurchaseDao, Pr
         ProjectPurchase purchase = super.get(id);
         // in case param id is not purchase's id.
         if (purchase == null)
-            return purchase;
+            return null;
 //        purchase.setExecutionItemList(itemDao.findList(new ProjectPurchaseItem(purchase)));
         return purchase;
     }
 
     /**
      * 保存并结束流程
-     * @param purchase
+     // * @param purchase
      */
-    @Transactional(readOnly = false)
-    public void saveFinishProcess(ProjectPurchase purchase) {
-        // 保存
-        // save(purchase);
-        // 开启流程
-        // String procInsId = launchWorkflow(purchase);
-        String procInsId = saveLaunch(purchase);
-        // 结束流程
-        endProcess(procInsId);
+    // @Transactional(readOnly = false)
+    // public void saveFinishProcess(ProjectPurchase purchase) {
+    //     // 保存
+    //     // save(purchase);
+    //     // 开启流程
+    //     // String procInsId = launchWorkflow(purchase);
+    //     String procInsId = saveLaunch(purchase);
+    //     // 结束流程
+    //     endProcess(procInsId);
+    // }
+
+    // 流程启动之前，设置map
+    @Override
+    public void setupVariable(ProjectPurchase purchase, Map<String, Object> vars) {
+        vars.put(ActUtils.VAR_PRJ_ID, purchase.getApply().getId());
+        // varMap.put(ActUtils.VAR_PROC_NAME, ActUtils.PROC_NAME_purchase);
+        vars.put(ActUtils.VAR_PRJ_TYPE, purchase.getApply().getCategory());
+        vars.put(ActUtils.VAR_TITLE, purchase.getApply().getProjectName());
+        vars.put(ActUtils.VAR_SKIP_BOSS, MyDictUtils.isPurchaseAuditInt(purchase.getAmount()));
+        vars.put(ActUtils.VAR_SKIP_HR, MyDictUtils.isHrAuditInt(purchase.getContractType()));
+
+        // 设置合同金额
+        // vars.put(ActUtils.VAR_AMOUNT, purchase.getAmount());
+
+        if ("03".equals(purchase.getApply().getCategory()) ) {
+            System.out.println("");
+            // 分支上使用，没在节点上使用
+            vars.put(ActUtils.VAR_TYPE, "2");
+        } else {
+            vars.put(ActUtils.VAR_TYPE, "1");
+        }
     }
 
     /**
@@ -69,30 +93,30 @@ public class ProjectPurchaseService extends JicActService<ProjectPurchaseDao, Pr
      *
      * @param purchase
      */
-    @Transactional(readOnly = false)
-    public String saveLaunch(ProjectPurchase purchase) {
-        if (purchase.getIsNewRecord()) {
-            // 启动流程的时候，把业务数据放到流程变量里
-            Map<String, Object> varMap = new HashMap<String, Object>();
-            varMap.put(ActUtils.VAR_PRJ_ID, purchase.getApply().getId());
-
-            // varMap.put(ActUtils.VAR_PROC_NAME, ActUtils.PROC_NAME_purchase);
-            varMap.put(ActUtils.VAR_PRJ_TYPE, purchase.getApply().getCategory());
-
-            varMap.put(ActUtils.VAR_TITLE, purchase.getApply().getProjectName());
-
-            varMap.put(ActUtils.VAR_SKIP_BOSS, MyDictUtils.isPurchaseAuditInt(purchase.getAmount()));
-            varMap.put(ActUtils.VAR_SKIP_HR, MyDictUtils.isHrAuditInt(purchase.getContractType()));
-
-            // 在父类中保存
-            // save(purchase);
-            return launch(purchase, varMap);
-        } else { // 把驳回到申请人(重新修改业务表单，重新发起流程、销毁流程)也当成一个特殊的审批节点
-            // 只要不是启动流程，其它任意节点的跳转都当成节点审批
-            saveAudit(purchase);
-            return null;
-        }
-    }
+    // @Transactional(readOnly = false)
+    // public String saveLaunch(ProjectPurchase purchase) {
+    //     if (purchase.getIsNewRecord()) {
+    //         // 启动流程的时候，把业务数据放到流程变量里
+    //         Map<String, Object> varMap = new HashMap<String, Object>();
+    //         varMap.put(ActUtils.VAR_PRJ_ID, purchase.getApply().getId());
+    //
+    //         // varMap.put(ActUtils.VAR_PROC_NAME, ActUtils.PROC_NAME_purchase);
+    //         varMap.put(ActUtils.VAR_PRJ_TYPE, purchase.getApply().getCategory());
+    //
+    //         varMap.put(ActUtils.VAR_TITLE, purchase.getApply().getProjectName());
+    //
+    //         varMap.put(ActUtils.VAR_SKIP_BOSS, MyDictUtils.isPurchaseAuditInt(purchase.getAmount()));
+    //         varMap.put(ActUtils.VAR_SKIP_HR, MyDictUtils.isHrAuditInt(purchase.getContractType()));
+    //
+    //         // 在父类中保存
+    //         // save(purchase);
+    //         return launch(purchase, varMap);
+    //     } else { // 把驳回到申请人(重新修改业务表单，重新发起流程、销毁流程)也当成一个特殊的审批节点
+    //         // 只要不是启动流程，其它任意节点的跳转都当成节点审批
+    //         saveAudit(purchase);
+    //         return null;
+    //     }
+    // }
 
     // /**
     //  * 保存表单数据，并启动流程

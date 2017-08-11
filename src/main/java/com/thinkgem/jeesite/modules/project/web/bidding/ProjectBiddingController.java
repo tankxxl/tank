@@ -95,6 +95,7 @@ public class ProjectBiddingController extends BaseController {
 				if (projectBidding == null) {
 					projectBidding = new ProjectBidding();
 				}
+				model.addAttribute("projectBidding", projectBidding);
 			}
 			return prefix + view;
 		}
@@ -150,6 +151,7 @@ public class ProjectBiddingController extends BaseController {
 		if ("saveOnly".equals(flag)) { // 只保存表单数据
 			projectBiddingService.save(projectBidding);
 		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
+			System.out.println();
 			projectBiddingService.saveFinishProcess(projectBidding);
 		} else {
 			projectBiddingService.saveLaunch(projectBidding);

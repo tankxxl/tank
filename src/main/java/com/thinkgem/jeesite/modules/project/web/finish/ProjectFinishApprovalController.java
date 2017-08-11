@@ -78,6 +78,7 @@ public class ProjectFinishApprovalController extends BaseController {
 				if (projectFinishApproval == null) {
 					projectFinishApproval = new ProjectFinishApproval();
 				}
+				model.addAttribute("projectFinishApproval", projectFinishApproval);
 			}
 			return prefix + view;
 		}
@@ -113,6 +114,7 @@ public class ProjectFinishApprovalController extends BaseController {
 		String flag = projectFinishApproval.getAct().getFlag();
 //		flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
 		if ("saveOnly".equals(flag)) { // 只保存表单数据
+			System.out.println("asdfasd");
 			projectFinishApprovalService.save(projectFinishApproval);
 		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
 			projectFinishApprovalService.saveFinishProcess(projectFinishApproval);

@@ -114,6 +114,7 @@ public class ProjectApplyExternalController extends BaseController {
 				if (projectApplyExternal == null) {
 					projectApplyExternal = new ProjectApplyExternal();
 				}
+				model.addAttribute("projectApplyExternal", projectApplyExternal);
 			}
 			return prefix + view;
 		}
@@ -164,6 +165,7 @@ public class ProjectApplyExternalController extends BaseController {
 //		flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
 		if ("saveOnly".equals(flag) ) { // 只保存表单数据
 			applyService.save(projectApplyExternal);
+			System.out.println();
 		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
 			applyService.saveFinishProcess(projectApplyExternal);
 		} else {
@@ -325,20 +327,25 @@ public class ProjectApplyExternalController extends BaseController {
 	}
 	/**
 	 * 获取 mainstage为更大的值的项目 如（proMainStage 为11 则查询 20，21，30，31等）
-	 * @param response
 	 * @param proMainStage 项目阶段
 	 * @return
 	 */
 	@ResponseBody
 	@RequestMapping(value = "treeData4LargerMainStage")
-	public List<Map<String, Object>> treeData4LargerMainStage(HttpServletResponse response,String proMainStage) {
+	public List<Map<String, Object>> treeData4LargerMainStage(@RequestParam(required=false) String proMainStage,
+															  @RequestParam(required=false) Boolean isAll) {
 		ProjectApplyExternal applyExternal = new ProjectApplyExternal();
 
 		proMainStage = StringUtils.substringBefore(proMainStage, "?");
 		applyExternal.setProMainStage(proMainStage);
-		
-		applyExternal.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
-		List<ProjectApplyExternal> list = applyService.findList4LargerMainStage(applyExternal);
+
+		List<ProjectApplyExternal> list = null;
+		if (isAll != null && isAll) {
+			list = applyService.findAllList4LargerMainStage(applyExternal);
+		} else {
+			applyExternal.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+			list = applyService.findList4LargerMainStage(applyExternal);
+		}
 		return toMapList(list);
 	}
 	

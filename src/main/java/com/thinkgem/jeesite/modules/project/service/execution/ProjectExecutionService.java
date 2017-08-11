@@ -11,8 +11,10 @@ import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
 import com.thinkgem.jeesite.modules.mail.service.MailService;
 import com.thinkgem.jeesite.modules.project.dao.execution.ProjectExecutionDao;
 import com.thinkgem.jeesite.modules.project.dao.execution.ProjectExecutionItemDao;
+import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.execution.ProjectExecution;
 import com.thinkgem.jeesite.modules.project.entity.execution.ProjectExecutionItem;
+import com.thinkgem.jeesite.modules.project.utils.MyDictUtils;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -57,17 +59,49 @@ public class ProjectExecutionService extends JicActService<ProjectExecutionDao, 
 
 	/**
 	 * 保存并结束流程
-	 * @param projectExecution
+	 // * @param projectExecution
 	 */
-	@Transactional(readOnly = false)
-	public void saveFinishProcess(ProjectExecution projectExecution) {
-        // 保存
-        // save(projectExecution);
-	    // 开启流程
-	    String procInsId = saveLaunch(projectExecution);
-	    // 结束流程
-        endProcess(procInsId);
-	}
+	// @Transactional(readOnly = false)
+	// public void saveFinishProcess(ProjectExecution projectExecution) {
+     //    // 保存
+     //    // save(projectExecution);
+	//     // 开启流程
+	//     String procInsId = saveLaunch(projectExecution);
+	//     // 结束流程
+     //    endProcess(procInsId);
+	// }
+
+    // 流程启动之前，设置map
+    @Override
+    public void setupVariable(ProjectExecution projectExecution, Map<String, Object> vars) {
+        vars.put(ActUtils.VAR_PRJ_ID, projectExecution.getApply().getId());
+
+        vars.put(ActUtils.VAR_PRJ_TYPE, projectExecution.getApply().getCategory());
+
+        // vars.put(ActUtils.VAR_PROC_DEF_KEY, projectExecution.getDictRemarks());
+
+        vars.put(ActUtils.VAR_TITLE, projectExecution.getApply().getProjectName());
+
+        // 设置合同金额
+        // vars.put(ActUtils.VAR_AMOUNT, projectExecution.getAmount());
+
+        if ("03".equals(projectExecution.getApply().getCategory()) ) {
+            System.out.println("");
+            // 分支上使用，没在节点上使用
+            vars.put(ActUtils.VAR_TYPE, "2");
+        } else {
+            vars.put(ActUtils.VAR_TYPE, "1");
+        }
+
+        // boolean isBossAudit = MyDictUtils.isBossAudit(projectExecution.getAmount(),
+        //         projectExecution.getProfitMargin());
+        // if (isBossAudit) { // 需要总经理审批
+        //     // 节点上使用
+        //     vars.put(ActUtils.VAR_SKIP_BOSS, "0");
+        // } else {
+        //     vars.put(ActUtils.VAR_SKIP_BOSS, "1");
+        // }
+    }
 
 	/**
 	 * 保存表单数据，并启动流程
@@ -77,26 +111,26 @@ public class ProjectExecutionService extends JicActService<ProjectExecutionDao, 
      *
 	 * @param projectExecution
 	 */
-	@Transactional(readOnly = false)
-	public String saveLaunch(ProjectExecution projectExecution) {
-
-	    if (projectExecution.getIsNewRecord()) {
-	        // 启动流程的时候，把业务数据放到流程变量里
-            Map<String, Object> varMap = new HashMap<String, Object>();
-            varMap.put(ActUtils.VAR_PRJ_ID, projectExecution.getApply().getId());
-
-            // varMap.put(ActUtils.VAR_PROC_NAME, ActUtils.PROC_NAME_execution);
-            varMap.put(ActUtils.VAR_PRJ_TYPE, projectExecution.getApply().getCategory());
-
-            varMap.put(ActUtils.VAR_TITLE, projectExecution.getApply().getProjectName());
-
-            return launch(projectExecution, varMap);
-        } else { // 把驳回到申请人(重新修改业务表单，重新发起流程、销毁流程)也当成一个特殊的审批节点
-            // 只要不是启动流程，其它任意节点的跳转都当成节点审批
-	        saveAudit(projectExecution);
-	        return null;
-        }
-	}
+	// @Transactional(readOnly = false)
+	// public String saveLaunch(ProjectExecution projectExecution) {
+    //
+	//     if (projectExecution.getIsNewRecord()) {
+	//         // 启动流程的时候，把业务数据放到流程变量里
+     //        Map<String, Object> varMap = new HashMap<String, Object>();
+     //        varMap.put(ActUtils.VAR_PRJ_ID, projectExecution.getApply().getId());
+    //
+     //        // varMap.put(ActUtils.VAR_PROC_NAME, ActUtils.PROC_NAME_execution);
+     //        varMap.put(ActUtils.VAR_PRJ_TYPE, projectExecution.getApply().getCategory());
+    //
+     //        varMap.put(ActUtils.VAR_TITLE, projectExecution.getApply().getProjectName());
+    //
+     //        return launch(projectExecution, varMap);
+     //    } else { // 把驳回到申请人(重新修改业务表单，重新发起流程、销毁流程)也当成一个特殊的审批节点
+     //        // 只要不是启动流程，其它任意节点的跳转都当成节点审批
+	//         saveAudit(projectExecution);
+	//         return null;
+     //    }
+	// }
 
 	/**
 	 * 保存表单数据
@@ -147,6 +181,7 @@ public class ProjectExecutionService extends JicActService<ProjectExecutionDao, 
         // saveAuditBase(projectExecution, vars);
 	// }
 
+    @Override
 	public void processAudit(ProjectExecution projectExecution, Map<String, Object> vars) {
         // 对不同环节的业务逻辑进行操作
         String taskDefKey = projectExecution.getAct().getTaskDefKey();

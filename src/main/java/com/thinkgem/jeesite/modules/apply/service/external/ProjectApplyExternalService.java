@@ -42,22 +42,51 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 	@Autowired
 	private RoleDao roleDao;
 
+	// @Override
+	// public ProjectApplyExternal get(String id) {
+	// 	return super.get(id);
+	// }
+
 	@Override
-	public ProjectApplyExternal get(String id) {
-		return super.get(id);
+	public void setupVariable(ProjectApplyExternal projectApplyExternal, Map<String, Object> vars) {
+		projectApplyExternal.preInsert4ProInteralApply();
+
+		vars.put(ActUtils.VAR_PRJ_ID, projectApplyExternal.getId());
+		vars.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
+		vars.put(ActUtils.VAR_PRJ_TYPE, projectApplyExternal.getCategory());
+		vars.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
+
+		if ("03".equals(projectApplyExternal.getCategory()) ) {
+			vars.put(ActUtils.VAR_TYPE, "2");
+		} else {
+			vars.put(ActUtils.VAR_TYPE, "1");
+		}
+
+		boolean isBossAudit = MyDictUtils.isBossAudit(projectApplyExternal.getEstimatedContractAmount(), projectApplyExternal.getEstimatedGrossProfitMargin());
+		if (isBossAudit) { // 需要总经理审批
+			vars.put(ActUtils.VAR_SKIP_BOSS, "0");
+		} else {
+			vars.put(ActUtils.VAR_SKIP_BOSS, "1");
+		}
+
+		// if ("1".equals(projectApplyExternal.getSelfDev()) ) {
+		// 	vars.put(ActUtils.VAR_SKIP_DEV, "0");
+		// } else {
+		// 	vars.put(ActUtils.VAR_SKIP_DEV, "1");
+		// }
 	}
 
 	/**
 	 * 保存并结束流程
 	 * @param projectApplyExternal
 	 */
-	@Transactional(readOnly = false)
-	public void saveFinishProcess(ProjectApplyExternal projectApplyExternal) {
-		// 开启流程
-		String procInsId = saveLaunch(projectApplyExternal);
-		// 结束流程
-		endProcess(procInsId);
-	}
+	// @Transactional(readOnly = false)
+	// public void saveFinishProcess(ProjectApplyExternal projectApplyExternal) {
+	// 	// 开启流程
+	// 	String procInsId = saveLaunch(projectApplyExternal);
+	// 	// 结束流程
+	// 	endProcess(procInsId);
+	// }
 
 	/**
 	 * 保存表单数据，并启动流程
@@ -67,40 +96,40 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 	 *
 	 * @param projectApplyExternal
 	 */
-	@Transactional(readOnly = false)
-	public String saveLaunch(ProjectApplyExternal projectApplyExternal) {
-		if (projectApplyExternal.getIsNewRecord()) {
-			projectApplyExternal.preInsert4ProInteralApply();//判断是否是插入还是修改，若是插入那么添加当前用户为销售
-			// 启动流程的时候，把业务数据放到流程变量里
-			Map<String, Object> varMap = new HashMap<String, Object>();
-			varMap.put(ActUtils.VAR_PRJ_ID, projectApplyExternal.getId());
+	// @Transactional(readOnly = false)
+	// public String saveLaunch(ProjectApplyExternal projectApplyExternal) {
+	// 	if (projectApplyExternal.getIsNewRecord()) {
+	// 		projectApplyExternal.preInsert4ProInteralApply();//判断是否是插入还是修改，若是插入那么添加当前用户为销售
+	// 		// 启动流程的时候，把业务数据放到流程变量里
+	// 		Map<String, Object> varMap = new HashMap<String, Object>();
+	// 		varMap.put(ActUtils.VAR_PRJ_ID, projectApplyExternal.getId());
+    //
+	// 		varMap.put(ActUtils.VAR_PRJ_TYPE, projectApplyExternal.getCategory());
+    //
+	// 		varMap.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
+    //
+	// 		if ("03".equals(projectApplyExternal.getCategory()) ) {
+	// 			varMap.put(ActUtils.VAR_TYPE, "2");
+	// 		} else {
+	// 			varMap.put(ActUtils.VAR_TYPE, "1");
+	// 		}
+    //
+	// 		boolean isBossAudit = MyDictUtils.isBossAudit(projectApplyExternal.getEstimatedContractAmount(), projectApplyExternal.getEstimatedGrossProfitMargin());
+	// 		if (isBossAudit) { // 需要总经理审批
+	// 			varMap.put(ActUtils.VAR_SKIP_BOSS, "0");
+	// 		} else {
+	// 			varMap.put(ActUtils.VAR_SKIP_BOSS, "1");
+	// 		}
+    //
+	// 		return launch(projectApplyExternal, varMap);
+	// 	} else { // 把驳回到申请人(重新修改业务表单，重新发起流程、销毁流程)也当成一个特殊的审批节点
+	// 		// 只要不是启动流程，其它任意节点的跳转都当成节点审批
+	// 		saveAudit(projectApplyExternal);
+	// 		return null;
+	// 	}
+	// }
 
-			varMap.put(ActUtils.VAR_PRJ_TYPE, projectApplyExternal.getCategory());
-
-			varMap.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
-
-			if ("03".equals(projectApplyExternal.getCategory()) ) {
-				varMap.put(ActUtils.VAR_TYPE, "2");
-			} else {
-				varMap.put(ActUtils.VAR_TYPE, "1");
-			}
-
-			boolean isBossAudit = MyDictUtils.isBossAudit(projectApplyExternal.getEstimatedContractAmount(), projectApplyExternal.getEstimatedGrossProfitMargin());
-			if (isBossAudit) { // 需要总经理审批
-				varMap.put(ActUtils.VAR_SKIP_BOSS, "0");
-			} else {
-				varMap.put(ActUtils.VAR_SKIP_BOSS, "1");
-			}
-
-			return launch(projectApplyExternal, varMap);
-		} else { // 把驳回到申请人(重新修改业务表单，重新发起流程、销毁流程)也当成一个特殊的审批节点
-			// 只要不是启动流程，其它任意节点的跳转都当成节点审批
-			saveAudit(projectApplyExternal);
-			return null;
-		}
-	}
-
-
+	@Override
 	public void processAudit(ProjectApplyExternal projectApplyExternal, Map<String, Object> vars) {
 		// 对不同环节的业务逻辑进行操作
 		String taskDefKey = projectApplyExternal.getAct().getTaskDefKey();
@@ -132,7 +161,6 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 	 * @return
 	 */
 	public String getCurrentCode(){
-		
 		return dao.getCurrentCode();
 	}
 
@@ -235,9 +263,13 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 		projectApplyExternal.setProMainStage(stageValue);
 		dao.update(projectApplyExternal);
 	}
-	
+
 	public List<ProjectApplyExternal> findList4LargerMainStage(ProjectApplyExternal projectApplyExternal){
 		return dao.findList4LargerMainStage(projectApplyExternal);
+	}
+
+	public List<ProjectApplyExternal> findAllList4LargerMainStage(ProjectApplyExternal projectApplyExternal){
+		return dao.findAllList4LargerMainStage(projectApplyExternal);
 	}
 	
 }

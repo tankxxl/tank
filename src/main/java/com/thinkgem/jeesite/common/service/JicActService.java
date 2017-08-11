@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -36,7 +37,7 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
 
     @Loggable
     protected Logger logger;
-	
+
 //	/**
 //	 * 持久层对象
 //	 */
@@ -120,8 +121,13 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
         if (t == null) {
             return;
         }
+        processAuditEnd(t);
         t.setProcStatus(audit); // 设置业务申请表的流程状态
         save(t);
+    }
+
+    protected void processAuditEnd(T t) {
+        // 在流程结束时，处理业务对象
     }
 
     public T findByProcInsId(String procInsId) {
@@ -146,10 +152,16 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
         return entity;
     }
 
-    // 启动流程
+
+
+    /**
+     * 只启动流程，不保存业务数据
+     *
+     * @param entity
+     * @param vars
+     * @return
+     */
     protected String launch(T entity, Map<String, Object> vars) {
-        // 先保存业务数据
-        save(entity);
         return actTaskService.startProcEatFirstTask( entity,
                 null, vars );
     }
@@ -207,20 +219,71 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
     //     }
     // }
 
+    /**
+     * 结束整个流程
+     *
+     * @param procInsId
+     */
+    @Transactional(readOnly = false)
     public void endProcess(String procInsId) {
         if (StringUtils.isEmpty(procInsId))
             return;
         actTaskService.deleteProcIns(procInsId, "");
     }
 
-    // 审批人入口
+    /**
+     * 前端入口
+     * 保存并结束流程
+     *
+     * @param entity
+     */
+    @Transactional(readOnly = false)
+    public void saveFinishProcess(T entity) {
+        String procInsId = saveLaunch(entity);
+        // 结束流程
+        endProcess(procInsId);
+    }
+
+    /**
+     * 前端入口
+     * 先保存业务数据，再启动流程
+     *
+     * @param entity
+     * @return
+     */
+    @Transactional(readOnly = false)
+    public String saveLaunch(T entity) {
+        if (entity.getIsNewRecord()) {
+            Map<String, Object> varMap = new HashMap<String, Object>();
+            setupVariable(entity, varMap);
+            // 先保存业务数据
+            save(entity);
+            return launch(entity, varMap);
+        } else {
+            saveAudit(entity);
+            return null;
+        }
+    }
+
+    /**
+     * 前端入口
+     * 审批人入口
+     *
+     * @param entity
+     */
     @Transactional(readOnly = false)
     public void saveAudit(T entity) {
         // 设置意见
-        entity.getAct().setComment((entity.getAct().getFlagBoolean() ?
-                "[同意] ":"[驳回] ") + entity.getAct().getComment());
-        Map<String, Object> vars = Maps.newHashMap();
+        // 审批时可以有多种状态
+        if ("yes_end".equals(entity.getAct().getFlag())) {
+            entity.getAct().setComment("[同意] " + entity.getAct().getComment());
+        } else {
+            entity.getAct().setComment((entity.getAct().getFlagBoolean() ?
+                    "[同意] ":"[驳回] ") + entity.getAct().getComment());
+        }
 
+        Map<String, Object> vars = Maps.newHashMap();
+        //
         processAudit(entity, vars);
         // 普通审批人：通过、驳回
         // 申请人：发起、销毁*
@@ -232,8 +295,8 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
                 // 必须保存业务数据，其它审批节点处的业务数据在子类中保存。
                 save(entity);
                 entity.getAct().setComment(
-                                        (entity.getAct().getFlagBoolean()?"[重申] ":"[销毁] ")
-                                                + entity.getAct().getComment() );
+                        (entity.getAct().getFlagBoolean()?"[重申] ":"[销毁] ")
+                                + entity.getAct().getComment() );
             } else { // 申请人特有的操作
                 delete(entity);
                 actTaskService.deleteProcIns(entity.getProcInsId(), "");
@@ -248,9 +311,19 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
      * 审批之前执行方法，子类实现
      * 主要用来在某个审批节点，判断业务数据-添加流程变量，保存comment到业务表。
      * 如果此审批单需要保存业务数据，请在此处实现。
+     *
      */
     public void processAudit(T entity, Map<String, Object> vars) {
 
     }
 
+    /**
+     * 子类在启动流程之前，设置流程参数
+     *
+     * @param entity
+     * @param vars
+     */
+    public void setupVariable(T entity, Map<String, Object> vars) {
+
+    }
 }

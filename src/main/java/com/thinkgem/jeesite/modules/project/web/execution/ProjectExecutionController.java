@@ -142,6 +142,7 @@ public class ProjectExecutionController extends BaseController {
 				if (projectExecution == null) {
 					projectExecution = new ProjectExecution();
 				}
+				model.addAttribute("projectExecution", projectExecution);
 			}
 		    return prefix + view;
         }

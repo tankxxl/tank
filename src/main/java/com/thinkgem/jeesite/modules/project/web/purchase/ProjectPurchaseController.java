@@ -104,6 +104,7 @@ public class ProjectPurchaseController extends BaseController {
 				if (projectPurchase == null) {
 					projectPurchase = new ProjectPurchase();
 				}
+				model.addAttribute("projectPurchase", projectPurchase);
 			}
             return prefix + view;
         }
@@ -179,7 +180,8 @@ public class ProjectPurchaseController extends BaseController {
 
         // flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
         if ("saveOnly".equals(flag)) { // 只保存表单数据
-            purchaseService.save(projectPurchase);
+			System.out.println("a");
+			purchaseService.save(projectPurchase);
         } else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
             purchaseService.saveFinishProcess(projectPurchase);
         } else {

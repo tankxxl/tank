@@ -101,6 +101,7 @@ public class ProjectContractController extends BaseController {
 				if (projectContract == null) {
 					projectContract = new ProjectContract();
 				}
+				model.addAttribute("projectContract", projectContract);
 			}
 			return prefix + view;
 		}
@@ -144,6 +145,7 @@ public class ProjectContractController extends BaseController {
 		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
 			contractService.saveFinishProcess(projectContract);
 		} else {
+			System.out.println();
 			contractService.saveLaunch(projectContract);
 		}
 
