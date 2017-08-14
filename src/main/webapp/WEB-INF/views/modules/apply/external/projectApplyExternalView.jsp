@@ -205,7 +205,19 @@
 		<tr>
 			<td  class="tit" colspan="2">项目名称</td>
 			<td colspan="5">
-				${projectApplyExternal.projectName }
+				<c:choose>
+					<c:when test="${projectApplyExternal.act.taskDefKey eq 'usertask_specialist'}">
+						<form:input path="projectName" htmlEscape="false" maxlength="64" class=" required"/>
+						<span class="help-inline"><font color="red">*</font> </span>
+					</c:when>
+					<c:otherwise>
+						${projectApplyExternal.projectName }
+					</c:otherwise>
+				</c:choose>
+
+
+
+
 			</td>
 		</tr>
 		<c:if test="${not empty projectApplyExternal.saler.name}">
@@ -282,9 +294,6 @@
 						${fns:getDictLabel(projectApplyExternal.category, 'pro_category', '')}
 					</c:otherwise>
 				</c:choose>
-
-
-
 
 			</td>
 		</tr>
