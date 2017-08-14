@@ -35,6 +35,40 @@
 					}
 				}
 			});
+
+            $("#project_code_button").click(function(){
+                if($("#category").val() ==""){
+                    alert("请先选择项目类型");
+                    return false;
+                }
+                if($("#ownership").val()==""){
+                    alert("请先选择项目归属");
+                    return false;
+                }
+                var url ="${ctx }/apply/external/projectApplyExternal/projectCodeGenerate?category="+$("#category").val()+"&ownership="+$("#ownership").val();
+                $.ajax( {
+                    type : "get",
+                    url : url,
+                    dataType:"json",
+                    success : function(data) {
+                        //alert("Data Saved: " + customer.industry+"--"+customer.customerCategory);
+                        //alert($("#customer\\.customerCategory").val());
+                        console.log(data);
+                        if(data.error){
+                            alert(data.error);
+                            return;
+                        }else{
+                            $("#projectCode").val(data.data);
+                        }
+                    }
+                });
+            });
+
+
+            $("#category,#ownership").change(function changeProCode(){
+                top.$.jBox.tip("你修改了了 项目类型或项目归属，请重新生成项目编号");
+                $("#projectCode").val("");
+            });
 			
 			$("#category").change(function(){
 // 				$("#inputForm").valid().element($("#category"));
@@ -145,6 +179,7 @@
 				<c:if test="${projectApplyExternal.act.taskDefKey eq 'usertask_specialist'}">
 					<form:input path="projectCode" maxlength="64" class="required"/>
 					<span class="help-inline"><font color="red">*</font></span>
+					<input id="project_code_button" class="btn btn-primary" type="button" value="生成项目编号"/>
 				</c:if>
 
 				<c:if test="${projectApplyExternal.act.taskDefKey ne 'usertask_specialist'}">
@@ -153,7 +188,18 @@
 			</td>
 			<td class="tit">项目归属</td>
 			<td colspan="2">
-				${fns:getDictLabel(projectApplyExternal.ownership, 'pro_ownership', '')}
+				<c:choose>
+				<c:when test="${projectApplyExternal.act.taskDefKey eq 'usertask_specialist'}">
+					<form:select path="ownership" class="input-medium required" style="width:89%;">
+						<form:option value="" label=""/>
+						<form:options items="${fns:getDictList('pro_ownership')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+					</form:select>
+					<span class="help-inline"><font color="red">*</font> </span>
+				</c:when>
+				<c:otherwise>
+					${fns:getDictLabel(projectApplyExternal.ownership, 'pro_ownership', '')}
+				</c:otherwise>
+				</c:choose>
 			</td>
 		</tr>
 		<tr>
@@ -224,7 +270,22 @@
 		<tr>
 			<td class="tit">项目类别</td>
 			<td>
-				${fns:getDictLabel(projectApplyExternal.category, 'pro_category', '')}
+				<c:choose>
+					<c:when test="${projectApplyExternal.act.taskDefKey eq 'usertask_specialist'}">
+						<form:select path="category" class="input-medium" style="width:89%;">
+							<form:option value="" label=""/>
+							<form:options items="${fns:getDictList('pro_category')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+						</form:select>
+						<span class="help-inline"><font color="red">*</font> </span><br>
+					</c:when>
+					<c:otherwise>
+						${fns:getDictLabel(projectApplyExternal.category, 'pro_category', '')}
+					</c:otherwise>
+				</c:choose>
+
+
+
+
 			</td>
 		</tr>
 		<tr>
