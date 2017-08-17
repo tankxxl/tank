@@ -5,6 +5,7 @@ package com.thinkgem.jeesite.modules.project.service.contract;
 
 import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.service.JicActService;
+import com.thinkgem.jeesite.common.utils.DateUtils;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
@@ -13,6 +14,7 @@ import com.thinkgem.jeesite.modules.project.dao.contract.ProjectContractItemDao;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContractItem;
 import com.thinkgem.jeesite.modules.project.utils.MyDictUtils;
+import com.thinkgem.jeesite.modules.sys.entity.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +52,20 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 
 		projectContract.setProjectContractItemList(itemDao.findList(new ProjectContractItem(projectContract)));
 		return projectContract;
+	}
+
+	public Page<ProjectContract> findPage(Page<ProjectContract> page, ProjectContract projectContract) {
+
+		// 设置默认时间范围，默认当前月
+		if (projectContract.getQueryBeginDate() == null){
+			projectContract.setQueryBeginDate(DateUtils.setDays(DateUtils.parseDate(DateUtils.getDate()), 1));
+		}
+		if (projectContract.getQueryEndDate() == null){
+			projectContract.setQueryEndDate(DateUtils.addMonths(projectContract.getQueryBeginDate(), 1));
+		}
+
+		return super.findPage(page, projectContract);
+
 	}
 
 	// 流程启动之前，设置map

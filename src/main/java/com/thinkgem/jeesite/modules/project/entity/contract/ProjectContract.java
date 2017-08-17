@@ -18,6 +18,13 @@ import java.util.List;
 
 /**
  * 合同Entity
+ *
+ * 服务合同/消费金融服务合同 	-> 合同对方名称
+ * 管理合同					-> 合同对方名称
+ * 销售合同					-> 客户名称
+ * 采购合同					-> 供应商名称
+ * 以上所有名称通称：合作单位, 都使用clientName
+ *
  * @author jicdata
  * @version 2016-03-09
  */
@@ -70,6 +77,10 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 	private Date auditEndDate; // 审批通过日期
 
 	protected String handleFlag; 	// 处理标记（0：未处理；1：已处理），用于到期提醒功能时，取消提醒使用。
+
+
+	private Date queryBeginDate;
+	private Date queryEndDate;
 
 	// @Valid
 	// @NotEmpty(message = "至少要填写一个合同项。${validatedValue}")
@@ -378,5 +389,21 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 
 	public void setHandleFlag(String handleFlag) {
 		this.handleFlag = handleFlag;
+	}
+
+	public Date getQueryBeginDate() {
+		return queryBeginDate;
+	}
+
+	public void setQueryBeginDate(Date queryBeginDate) {
+		this.queryBeginDate = queryBeginDate;
+	}
+
+	public Date getQueryEndDate() {
+		return queryEndDate;
+	}
+
+	public void setQueryEndDate(Date queryEndDate) {
+		this.queryEndDate = queryEndDate;
 	}
 }

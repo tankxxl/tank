@@ -64,18 +64,11 @@
 		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
 		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 		<ul class="ul-form">
-			<li><label>项目编号：</label>
-				<form:input path="apply.projectCode" htmlEscape="false" maxlength="64" class="input-medium"/>
-			</li>
+
 			<li><label>项目名称：</label>
-				<form:input path="apply.projectName" htmlEscape="false" maxlength="64" class="input-medium"/>
+				<form:input path="apply.projectName" maxlength="64" class="input-medium"/>
 			</li>
-			<li><label>项目类别：</label>
-				<form:select path="apply.category" class="input-medium">
-					<form:option value="" label=""/>
-					<form:options items="${fns:getDictList('pro_category')}" itemLabel="label" itemValue="value" />
-				</form:select>
-			</li>
+
 			<li><label>合同类型：</label>
 				<form:select path="contractType" class="input-medium">
 					<form:option value="" label=""/>
@@ -83,13 +76,22 @@
 				</form:select>
 			</li>
 
+			<li><label>合作单位：</label>
+				<form:input path="clientName" maxlength="64" class="input-medium"/>
+			</li>
+
+			<li><label>合同号：</label>
+				<form:input path="contractCode" maxlength="64" class="input-medium"/>
+			</li>
+
 			<li><label>创建时间：</label>
-			<input id="beginDate"  name="beginDate"  type="text" readonly="readonly" maxlength="20" class="input-medium Wdate" style="width:163px;"
-				   value="<fmt:formatDate value="${act.beginDate}" pattern="yyyy-MM-dd"/>"
+
+			<input id="queryBeginDate"  name="queryBeginDate"  type="text" readonly="readonly" maxlength="20" class="input-mini Wdate"
+				   value="<fmt:formatDate value="${projectContract.queryBeginDate}" pattern="yyyy-MM-dd"/>"
 				   onclick="WdatePicker({dateFmt:'yyyy-MM-dd'});"/>
 			　--　
-			<input id="endDate" name="endDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate" style="width:163px;"
-				   value="<fmt:formatDate value="${act.endDate}" pattern="yyyy-MM-dd"/>"
+			<input id="queryEndDate" name="queryEndDate" type="text" readonly="readonly" maxlength="20" class="input-mini Wdate"
+				   value="<fmt:formatDate value="${projectContract.queryEndDate}" pattern="yyyy-MM-dd"/>"
 				   onclick="WdatePicker({dateFmt:'yyyy-MM-dd'});"/>
 			</li>
 
@@ -113,11 +115,14 @@
 	<table id="contentTable" class="table table-striped table-bordered table-condensed">
 		<thead>
 			<tr>
-				<th>项目编号</th>
+				<%--<th>项目编号</th>--%>
 				<th>项目名称</th>
-				<th>项目类别</th>
+				<%--<th>项目类别</th>--%>
 				<th>合同类型</th>
-				<th>更新时间</th>
+				<th>合同号</th>
+				<th>合作单位</th>
+				<th>合同起止日期</th>
+				<%--<th>更新时间</th>--%>
 				<th>审批状态</th>
 				<shiro:hasPermission name="project:contract:projectContract:edit"><th>操作</th></shiro:hasPermission>
 			</tr>
@@ -125,23 +130,37 @@
 		<tbody>
 		<c:forEach items="${page.list}" var="projectContract">
 			<tr>
-				<td><a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}">
-					${projectContract.apply.projectCode}
-				</a></td>
+				<%--<td><a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}">--%>
+					<%--${projectContract.apply.projectCode}--%>
+				<%--</a></td>--%>
 				<td>
+					<a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}">
 					${fns:abbr(not empty projectContract.apply.projectName ? projectContract.apply.projectName : projectContract.clientName, 60)}
 					<%--${projectContract.apply.projectName}--%>
+					</a>
 				</td>
 
 				<td>
-					${fns:getDictLabel(projectContract.apply.category, 'pro_category', '')}
-				</td>
-				<td>
 					${fns:getDictLabel(projectContract.contractType, 'jic_contract_type', '')}
-					</td>
-				<td>
-					<fmt:formatDate value="${projectContract.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/>
 				</td>
+
+				<td>
+					${ projectContract.contractCode }
+				</td>
+
+				<td>
+						${ projectContract.clientName }
+				</td>
+
+				<td>
+					<fmt:formatDate value="${projectContract.beginDate}" pattern="yyyy-MM-dd"/>
+					--
+					<fmt:formatDate value="${projectContract.endDate}" pattern="yyyy-MM-dd"/>
+				</td>
+
+				<%--<td>--%>
+					<%--<fmt:formatDate value="${projectContract.updateDate}" pattern="yyyy-MM-dd"/>--%>
+				<%--</td>--%>
 
 				<c:choose>
 				<c:when test="${projectContract.procStatus != '2'}">
