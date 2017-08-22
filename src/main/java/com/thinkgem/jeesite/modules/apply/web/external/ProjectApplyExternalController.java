@@ -234,8 +234,17 @@ public class ProjectApplyExternalController extends BaseController {
 		//添加项目归属对应值
 		projectCode.append(ownership);
 		//添加后3位累加值
-		int maxIdentityLength =3;//项目编码标识位长度
+		int maxIdentityLength = 3; //项目编码标识位长度
 		String currentCode = applyService.getCurrentCode();
+		currentCode = "";
+		// 如果项目号后缀超过1000，则重新从001开始生成
+		if (StringUtils.isNotEmpty(currentCode) && currentCode.length() >= 4) {
+			currentCode = "001";
+		}
+		if (StringUtils.isEmpty(currentCode)) {
+			currentCode = "001";
+		}
+
 		for(int i=currentCode.length();i<maxIdentityLength;i++){
 			projectCode.append("0");
 		}

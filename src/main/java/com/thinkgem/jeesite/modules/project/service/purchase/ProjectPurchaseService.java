@@ -4,10 +4,15 @@ package com.thinkgem.jeesite.modules.project.service.purchase;
 import com.thinkgem.jeesite.common.service.JicActService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
+import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
+import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
+import com.thinkgem.jeesite.modules.apply.service.external.ProjectApplyExternalService;
 import com.thinkgem.jeesite.modules.project.dao.purchase.ProjectPurchaseDao;
+import com.thinkgem.jeesite.modules.project.entity.bidding.ProjectBidding;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.purchase.ProjectPurchase;
 import com.thinkgem.jeesite.modules.project.utils.MyDictUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,8 +37,8 @@ public class ProjectPurchaseService extends JicActService<ProjectPurchaseDao, Pr
     // @Autowired
     // MailService mailService;
 
-    // @Autowired
-    // private ProjectApplyExternalService applyService;
+     @Autowired
+     private ProjectApplyExternalService applyService;
 
     // private boolean isNewRecord;
 
@@ -66,6 +71,7 @@ public class ProjectPurchaseService extends JicActService<ProjectPurchaseDao, Pr
     // 流程启动之前，设置map
     @Override
     public void setupVariable(ProjectPurchase purchase, Map<String, Object> vars) {
+        fillApply(purchase);
         vars.put(ActUtils.VAR_PRJ_ID, purchase.getApply().getId());
         // varMap.put(ActUtils.VAR_PROC_NAME, ActUtils.PROC_NAME_purchase);
         vars.put(ActUtils.VAR_PRJ_TYPE, purchase.getApply().getCategory());
@@ -84,6 +90,30 @@ public class ProjectPurchaseService extends JicActService<ProjectPurchaseDao, Pr
             vars.put(ActUtils.VAR_TYPE, "1");
         }
     }
+
+
+    // 审批过程中
+    @Override
+    public void processAudit(ProjectPurchase purchase, Map<String, Object> vars) {
+        // 对不同环节的业务逻辑进行操作
+        String taskDefKey = purchase.getAct().getTaskDefKey();
+        if (UserTaskType.UT_BUSINESS_LEADER.equals(taskDefKey)) {
+            System.out.println();
+        } else if (UserTaskType.UT_OWNER.equals(taskDefKey)) {
+            // 驳回到发起人节点后，他可以修改所有的字段，所以重新设置一下流程变量
+//            fillApply(purchase);
+//            myProcVariable(purchase, vars);
+            setupVariable(purchase, vars);
+        } else if ("".equalsIgnoreCase(taskDefKey)) {
+        }
+
+    }
+
+    public void fillApply(ProjectPurchase purchase) {
+        ProjectApplyExternal apply = applyService.get(purchase.getApply().getId());
+        purchase.setApply(apply);
+    }
+
 
     /**
      * 保存表单数据，并启动流程

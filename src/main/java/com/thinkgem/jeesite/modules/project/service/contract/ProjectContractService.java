@@ -7,6 +7,8 @@ import com.thinkgem.jeesite.common.service.JicActService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
+import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
+import com.thinkgem.jeesite.modules.apply.service.external.ProjectApplyExternalService;
 import com.thinkgem.jeesite.modules.project.dao.contract.ProjectContractDao;
 import com.thinkgem.jeesite.modules.project.dao.contract.ProjectContractItemDao;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
@@ -39,8 +41,8 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 //	@Autowired
 //	private ProjectBiddingService projectBiddingService;
 
-	// @Autowired
-	// private ProjectApplyExternalService projectApplyExternalService;
+	 @Autowired
+	 private ProjectApplyExternalService applyService;
 	
 	public ProjectContractItem getContractItem(String itemId){
 		return projectContractItemDao.get(itemId);
@@ -81,6 +83,9 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 
 	@Override
 	public void setupVariable(ProjectContract projectContract, Map<String, Object> vars) {
+
+		fillApply(projectContract);
+
 		vars.put(ActUtils.VAR_PRJ_ID, projectContract.getApply().getId());
 
 		vars.put(ActUtils.VAR_PRJ_TYPE, projectContract.getApply().getCategory());
@@ -194,6 +199,7 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 	// 审批过程中
 	@Override
 	public void processAudit(ProjectContract projectContract, Map<String, Object> vars) {
+		setupVariable(projectContract, vars);
 		// 对不同环节的业务逻辑进行操作
 		String taskDefKey = projectContract.getAct().getTaskDefKey();
 
@@ -206,7 +212,19 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 		} else if (UserTaskType.UT_COMMERCE_LEADER.equalsIgnoreCase(taskDefKey)) {
 			// 保存合同编号
 			save(projectContract);
+		} else if (UserTaskType.UT_OWNER.equalsIgnoreCase(taskDefKey)) {
+			// 驳回到发起人节点后，他可以修改所有的字段，所以重新设置一下流程变量
+			setupVariable(projectContract, vars);
 		}
+
+
+
+
+	}
+
+	public void fillApply(ProjectContract contract) {
+		ProjectApplyExternal apply = applyService.get(contract.getApply().getId());
+		contract.setApply(apply);
 	}
 
 	/**

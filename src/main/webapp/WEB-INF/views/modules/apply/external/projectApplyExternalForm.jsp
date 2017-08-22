@@ -36,9 +36,12 @@
 					form.submit();
 				},
 				errorContainer: "#messageBox",
+				// 指定错误信息位置，如果是radio、checkbox将错误信息的位置存放在一组元素最后。
 				errorPlacement: function(error, element) {
 					$("#messageBox").text("输入有误，请先更正。");
 					if (element.is(":checkbox")||element.is(":radio")||element.parent().is(".input-append")){
+					    var eid = element.attr('name'); // 获取元素的name属性
+						// error.appendTo(element.parent()); // 将错误信息添加到当前元素的父结点后面
 						error.appendTo(element.parent().parent());
 					} else {
 						error.insertAfter(element);
@@ -264,7 +267,7 @@
 			<td>
 				<input name="estimatedTimeOfSigning" type="text" readonly="readonly" class="input-medium Wdate required"
 					value="<fmt:formatDate value="${projectApplyExternal.estimatedTimeOfSigning}" pattern="yyyy-MM-dd"/>"
-					onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
+					onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false, readonly:true, minDate: new Date() });"/>
 					<span class="help-inline"><font color="red">*</font> </span>
 			</td>
 		</tr>

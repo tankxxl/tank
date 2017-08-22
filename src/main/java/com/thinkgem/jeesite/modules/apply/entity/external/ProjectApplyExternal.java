@@ -9,6 +9,7 @@ import com.thinkgem.jeesite.modules.customer.entity.Customer;
 import com.thinkgem.jeesite.modules.customer.entity.CustomerContact;
 import com.thinkgem.jeesite.modules.sys.entity.Office;
 import com.thinkgem.jeesite.modules.sys.entity.User;
+import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import org.hibernate.validator.constraints.Length;
 
@@ -36,7 +37,10 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 	private Double estimatedContractAmount; // 预计合同金额 万元
 	private Double estimatedGrossProfitMargin; // 预计毛利率
 	private Date estimatedTimeOfSigning; // 预计签约时间
-	private String category; // 项目类别
+	private String category; // 项目类别Value
+
+	private String categoryLabel; // 项目类别Label
+
 	private String description; // 项目描述
 	private String estimatedGrossProfitMarginDescription; // 项目毛利率说明
 	private String riskAnalysis; // 项目风险分析
@@ -288,6 +292,14 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 	public void setOutsourcing(String outsourcing) {
 		this.outsourcing = outsourcing;
 	}
-	
-	
+
+	public String getCategoryLabel() {
+		// 转换字典数据
+		this.categoryLabel = DictUtils.getDictLabel(this.getCategory(), "pro_category", "");
+		return categoryLabel;
+	}
+
+	public void setCategoryLabel(String categoryLabel) {
+		this.categoryLabel = categoryLabel;
+	}
 }

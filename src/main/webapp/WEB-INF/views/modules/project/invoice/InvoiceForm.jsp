@@ -273,7 +273,7 @@
             <td>
                 <input name="returnDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate required"
                        value="<fmt:formatDate value="${projectInvoice.returnDate}" pattern="yyyy-MM-dd"/>"
-                       onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
+                       onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false, minDate: new Date() });"/>
             </td>
         </tr>
 

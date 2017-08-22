@@ -43,16 +43,25 @@
 		<li class="active"><a href="${ctx}/project/bidding/projectBidding/">项目投标列表</a></li>
 		<shiro:hasPermission name="project:bidding:projectBidding:edit"><li><a href="${ctx}/project/bidding/projectBidding/form">项目投标添加</a></li></shiro:hasPermission>
 	</ul>
-	<form:form id="searchForm" modelAttribute="projectBidding" action="${ctx}/project/bidding/projectBidding/" method="post" class="breadcrumb form-search">
+	<form:form id="searchForm" modelAttribute="projectBidding" action="${ctx}/project/bidding/projectBidding/"
+			   htmlEscape="false" method="post" class="breadcrumb form-search">
 		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
 		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 		<ul class="ul-form">
 			<li><label>项目编号：</label>
-				<form:input path="apply.projectCode" htmlEscape="false" maxlength="64" class="input-medium"/>
+				<form:input path="apply.projectCode" maxlength="64" class="input-medium"/>
 			</li>
 			<li><label>项目名称：</label>
-				<form:input path="apply.projectName" htmlEscape="false" maxlength="64" class="input-medium"/>
+				<form:input path="apply.projectName" maxlength="64" class="input-medium"/>
 			</li>
+			<%--<li><label>标书种类：</label>--%>
+				<%--<form:select path="category" class="input-medium">--%>
+					<%--<form:option value="" label=""/>--%>
+					<%--<form:options items="${fns:getDictList('tender_category')}" itemLabel="label" itemValue="value" htmlEscape="false"/>--%>
+				<%--</form:select>--%>
+			<%--</li>--%>
+
+
 			<li><label>标书种类：</label>
 				<form:checkboxes path="category" items="${fns:getDictList('tender_category')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
 			</li>

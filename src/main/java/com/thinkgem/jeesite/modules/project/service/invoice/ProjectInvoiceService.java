@@ -6,6 +6,9 @@ package com.thinkgem.jeesite.modules.project.service.invoice;
 import com.thinkgem.jeesite.common.service.JicActService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
+import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
+import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
+import com.thinkgem.jeesite.modules.apply.service.external.ProjectApplyExternalService;
 import com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceDao;
 import com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceItemDao;
 import com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceReturnDao;
@@ -14,6 +17,7 @@ import com.thinkgem.jeesite.modules.project.entity.execution.ProjectExecutionIte
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoice;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoiceItem;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoiceReturn;
+import com.thinkgem.jeesite.modules.project.entity.purchase.ProjectPurchase;
 import com.thinkgem.jeesite.modules.project.utils.MyDictUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,8 +48,8 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
 	// @Autowired
 	// MailService mailService;
 	
-	// @Autowired
-	// private ProjectApplyExternalService projectApplyExternalService;
+	 @Autowired
+	 private ProjectApplyExternalService applyService;
 
     // private boolean isNewRecord;
 
@@ -88,6 +92,9 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
 // 流程启动之前，设置map
     @Override
     public void setupVariable(ProjectInvoice projectInvoice, Map<String, Object> vars) {
+
+        fillApply(projectInvoice);
+
         vars.put(ActUtils.VAR_PRJ_ID, projectInvoice.getApply().getId());
         vars.put(ActUtils.VAR_PRJ_TYPE, projectInvoice.getApply().getCategory());
         vars.put(ActUtils.VAR_TITLE, projectInvoice.getApply().getProjectName());
@@ -102,6 +109,28 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
         } else {
             vars.put(ActUtils.VAR_TYPE, "1");
         }
+    }
+
+    // 审批过程中
+    @Override
+    public void processAudit(ProjectInvoice projectInvoice, Map<String, Object> vars) {
+        // 对不同环节的业务逻辑进行操作
+        String taskDefKey = projectInvoice.getAct().getTaskDefKey();
+        if (UserTaskType.UT_BUSINESS_LEADER.equals(taskDefKey)) {
+            System.out.println();
+        } else if (UserTaskType.UT_OWNER.equals(taskDefKey)) {
+            // 驳回到发起人节点后，他可以修改所有的字段，所以重新设置一下流程变量
+//            fillApply(purchase);
+//            myProcVariable(purchase, vars);
+            setupVariable(projectInvoice, vars);
+        } else if ("".equalsIgnoreCase(taskDefKey)) {
+        }
+
+    }
+
+    public void fillApply(ProjectInvoice projectInvoice) {
+        ProjectApplyExternal apply = applyService.get(projectInvoice.getApply().getId());
+        projectInvoice.setApply(apply);
     }
 
     /**

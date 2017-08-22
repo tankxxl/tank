@@ -46,15 +46,16 @@
 		<li class="active"><a href="${ctx}/apply/external/projectApplyExternal/">外部立项申请列表</a></li>
 		<shiro:hasPermission name="apply:external:projectApplyExternal:edit"><li><a href="${ctx}/apply/external/projectApplyExternal/form">外部立项申请添加</a></li></shiro:hasPermission>
 	</ul>
-	<form:form id="searchForm" modelAttribute="projectApplyExternal" action="${ctx}/apply/external/projectApplyExternal/" method="post" class="breadcrumb form-search">
+	<form:form id="searchForm" modelAttribute="projectApplyExternal" action="${ctx}/apply/external/projectApplyExternal/"
+			   htmlEscape="false" method="post" class="breadcrumb form-search">
 		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
 		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 		<ul class="ul-form">
 			<li><label>项目编码：</label>
-				<form:input path="projectCode" htmlEscape="false" maxlength="64" class="input-medium"/>
+				<form:input path="projectCode" maxlength="64" class="input-medium"/>
 			</li>
 			<li><label>项目名称：</label>
-				<form:input path="projectName" htmlEscape="false" maxlength="64" class="input-medium"/>
+				<form:input path="projectName" maxlength="64" class="input-medium"/>
 			</li>
 			<li><label>销售人员：</label>
 				<sys:treeselect id="saler" name="saler.id" value="${projectApplyExternal.saler.id}" labelName="saler.name" labelValue="${projectApplyExternal.saler.name}"

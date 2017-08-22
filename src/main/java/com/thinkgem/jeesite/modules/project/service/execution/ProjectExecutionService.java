@@ -8,9 +8,12 @@ import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.act.utils.ProcessDefCache;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
+import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
+import com.thinkgem.jeesite.modules.apply.service.external.ProjectApplyExternalService;
 import com.thinkgem.jeesite.modules.mail.service.MailService;
 import com.thinkgem.jeesite.modules.project.dao.execution.ProjectExecutionDao;
 import com.thinkgem.jeesite.modules.project.dao.execution.ProjectExecutionItemDao;
+import com.thinkgem.jeesite.modules.project.entity.bidding.ProjectBidding;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.execution.ProjectExecution;
 import com.thinkgem.jeesite.modules.project.entity.execution.ProjectExecutionItem;
@@ -42,8 +45,8 @@ public class ProjectExecutionService extends JicActService<ProjectExecutionDao, 
     @Autowired
     MailService mailService;
 
-    // @Autowired
-    // ProjectApplyExternalService applyService;
+     @Autowired
+     ProjectApplyExternalService applyService;
 	
 	@Override
 	public ProjectExecution get(String id) {
@@ -74,6 +77,13 @@ public class ProjectExecutionService extends JicActService<ProjectExecutionDao, 
     // 流程启动之前，设置map
     @Override
     public void setupVariable(ProjectExecution projectExecution, Map<String, Object> vars) {
+
+        fillApply(projectExecution);
+
+        myProcVariable(projectExecution, vars);
+    }
+
+    private void myProcVariable(ProjectExecution projectExecution, Map<String, Object> vars) {
         vars.put(ActUtils.VAR_PRJ_ID, projectExecution.getApply().getId());
 
         vars.put(ActUtils.VAR_PRJ_TYPE, projectExecution.getApply().getCategory());
@@ -103,7 +113,7 @@ public class ProjectExecutionService extends JicActService<ProjectExecutionDao, 
         // }
     }
 
-	/**
+    /**
 	 * 保存表单数据，并启动流程
      *
      * 申请人发起流程，申请人重新发起流程入口
@@ -186,21 +196,30 @@ public class ProjectExecutionService extends JicActService<ProjectExecutionDao, 
         // 对不同环节的业务逻辑进行操作
         String taskDefKey = projectExecution.getAct().getTaskDefKey();
         if (UserTaskType.UT_BUSINESS_LEADER.equals(taskDefKey)) {
-            if ("03".equals(projectExecution.getApply().getCategory()) ) {
-                vars.put(ActUtils.VAR_TYPE, "2");
-            } else {
-                vars.put(ActUtils.VAR_TYPE, "1");
-            }
+//            if ("03".equals(projectExecution.getApply().getCategory()) ) {
+//                vars.put(ActUtils.VAR_TYPE, "2");
+//            } else {
+//                vars.put(ActUtils.VAR_TYPE, "1");
+//            }
             // 项目类型
             // vars.put(ActUtils.VAR_PRJ_TYPE, projectExecution.getApply().getCategory());
             // 都需要总经理审批
         } else if (UserTaskType.UT_OWNER.equals(taskDefKey)) {
+            // 驳回到发起人节点后，他可以修改所有的字段，所以重新设置一下流程变量
+            fillApply(projectExecution);
+            myProcVariable(projectExecution, vars);
+
             // 又到自己的手里，重新提交
             // save(projectExecution);
             // projectExecution.getAct().setComment((projectExecution.getAct().getFlagBoolean() ?
             //         	"[同意] ":"[驳回] ") + projectExecution.getAct().getComment());
         } else if ("".equalsIgnoreCase(taskDefKey)) {
         }
+    }
+
+    public void fillApply(ProjectExecution projectExecution) {
+        ProjectApplyExternal apply = applyService.get(projectExecution.getApply().getId());
+        projectExecution.setApply(apply);
     }
 
     // private String launchWorkflow(ProjectExecution projectExecution) {

@@ -4,11 +4,14 @@
 package com.thinkgem.jeesite.modules.project.service.bidding;
 
 import com.thinkgem.jeesite.common.service.JicActService;
+import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
+import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
 import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
 import com.thinkgem.jeesite.modules.apply.service.external.ProjectApplyExternalService;
 import com.thinkgem.jeesite.modules.project.dao.bidding.ProjectBiddingDao;
 import com.thinkgem.jeesite.modules.project.entity.bidding.ProjectBidding;
+import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.utils.MyDictUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,7 +37,7 @@ public class ProjectBiddingService extends JicActService<ProjectBiddingDao, Proj
 	// MailService mailService;
 	
 	@Autowired
-	private ProjectApplyExternalService projectApplyExternalService;
+	private ProjectApplyExternalService applyService;
 	
 	// @Override
 	// public ProjectBidding get(String id) {
@@ -66,10 +69,15 @@ public class ProjectBiddingService extends JicActService<ProjectBiddingDao, Proj
 	public void setupVariable(ProjectBidding projectBidding, Map<String, Object> vars) {
 
 		// 在立项审批表中也要保存一下是否有外包
-		ProjectApplyExternal external = projectApplyExternalService.get(projectBidding.getApply().getId());
+		ProjectApplyExternal external = applyService.get(projectBidding.getApply().getId());
+		projectBidding.setApply(external);
 		external.setOutsourcing(projectBidding.getOutsourcing());
-		projectApplyExternalService.save(external);
+		applyService.save(external);
 		// 设置流程变量
+		myProcVariable(projectBidding, vars);
+	}
+
+	private void myProcVariable(ProjectBidding projectBidding, Map<String, Object> vars) {
 		vars.put(ActUtils.VAR_PRJ_ID, projectBidding.getApply().getId());
 
 		vars.put(ActUtils.VAR_PRJ_TYPE, projectBidding.getApply().getCategory());
@@ -103,6 +111,26 @@ public class ProjectBiddingService extends JicActService<ProjectBiddingDao, Proj
 			vars.put("hr", "1");
 			vars.put(ActUtils.VAR_SKIP_HR, "0");
 		}
+	}
+
+	// 审批过程中
+	@Override
+	public void processAudit(ProjectBidding projectBidding, Map<String, Object> vars) {
+		// 对不同环节的业务逻辑进行操作
+		String taskDefKey = projectBidding.getAct().getTaskDefKey();
+		if (UserTaskType.UT_BUSINESS_LEADER.equals(taskDefKey)) {
+		} else if (UserTaskType.UT_OWNER.equals(taskDefKey)) {
+			// 驳回到发起人节点后，他可以修改所有的字段，所以重新设置一下流程变量
+			fillApply(projectBidding);
+			myProcVariable(projectBidding, vars);
+		} else if ("".equalsIgnoreCase(taskDefKey)) {
+		}
+
+	}
+
+	public void fillApply(ProjectBidding projectBidding) {
+		ProjectApplyExternal apply = applyService.get(projectBidding.getApply().getId());
+		projectBidding.setApply(apply);
 	}
 
 	/**

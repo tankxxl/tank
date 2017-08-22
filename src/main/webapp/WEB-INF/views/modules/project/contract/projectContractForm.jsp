@@ -8,6 +8,25 @@
 		$(document).ready(function() {
 			//$("#name").focus();
 			$("#inputForm").validate({
+                rules: {
+                    estimatedGrossProfitMargin: {
+                        required: true,
+                        number: true,
+                        min: 0,
+                        max: 100,
+                        minlength: 1
+                    },
+                    ownership: {
+                        required: true
+                    }
+                },
+                messages: {
+                    ownership: "请填写",
+                    estimatedGrossProfitMargin: {
+                        required: "请填写毛利率",
+                        minlength: jQuery.validator.format("至少要填写 {0} 位数字。")
+                    }
+                },
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
 					form.submit();
@@ -67,6 +86,9 @@
                     $("#customer_contact_name").text(apply.customerContact.contactName);
                     $("#customer_phone").text(apply.customerContact.phone);
                     $("#project_category").text(apply.category);
+
+                    // 合同item-id改变后，要同步修改合同申请单id
+//                    $('#applyCategory').val(apply.category);
             });
         }
 	</script>
@@ -87,6 +109,10 @@
 	<form:hidden path="act.procInsId"/>
 	<form:hidden path="act.procDefId"/>
 	<form:hidden id="flag" path="act.flag"/>
+
+	<%--设置id，前端设置值，传回后端--%>
+	<%--<form:hidden id="applyCategory" path="apply.category" />--%>
+
 	<sys:message content="${message}"/>
 	<table class="table-form">
 		<%--<tr><th colspan="6" class="tit">项目信息</th></tr>--%>
@@ -199,11 +225,11 @@
 				</td>
 				<td>
 					<input id="projectContractItemList{{idx}}_contractStartTime" style="width:95px" name="projectContractItemList[{{idx}}].contractStartTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate required"
-						value="{{row.contractStartTime}}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
+						value="{{row.contractStartTime}}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false, maxDate:'#F{$dp.$D(\'projectContractItemList{{idx}}_contractEndTime\')}', minDate: new Date() });"/>
 				</td>
 				<td>
 					<input id="projectContractItemList{{idx}}_contractEndTime" style="width:95px" name="projectContractItemList[{{idx}}].contractEndTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate required"
-						value="{{row.contractEndTime}}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
+						value="{{row.contractEndTime}}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false, minDate:'#F{$dp.$D(\'projectContractItemList{{idx}}_contractStartTime\')}'  });"/>
 				</td>
 				<td>
 					<input id="projectContractItemList{{idx}}_trainingOrOutsourcing" name="projectContractItemList[{{idx}}].trainingOrOutsourcing" type="text" value="{{row.trainingOrOutsourcing}}" maxlength="255" class="input-small"/>

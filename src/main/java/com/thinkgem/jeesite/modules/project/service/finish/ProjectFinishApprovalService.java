@@ -6,10 +6,15 @@ package com.thinkgem.jeesite.modules.project.service.finish;
 import com.thinkgem.jeesite.common.service.JicActService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
+import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
+import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
+import com.thinkgem.jeesite.modules.apply.service.external.ProjectApplyExternalService;
 import com.thinkgem.jeesite.modules.project.dao.finish.ProjectFinishApprovalDao;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.finish.ProjectFinishApproval;
+import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoice;
 import com.thinkgem.jeesite.modules.project.utils.MyDictUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,8 +33,8 @@ public class ProjectFinishApprovalService extends JicActService<ProjectFinishApp
 	// @Autowired
 	// ActTaskService actTaskService;
 
-	// @Autowired
-	// private ProjectApplyExternalService projectApplyExternalService;
+	 @Autowired
+	 private ProjectApplyExternalService applyService;
 
 	/**
 	 * 保存并结束流程
@@ -46,6 +51,9 @@ public class ProjectFinishApprovalService extends JicActService<ProjectFinishApp
 	// 流程启动之前，设置map
 	@Override
 	public void setupVariable(ProjectFinishApproval projectFinishApproval, Map<String, Object> vars) {
+
+		fillApply(projectFinishApproval);
+
 		vars.put(ActUtils.VAR_PRJ_ID, projectFinishApproval.getApply().getId());
 
 		vars.put(ActUtils.VAR_PRJ_TYPE, projectFinishApproval.getApply().getCategory());
@@ -65,6 +73,28 @@ public class ProjectFinishApprovalService extends JicActService<ProjectFinishApp
 		} else {
 			vars.put(ActUtils.VAR_SKIP_BOSS, "1");
 		}
+	}
+
+	// 审批过程中
+	@Override
+	public void processAudit(ProjectFinishApproval projectFinishApproval, Map<String, Object> vars) {
+		// 对不同环节的业务逻辑进行操作
+		String taskDefKey = projectFinishApproval.getAct().getTaskDefKey();
+		if (UserTaskType.UT_BUSINESS_LEADER.equals(taskDefKey)) {
+			System.out.println("");
+		} else if (UserTaskType.UT_OWNER.equals(taskDefKey)) {
+			// 驳回到发起人节点后，他可以修改所有的字段，所以重新设置一下流程变量
+//            fillApply(purchase);
+//            myProcVariable(purchase, vars);
+			setupVariable(projectFinishApproval, vars);
+		} else if ("".equalsIgnoreCase(taskDefKey)) {
+		}
+
+	}
+
+	public void fillApply(ProjectFinishApproval projectFinishApproval) {
+		ProjectApplyExternal apply = applyService.get(projectFinishApproval.getApply().getId());
+		projectFinishApproval.setApply(apply);
 	}
 
 

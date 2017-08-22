@@ -352,7 +352,7 @@
 
             <td>
             <input id="executionItemList{{idx}}_deliveryDate" style="width:90%" name="executionItemList[{{idx}}].deliveryDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate required"
-                    value="{{row.deliveryDate}}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
+                    value="{{row.deliveryDate}}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false, minDate: new Date() });"/>
             </td>
 
             <td>
