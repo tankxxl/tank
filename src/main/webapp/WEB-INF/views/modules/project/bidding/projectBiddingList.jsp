@@ -143,7 +143,7 @@
     				
     				<c:if test="${projectBidding.procStatus != '2'}">
 						<a class="trace" target="_blank" procInsId="${projectBidding.procInsId}" href="${ctx}/act/task/trace1?procInsId=${projectBidding.procInsId}">跟踪</a>
-						<a class="trace" target="_blank" procInsId="${projectBidding.procInsId}" href="${ctx}/act/task/trace2?procInsId=${projectBidding.procInsId}">跟踪2</a>
+						<%--<a class="trace" target="_blank" procInsId="${projectBidding.procInsId}" href="${ctx}/act/task/trace2?procInsId=${projectBidding.procInsId}">跟踪2</a>--%>
 					</c:if>
 					<c:if test="${projectBidding.procStatus == '2'}">
 						<a href="${ctx}/project/bidding/projectBidding/delete?id=${projectBidding.id}" onclick="return confirmx('确认要删除该项目投标吗？', this.href)">删除</a>
