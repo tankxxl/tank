@@ -70,6 +70,9 @@
 	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix" value="${web.view.prefix}"/>
 		<property name="suffix" value="${web.view.suffix}"/>
+		<!--<property name="contentType" value="text/html;charset=UTF-8" />-->
+		<!--从小到大，越小的优先级越高-->
+		<!--<property name="order" value="2" />-->
 	</bean>
 	
 	<!-- 对静态资源文件的访问， 将无法mapping到Controller的path交给default servlet handler处理 -->

@@ -89,6 +89,15 @@
 		WHERE a.id = #{id}
 	</select>
 
+	<!-- 根据合同号查询合同 -->
+	<select id="getByCode" resultType="ProjectContract">
+		SELECT
+		<include refid="projectContractColumns"/>
+		FROM project_contract a
+		<include refid="projectContractJoins"/>
+		WHERE a.contract_code = #{contractCode} AND a.del_flag = #{DEL_FLAG_NORMAL}
+	</select>
+
 	<select id="findByProcInsId" resultType="ProjectContract">
 		SELECT
 		<include refid="projectContractColumns"/>
@@ -209,6 +218,83 @@
 
 			<![CDATA[
 				and date_sub(curdate(), INTERVAL 60 DAY) <= date(a.end_date)
+				and date_sub(curdate(), INTERVAL 30 DAY) >= date(a.end_date)
+			]]>
+		</where>
+
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.end_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 查找 30 < x < 60 天到期的合同 -->
+	<select id="findNotify1List" resultType="ProjectContract">
+		select
+		<include refid="projectContractColumns" />
+		from project_contract a
+		<include refid="projectContractJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+
+			<![CDATA[
+				and date_sub(curdate(), INTERVAL 60 DAY) <= date(a.end_date)
+				and date_sub(curdate(), INTERVAL 30 DAY) >= date(a.end_date)
+			]]>
+		</where>
+
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.end_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 查找 0 < x < 30 天到期的合同 -->
+	<select id="findNotify2List" resultType="ProjectContract">
+		select
+		<include refid="projectContractColumns" />
+		from project_contract a
+		<include refid="projectContractJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+
+			<![CDATA[
+				and date_sub(curdate(), INTERVAL 30 DAY) <= date(a.end_date)
+				and date_sub(curdate(), INTERVAL 0 DAY) >= date(a.end_date)
+			]]>
+		</where>
+
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.end_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 查找 x < 0 天 已到期的合同 -->
+	<select id="findNotify3List" resultType="ProjectContract">
+		select
+		<include refid="projectContractColumns" />
+		from project_contract a
+		<include refid="projectContractJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+
+			<![CDATA[
+				and date_sub(curdate(), INTERVAL 0 DAY) >= date(a.end_date)
+				and a.handle_flag = #{DEL_FLAG_NORMAL}
+				and pro_apply.end_flag = #{DEL_FLAG_NORMAL}
 			]]>
 		</where>
 
@@ -266,6 +352,7 @@
 			contract_type ,
 			origin_code ,
 			audit_end_date ,
+			handle_flag,
 
 			create_by,
 			create_date,
@@ -304,6 +391,8 @@
 			#{contractType},
 			#{originCode},
 			#{auditEndDate},
+
+			#{handleFlag},
 
 			#{createBy.id},
 			#{createDate},

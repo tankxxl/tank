@@ -34,6 +34,7 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 	private ProjectApplyExternal apply;//项目立项bean
 	private String contractName; // 合同名称
 	private String contractCode; // 合同编号
+	private String oldContractCode; // 老合同编号
 	private String clientName; // 合同对方名称
 	private String amount; // 合同总金额
 	private String amountDetail; // 合同金额明细
@@ -207,6 +208,14 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 
 	public void setContractCode(String contractCode) {
 		this.contractCode = contractCode;
+	}
+
+	public String getOldContractCode() {
+		return oldContractCode;
+	}
+
+	public void setOldContractCode(String oldContractCode) {
+		this.oldContractCode = oldContractCode;
 	}
 
 	public String getClientName() {

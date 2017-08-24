@@ -44,7 +44,7 @@ public class AuditEndListener implements ExecutionListener{
         ExecutionEntity executionEntity = (ExecutionEntity) execution;
         String defKey = executionEntity.getProcessDefinitionKey();
 
-        ProjectApplyExternalService applyExternalService = SpringContextHolder.getBean(ProjectApplyExternalService.class);
+        ProjectApplyExternalService applyService = SpringContextHolder.getBean(ProjectApplyExternalService.class);
 
         JicActService jicActService = null;
         String stageValue = null;
@@ -56,7 +56,7 @@ public class AuditEndListener implements ExecutionListener{
             //
             prjId = id;
             stageValue = DictUtils.getDictValue("立项完成", "jic_pro_main_stage", "0");
-            applyExternalService.genProjectCode(prjId);
+            applyService.genProjectCode(prjId);
 
         } else if (ActUtils.PD_PROJECTBIDDING[0].equalsIgnoreCase(defKey)) {
             // 得到业务Service
@@ -72,8 +72,11 @@ public class AuditEndListener implements ExecutionListener{
         } else if (defKey.contains("Contract")) { // 合同，合同分为5个流程，所以只要包含contract就行。不能使用完全匹配
             // 得到业务Service
             jicActService = SpringContextHolder.getBean(ProjectContractService.class);
-
             stageValue = DictUtils.getDictValue("合同完成", "jic_pro_main_stage", "0");
+
+            // 自动更新合同续签状态
+            ((ProjectContractService)jicActService).handledByOriginCode(id);
+
         } else if (ActUtils.PD_execution[0].equalsIgnoreCase(defKey)) {  // 合同执行
             // 得到业务Service
             jicActService = SpringContextHolder.getBean(ProjectExecutionService.class);
@@ -99,6 +102,9 @@ public class AuditEndListener implements ExecutionListener{
             jicActService = SpringContextHolder.getBean(ProjectFinishApprovalService.class);
 
             stageValue = DictUtils.getDictValue("结项完成", "jic_pro_main_stage", "0");
+
+            // 修改项目结项状态
+            applyService.endProject(prjId);
         } else if (ActUtils.PD_TECHAPPLY[0].equalsIgnoreCase(defKey)) {
 
         }
@@ -111,7 +117,7 @@ public class AuditEndListener implements ExecutionListener{
 		if (StringUtils.isEmpty(prjId) || StringUtils.isEmpty(stageValue))
 		    return;
 
-		applyExternalService.stageTo(prjId, stageValue);
+		applyService.stageTo(prjId, stageValue);
 
 	}
 

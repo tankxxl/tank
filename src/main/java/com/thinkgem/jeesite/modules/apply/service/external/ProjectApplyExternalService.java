@@ -270,6 +270,20 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 		projectApplyExternal.setProMainStage(stageValue);
 		dao.update(projectApplyExternal);
 	}
+
+	/**
+	 * 更改项目结项状态
+	 * @param id
+	 */
+	@Transactional(readOnly = false)
+	public void endProject(String id) {
+		ProjectApplyExternal projectApplyExternal = get(id);
+		if (projectApplyExternal == null) {
+			return;
+		}
+		projectApplyExternal.setEndFlag("1");
+		dao.update(projectApplyExternal);
+	}
 	
 	public List<ProjectApplyExternal> findList4LargerMainStage(ProjectApplyExternal projectApplyExternal){
 		return dao.findList4LargerMainStage(projectApplyExternal);

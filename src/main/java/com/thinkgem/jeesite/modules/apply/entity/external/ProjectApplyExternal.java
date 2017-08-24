@@ -68,6 +68,8 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 	private String resource; // bjkj-项目需要资源
 	private String membersName; // 合成字段，用于前台展示，数据来源于数据库
 
+	private String endFlag; // 是否结项，结项流程结束，自动修改此状态
+
 
 
     public String getDocPath() {
@@ -390,5 +392,12 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 	public void setMembersName(String membersName) {
 		this.membersName = membersName;
 	}
-	
+
+	public String getEndFlag() {
+		return endFlag;
+	}
+
+	public void setEndFlag(String endFlag) {
+		this.endFlag = endFlag;
+	}
 }

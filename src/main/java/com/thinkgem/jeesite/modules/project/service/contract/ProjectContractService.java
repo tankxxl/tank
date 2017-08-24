@@ -15,6 +15,9 @@ import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContractItem;
 import com.thinkgem.jeesite.modules.project.utils.MyDictUtils;
 import com.thinkgem.jeesite.modules.sys.entity.Log;
+import com.thinkgem.jeesite.modules.sys.entity.User;
+import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
+import jdk.nashorn.internal.ir.ReturnNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -116,6 +119,47 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 	public void delete(ProjectContract projectContract) {
 		super.delete(projectContract);
 		itemDao.delete(new ProjectContractItem(projectContract));
+	}
+
+	/**
+	 * 根据合同编号获取合同
+	 * @param contractCode
+	 * @return
+	 */
+	public ProjectContract getByCode(String contractCode) {
+		if (StringUtils.isEmpty(contractCode)) {
+			return null;
+		}
+		ProjectContract contract = new ProjectContract();
+		contract.setContractCode(contractCode);
+		return dao.getByCode(contract);
+	}
+
+	// 自动更新此状态，用来流程结束时，更新原合同的续签状态
+	public void handledByOriginCode(String id) {
+		ProjectContract contract = get(id);
+		if (contract == null) {
+			return;
+		}
+		String originCode = contract.getOriginCode();
+		contract = getByCode(originCode);
+		if (contract == null) {
+			logger.error("此合同编号不存在" + originCode );
+			return;
+		}
+		dao.handled(contract);
+	}
+
+	public List<ProjectContract> findNotify1List(ProjectContract entity) {
+		return dao.findNotify1List(entity);
+	}
+
+	public List<ProjectContract> findNotify2List(ProjectContract entity) {
+		return dao.findNotify2List(entity);
+	}
+
+	public List<ProjectContract> findNotify3List(ProjectContract entity) {
+		return dao.findNotify3List(entity);
 	}
 
 	public List<ProjectContract> findPreEndList(ProjectContract projectContract) {

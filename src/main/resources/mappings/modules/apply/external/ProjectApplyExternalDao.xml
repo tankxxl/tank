@@ -49,6 +49,7 @@
 		a.target AS "target",
 		a.analysis AS "analysis",
 		a.resource AS "resource",
+		a.end_flag AS "endFlag",
 
 		( select group_concat(m.name) from sys_user m where FIND_in_set(m.id, a.project_members) ) AS "membersName",
 		
@@ -247,6 +248,7 @@
 			target,
 			analysis,
 			resource,
+			end_flag,
 
 			docPath
 		) VALUES (
@@ -286,6 +288,7 @@
 			#{target},
 			#{analysis},
 			#{resource},
+			#{endFlag},
 
 			#{docPath}
 		)
@@ -335,6 +338,7 @@
 			target = #{target},
 			analysis = #{analysis},
 			resource = #{resource},
+			end_flag = #{endFlag},
 
 			docPath = #{docPath}
 

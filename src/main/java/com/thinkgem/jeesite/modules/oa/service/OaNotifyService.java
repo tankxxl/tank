@@ -5,6 +5,7 @@ package com.thinkgem.jeesite.modules.oa.service;
 
 import java.util.Date;
 
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,5 +80,15 @@ public class OaNotifyService extends CrudService<OaNotifyDao, OaNotify> {
 		oaNotifyRecord.setReadDate(new Date());
 		oaNotifyRecord.setReadFlag("1");
 		oaNotifyRecordDao.update(oaNotifyRecord);
+	}
+
+	/**
+	 * 根据消息类型 删除数据
+	 * @param entity
+	 */
+	@Transactional(readOnly = false)
+	public void deleteByType(OaNotify entity) {
+		dao.deleteByType(entity);
+		oaNotifyRecordDao.deleteByOaNotifyId(entity.getId());
 	}
 }

@@ -234,11 +234,38 @@ public class ProjectContractController extends BaseController {
 			addMessage(model, "请填写审核意见。");
 			return form(projectContract, model);
 		}
+
+		String usertask = projectContract.getAct().getTaskDefKey();
+		if (UserTaskType.UT_SPECIALIST.equals(usertask)) {
+			if (!"true".equals(checkContractCode(projectContract.getOldContractCode(), projectContract.getContractCode())) ) {
+				addMessage(model, "保存合同'" + projectContract.getContractCode() + "'失败，合同编号已存在");
+				return form(projectContract, model);
+			}
+		}
+
+
 		if (StringUtils.isEmpty(projectContract.getAct().getComment())) {
 			projectContract.getAct().setComment("同意");
 		}
 		contractService.saveAudit(projectContract);
 		return "redirect:" + adminPath + "/act/task/todo/";
+	}
+
+	/**
+	 * 验证合同编号是否有效，必须唯一
+	 * @param oldContractCode
+	 * @param contractCode
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "checkContractCode")
+	public String checkContractCode(String oldContractCode, String contractCode) {
+		if (contractCode !=null && contractCode.equals(oldContractCode)) {
+			return "true";
+		} else if (contractCode !=null && contractService.getByCode(contractCode) == null) {
+			return "true";
+		}
+		return "false";
 	}
 
 
@@ -307,57 +334,22 @@ public class ProjectContractController extends BaseController {
 	public String addToNotify( HttpServletRequest request, HttpServletResponse response,
 							 Model model) {
 
+		OaNotify oaNotify = new OaNotify();
+		oaNotify.setType("4");
+		notifyService.deleteByType(oaNotify);
+
 		ProjectContract contract = new ProjectContract();
 		List<ProjectContract> contracts = contractService.findPreEndList(contract);
-		OaNotify notify ;
-		List<OaNotifyRecord> oaNotifyRecordList;
-		OaNotifyRecord record;
-		String type;
-		List<User> userList = Collections.emptyList();
+		notify(contracts);
 
-		Role role = UserUtils.getRoleByEnname("usertask_specialist");
-		if (role != null && role.getUserList() != null && !role.getUserList().isEmpty()) {
-			userList.addAll(role.getUserList());
-		}
-		for (ProjectContract contract1 : contracts) {
-			// 新建
-			notify = new OaNotify();
-			oaNotifyRecordList = Lists.newArrayList();
-			notify.setOaNotifyRecordList(oaNotifyRecordList);
+		contracts = contractService.findNotify1List(contract);
+		notify(contracts);
 
-			// master
-			type = DictUtils.getDictValue("合同预警", "oa_notify_type", "4");
-			notify.setType(type);
-			String title = StringUtils.isEmpty(contract1.getContractCode()) ? contract1.getClientName() : contract1.getContractCode();
-			notify.setTitle(title);
-			notify.setContent(contract1.getApply().getProjectName()
-					+ "\n项目编号：" + contract1.getApply().getProjectCode()
-					+ "\n合同编号：" + contract1.getContractCode()
-					+ "\n客户名称：" + contract1.getClientName()
-					+ "\n合同到期日期：" + DateUtils.formatDateTime(contract1.getEndDate()));
-			notify.setStatus("1");
-			notify.setCreateBy(UserUtils.get("1"));
+		contracts = contractService.findNotify2List(contract);
+		notify(contracts);
 
-			// slave 可以有多个接收人
-			record = new OaNotifyRecord();
-			record.setId(IdGen.uuid());
-			record.setOaNotify(notify);
-			record.setUser(contract1.getCreateBy());
-			record.setReadFlag("0");
-			oaNotifyRecordList.add(record);
-
-			for (User user : userList) {
-				record = new OaNotifyRecord();
-				record.setId(IdGen.uuid());
-				record.setOaNotify(notify);
-				record.setUser(user);
-				record.setReadFlag("0");
-				oaNotifyRecordList.add(record);
-			}
-			// 保存
-			notifyService.save(notify);
-		}
-
+		contracts = contractService.findNotify3List(contract);
+		notify(contracts);
 
 		// List<OaNotifyRecord> notifyRecords = new ArrayList<>();
 		// notify.setOaNotifyRecordList(notifyRecords);
@@ -391,6 +383,70 @@ public class ProjectContractController extends BaseController {
 		// model.addAttribute("page", page);
 		// return "modules/project/contract/projectContractList";
 		return null;
+	}
+
+	public void notify(List<ProjectContract> contractList) {
+
+		OaNotify notify ;
+		List<OaNotifyRecord> oaNotifyRecordList;
+		OaNotifyRecord record;
+		String type;
+//		List<User> userList = Collections.emptyList();
+		List<User> userList = new ArrayList<>();
+
+		User officeLeader, officeBoss;
+
+		Role role = UserUtils.getRoleByEnname("usertask_specialist");
+		if (role != null && role.getUserList() != null && !role.getUserList().isEmpty()) {
+			userList.addAll(role.getUserList());
+		}
+		for (ProjectContract contract : contractList) {
+			System.out.println();
+			// 新建
+			notify = new OaNotify();
+			oaNotifyRecordList = Lists.newArrayList();
+			notify.setOaNotifyRecordList(oaNotifyRecordList);
+
+			// master
+			type = DictUtils.getDictValue("合同预警", "oa_notify_type", "4");
+			notify.setType(type);
+			String title = StringUtils.isEmpty(contract.getContractCode()) ? contract.getClientName() : contract.getContractCode();
+			notify.setTitle(title);
+			notify.setContent(contract.getApply().getProjectName()
+					+ "\n项目编号：" + contract.getApply().getProjectCode()
+					+ "\n合同编号：" + contract.getContractCode()
+					+ "\n客户名称：" + contract.getClientName()
+					+ "\n合同到期日期：" + DateUtils.formatDateTime(contract.getEndDate()));
+			notify.setStatus("1");
+			notify.setCreateBy(UserUtils.get("1"));
+
+			// slave 可以有多个接收人
+//			record = new OaNotifyRecord();
+//			record.setId(IdGen.uuid());
+//			record.setOaNotify(notify);
+//			record.setUser(contract1.getCreateBy());
+//			record.setReadFlag("0");
+//			oaNotifyRecordList.add(record);
+
+			officeLeader = UserUtils.get(contract.getCreateBy().getId()).getOffice().getPrimaryPerson();
+			officeBoss = UserUtils.get(contract.getCreateBy().getId()).getOffice().getDeputyPerson();
+			userList.add(contract.getCreateBy());
+			userList.add(officeLeader);
+			userList.add(officeBoss);
+
+			for (User user : userList) {
+				System.out.println();
+				record = new OaNotifyRecord();
+				record.setId(IdGen.uuid());
+				record.setOaNotify(notify);
+				record.setUser(user);
+				record.setReadFlag("0");
+				oaNotifyRecordList.add(record);
+			}
+			// 保存
+			notifyService.save(notify);
+		} // end for list
+
 	}
 
 

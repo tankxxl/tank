@@ -11,6 +11,12 @@
             $("#rmb").text(digitUppercase(${projectContract.amount }));
 
 			$("#inputForm").validate({
+                rules: {
+                    contractCode: {remote: "${ctx}/project/contract/projectContract/checkContractCode?oldContractCode=" + encodeURIComponent('${projectContract.contractCode}')}
+                },
+                messages: {
+                    contractCode: {remote: "合同编号已存在"}
+                },
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
 					form.submit();
@@ -94,6 +100,7 @@
 			<td class="tit">合同编号</td>
 			<td colspan="1" class="">
 				<c:if test="${projectContract.act.taskDefKey eq 'usertask_specialist'}">
+					<input id="oldContractCode" name="oldContractCode" type="hidden" value="${projectContract.contractCode}">
 					<form:input path="contractCode" style="width:90%" cssClass="required"/>
 					<span class="help-inline"><font color="red">*</font> </span>
 				</c:if>
@@ -235,7 +242,7 @@
 
 		<c:if test="${not empty projectContract.act.taskId && projectContract.act.status != 'finish'}">
 
-			<c:if test="${projectContract.act.taskDefKey ne 'usertask_seal' && projectContract.act.taskDefKey ne 'usertask_specialist'}">
+			<%--<c:if test="${projectContract.act.taskDefKey ne 'usertask_seal' && projectContract.act.taskDefKey ne 'usertask_specialist'}">--%>
 
 				<tr>
 					<td class="tit">您的意见</td>
@@ -245,7 +252,7 @@
 					</td>
 				</tr>
 
-			</c:if>
+			<%--</c:if>--%>
 
 		</c:if>
 	</table>
