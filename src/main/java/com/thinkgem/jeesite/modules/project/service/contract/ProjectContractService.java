@@ -240,6 +240,10 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 
 	private void notifyList(List<ProjectContract> contractList) {
 
+		if (contractList == null || contractList.isEmpty()) {
+			return;
+		}
+
 		OaNotify notify ;
 		List<OaNotifyRecord> oaNotifyRecordList;
 		OaNotifyRecord record;
