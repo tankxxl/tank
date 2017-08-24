@@ -242,8 +242,11 @@
 			a.del_flag = #{DEL_FLAG_NORMAL}
 
 			<![CDATA[
-				and date_sub(curdate(), INTERVAL 60 DAY) <= date(a.end_date)
-				and date_sub(curdate(), INTERVAL 30 DAY) >= date(a.end_date)
+				AND date_sub( a.end_date, INTERVAL 60 DAY ) <= date( curdate() )
+				AND date_sub( a.end_date, INTERVAL 30 DAY ) >= date( curdate( ) )
+
+				and a.handle_flag = #{DEL_FLAG_NORMAL}
+				and pro_apply.end_flag = #{DEL_FLAG_NORMAL}
 			]]>
 		</where>
 
@@ -267,8 +270,11 @@
 			a.del_flag = #{DEL_FLAG_NORMAL}
 
 			<![CDATA[
-				and date_sub(curdate(), INTERVAL 30 DAY) <= date(a.end_date)
-				and date_sub(curdate(), INTERVAL 0 DAY) >= date(a.end_date)
+				and date_sub(a.end_date, INTERVAL 30 DAY) <= date(curdate())
+				and date_sub(a.end_date, INTERVAL 0 DAY) >= date(curdate())
+
+				and a.handle_flag = #{DEL_FLAG_NORMAL}
+				and pro_apply.end_flag = #{DEL_FLAG_NORMAL}
 			]]>
 		</where>
 
@@ -293,6 +299,7 @@
 
 			<![CDATA[
 				and date_sub(curdate(), INTERVAL 0 DAY) >= date(a.end_date)
+
 				and a.handle_flag = #{DEL_FLAG_NORMAL}
 				and pro_apply.end_flag = #{DEL_FLAG_NORMAL}
 			]]>

@@ -3,25 +3,33 @@
  */
 package com.thinkgem.jeesite.modules.project.service.contract;
 
+import com.google.common.collect.Lists;
 import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.service.JicActService;
 import com.thinkgem.jeesite.common.utils.DateUtils;
+import com.thinkgem.jeesite.common.utils.IdGen;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
+import com.thinkgem.jeesite.modules.oa.entity.OaNotify;
+import com.thinkgem.jeesite.modules.oa.entity.OaNotifyRecord;
+import com.thinkgem.jeesite.modules.oa.service.OaNotifyService;
 import com.thinkgem.jeesite.modules.project.dao.contract.ProjectContractDao;
 import com.thinkgem.jeesite.modules.project.dao.contract.ProjectContractItemDao;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContractItem;
 import com.thinkgem.jeesite.modules.project.utils.MyDictUtils;
 import com.thinkgem.jeesite.modules.sys.entity.Log;
+import com.thinkgem.jeesite.modules.sys.entity.Role;
 import com.thinkgem.jeesite.modules.sys.entity.User;
+import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import jdk.nashorn.internal.ir.ReturnNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +45,9 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 
 	@Autowired
 	private ProjectContractItemDao itemDao;
+
+	@Autowired
+	private OaNotifyService notifyService;
 	
 	public ProjectContractItem getContractItem(String itemId){
 		return itemDao.get(itemId);
@@ -206,6 +217,88 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 	public void processAuditEnd(ProjectContract contract) {
 		// contract.setAuditEndDate(null);
 		contract.setAuditEndDate(new Date()) ;
+	}
+
+	@Transactional(readOnly = false)
+	public void findContractToNotify() {
+
+		OaNotify oaNotify = new OaNotify();
+		oaNotify.setType("4");
+		notifyService.deleteByType(oaNotify);
+
+		ProjectContract contract = new ProjectContract();
+
+		List<ProjectContract> contracts = findNotify1List(contract);
+		notifyList(contracts);
+
+		contracts = findNotify2List(contract);
+		notifyList(contracts);
+
+		contracts = findNotify3List(contract);
+		notifyList(contracts);
+	}
+
+	private void notifyList(List<ProjectContract> contractList) {
+
+		OaNotify notify ;
+		List<OaNotifyRecord> oaNotifyRecordList;
+		OaNotifyRecord record;
+		String type;
+//		List<User> userList = Collections.emptyList();
+		List<User> userList = new ArrayList<>();
+
+		User officeLeader, officeBoss;
+
+		Role role = UserUtils.getRoleByEnname("usertask_specialist");
+		if (role != null && role.getUserList() != null && !role.getUserList().isEmpty()) {
+			userList.addAll(role.getUserList());
+		}
+		for (ProjectContract contract : contractList) {
+			System.out.println();
+			// 新建
+			notify = new OaNotify();
+			oaNotifyRecordList = Lists.newArrayList();
+			notify.setOaNotifyRecordList(oaNotifyRecordList);
+
+			// master
+			type = DictUtils.getDictValue("合同预警", "oa_notify_type", "4");
+			notify.setType(type);
+			String title = StringUtils.isEmpty(contract.getContractCode()) ? contract.getClientName() : contract.getContractCode();
+			notify.setTitle(title);
+			notify.setContent(contract.getApply().getProjectName()
+					+ "\n项目编号：" + contract.getApply().getProjectCode()
+					+ "\n合同编号：" + contract.getContractCode()
+					+ "\n客户名称：" + contract.getClientName()
+					+ "\n合同到期日期：" + DateUtils.formatDateTime(contract.getEndDate()));
+			notify.setStatus("1");
+			notify.setCreateBy(UserUtils.get("1"));
+
+			// slave 可以有多个接收人
+//			record = new OaNotifyRecord();
+//			record.setId(IdGen.uuid());
+//			record.setOaNotify(notify);
+//			record.setUser(contract1.getCreateBy());
+//			record.setReadFlag("0");
+//			oaNotifyRecordList.add(record);
+
+			officeLeader = UserUtils.get(contract.getCreateBy().getId()).getOffice().getPrimaryPerson();
+			officeBoss = UserUtils.get(contract.getCreateBy().getId()).getOffice().getDeputyPerson();
+			userList.add(contract.getCreateBy());
+			userList.add(officeLeader);
+			userList.add(officeBoss);
+
+			for (User user : userList) {
+				System.out.println();
+				record = new OaNotifyRecord();
+				record.setId(IdGen.uuid());
+				record.setOaNotify(notify);
+				record.setUser(user);
+				record.setReadFlag("0");
+				oaNotifyRecordList.add(record);
+			}
+			// 保存
+			notifyService.save(notify);
+		} // end for list
 	}
 
 	private boolean shouldBossAudit(ProjectContract projectContract) {

@@ -68,57 +68,59 @@ public class ScheduledTask {
     @Scheduled(cron="0 0 1 * * ? ")   // 每天凌晨1点执行一次
     public void addToNotify() {
 
-        ProjectContract contract = new ProjectContract();
-        List<ProjectContract> contracts = contractService.findPreEndList(contract);
-        OaNotify notify;
-        List<OaNotifyRecord> oaNotifyRecordList;
-        OaNotifyRecord record;
-        String type;
-        List<User> userList = Collections.emptyList();
+        contractService.findContractToNotify();
 
-        Role role = UserUtils.getRoleByEnname("usertask_specialist");
-        if (role != null && role.getUserList() != null && !role.getUserList().isEmpty()) {
-            userList.addAll(role.getUserList());
-        }
-        for (ProjectContract contract1 : contracts) {
-            System.out.println("addToNotify");
-            // 新建
-            notify = new OaNotify();
-            oaNotifyRecordList = Lists.newArrayList();
-            notify.setOaNotifyRecordList(oaNotifyRecordList);
-
-            // master
-            type = DictUtils.getDictValue("合同预警", "oa_notify_type", "4");
-            notify.setType(type);
-            String title = StringUtils.isEmpty(contract1.getContractCode()) ? contract1.getClientName() : contract1.getContractCode();
-            notify.setTitle(title);
-            notify.setContent(contract1.getApply().getProjectName()
-                    + "\n项目编号：" + contract1.getApply().getProjectCode()
-                    + "\n合同编号：" + contract1.getContractCode()
-                    + "\n客户名称：" + contract1.getClientName()
-                    + "\n合同到期日期：" + DateUtils.formatDateTime(contract1.getEndDate()));
-            notify.setStatus("1");
-            notify.setCreateBy(UserUtils.get("1"));
-
-            // slave 可以有多个接收人
-            record = new OaNotifyRecord();
-            record.setId(IdGen.uuid());
-            record.setOaNotify(notify);
-            record.setUser(contract1.getCreateBy());
-            record.setReadFlag("0");
-            oaNotifyRecordList.add(record);
-
-            for (User user : userList) {
-                record = new OaNotifyRecord();
-                record.setId(IdGen.uuid());
-                record.setOaNotify(notify);
-                record.setUser(user);
-                record.setReadFlag("0");
-                oaNotifyRecordList.add(record);
-            }
-            // 保存
-            notifyService.save(notify);
-        }
+//        ProjectContract contract = new ProjectContract();
+//        List<ProjectContract> contracts = contractService.findPreEndList(contract);
+//        OaNotify notify;
+//        List<OaNotifyRecord> oaNotifyRecordList;
+//        OaNotifyRecord record;
+//        String type;
+//        List<User> userList = Collections.emptyList();
+//
+//        Role role = UserUtils.getRoleByEnname("usertask_specialist");
+//        if (role != null && role.getUserList() != null && !role.getUserList().isEmpty()) {
+//            userList.addAll(role.getUserList());
+//        }
+//        for (ProjectContract contract1 : contracts) {
+//            System.out.println("addToNotify");
+//            // 新建
+//            notify = new OaNotify();
+//            oaNotifyRecordList = Lists.newArrayList();
+//            notify.setOaNotifyRecordList(oaNotifyRecordList);
+//
+//            // master
+//            type = DictUtils.getDictValue("合同预警", "oa_notify_type", "4");
+//            notify.setType(type);
+//            String title = StringUtils.isEmpty(contract1.getContractCode()) ? contract1.getClientName() : contract1.getContractCode();
+//            notify.setTitle(title);
+//            notify.setContent(contract1.getApply().getProjectName()
+//                    + "\n项目编号：" + contract1.getApply().getProjectCode()
+//                    + "\n合同编号：" + contract1.getContractCode()
+//                    + "\n客户名称：" + contract1.getClientName()
+//                    + "\n合同到期日期：" + DateUtils.formatDateTime(contract1.getEndDate()));
+//            notify.setStatus("1");
+//            notify.setCreateBy(UserUtils.get("1"));
+//
+//            // slave 可以有多个接收人
+//            record = new OaNotifyRecord();
+//            record.setId(IdGen.uuid());
+//            record.setOaNotify(notify);
+//            record.setUser(contract1.getCreateBy());
+//            record.setReadFlag("0");
+//            oaNotifyRecordList.add(record);
+//
+//            for (User user : userList) {
+//                record = new OaNotifyRecord();
+//                record.setId(IdGen.uuid());
+//                record.setOaNotify(notify);
+//                record.setUser(user);
+//                record.setReadFlag("0");
+//                oaNotifyRecordList.add(record);
+//            }
+//            // 保存
+//            notifyService.save(notify);
+//        }
     }
 
 

@@ -30,13 +30,32 @@
 			$("#inputForm").validate({
                 // hidden elements are now ignored by default
                 ignore: "",
-				rules: {
+                rules: {
+                    // 投标价格
                     biddingPrice: {
+                        required: true,
+                        number: true,
+                        min: 0.01,
+                        max: 99999999,
+                        minNumber: $("#biddingPrice").val()  // 调用自定义验证
+                    },
+                    // 毛利率
+                    profitMargin: {
+                        required: true,
+                        number: true,
+                        min: 0.01,
+                        max: 100,
+                        minNumber: $("#profitMargin").val()  // 调用自定义验证
+                    }
+                },
 
-					},
-
-
-				},
+                messages: {
+                    ownership: "请填写",
+                    estimatedGrossProfitMargin: {
+                        required: "请填写毛利率",
+                        minlength: jQuery.validator.format("至少要填写 {0} 位数字。")
+                    }
+                },
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
 					form.submit();

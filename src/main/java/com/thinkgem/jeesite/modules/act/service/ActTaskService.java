@@ -868,6 +868,9 @@ public class ActTaskService extends BaseService {
                         .processInstanceId(procInsId)
                         .singleResult();
 
+    	if (processInstance == null ) {
+    		return "";
+		}
         String procDefId = processInstance.getProcessDefinitionId();
         return procDefId;
     }
@@ -889,6 +892,9 @@ public class ActTaskService extends BaseService {
 
         Task task = getCurrentTaskInfo(processInstance);
 
+        if (task == null ) {
+        	return "";
+		}
         String executionId = task.getExecutionId();
         return executionId;
     }

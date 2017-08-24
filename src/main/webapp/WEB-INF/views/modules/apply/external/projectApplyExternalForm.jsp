@@ -13,18 +13,20 @@
 				// hidden elements are now ignored by default
                 ignore: "",
                 rules: {
+					//
 					estimatedGrossProfitMargin: {
 				      	required: true,
 						number: true,
 				      	min: 0,
                         max: 100,
-                        minlength: 1
+                        minNumber: $("#estimatedGrossProfitMargin").val()  // 调用自定义验证
 				    },
                     estimatedContractAmount: {
                         required: true,
                         number: true,
                         min: 0,
                         max: 100000000,
+                        minNumber: $("#estimatedContractAmount").val()  // 调用自定义验证
 					},
 					ownership: {
 				      	required: true

@@ -55,6 +55,7 @@
 				<th>项目编号</th>
 				<th>项目名称</th>
 				<th>更新时间</th>
+				<th>审批状态</th>
 				<shiro:hasPermission name="project:finish:projectFinishApproval:edit"><th>操作</th></shiro:hasPermission>
 			</tr>
 		</thead>
@@ -73,11 +74,29 @@
 				<td>
 					<fmt:formatDate value="${projectFinishApproval.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/>
 				</td>
+
+				<c:choose>
+				<c:when test="${projectFinishApproval.procStatus != '2'}">
+				<td class="text-warning" >
+					</c:when>
+					<c:otherwise>
+				<td class="text-success">
+					</c:otherwise>
+					</c:choose>
+						${fns:getDictLabel(projectFinishApproval.procStatus, 'AuditStatus', '')}
+				</td>
+
 				<shiro:hasPermission name="project:finish:projectFinishApproval:edit"><td>
     				<a href="${ctx}/project/finish/projectFinishApproval/form?id=${projectFinishApproval.id}">详情</a>
-    				<a class="trace" target="_blank" procInsId="${projectFinishApproval.procInsId}" href="${ctx}/act/task/trace1?procInsId=${projectFinishApproval.procInsId}">跟踪1</a>
-					<a class="trace" target="_blank" procInsId="${projectFinishApproval.procInsId}" href="${ctx}/act/task/trace2?procInsId=${projectFinishApproval.procInsId}">跟踪2</a>
-					<a href="${ctx}/project/finish/projectFinishApproval/delete?id=${projectFinishApproval.id}" onclick="return confirmx('确认要删除该结项审批吗？', this.href)">删除</a>
+
+					<c:if test="${projectFinishApproval.procStatus != '2'}">
+						<a class="trace" target="_blank" procInsId="${projectFinishApproval.procInsId}" href="${ctx}/act/task/trace1?procInsId=${projectFinishApproval.procInsId}">跟踪</a>
+					</c:if>
+					<c:if test="${projectFinishApproval.procStatus == '2'}">
+						<a href="${ctx}/project/finish/projectFinishApproval/delete?id=${projectFinishApproval.id}" onclick="return confirmx('确认要删除该结项审批吗？', this.href)">删除</a>
+					</c:if>
+
+					<%--<a class="trace" target="_blank" procInsId="${projectFinishApproval.procInsId}" href="${ctx}/act/task/trace2?procInsId=${projectFinishApproval.procInsId}">跟踪2</a>--%>
 				</td></shiro:hasPermission>
 			</tr>
 		</c:forEach>

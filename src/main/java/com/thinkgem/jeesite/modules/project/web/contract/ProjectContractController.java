@@ -62,10 +62,6 @@ public class ProjectContractController extends BaseController {
 	@Autowired
 	private ActTaskService actTaskService;
 
-	@Autowired
-	private OaNotifyService notifyService;
-
-
 	@ModelAttribute
 	public ProjectContract get(@RequestParam(required = false) String id) {
 		ProjectContract entity = null;
@@ -333,23 +329,8 @@ public class ProjectContractController extends BaseController {
 	@RequestMapping(value = "addToNotify")
 	public String addToNotify( HttpServletRequest request, HttpServletResponse response,
 							 Model model) {
-
-		OaNotify oaNotify = new OaNotify();
-		oaNotify.setType("4");
-		notifyService.deleteByType(oaNotify);
-
-		ProjectContract contract = new ProjectContract();
-		List<ProjectContract> contracts = contractService.findPreEndList(contract);
-		notify(contracts);
-
-		contracts = contractService.findNotify1List(contract);
-		notify(contracts);
-
-		contracts = contractService.findNotify2List(contract);
-		notify(contracts);
-
-		contracts = contractService.findNotify3List(contract);
-		notify(contracts);
+		contractService.findContractToNotify();
+		return null;
 
 		// List<OaNotifyRecord> notifyRecords = new ArrayList<>();
 		// notify.setOaNotifyRecordList(notifyRecords);
@@ -382,71 +363,6 @@ public class ProjectContractController extends BaseController {
 		// 		contract);
 		// model.addAttribute("page", page);
 		// return "modules/project/contract/projectContractList";
-		return null;
-	}
-
-	public void notify(List<ProjectContract> contractList) {
-
-		OaNotify notify ;
-		List<OaNotifyRecord> oaNotifyRecordList;
-		OaNotifyRecord record;
-		String type;
-//		List<User> userList = Collections.emptyList();
-		List<User> userList = new ArrayList<>();
-
-		User officeLeader, officeBoss;
-
-		Role role = UserUtils.getRoleByEnname("usertask_specialist");
-		if (role != null && role.getUserList() != null && !role.getUserList().isEmpty()) {
-			userList.addAll(role.getUserList());
-		}
-		for (ProjectContract contract : contractList) {
-			System.out.println();
-			// 新建
-			notify = new OaNotify();
-			oaNotifyRecordList = Lists.newArrayList();
-			notify.setOaNotifyRecordList(oaNotifyRecordList);
-
-			// master
-			type = DictUtils.getDictValue("合同预警", "oa_notify_type", "4");
-			notify.setType(type);
-			String title = StringUtils.isEmpty(contract.getContractCode()) ? contract.getClientName() : contract.getContractCode();
-			notify.setTitle(title);
-			notify.setContent(contract.getApply().getProjectName()
-					+ "\n项目编号：" + contract.getApply().getProjectCode()
-					+ "\n合同编号：" + contract.getContractCode()
-					+ "\n客户名称：" + contract.getClientName()
-					+ "\n合同到期日期：" + DateUtils.formatDateTime(contract.getEndDate()));
-			notify.setStatus("1");
-			notify.setCreateBy(UserUtils.get("1"));
-
-			// slave 可以有多个接收人
-//			record = new OaNotifyRecord();
-//			record.setId(IdGen.uuid());
-//			record.setOaNotify(notify);
-//			record.setUser(contract1.getCreateBy());
-//			record.setReadFlag("0");
-//			oaNotifyRecordList.add(record);
-
-			officeLeader = UserUtils.get(contract.getCreateBy().getId()).getOffice().getPrimaryPerson();
-			officeBoss = UserUtils.get(contract.getCreateBy().getId()).getOffice().getDeputyPerson();
-			userList.add(contract.getCreateBy());
-			userList.add(officeLeader);
-			userList.add(officeBoss);
-
-			for (User user : userList) {
-				System.out.println();
-				record = new OaNotifyRecord();
-				record.setId(IdGen.uuid());
-				record.setOaNotify(notify);
-				record.setUser(user);
-				record.setReadFlag("0");
-				oaNotifyRecordList.add(record);
-			}
-			// 保存
-			notifyService.save(notify);
-		} // end for list
-
 	}
 
 

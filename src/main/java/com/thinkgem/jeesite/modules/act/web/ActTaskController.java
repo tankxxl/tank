@@ -10,6 +10,7 @@ import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.executor.ReuseExecutor;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -197,6 +198,11 @@ public class ActTaskController extends BaseController {
     public String trace1( String procInsId, HttpServletResponse response) throws Exception {
         String procDefId = actTaskService.getProcDefIdByProcInsId(procInsId);
         String execId = actTaskService.getExecutionIdByProcInsId(procInsId);
+
+		if (StringUtils.isEmpty(procDefId) || StringUtils.isEmpty(execId)) {
+			return "";
+		}
+
 //		tracePhoto(procDefId, execId, response);
 		// 再次请求
         return "redirect:" + adminPath + "/act/task/trace/photo/" + procDefId +

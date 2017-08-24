@@ -143,21 +143,21 @@
 
 		<tr>
 			<td rowspan="3" class="tit">项目利润率<br>说明</td>
-			<td class="tit">预算利润率</td>
+			<td class="tit">预算利润率%</td>
 			<td>
-				<form:input path="estimatedProfitMargin" maxlength="255" class="input-xlarge "/>
+				${projectFinishApproval.estimatedProfitMargin}
 			</td>
 
-			<td class="tit">结算利润率</td>
+			<td class="tit">结算利润率%</td>
 			<td>
-				<form:input path="settlementProfitMargin" maxlength="255" class="input-xlarge "/>
+				${projectFinishApproval.settlementProfitMargin}
 			</td>
 		</tr>
 
 		<tr>
-			<td class="tit">利润率浮动</td>
+			<td class="tit">利润率浮动%</td>
 			<td colspan="3">
-				<form:input path="profitMarginFloat" maxlength="255" class="input-xlarge "/>
+				${projectFinishApproval.profitMarginFloat}
 			</td>
 		</tr>
 

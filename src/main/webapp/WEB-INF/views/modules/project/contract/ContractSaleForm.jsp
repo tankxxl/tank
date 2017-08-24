@@ -11,6 +11,26 @@
             $("#rmb").text(digitUppercase(${projectContract.amount }));
 
 			$("#inputForm").validate({
+
+                rules: {
+                    // 合同总金额
+                    amount: {
+                        required: true,
+                        number: true,
+                        min: 0.01,
+                        max: 99999999,
+                        minNumber: $("#amount").val()  // 调用自定义验证
+                    }
+                },
+
+                messages: {
+                    ownership: "请填写",
+                    estimatedGrossProfitMargin: {
+                        required: "请填写毛利率",
+                        minlength: jQuery.validator.format("至少要填写 {0} 位数字。")
+                    }
+                },
+
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
 					form.submit();

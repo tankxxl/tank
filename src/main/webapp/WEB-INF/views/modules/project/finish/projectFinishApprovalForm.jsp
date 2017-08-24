@@ -8,6 +8,48 @@
 		$(document).ready(function() {
 			//$("#name").focus();
 			$("#inputForm").validate({
+                rules: {
+                    // 预算利润率
+                    estimatedProfitMargin: {
+                        required: true,
+						number: true,
+						min: 0.01,
+						max: 100,
+						minNumber: $("#estimatedProfitMargin").val()  // 调用自定义验证
+					},
+					// 结算利润率
+                    settlementProfitMargin: {
+                        required: true,
+                        number: true,
+                        min: 0.01,
+                        max: 100,
+                        minNumber: $("#settlementProfitMargin").val()  // 调用自定义验证
+                    },
+					// 利润率浮动
+                    profitMarginFloat: {
+                        required: true,
+                        number: true,
+                        min: 0.01,
+                        max: 100,
+                        minNumber: $("#profitMarginFloat").val()  // 调用自定义验证
+                    },
+					// 结项收入
+                    finishPrice: {
+                        required: true,
+                        number: true,
+                        min: 0.01,
+                        max: 99999999,
+                        minNumber: $("#finishPrice").val()  // 调用自定义验证
+                    }
+                },
+                messages: {
+                    ownership: "请填写",
+                    estimatedGrossProfitMargin: {
+                        required: "请填写毛利率",
+                        minlength: jQuery.validator.format("至少要填写 {0} 位数字。")
+                    }
+                },
+
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
 					form.submit();
@@ -160,21 +202,21 @@
 
 		<tr>
 			<td rowspan="3" class="tit">项目利润率<br>说明</td>
-			<td class="tit">预算利润率</td>
+			<td class="tit">预算利润率%</td>
 			<td>
-				<form:input path="estimatedProfitMargin" maxlength="255" class="input-xlarge "/>
+				<form:input path="estimatedProfitMargin" class="input-xlarge "/>
 				<span class="help-inline"><font color="red">*</font> </span>
 			</td>
 
-			<td class="tit">结算利润率</td>
+			<td class="tit">结算利润率%</td>
 			<td>
-				<form:input path="settlementProfitMargin" maxlength="255" class="input-xlarge "/>
+				<form:input path="settlementProfitMargin" class="input-xlarge "/>
 				<span class="help-inline"><font color="red">*</font> </span>
 			</td>
 		</tr>
 
 		<tr>
-			<td class="tit">利润率浮动</td>
+			<td class="tit">利润率浮动%</td>
 			<td colspan="3">
 				<form:input path="profitMarginFloat" maxlength="255" class="input-xlarge "/>
 				<span class="help-inline"><font color="red">*</font> </span>
