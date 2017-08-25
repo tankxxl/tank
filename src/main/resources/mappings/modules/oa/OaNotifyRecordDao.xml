@@ -100,7 +100,7 @@
 	</update>
 	
 	<delete id="delete">
-		UPDATE FROM oa_notify_record 
+		DELETE FROM oa_notify_record
 		WHERE id = #{id}
 	</delete>
 	

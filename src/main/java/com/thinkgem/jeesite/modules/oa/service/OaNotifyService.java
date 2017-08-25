@@ -4,6 +4,7 @@
 package com.thinkgem.jeesite.modules.oa.service;
 
 import java.util.Date;
+import java.util.List;
 
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +89,15 @@ public class OaNotifyService extends CrudService<OaNotifyDao, OaNotify> {
 	 */
 	@Transactional(readOnly = false)
 	public void deleteByType(OaNotify entity) {
+
+		List<OaNotify> oaNotifyList = dao.findList(entity);
+		if (oaNotifyList == null || oaNotifyList.isEmpty()) {
+			return;
+		}
+		for (OaNotify oaNotify : oaNotifyList) {
+			oaNotifyRecordDao.deleteByOaNotifyId(oaNotify.getId());
+		}
 		dao.deleteByType(entity);
-		oaNotifyRecordDao.deleteByOaNotifyId(entity.getId());
+		// oaNotifyRecordDao.deleteByOaNotifyId(entity.getId());
 	}
 }

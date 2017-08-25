@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -212,10 +213,9 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 		// }
 	}
 
-	// 审批结束时
+	// 审批结束时，更新实体的字段
 	@Override
 	public void processAuditEnd(ProjectContract contract) {
-		// contract.setAuditEndDate(null);
 		contract.setAuditEndDate(new Date()) ;
 	}
 
@@ -229,16 +229,16 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 		ProjectContract contract = new ProjectContract();
 
 		List<ProjectContract> contracts = findNotify1List(contract);
-		notifyList(contracts);
+		notifyList(contracts, "1");
 
 		contracts = findNotify2List(contract);
-		notifyList(contracts);
+		notifyList(contracts, "2");
 
 		contracts = findNotify3List(contract);
-		notifyList(contracts);
+		notifyList(contracts, "3");
 	}
 
-	private void notifyList(List<ProjectContract> contractList) {
+	private void notifyList(List<ProjectContract> contractList, String type) {
 
 		if (contractList == null || contractList.isEmpty()) {
 			return;
@@ -247,16 +247,18 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 		OaNotify notify ;
 		List<OaNotifyRecord> oaNotifyRecordList;
 		OaNotifyRecord record;
-		String type;
 //		List<User> userList = Collections.emptyList();
 		List<User> userList = new ArrayList<>();
 
 		User officeLeader, officeBoss;
 
+		// 共有的人员
 		Role role = UserUtils.getRoleByEnname("usertask_specialist");
 		if (role != null && role.getUserList() != null && !role.getUserList().isEmpty()) {
 			userList.addAll(role.getUserList());
 		}
+
+		StringBuilder sb = new StringBuilder();
 		for (ProjectContract contract : contractList) {
 			System.out.println();
 			// 新建
@@ -264,33 +266,39 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 			oaNotifyRecordList = Lists.newArrayList();
 			notify.setOaNotifyRecordList(oaNotifyRecordList);
 
-			// master
-			type = DictUtils.getDictValue("合同预警", "oa_notify_type", "4");
-			notify.setType(type);
+			// master通知
+			notify.setType(DictUtils.getDictValue("合同预警", "oa_notify_type", "4") );
+            // 通知标题：客户名称、合同号
 			String title = StringUtils.isEmpty(contract.getContractCode()) ? contract.getClientName() : contract.getContractCode();
 			notify.setTitle(title);
+			double x = DateUtils.getDistanceOfTwoDate(new Date(), contract.getEndDate() ) + 1;
+			if (x > 0) {
+				title = "距离合同到期还有" + x + "天！";
+			} else {
+				title = "合同已超期" + Math.abs(x) + "天！";
+			}
 			notify.setContent(contract.getApply().getProjectName()
 					+ "\n项目编号：" + contract.getApply().getProjectCode()
 					+ "\n合同编号：" + contract.getContractCode()
 					+ "\n客户名称：" + contract.getClientName()
-					+ "\n合同到期日期：" + DateUtils.formatDateTime(contract.getEndDate()));
+					+ "\n合同到期日期：" + DateUtils.formatDateTime(contract.getEndDate())
+					+ "\n" + title);
 			notify.setStatus("1");
+
+
 			notify.setCreateBy(UserUtils.get("1"));
 
-			// slave 可以有多个接收人
-//			record = new OaNotifyRecord();
-//			record.setId(IdGen.uuid());
-//			record.setOaNotify(notify);
-//			record.setUser(contract1.getCreateBy());
-//			record.setReadFlag("0");
-//			oaNotifyRecordList.add(record);
-
-			officeLeader = UserUtils.get(contract.getCreateBy().getId()).getOffice().getPrimaryPerson();
-			officeBoss = UserUtils.get(contract.getCreateBy().getId()).getOffice().getDeputyPerson();
-			userList.add(contract.getCreateBy());
-			userList.add(officeLeader);
-			userList.add(officeBoss);
-
+			// 30天内
+			if ("1".equals(type)) { // 只通知自己 30 < x < 60
+				userList.add(UserUtils.get(contract.getCreateBy().getId()));
+			} else if ("2".equals(type)) { // 自己和直接领导 0< x < 30
+				officeLeader = UserUtils.get(contract.getCreateBy().getId()).getOffice().getPrimaryPerson();
+				userList.add(officeLeader);
+			} else if ("3".equals(type)) { // 自己、直接领导、分管 x > 0
+				officeBoss = UserUtils.get(contract.getCreateBy().getId()).getOffice().getDeputyPerson();
+				userList.add(officeBoss);
+			}
+			// 接收通知的人
 			for (User user : userList) {
 				System.out.println();
 				record = new OaNotifyRecord();
@@ -300,7 +308,7 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 				record.setReadFlag("0");
 				oaNotifyRecordList.add(record);
 			}
-			// 保存
+			// 保存通知
 			notifyService.save(notify);
 		} // end for list
 	}
