@@ -48,7 +48,8 @@
 		c6.phone AS "customerContact.phone",
 		c6.position AS "customerContact.position"
 	</sql>
-	
+
+	<!-- 定义sql片段，替换多次出现的语句 -->
 	<sql id="projectApplyExternalJoins">
 		LEFT JOIN sys_user u4 ON u4.id = a.saler_id
 		LEFT JOIN customer c5 ON c5.id = a.customer_id
@@ -110,7 +111,7 @@
 				AND a.pro_main_stage = #{proMainStage}
 			</if>
 			
-			<if test="queryStage != null">
+			<if test="queryStage != null and queryStage">
 			    AND a.pro_main_stage in 
 			    <foreach item="item" index="index" collection="queryStage" open="(" separator="," close=")">
 			        #{item}
