@@ -11,6 +11,7 @@ import com.thinkgem.jeesite.common.utils.IdGen;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
+import com.thinkgem.jeesite.modules.mail.service.MailService;
 import com.thinkgem.jeesite.modules.oa.entity.OaNotify;
 import com.thinkgem.jeesite.modules.oa.entity.OaNotifyRecord;
 import com.thinkgem.jeesite.modules.oa.service.OaNotifyService;
@@ -49,6 +50,9 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 
 	@Autowired
 	private OaNotifyService notifyService;
+
+	@Autowired
+	private MailService mailService;
 	
 	public ProjectContractItem getContractItem(String itemId){
 		return itemDao.get(itemId);
@@ -309,6 +313,9 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 				record.setReadFlag("0");
 				oaNotifyRecordList.add(record);
 			}
+
+			// 发邮件
+			mailService.sendNotifyEmail(notify, userList);
 			// 保存通知
 			notifyService.save(notify);
 		} // end for list

@@ -3,10 +3,7 @@
  */
 package com.thinkgem.jeesite.modules.sys.service;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import org.activiti.engine.IdentityService;
 import org.activiti.engine.identity.Group;
@@ -112,7 +109,7 @@ public class SystemService extends BaseService implements InitializingBean {
 
 	/**
 	 * 通过部门ID获取用户列表，仅返回用户id和name（树查询用户时用）
-	 * @param user
+	 * @param officeId
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -248,8 +245,19 @@ public class SystemService extends BaseService implements InitializingBean {
 	
 	public Role getRoleByEnname(String enname) {
 		Role r = new Role();
+		if (StringUtils.isEmpty(enname))
+			return r;
+
 		r.setEnname(enname);
 		return roleDao.getByEnname(r);
+	}
+
+	public List<User> findUserByRoleEname(String ename) {
+		Role role = getRoleByEnname(ename);
+		if (role == null) {
+			return Collections.EMPTY_LIST;
+		}
+		return role.getUserList();
 	}
 	
 	public List<Role> findRole(Role role){
