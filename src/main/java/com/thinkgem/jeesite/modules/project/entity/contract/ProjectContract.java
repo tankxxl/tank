@@ -66,7 +66,7 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 	// 管理合同表单
 	private String oaNo; // 事权审批OA号
 
-	private String originCode; // 事权审批OA号
+	private String originCode; // 原合同号
 
 	private String sealType; // 印章类型
 	private User projectManager;//项目经理

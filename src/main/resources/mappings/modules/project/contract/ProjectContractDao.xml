@@ -243,7 +243,7 @@
 
 			<![CDATA[
 				AND date_sub( a.end_date, INTERVAL 60 DAY ) <= date( curdate() )
-				AND date_sub( a.end_date, INTERVAL 30 DAY ) >= date( curdate( ) )
+				AND date_sub( a.end_date, INTERVAL 30 DAY ) > date( curdate( ) )
 
 				and a.handle_flag = #{DEL_FLAG_NORMAL}
 				and pro_apply.end_flag = #{DEL_FLAG_NORMAL}
@@ -271,7 +271,7 @@
 
 			<![CDATA[
 				and date_sub(a.end_date, INTERVAL 30 DAY) <= date(curdate())
-				and date_sub(a.end_date, INTERVAL 0 DAY) >= date(curdate())
+				and date_sub(a.end_date, INTERVAL 0 DAY) > date(curdate())
 
 				and a.handle_flag = #{DEL_FLAG_NORMAL}
 				and pro_apply.end_flag = #{DEL_FLAG_NORMAL}

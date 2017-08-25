@@ -284,9 +284,10 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 					+ "\n合同到期日期：" + DateUtils.formatDateTime(contract.getEndDate())
 					+ "\n" + title);
 			notify.setStatus("1");
-
-
 			notify.setCreateBy(UserUtils.get("1"));
+			// 把合同ID带入通知实体
+			notify.setRemarks(contract.getId());
+
 
 			// 30天内
 			if ("1".equals(type)) { // 只通知自己 30 < x < 60

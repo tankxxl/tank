@@ -19,6 +19,8 @@ import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
 import com.thinkgem.jeesite.modules.oa.entity.OaNotify;
 import com.thinkgem.jeesite.modules.oa.entity.OaNotifyRecord;
 import com.thinkgem.jeesite.modules.oa.service.OaNotifyService;
+import com.thinkgem.jeesite.modules.project.entity.bidding.ProjectBidding;
+import com.thinkgem.jeesite.modules.project.entity.biddingArchive.BiddingArchive;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContractItem;
 import com.thinkgem.jeesite.modules.project.service.contract.ProjectContractService;
@@ -28,6 +30,7 @@ import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import com.thinkgem.jeesite.modules.sys.utils.ExportUtils;
 import com.thinkgem.jeesite.modules.sys.utils.POIUtils;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -183,6 +186,27 @@ public class ProjectContractController extends BaseController {
 			view = projectContract.getView();
 		}
 		return prefix + view;
+	}
+
+	// contract2resign
+	@RequiresPermissions("project:contract:projectContract:edit")
+	@RequestMapping(value = "contract2resign")
+	public String contract2resign(ProjectContract projectContract, Model model) {
+		String prefix = "modules/project/contract/";
+		projectContract.setOriginCode(projectContract.getContractCode());
+		projectContract.setContractCode("");
+		projectContract.setId("");
+		projectContract.setAmount("");
+		projectContract.setAmountDetail("");
+		projectContract.setBeginDate(null);
+		projectContract.setEndDate(null);
+		projectContract.setValidInfo("");
+		projectContract.setContentSummary("");
+		projectContract.setCreateBy(null);
+
+		model.addAttribute("projectContract", projectContract);
+
+		return prefix + projectContract.getForm();
 	}
 
 	@RequiresPermissions("project:contract:projectContract:edit")

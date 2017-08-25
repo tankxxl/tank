@@ -269,10 +269,11 @@
 					<input id="btnSubmit" class="btn btn-primary" type="submit" value="转交下一步" onclick="$('#flag').val('yes')"/>&nbsp;
 				</c:if>
 
+				&nbsp;&nbsp;&nbsp;&nbsp;
 				<input id="btnSubmit" class="btn btn-inverse" type="submit" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;
 			</c:if>
 		</shiro:hasPermission>
-
+		&nbsp;&nbsp;&nbsp;&nbsp;
 		<input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.back()"/>
 	</div>
 
