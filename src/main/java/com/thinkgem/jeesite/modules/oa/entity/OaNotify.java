@@ -22,11 +22,11 @@ import com.thinkgem.jeesite.modules.sys.entity.User;
 public class OaNotify extends DataEntity<OaNotify> {
 	
 	private static final long serialVersionUID = 1L;
-	private String type;		// 类型
-	private String title;		// 标题
-	private String content;		// 类型
-	private String files;		// 附件
-	private String status;		// 状态
+	private String type;		// 类型，db
+	private String title;		// 标题，db
+	private String content;		// 内容，db
+	private String files;		// 附件，db
+	private String status;		// 状态，db，发布、草稿
 
 	private String readNum;		// 已读
 	private String unReadNum;	// 未读

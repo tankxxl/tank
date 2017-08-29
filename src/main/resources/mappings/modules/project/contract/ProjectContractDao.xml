@@ -30,6 +30,7 @@
 		a.contract_type AS "contractType",
 		a.origin_code AS "originCode",
 		a.audit_end_date AS "auditEndDate",
+		a.sale_code AS "saleCode",
 
 		a.create_by AS "createBy.id",
 		a.create_date AS "createDate",
@@ -62,6 +63,8 @@
 		u6.name AS "createBy.name",
 		s6.id AS "createBy.office.id",
 		s6.name AS "createBy.office.name",
+		s6.PRIMARY_PERSON AS "createBy.office.primaryPerson.id",
+		s6.DEPUTY_PERSON AS "createBy.office.deputyPerson.id",
 		
 		c5.customer_name AS "apply.customer.customerName",
 		c5.phone AS "apply.customer.phone",
@@ -360,6 +363,7 @@
 			origin_code ,
 			audit_end_date ,
 			handle_flag,
+			sale_code,
 
 			create_by,
 			create_date,
@@ -400,6 +404,7 @@
 			#{auditEndDate},
 
 			#{handleFlag},
+			#{saleCode},
 
 			#{createBy.id},
 			#{createDate},
@@ -441,6 +446,7 @@
 			contract_type = #{contractType},
 			origin_code = #{originCode},
 			audit_end_date = #{auditEndDate},
+			sale_code = #{saleCode},
 
 			update_by = #{updateBy.id},
 			update_date = #{updateDate},

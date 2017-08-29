@@ -58,6 +58,7 @@ public class OaNotifyController extends BaseController {
 	@RequestMapping(value = "form")
 	public String form(OaNotify oaNotify, Model model) {
 		if (StringUtils.isNotBlank(oaNotify.getId())){
+			// 没有在get方法中得到子表，在此加载子表数据
 			oaNotify = oaNotifyService.getRecordList(oaNotify);
 		}
 		model.addAttribute("oaNotify", oaNotify);
@@ -88,6 +89,16 @@ public class OaNotifyController extends BaseController {
 	public String delete(OaNotify oaNotify, RedirectAttributes redirectAttributes) {
 		oaNotifyService.delete(oaNotify);
 		addMessage(redirectAttributes, "删除通知成功");
+		return "redirect:" + adminPath + "/oa/oaNotify/?repage";
+	}
+
+	@RequiresPermissions("oa:oaNotify:edit")
+	@RequestMapping(value = "send")
+	public String send(OaNotify oaNotify, RedirectAttributes redirectAttributes) {
+		oaNotify.setStatus("1");
+		oaNotifyService.sendNotifyEmail(oaNotify);
+		// oaNotifyService.delete(oaNotify);
+		addMessage(redirectAttributes, "发送通知成功");
 		return "redirect:" + adminPath + "/oa/oaNotify/?repage";
 	}
 	

@@ -148,7 +148,7 @@ public class AssigneeService extends BaseService {
 		String[] role = {
 				"usertask_finance_leader",
 				"usertask_operation_management_leader",
-				"usertask_operation_management",
+				"usertask_operation_management_commerce",
 				"usertask_office_leader",
 				"usertask_lawer"};
 

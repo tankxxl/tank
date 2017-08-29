@@ -10,6 +10,24 @@
             $("#rmb").text(digitUppercase(${projectContract.amount }));
 
 			$("#inputForm").validate({
+                rules: {
+                    // 毛利率
+                    profitMargin: {
+                        required: true,
+                        number: true,
+                        min: 0.01,
+                        max: 100,
+                        minNumber: $("#profitMargin").val()  // 调用自定义验证
+                    }
+                },
+
+                messages: {
+                    ownership: "请填写",
+                    estimatedGrossProfitMargin: {
+                        required: "请填写毛利率",
+                        minlength: jQuery.validator.format("至少要填写 {0} 位数字。")
+                    }
+                },
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
 					form.submit();
@@ -170,6 +188,19 @@
 			</td>
 		</tr>
 
+
+		<tr>
+			<td class="tit">对应销售合同号 </td>
+			<td colspan="3" class="">
+		<c:if test="${projectContract.act.taskDefKey eq 'usertask_specialist'}">
+			<form:input path="saleCode" style="width:80%" cssClass=""/>
+		</c:if>
+		<c:if test="${projectContract.act.taskDefKey ne 'usertask_specialist'}">
+			${projectContract.saleCode}
+		</c:if>
+			</td>
+		</tr>
+
 		<tr>
 			<td class="tit">合同总金额</td>
 			<td colspan="1" class="">
@@ -324,11 +355,11 @@
 					<input id="btnSubmit" class="btn btn-primary" type="submit" value="转交下一步" onclick="$('#flag').val('yes')"/>&nbsp;
 				</c:if>
 
-
+				&nbsp;&nbsp;&nbsp;&nbsp;
 				<input id="btnSubmit" class="btn btn-inverse" type="submit" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;
 			</c:if>
 		</shiro:hasPermission>
-
+		&nbsp;&nbsp;&nbsp;&nbsp;
 		<input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.back()"/>
 	</div>
 

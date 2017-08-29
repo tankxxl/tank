@@ -6,6 +6,7 @@ package com.thinkgem.jeesite.modules.project.service.contract;
 import com.google.common.collect.Lists;
 import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.service.JicActService;
+import com.thinkgem.jeesite.common.utils.Collections3;
 import com.thinkgem.jeesite.common.utils.DateUtils;
 import com.thinkgem.jeesite.common.utils.IdGen;
 import com.thinkgem.jeesite.common.utils.StringUtils;
@@ -23,6 +24,7 @@ import com.thinkgem.jeesite.modules.project.utils.MyDictUtils;
 import com.thinkgem.jeesite.modules.sys.entity.Log;
 import com.thinkgem.jeesite.modules.sys.entity.Role;
 import com.thinkgem.jeesite.modules.sys.entity.User;
+import com.thinkgem.jeesite.modules.sys.service.SystemService;
 import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import jdk.nashorn.internal.ir.ReturnNode;
@@ -225,21 +227,48 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 
 	@Transactional(readOnly = false)
 	public void findContractToNotify() {
+		findContract60ToNotify();
+		findContract30ToNotify();
+		findContract0ToNotify();
+	}
+
+	@Transactional(readOnly = false)
+	public void findContract60ToNotify() {
 
 		OaNotify oaNotify = new OaNotify();
-		oaNotify.setType("4");
-		notifyService.deleteByType(oaNotify);
+		oaNotify.setType("4"); // 60日
 
-		ProjectContract contract = new ProjectContract();
+		List<ProjectContract> contracts = findNotify1List(new ProjectContract());
+		if (contracts != null && !contracts.isEmpty()) {
+			notifyService.deleteByType(oaNotify);
+		}
+		notifyList(contracts, oaNotify.getType());
+	}
 
-		List<ProjectContract> contracts = findNotify1List(contract);
-		notifyList(contracts, "1");
+	@Transactional(readOnly = false)
+	public void findContract30ToNotify() {
 
-		contracts = findNotify2List(contract);
-		notifyList(contracts, "2");
+		OaNotify oaNotify = new OaNotify();
+		oaNotify.setType("5"); // 30日
 
-		contracts = findNotify3List(contract);
-		notifyList(contracts, "3");
+		List<ProjectContract> contracts = findNotify2List(new ProjectContract());
+		if (contracts != null && !contracts.isEmpty()) {
+			notifyService.deleteByType(oaNotify);
+		}
+		notifyList(contracts, oaNotify.getType());
+	}
+
+	@Transactional(readOnly = false)
+	public void findContract0ToNotify() {
+
+		OaNotify oaNotify = new OaNotify();
+		oaNotify.setType("6"); // 到期
+
+		List<ProjectContract> contracts = findNotify3List(new ProjectContract());
+		if (contracts != null && !contracts.isEmpty()) {
+			notifyService.deleteByType(oaNotify);
+		}
+		notifyList(contracts, oaNotify.getType());
 	}
 
 	private void notifyList(List<ProjectContract> contractList, String type) {
@@ -264,14 +293,17 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 
 		StringBuilder sb = new StringBuilder();
 		for (ProjectContract contract : contractList) {
-			System.out.println();
+			// 初始化循环中使用的全局变量
+			sb.setLength(0);
+
 			// 新建
 			notify = new OaNotify();
 			oaNotifyRecordList = Lists.newArrayList();
 			notify.setOaNotifyRecordList(oaNotifyRecordList);
 
 			// master通知
-			notify.setType(DictUtils.getDictValue("合同预警", "oa_notify_type", "4") );
+			// notify.setType(DictUtils.getDictValue("合同预警", "oa_notify_type", "4") );
+			notify.setType(type);
             // 通知标题：客户名称、合同号
 			String title = StringUtils.isEmpty(contract.getContractCode()) ? contract.getClientName() : contract.getContractCode();
 			notify.setTitle(title);
@@ -279,33 +311,61 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 			if (x > 0) {
 				title = "距离合同到期还有" + x + "天！";
 			} else {
-				title = "合同已超期" + Math.abs(x) + "天！";
+				title = "合同已超期" + Math.rint(Math.abs(x) ) + "天！";
 			}
-			notify.setContent(contract.getApply().getProjectName()
-					+ "\n项目编号：" + contract.getApply().getProjectCode()
-					+ "\n合同编号：" + contract.getContractCode()
-					+ "\n客户名称：" + contract.getClientName()
-					+ "\n合同到期日期：" + DateUtils.formatDateTime(contract.getEndDate())
-					+ "\n" + title);
-			notify.setStatus("1");
+
+			sb.append("项目名称：")
+			.append(contract.getApply().getProjectName())
+			.append("\n");
+
+			sb.append("项目编号：")
+			.append(contract.getApply().getProjectCode())
+			.append("\n");
+
+			sb.append("合同名称：")
+			.append(contract.getContractName())
+			.append("\n");
+
+			sb.append("合作单位：")
+					.append(contract.getClientName())
+					.append("\n");
+
+			sb.append("合同到期日：")
+					.append(DateUtils.formatDate(contract.getEndDate()))
+					.append("\n");
+
+			sb.append(title);
+			notify.setContent(sb.toString());
+
+			// notify.setContent(contract.getApply().getProjectName()
+			// 		+ "\n项目编号：" + contract.getApply().getProjectCode()
+			// 		+ "\n合同编号：" + contract.getContractCode()
+			// 		+ "\n客户名称：" + contract.getClientName()
+			// 		+ "\n合同到期日期：" + DateUtils.formatDate(contract.getEndDate())
+			// 		+ "\n" + title);
+			// 草稿状态
+			notify.setStatus("0");
 			notify.setCreateBy(UserUtils.get("1"));
-			// 把合同ID带入通知实体
+			// 把业务对象(合同)ID带入通知实体
 			notify.setRemarks(contract.getId());
 
 
 			// 30天内
-			if ("1".equals(type)) { // 只通知自己 30 < x < 60
+			if ("4".equals(type)) { // 只通知自己 30 < x < 60
 				userList.add(UserUtils.get(contract.getCreateBy().getId()));
-			} else if ("2".equals(type)) { // 自己和直接领导 0< x < 30
-				officeLeader = UserUtils.get(contract.getCreateBy().getId()).getOffice().getPrimaryPerson();
+			} else if ("5".equals(type)) { // 自己和直接领导 0< x < 30
+				// officeLeader = UserUtils.get(contract.getCreateBy().getId()).getOffice().getPrimaryPerson();
+				officeLeader = UserUtils.get(contract.getCreateBy().getOffice().getPrimaryPerson().getId() );
+
 				userList.add(officeLeader);
-			} else if ("3".equals(type)) { // 自己、直接领导、分管 x > 0
-				officeBoss = UserUtils.get(contract.getCreateBy().getId()).getOffice().getDeputyPerson();
+			} else if ("6".equals(type)) { // 自己、直接领导、分管 x > 0
+				// officeBoss = UserUtils.get(contract.getCreateBy().getId()).getOffice().getDeputyPerson();
+				officeBoss = UserUtils.get(contract.getCreateBy().getOffice().getDeputyPerson().getId() );
 				userList.add(officeBoss);
 			}
-			// 接收通知的人
+			// 接收通知的人，去重
+			userList = Collections3.removeDuplicate(userList);
 			for (User user : userList) {
-				System.out.println();
 				record = new OaNotifyRecord();
 				record.setId(IdGen.uuid());
 				record.setOaNotify(notify);
@@ -315,7 +375,7 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 			}
 
 			// 发邮件
-			mailService.sendNotifyEmail(notify, userList);
+			// mailService.sendNotifyEmail(notify, userList);
 			// 保存通知
 			notifyService.save(notify);
 		} // end for list

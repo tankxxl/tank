@@ -144,7 +144,7 @@
 		<%--</tr>--%>
 
 		<tr>
-			<td class="tit">合同对方名称</td>
+			<td class="tit">合作单位</td>
 			<td colspan="3" class="">
 				${projectContract.clientName}
 			</td>

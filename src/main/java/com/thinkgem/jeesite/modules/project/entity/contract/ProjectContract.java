@@ -83,6 +83,8 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 	private Date queryBeginDate;
 	private Date queryEndDate;
 
+	private String saleCode; // 采购合同表单-对应销售合同号-商务填写
+
 	// @Valid
 	// @NotEmpty(message = "至少要填写一个合同项。${validatedValue}")
 	private List<ProjectContractItem> projectContractItemList = Lists.newArrayList();		// 子表列表
@@ -414,5 +416,13 @@ public class ProjectContract extends ActEntity<ProjectContract> {
 
 	public void setQueryEndDate(Date queryEndDate) {
 		this.queryEndDate = queryEndDate;
+	}
+
+	public String getSaleCode() {
+		return saleCode;
+	}
+
+	public void setSaleCode(String saleCode) {
+		this.saleCode = saleCode;
 	}
 }

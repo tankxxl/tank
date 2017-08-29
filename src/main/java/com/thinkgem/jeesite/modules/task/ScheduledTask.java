@@ -29,6 +29,27 @@ import java.util.List;
 
 /**
  * 定时任务不能是懒加载
+ *
+ * Seconds Minutes Hours DayofMonth Month DayofWeek Year或
+ * Seconds Minutes Hours DayofMonth Month DayofWeek
+ *
+ * *：表示匹配该域的任意值，假如在Minutes域使用*, 即表示每分钟都会触发事件。
+ *
+ *
+ 1.  Seconds
+ 2.  Minutes
+ 3.  Hours
+ 4.  Day-of-Month
+ 5.  Month
+ 6.  Day-of-Week
+ 7.  Year (可选字段)
+
+ “*” 代表整个时间段。
+ “?”字符：表示不确定的值
+ “,”字符：指定数个值
+ “-”字符：指定一个值的范围
+ “/”字符：指定一个值的增加幅度。n/m表示从n开始，每次增加m
+
  */
 //@Service
 // @Service
@@ -68,7 +89,7 @@ public class ScheduledTask {
     @Scheduled(cron="0 0 1 * * ? ")   // 每天凌晨1点执行一次
     public void addToNotify() {
 
-        contractService.findContractToNotify();
+        // contractService.findContractToNotify();
 
 //        ProjectContract contract = new ProjectContract();
 //        List<ProjectContract> contracts = contractService.findPreEndList(contract);
@@ -124,12 +145,36 @@ public class ScheduledTask {
     }
 
 
-    // @Scheduled(cron = "0 10-30 9 * * ?")
-    public void pushQuestionnaire() {  
-  
-        System.out.println("定时任务1，自动执行:" + format.format(new Date()));
+    // "0 0 2 1 * ? *" 表示在每月的1日的凌晨2点调度任务
+    // "0 15 10 15 * ?" 每月15日上午10:15触发
+    @Scheduled(cron = "0 0 2 1 * ?")
+    public void notifyApply() {
+        // 每月1日提醒发起人
+        contractService.findContract60ToNotify();
+        // contractService.findContract30ToNotify();
+
         logger.info("定时任务1，自动执行:" + format.format(new Date()));
-    }  
+    }
+
+    @Scheduled(cron = "0 0 2 15 * ?")
+    public void notifyApplyAndLeader() {
+        // 每月1日、15日进行提醒，增加邮件提醒
+        // 当 0 < x < 30时，通过申请人和需求部门领导。
+        // contractService.findContract60ToNotify();
+        contractService.findContract30ToNotify();
+
+        logger.info("定时任务1，自动执行:" + format.format(new Date()));
+    }
+
+    @Scheduled(cron = "0 0 2 ? * MON")
+    public void notifyApplyAndLeaderAndBoss() {
+        // 每周一进行提醒，增加邮件提醒
+        // 当 x < 0时，通知申请人、需求部门领导、分管领导。
+        // contractService.findContract60ToNotify();
+        // contractService.findContract30ToNotify();
+        contractService.findContract0ToNotify();
+        logger.info("定时任务1，自动执行:" + format.format(new Date()));
+    }
   
     // @Scheduled(cron = "0 10-30 9 * * ?")
     public void pushQuestionnaire2() {  

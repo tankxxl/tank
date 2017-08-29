@@ -4,10 +4,12 @@ import com.thinkgem.jeesite.common.annotation.Loggable;
 import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.persistence.ActEntity;
 import com.thinkgem.jeesite.common.service.BaseService;
+import com.thinkgem.jeesite.common.utils.Collections3;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
 import com.thinkgem.jeesite.modules.mail.entity.Email;
 import com.thinkgem.jeesite.modules.oa.entity.OaNotify;
+import com.thinkgem.jeesite.modules.oa.entity.OaNotifyRecord;
 import com.thinkgem.jeesite.modules.sys.dao.RoleDao;
 import com.thinkgem.jeesite.modules.sys.entity.Role;
 import com.thinkgem.jeesite.modules.sys.entity.User;
@@ -141,14 +143,53 @@ public class MailService extends BaseService {
     // 发送合同到期提醒邮件
     public void sendNotifyEmail(OaNotify oaNotify, List<User> userList) {
 
+        if (!Global.isSendEmail()) {
+            return;
+        }
+
         MimeMessagePreparator preparator = getNotifyMessagePreparator(oaNotify, userList);
 
-        try {
-            mailSender.send(preparator);
-            System.out.println("Notify Message has been sent.......");
-        } catch (MailException e) {
-            System.err.println(e.getMessage());
+
+        taskExecutor.execute(new Runnable() {
+
+            @Override
+            public void run() {
+
+                try {
+                    mailSender.send(preparator);
+                    System.out.println("Notify Message has been sent.......");
+                } catch (MailException e) {
+                    System.err.println(e.getMessage());
+                }
+
+            }
+        });
+
+    }
+
+    // 发送合同到期提醒邮件
+    public void sendNotifyEmail(OaNotify oaNotify) {
+
+	    if (oaNotify == null) {
+	        return;
         }
+
+        if (oaNotify.getOaNotifyRecordList() == null || oaNotify.getOaNotifyRecordList().isEmpty()) {
+	        return;
+        }
+
+        List<OaNotifyRecord> notifyRecordList = oaNotify.getOaNotifyRecordList();
+        List<User> userList = new ArrayList<>();
+	    for (OaNotifyRecord record : notifyRecordList) {
+	        userList.add(record.getUser());
+        }
+        userList = Collections3.removeDuplicate(userList);
+
+	    if (userList == null || userList.isEmpty()) {
+	        return;
+        }
+
+        sendNotifyEmail(oaNotify, userList);
     }
 
 
@@ -194,9 +235,14 @@ public class MailService extends BaseService {
             public void prepare(MimeMessage mimeMessage) throws Exception {
                 MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
 
-                helper.setSubject(oaNotify.getTitle());
+                // helper.setSubject(oaNotify.getTitle());
+                helper.setSubject("合同到期提醒");
                 helper.setFrom(Global.getFromEmail());
-                helper.setTo( getEmailByUserList(userList) );
+                String to = getEmailByUserList(userList);
+                // todo test
+                // to = "rgz03407@163.com";
+                helper.setTo(to);
+                // helper.setTo( getEmailByUserList(userList) );
 
                 // Map<String, Object> model = new HashMap<String, Object>();
                 // model.put("entity", entity);
@@ -212,7 +258,11 @@ public class MailService extends BaseService {
                 // Additionally, let's add a resource as an attachment as well.
                 // helper.addAttachment("cutie.png", new ClassPathResource("linux-icon.png"));
 
-                helper.setText(oaNotify.getContent());
+                StringBuilder sb = new StringBuilder();
+                sb.append("你好：\n");
+                sb.append(oaNotify.getContent());
+                sb.append("\n请及时沟通洽谈续签事宜，特此提醒!");
+                helper.setText(sb.toString());
             }
         };
 
@@ -436,9 +486,9 @@ public class MailService extends BaseService {
      */
     @Async
     public void doBusiness() throws InterruptedException {
-        logger.info("start to do business.");
-        TimeUnit.SECONDS.sleep(10);
-        logger.info("end to do business.");
+        logger.info("rgz start to do business.");
+        TimeUnit.SECONDS.sleep(1000 * 5);
+        logger.info("rgz end to do business.");
     }
 
 }

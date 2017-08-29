@@ -5,6 +5,10 @@
 	<title>合同管理</title>
 	<meta name="decorator" content="default"/>
 	<%-- 服务合同、管理合同、消费金融合同共用 --%>
+	<%--
+	对于服务合同而言，'合同有效期'与'合同有效期备注'两者必选其一进行填写。
+	对于其他合同而言，这两者不是必填项。
+	--%>
 	<script type="text/javascript">
 		$(document).ready(function() {
 			//$("#name").focus();
@@ -224,8 +228,9 @@
 			<%--</td>--%>
 		<%--</tr>--%>
 
+			<%-- 合同对方名称 --%>
 		<tr>
-			<td class="tit">合同对方名称</td>
+			<td class="tit">合作单位</td>
 			<td colspan="3" class="">
 				<form:input path="clientName" style="width:90%"/>
 			</td>

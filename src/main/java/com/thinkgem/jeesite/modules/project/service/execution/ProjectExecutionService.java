@@ -50,7 +50,7 @@ public class ProjectExecutionService extends JicActService<ProjectExecutionDao, 
         // in case param id is not execution's id.
         if (execution == null)
             return execution;
-
+        // 加载主表数据的同时，加载子表数据
         execution.setExecutionItemList(itemDao.findList(new ProjectExecutionItem(execution)));
         return execution;
 	}

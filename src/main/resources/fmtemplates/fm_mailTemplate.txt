@@ -1,11 +1,13 @@
 <html>
  
     <body>
-        <h3>Dear ${order.customerInfo.name}, thank you for placing order.</h3>
+        <h3>Dear ${order.customerInfo.name}, 您好.</h3>
  
         <div>
+        合同编号：xxx-yyy合同于2016-09-09到期。
             Your order id is : ${order.orderId}.
         </div>
-        <span>Sent using FreeMarker Template</span>
+        <span>请及时沟通洽谈续签事宜，特此提醒</span>
+        <!-- <span>Sent using FreeMarker Template</span> -->
     </body>
 </html>
