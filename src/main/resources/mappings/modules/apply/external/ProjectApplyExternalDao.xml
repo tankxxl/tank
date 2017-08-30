@@ -105,7 +105,7 @@
 				AND a.category = #{category}
 			</if>
 			<if test="procStatus != null and procStatus != ''">
-				AND a.process_status = #{procStatus}
+				AND a.proc_status = #{procStatus}
 			</if>
 			<if test="proMainStage != null and proMainStage != ''">
 				AND a.pro_main_stage = #{proMainStage}
