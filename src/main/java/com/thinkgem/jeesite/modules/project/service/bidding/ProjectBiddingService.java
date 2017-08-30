@@ -82,6 +82,9 @@ public class ProjectBiddingService extends JicActService<ProjectBiddingDao, Proj
 
 		vars.put(ActUtils.VAR_PRJ_TYPE, projectBidding.getApply().getCategory());
 
+		// 临时用一下，以后会删除
+		vars.put(ActUtils.VAR_PASS, "1");
+
 		vars.put(ActUtils.VAR_TITLE, projectBidding.getApply().getProjectName());
 		if ("03".equals(projectBidding.getApply().getCategory()) ) {
 			// 分支上使用，没在节点上使用
@@ -102,14 +105,24 @@ public class ProjectBiddingService extends JicActService<ProjectBiddingDao, Proj
 		// 20160628下午,张雪口头提需求, 05类项目根据是否有外包选项,来决定流程是否走到人力
 		// 其它所有类型项目,不管是否选择有外包,流程上必须过人力.
 		// 涉及的流程包括:投标和合同
-		if ("05".equals(projectBidding.getApply().getCategory()) ) {
+		// if ("1".equals(projectBidding.getApply().getOutsourcing()) ) {
+		// if ("05".equals(projectBidding.getApply().getCategory()) ) {
+		// 	// 因为流程图上分支判断在前，故节点上的skip_hr暂时不用。
+		// 	vars.put("hr", "0");
+		// 	vars.put(ActUtils.VAR_SKIP_HR, "1");
+		// } else {
+		// 	vars.put("hr", "1");
+		// 	vars.put(ActUtils.VAR_SKIP_HR, "0");
+		// }
+
+
+		if ("1".equals(projectBidding.getApply().getOutsourcing()) ) {
 			// 因为流程图上分支判断在前，故节点上的skip_hr暂时不用。
-			System.out.println();
-			vars.put("hr", "0");
-			vars.put(ActUtils.VAR_SKIP_HR, "1");
-		} else {
 			vars.put("hr", "1");
 			vars.put(ActUtils.VAR_SKIP_HR, "0");
+		} else {
+			vars.put("hr", "0");
+			vars.put(ActUtils.VAR_SKIP_HR, "1");
 		}
 	}
 
@@ -123,7 +136,10 @@ public class ProjectBiddingService extends JicActService<ProjectBiddingDao, Proj
 			// 驳回到发起人节点后，他可以修改所有的字段，所以重新设置一下流程变量
 			fillApply(projectBidding);
 			myProcVariable(projectBidding, vars);
-		} else if ("".equalsIgnoreCase(taskDefKey)) {
+		} else if (UserTaskType.UT_PRE_SALES_ENGINEER.equalsIgnoreCase(taskDefKey)) {
+			// todo 临时用一下，现在在此节点有几个遗留的表单需要审批
+			fillApply(projectBidding);
+			myProcVariable(projectBidding, vars);
 		}
 
 	}
