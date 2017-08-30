@@ -318,8 +318,8 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 			.append(contract.getApply().getProjectName())
 			.append("\n");
 
-			sb.append("项目编号：")
-			.append(contract.getApply().getProjectCode())
+			sb.append("合同编号：")
+			.append(contract.getContractCode())
 			.append("\n");
 
 			sb.append("合同名称：")
