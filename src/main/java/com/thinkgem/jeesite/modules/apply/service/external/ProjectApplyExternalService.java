@@ -166,6 +166,9 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 
 
 	public void sendMail(DelegateTask task, String assignee, String userId, String groupId) {
+		if (!Global.isSendEmail()) {
+			return;
+		}
 		StringBuilder sbMailTo = new StringBuilder();
 		User user;
 		// 加入assignee

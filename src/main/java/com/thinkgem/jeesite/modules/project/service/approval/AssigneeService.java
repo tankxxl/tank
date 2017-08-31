@@ -34,6 +34,7 @@ public class AssigneeService extends BaseService {
 //	public List<String> findDeptLeaders(String employee);
 	
 	// 设置流程节点中的-业务部负责人审批节点-定位到人，查找员工的直接领导loginName
+	// 找申请人的部门负责人
 	public String findLeader(String loginName) {
 		User user = UserUtils.getByLoginName(loginName);
 		String leader = null;
@@ -53,6 +54,7 @@ public class AssigneeService extends BaseService {
 	// 设置流程节点中的-业务部分管领导审批节点-定位到人，当前申请人所在部门的业务分管领导loginName
     // 业务分管领导按部门进行指定
     // 根据登录用户的部门信息得到业务分管领导
+    // 找申请人的部门分管领导
 	@Transactional(readOnly = true)
 	public String findBusiBoss(String loginName) {
 
@@ -114,35 +116,23 @@ public class AssigneeService extends BaseService {
         return role;
     }
 
-    // bj used only.
+    // bj used only. 找市场营销中心部门的分管
 	public String findMarketBoss(String apply) {
-
-		Office office = new Office();
-		office.setName(apply);
-		office.setName("市场营销中心");
-
-
-		String boss = null;
-		try {
-			office = officeService.getByName(office);
-			boss = office.getDeputyPerson().getLoginName();
-			if (StringUtils.isEmpty(boss)) {
-				boss = "thinkgem";
-			}
-		} catch (Exception e) {
-			boss = "thinkgem";
-		}
-		return boss;
+		return findDeptBoss("市场营销中心");
 	}
 
 	// sd used only.
+	// 根据申请人得以部门的技术工程师角色
+	// 返回角色
 	public String findEngineerRole(String apply) {
 
 		User user = UserUtils.getByLoginName(apply);
 		String engineerRole = null;
 		try {
+			// 部门联系地址字段存放部门技术工程师角色
 			engineerRole = user.getOffice().getAddress();
 		} catch (Exception e) {
+			// 如果部门没有技术工程师角色，则返回系统角色
 			engineerRole = "system";
 		}
 		if (StringUtils.isEmpty(engineerRole)) {
@@ -153,6 +143,60 @@ public class AssigneeService extends BaseService {
 		return engineerRole;
 	}
 
+
+	// jx used only
+	// 可以通过部门属性查找到分管领导(某个人)
+	// 也可以通过在系统中定义一个分管角色
+	// 在流程图上指定审批人时，要相应修改
+	public String findCommerceBoss(String apply) {
+		return findDeptBoss("商务部");
+	}
+
+	public String findDeptBoss(String deptName) {
+		Office office = new Office();
+		office.setName(deptName);
+
+		String boss = null;
+		try {
+			office = officeService.getByName(office);
+			boss = office.getDeputyPerson().getLoginName();
+		} catch (Exception e) {
+			boss = "thinkgem";
+		}
+
+		if (StringUtils.isEmpty(boss)) {
+			boss = "thinkgem";
+		}
+		return boss;
+	}
+
+	public String findDeptLeader(String deptName) {
+		Office office = new Office();
+		office.setName(deptName);
+
+		String boss = null;
+		try {
+			office = officeService.getByName(office);
+			office.getPrimaryPerson().getLoginName();
+			boss = office.getDeputyPerson().getLoginName();
+		} catch (Exception e) {
+			boss = "thinkgem";
+		}
+		if (StringUtils.isEmpty(boss)) {
+			boss = "thinkgem";
+		}
+		return boss;
+	}
+
+	public Office findDeptByName(String deptName) {
+		Office office = new Office();
+		office.setName(deptName);
+		try {
+			office = officeService.getByName(office);
+		} catch (Exception e) {
+		}
+		return office;
+	}
 
 
 
