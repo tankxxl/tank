@@ -46,40 +46,42 @@
 		<li class="active"><a href="${ctx}/apply/external/projectApplyExternal/">外部立项申请列表</a></li>
 		<shiro:hasPermission name="apply:external:projectApplyExternal:edit"><li><a href="${ctx}/apply/external/projectApplyExternal/form">外部立项申请添加</a></li></shiro:hasPermission>
 	</ul>
-	<form:form id="searchForm" modelAttribute="projectApplyExternal" action="${ctx}/apply/external/projectApplyExternal/"
-			   htmlEscape="false" method="post" class="breadcrumb form-search">
+	<form:form id="searchForm" modelAttribute="projectApplyExternal" htmlEscape="false"
+			   action="${ctx}/apply/external/projectApplyExternal/"
+			   method="post" class="row form-horizontal well" role="form">
 		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
 		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
-		<ul class="ul-form">
-			<li><label>项目编码：</label>
-				<form:input path="projectCode" maxlength="64" class="input-medium"/>
-			</li>
-			<li><label>项目名称：</label>
-				<form:input path="projectName" maxlength="64" class="input-medium"/>
-			</li>
-			<li><label>销售人员：</label>
-				<sys:treeselect id="saler" name="saler.id" value="${projectApplyExternal.saler.id}" labelName="saler.name" labelValue="${projectApplyExternal.saler.name}"
-					title="用户" url="/sys/office/treeData?type=3" cssClass="input-small" allowClear="true" notAllowSelectParent="true"/>
-			</li>
-			<li><label>客户：</label>
-				<sys:treeselect id="customer" name="customer.id" value="${projectApplyExternal.customer.id}" labelName="customer.customerName" labelValue="${projectApplyExternal.customer.customerName}"
-					title="客户" url="/customer/customer/treeData?type=2" cssClass="input-small" allowClear="true" notAllowSelectParent="true"/>
-			</li>
-			<li><label>项目类别：</label>
-				<form:select path="category" class="input-medium">
-					<form:option value="" label=""/>
-					<form:options items="${fns:getDictList('pro_category')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
-				</form:select>
-			</li>
-			<li><label>审批状态：</label>
-				<form:select path="procStatus" class="input-medium">
-					<form:option value="" label=""/>
-					<form:options items="${fns:getDictList('AuditStatus')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
-				</form:select>
-			</li>
-			<li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/></li>
-			<li class="clearfix"></li>
-		</ul>
+		<div class="row">
+
+			<div class="form-group col-sm-4">
+				<label class="col-sm-4 control-label">项目编码：</label>
+				<div class="col-sm-8">
+					<form:input path="projectCode" class="form-control"/>
+				</div>
+			</div>
+
+			<div class="form-group col-sm-4">
+				<label class="col-sm-4 control-label">项目名称：</label>
+				<div class="col-sm-8">
+					<form:input path="projectName" class="form-control"/>
+				</div>
+			</div>
+
+			<div class="form-group col-sm-4">
+				<label class="col-sm-4 control-label">销售人员：</label>
+				<div class="col-sm-8">
+					<sys:treeselect id="saler" name="saler.id" value="${projectApplyExternal.saler.id}" labelName="saler.name" labelValue="${projectApplyExternal.saler.name}"
+									title="用户" url="/sys/office/treeData?type=3" cssClass="input-small" allowClear="true" notAllowSelectParent="true"/>
+				</div>
+			</div>
+
+
+
+		</div>
+
+		<div class="row col-sm-offset-9">
+			<input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/>
+		</div>
 	</form:form>
 	<sys:message content="${message}"/>
 	<table id="contentTable" class="table table-striped table-bordered table-condensed">
@@ -161,6 +163,6 @@
 		</c:forEach>
 		</tbody>
 	</table>
-	<div class="pagination">${page}</div>
+	<div class="box-tools">${page}</div>
 </body>
 </html>

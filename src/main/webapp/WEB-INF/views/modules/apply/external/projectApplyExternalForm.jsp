@@ -130,7 +130,7 @@
 
 	</script>
 </head>
-<body>
+<body >
 <ul class="nav nav-tabs">
 	<c:if test="${ empty projectApplyExternal.act.taskId}">
 		<li><a href="${ctx}/apply/external/projectApplyExternal/">外部立项申请列表</a></li>

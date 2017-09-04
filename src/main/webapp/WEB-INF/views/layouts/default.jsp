@@ -5,8 +5,8 @@
 <html style="overflow-x:auto;overflow-y:auto;">
 <head>
 	<title><sitemesh:title/> - Powered By JicData</title>
-	<%@include file="/WEB-INF/views/include/head.jsp" %>		
-
+	<%--<%@include file="/WEB-INF/views/include/head.jsp" %>		--%>
+	<%@include file="/WEB-INF/views/include/adminlte.jsp" %>
 	<sitemesh:head/>
 </head>
 <body>

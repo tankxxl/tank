@@ -272,9 +272,13 @@ public class Page<T> {
 		sb.append(funcName+"("+pageNo+",this.value,'"+funcParam+"');\" onclick=\"this.select();\"/> 条，");
 		sb.append("共 " + count + " 条"+(message!=null?message:"")+"</a></li>\n");
 
-		sb.insert(0,"<ul>\n").append("</ul>\n");
+		// sb.insert(0,"<ul>\n").append("</ul>\n");
 		
-		sb.append("<div style=\"clear:both;\"></div>");
+		// sb.append("<div style=\"clear:both;\"></div>");
+
+		sb.insert(0, "<div class=\"dataTables_paginate paging_simple_numbers\" id=\"example2_paginate\"><ul class='pagination pull-right'>\n").append("</ul>\n");
+		sb.append("<div style=\"clear:both;\"></div></div>");
+
 
 //		sb.insert(0,"<div class=\"page\">\n").append("</div>\n");
 		

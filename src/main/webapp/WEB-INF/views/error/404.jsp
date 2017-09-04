@@ -16,7 +16,8 @@ else {
 <html>
 <head>
 	<title>404 - 页面不存在</title>
-	<%@include file="/WEB-INF/views/include/head.jsp" %>
+	<%--<%@include file="/WEB-INF/views/include/head.jsp" %>--%>
+	<%@include file="/WEB-INF/views/include/adminlte.jsp" %>
 </head>
 <body>
 	<div class="container-fluid">
