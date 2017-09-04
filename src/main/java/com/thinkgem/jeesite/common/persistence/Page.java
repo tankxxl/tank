@@ -86,12 +86,17 @@ public class Page<T> {
 		if (StringUtils.isNumeric(size)){
 			CookieUtils.setCookie(response, "pageSize", size);
 			this.setPageSize(Integer.parseInt(size));
-		}else if (request.getParameter("repage")!=null){
+		}else if (request.getParameter("repage")!=null){ // 还是取出当前浏览的页面
 			size = CookieUtils.getCookie(request, "pageSize");
 			if (StringUtils.isNumeric(size)){
 				this.setPageSize(Integer.parseInt(size));
 			}
 		}else if (defaultPageSize != -2){
+			this.pageSize = defaultPageSize;
+		}
+
+		// rgz，修改导出数据时，不分页
+		if (defaultPageSize == -1) {
 			this.pageSize = defaultPageSize;
 		}
 		// 设置页面分页函数
