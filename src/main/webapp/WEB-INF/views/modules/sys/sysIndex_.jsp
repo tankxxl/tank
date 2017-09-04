@@ -3,9 +3,12 @@
 <html>
 <head>
 	<title>${fns:getConfig('productName')}</title>
-	<meta name="decorator" content="blank"/><c:set var="tabmode" value="${empty cookie.tabmode.value ? '0' : cookie.tabmode.value}"/>
-    <c:if test="${tabmode eq '1'}"><link rel="Stylesheet" href="${ctxStatic}/jerichotab/css/jquery.jerichotab.css" />
-    <script type="text/javascript" src="${ctxStatic}/jerichotab/js/jquery.jerichotab.js"></script></c:if>
+	<meta name="decorator" content="blank"/>
+	<c:set var="tabmode" value="${empty cookie.tabmode.value ? '0' : cookie.tabmode.value}"/>
+    <c:if test="${tabmode eq '1'}">
+		<link rel="Stylesheet" href="${ctxStatic}/jerichotab/css/jquery.jerichotab.css" />
+    	<script type="text/javascript" src="${ctxStatic}/jerichotab/js/jquery.jerichotab.js"></script>
+	</c:if>
 	<style type="text/css">
 		#main {padding:0;margin:0;} #main .container-fluid{padding:0 4px 0 6px;}
 		#header {margin:0 0 8px;position:static;} #header li {font-size:14px;_font-size:12px;}
