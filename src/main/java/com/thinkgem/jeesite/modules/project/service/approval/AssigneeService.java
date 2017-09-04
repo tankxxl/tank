@@ -152,6 +152,11 @@ public class AssigneeService extends BaseService {
 		return findDeptBoss("商务部");
 	}
 
+	// jx 查找【商务部】负责人
+	public String findCommerceLeader(String apply) {
+		return findDeptLeader("商务部");
+	}
+
 	public String findDeptBoss(String deptName) {
 		Office office = new Office();
 		office.setName(deptName);
