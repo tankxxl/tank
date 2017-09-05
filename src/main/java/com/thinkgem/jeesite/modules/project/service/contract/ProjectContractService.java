@@ -34,32 +34,28 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 
 	@Autowired
 	private ProjectContractItemDao projectContractItemDao;
-	
-	// @Autowired
-	// ActTaskService actTaskService;
-	
-//	@Autowired
-//	private ProjectBiddingService projectBiddingService;
 
-	 @Autowired
-	 private ProjectApplyExternalService applyService;
-	
+	@Autowired
+	private ProjectApplyExternalService applyService;
+
+	// get item
 	public ProjectContractItem getContractItem(String itemId){
 		return projectContractItemDao.get(itemId);
 	}
 
+    // get item list
     public List<ProjectContractItem> findItemList(ProjectContractItem entity){
 	    return projectContractItemDao.findList(entity);
-//        return projectContractItemDao.get(itemId);
     }
 	
 	@Override
 	public ProjectContract get(String id) {
+        // 得到父实体
 		ProjectContract projectContract = super.get(id);
 		// in case param id is not contract's id.
 		if (projectContract == null)
 		    return projectContract;
-
+		// 绑定子实体列表
 		projectContract.setProjectContractItemList(projectContractItemDao.findList(new ProjectContractItem(projectContract)));
 		return projectContract;
 	}
@@ -67,19 +63,6 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 	public ProjectContract findContractByPrjId(String prjId) {
 		return dao.findContractByPrjId(prjId);
 	}
-
-	/**
-	 * 保存并结束流程
-	 * @param projectContract
-	 */
-	// @Transactional(readOnly = false)
-	// public void saveFinishProcess(ProjectContract projectContract) {
-	// 	// 开启流程
-	// 	String procInsId = saveLaunch(projectContract);
-	// 	// 结束流程
-	// 	endProcess(procInsId);
-	// }
-
 
 	@Override
 	public void setupVariable(ProjectContract projectContract, Map<String, Object> vars) {
@@ -92,12 +75,6 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 
 		vars.put(ActUtils.VAR_TITLE, projectContract.getApply().getProjectName());
 
-		if ("03".equals(projectContract.getApply().getCategory()) ) {
-			vars.put(ActUtils.VAR_TYPE, "2");
-		} else {
-			vars.put(ActUtils.VAR_TYPE, "1");
-		}
-
 		boolean isBossAudit = shouldBossAudit(projectContract);
 		if (isBossAudit) {
 			// 需要总经理审批
@@ -105,82 +82,7 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 		} else {
 			vars.put(ActUtils.VAR_SKIP_BOSS, "1");
 		}
-		// 20160628下午,张雪口头提需求, 05类项目根据是否有外包选项,来决定流程是否走到人力
-		// 其它所有类型项目,不管是否选择有外包,流程上必须过人力.
-		// 涉及的流程包括:投标和合同
-		if ("05".equals(projectContract.getApply().getCategory()) ) {
-			// 因为流程图上分支判断在前，故节点上的skip_hr暂时不用。
-			vars.put("hr", "0");
-			System.out.println();
-			vars.put(ActUtils.VAR_SKIP_HR, "1");
-		} else {
-			vars.put("hr", "1");
-			vars.put(ActUtils.VAR_SKIP_HR, "0");
-		}
-
-
 	}
-
-	/**
-	 * 保存表单数据，并启动流程
-	 *
-	 * 申请人发起流程，申请人重新发起流程入口
-	 * 在form界面
-	 *
-	 * @param projectContract
-	 */
-// 	@Transactional(readOnly = false)
-// 	public String saveLaunch(ProjectContract projectContract) {
-//
-// 		if (projectContract.getIsNewRecord()) {
-// 			// 启动流程的时候，把业务数据放到流程变量里
-// 			Map<String, Object> varMap = new HashMap<String, Object>();
-// 			varMap.put(ActUtils.VAR_PRJ_ID, projectContract.getApply().getId());
-//
-// 			varMap.put(ActUtils.VAR_PRJ_TYPE, projectContract.getApply().getCategory());
-//
-// 			varMap.put(ActUtils.VAR_TITLE, projectContract.getApply().getProjectName());
-//
-// 			if ("03".equals(projectContract.getApply().getCategory()) ) {
-// 				varMap.put(ActUtils.VAR_TYPE, "2");
-// 			} else {
-// 				varMap.put(ActUtils.VAR_TYPE, "1");
-// 			}
-//
-// 			boolean isBossAudit = shouldBossAudit(projectContract);
-// 			if (isBossAudit) {
-// 				// 需要总经理审批
-// 				varMap.put(ActUtils.VAR_SKIP_BOSS, "0");
-// 			} else {
-// 				varMap.put(ActUtils.VAR_SKIP_BOSS, "1");
-// 			}
-//
-// 			// 有外包的项目需要人力审批
-// //			if ("1".equals(projectBidding.getOutsourcing())) {
-// //				vars.put(ActUtils.VAR_HR_AUDIT, "1");
-// //			} else {
-// //				vars.put(ActUtils.VAR_HR_AUDIT, "0");
-// //			}
-//
-// 			// 20160628下午,张雪口头提需求, 05类项目根据是否有外包选项,来决定流程是否走到人力
-// 			// 其它所有类型项目,不管是否选择有外包,流程上必须过人力.
-// 			// 涉及的流程包括:投标和合同
-// 			if ("05".equals(projectContract.getApply().getCategory()) ) {
-// 				// 因为流程图上分支判断在前，故节点上的skip_hr暂时不用。
-// 				varMap.put("hr", "0");
-// 				varMap.put(ActUtils.VAR_SKIP_HR, "1");
-// 			} else {
-// 				varMap.put("hr", "1");
-// 				varMap.put(ActUtils.VAR_SKIP_HR, "0");
-// 			}
-//
-// 			return launch(projectContract, varMap);
-// 		} else { // 把驳回到申请人(重新修改业务表单，重新发起流程、销毁流程)也当成一个特殊的审批节点
-// 			// 只要不是启动流程，其它任意节点的跳转都当成节点审批
-// 			saveAudit(projectContract);
-// 			return null;
-// 		}
-// 	}
 	
 	@Override
 	@Transactional(readOnly = false)
@@ -216,10 +118,6 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 			// 驳回到发起人节点后，他可以修改所有的字段，所以重新设置一下流程变量
 			setupVariable(projectContract, vars);
 		}
-
-
-
-
 	}
 
 	public void fillApply(ProjectContract contract) {
@@ -227,34 +125,18 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 		contract.setApply(apply);
 	}
 
-	/**
-	 * 维护自己的流程状态	
-	 // * @param id
-	 // * @param audit
-	 */
-	// @Transactional(readOnly = false)
-	// public void auditTo(String id, String audit) {
-	// 	ProjectContract projectContract = get(id);
-	// 	if (projectContract == null) {
-	// 		return;
-	// 	}
-	// 	projectContract.setProcessStatus(audit);
-	// 	dao.update(projectContract);
-	// }
-
-
 	private boolean shouldBossAudit(ProjectContract projectContract) {
 		boolean shouldAudit = false;
 		for (ProjectContractItem projectContractItem : projectContract.getProjectContractItemList()){
 
-			shouldAudit = MyDictUtils.isBossAudit(projectContractItem.getContractAmount(),
-					projectContractItem.getGrossProfitMargin());
+			shouldAudit = MyDictUtils.isJxBossAudit(
+					projectContract.getApply().getCategory(),
+					projectContractItem.getGrossProfitMargin() );
 
 			if (shouldAudit) {
 				return shouldAudit;
 			}
 		}
-
 		return false;
 	}
 

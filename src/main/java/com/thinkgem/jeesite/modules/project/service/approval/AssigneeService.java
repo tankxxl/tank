@@ -35,10 +35,12 @@ public class AssigneeService extends BaseService {
 	
 	// 设置流程节点中的-业务部负责人审批节点-定位到人，查找员工的直接领导loginName
 	// 找申请人的部门负责人
+	// 有可能不同类型的项目，由不同的人审批，不一定全是部门负责人
 	public String findLeader(String loginName) {
 		User user = UserUtils.getByLoginName(loginName);
 		String leader = null;
 		try {
+			// todo 根据项目类型来决定用那个人审批
 			leader = user.getOffice().getPrimaryPerson().getLoginName();
 		} catch (Exception e) {
 			leader = "thinkgem";
@@ -164,6 +166,7 @@ public class AssigneeService extends BaseService {
 		String boss = null;
 		try {
 			office = officeService.getByName(office);
+			// 副负责人为分管领导
 			boss = office.getDeputyPerson().getLoginName();
 		} catch (Exception e) {
 			boss = "thinkgem";
@@ -182,8 +185,8 @@ public class AssigneeService extends BaseService {
 		String boss = null;
 		try {
 			office = officeService.getByName(office);
-			office.getPrimaryPerson().getLoginName();
-			boss = office.getDeputyPerson().getLoginName();
+			// 主负责人为分管领导
+			boss = office.getPrimaryPerson().getLoginName();
 		} catch (Exception e) {
 			boss = "thinkgem";
 		}

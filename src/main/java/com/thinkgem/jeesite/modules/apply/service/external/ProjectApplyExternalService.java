@@ -51,84 +51,22 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 	public void setupVariable(ProjectApplyExternal projectApplyExternal, Map<String, Object> vars) {
 		projectApplyExternal.preInsert4ProInteralApply();
 
+		// 项目id
 		vars.put(ActUtils.VAR_PRJ_ID, projectApplyExternal.getId());
+		// 项目名称
 		vars.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
+		// 项目类型
 		vars.put(ActUtils.VAR_PRJ_TYPE, projectApplyExternal.getCategory());
-		vars.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
-
-		if ("03".equals(projectApplyExternal.getCategory()) ) {
-			vars.put(ActUtils.VAR_TYPE, "2");
-		} else {
-			vars.put(ActUtils.VAR_TYPE, "1");
-		}
-
-		boolean isBossAudit = MyDictUtils.isBossAudit(projectApplyExternal.getEstimatedContractAmount(), projectApplyExternal.getEstimatedGrossProfitMargin());
+        // 根据项目类型及最低毛利率判断
+		boolean isBossAudit = MyDictUtils.isJxBossAudit(projectApplyExternal.getCategory(),
+                projectApplyExternal.getEstimatedGrossProfitMargin());
 
 		if (isBossAudit) { // 需要总经理审批
 			vars.put(ActUtils.VAR_SKIP_BOSS, "0");
 		} else {
 			vars.put(ActUtils.VAR_SKIP_BOSS, "1");
 		}
-
-		// if ("1".equals(projectApplyExternal.getSelfDev()) ) {
-		// 	vars.put(ActUtils.VAR_SKIP_DEV, "0");
-		// } else {
-		// 	vars.put(ActUtils.VAR_SKIP_DEV, "1");
-		// }
 	}
-
-	/**
-	 * 保存并结束流程
-	 * @param projectApplyExternal
-	 */
-	// @Transactional(readOnly = false)
-	// public void saveFinishProcess(ProjectApplyExternal projectApplyExternal) {
-	// 	// 开启流程
-	// 	String procInsId = saveLaunch(projectApplyExternal);
-	// 	// 结束流程
-	// 	endProcess(procInsId);
-	// }
-
-	/**
-	 * 保存表单数据，并启动流程
-	 *
-	 * 申请人发起流程，申请人重新发起流程入口
-	 * 在form界面
-	 *
-	 * @param projectApplyExternal
-	 */
-	// @Transactional(readOnly = false)
-	// public String saveLaunch(ProjectApplyExternal projectApplyExternal) {
-	// 	if (projectApplyExternal.getIsNewRecord()) {
-	// 		projectApplyExternal.preInsert4ProInteralApply();//判断是否是插入还是修改，若是插入那么添加当前用户为销售
-	// 		// 启动流程的时候，把业务数据放到流程变量里
-	// 		Map<String, Object> varMap = new HashMap<String, Object>();
-	// 		varMap.put(ActUtils.VAR_PRJ_ID, projectApplyExternal.getId());
-    //
-	// 		varMap.put(ActUtils.VAR_PRJ_TYPE, projectApplyExternal.getCategory());
-    //
-	// 		varMap.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
-    //
-	// 		if ("03".equals(projectApplyExternal.getCategory()) ) {
-	// 			varMap.put(ActUtils.VAR_TYPE, "2");
-	// 		} else {
-	// 			varMap.put(ActUtils.VAR_TYPE, "1");
-	// 		}
-    //
-	// 		boolean isBossAudit = MyDictUtils.isBossAudit(projectApplyExternal.getEstimatedContractAmount(), projectApplyExternal.getEstimatedGrossProfitMargin());
-	// 		if (isBossAudit) { // 需要总经理审批
-	// 			varMap.put(ActUtils.VAR_SKIP_BOSS, "0");
-	// 		} else {
-	// 			varMap.put(ActUtils.VAR_SKIP_BOSS, "1");
-	// 		}
-    //
-	// 		return launch(projectApplyExternal, varMap);
-	// 	} else { // 把驳回到申请人(重新修改业务表单，重新发起流程、销毁流程)也当成一个特殊的审批节点
-	// 		// 只要不是启动流程，其它任意节点的跳转都当成节点审批
-	// 		saveAudit(projectApplyExternal);
-	// 		return null;
-	// 	}
-	// }
 
 	@Override
 	public void processAudit(ProjectApplyExternal projectApplyExternal, Map<String, Object> vars) {
@@ -229,7 +167,6 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 		Email email = new Email();
 		email.setAddressee(mailTo);
 
-//		((TaskEntity) task).execution.processDefinition.name
 		String subject = ((TaskEntity) task).getExecution().getProcessDefinition().getName();
 		email.setSubject(subject); // xxx审批流程
 		email.setContent((String) task.getVariable(ActUtils.VAR_TITLE)); // 项目名称
@@ -238,21 +175,6 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 		}
 		System.out.println("MailTo=" + sbMailTo.toString());
 	}
-	
-	/**
-	 * 维护自己的流程状态	
-	 * @param id
-	 * @param audit
-	 */
-	// @Transactional(readOnly = false)
-	// public void auditTo(String id, String audit) {
-	// 	ProjectApplyExternal projectApplyExternal = get(id);
-	// 	if (projectApplyExternal == null) {
-	// 		return ;
-	// 	}
-	// 	projectApplyExternal.setProcessStatus(audit);
-	// 	dao.update(projectApplyExternal);
-	// }
 	
 	/**
 	 * 业务状态、项目的业务状态、立项审批中、立项完成、招标审批中、招标完成、合同、结项等。
