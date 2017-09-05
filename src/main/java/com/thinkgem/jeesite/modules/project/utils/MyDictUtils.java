@@ -1,7 +1,11 @@
 package com.thinkgem.jeesite.modules.project.utils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thinkgem.jeesite.common.utils.StringUtils;
+import com.thinkgem.jeesite.modules.sys.entity.Dict;
 import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
+
+import java.util.List;
 
 public class MyDictUtils extends DictUtils {
 	
@@ -113,5 +117,46 @@ public class MyDictUtils extends DictUtils {
 	        return 1;
         }
     }
+
+    public static boolean isJxBossAudit(String prjType, String gpm) {
+		try {
+			double curD = Double.parseDouble(gpm);
+			return isJxBossAudit(prjType, curD);
+		} catch (Exception e) {
+			return true;
+		}
+	}
+
+	public static boolean isJxBossAudit(String prjType, double gpm) {
+		// 缺少参数，需要总经理审批
+		if (StringUtils.isEmpty(prjType)) {
+			return true;
+		}
+		// 根据项目类型得到项目的目标毛利率
+		String targetGpm = getDictRemarks(prjType, "pro_category", "0");
+		// 用审批单中的毛利率跟目标毛利率对比，(不能低于目标毛利率)
+		try {
+			Double targetD = Double.parseDouble(targetGpm);
+			// 如果实际数字比目标值小，则需要总经理审批
+			return gpm < targetD;
+		} catch (Exception e) {
+			return true;
+		}
+	}
+
+
+	// 根据value得到dict对象remarks属性值
+	// DictUtil类中只能获取到dict对象的value、label属性值
+	public static String getDictRemarks(String value, String type, String defaultValue){
+		if (StringUtils.isNotBlank(type) && StringUtils.isNotBlank(value)){
+			for (Dict dict : getDictList(type)){
+				if (type.equals(dict.getType()) && value.equals(dict.getValue())){
+					// return dict.getLabel();
+					return dict.getRemarks();
+				}
+			}
+		}
+		return defaultValue;
+	}
 
 }

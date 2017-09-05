@@ -28,8 +28,6 @@
 						if(error[0].innerHTML ==''){
 							error[0].innerHTML= "必填信息";
 						}
-						console.log(element);
-						console.log(error);
 						error.appendTo(element.parent().parent());
 					}else {
 						error.insertAfter(element);
@@ -55,7 +53,6 @@
 			        success : function(data) {
 			            //alert("Data Saved: " + customer.industry+"--"+customer.customerCategory);
 			            //alert($("#customer\\.customerCategory").val());
-			            console.log(data);
 			            if(data.error){
 			            	alert(data.error);
 			            	return;

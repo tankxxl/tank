@@ -147,12 +147,12 @@ public class AssigneeService extends BaseService {
 	// jx used only
 	// 可以通过部门属性查找到分管领导(某个人)
 	// 也可以通过在系统中定义一个分管角色
-	// 在流程图上指定审批人时，要相应修改
+	// 在流程图上指定审批人时，要相应修改 - 流程图中使用
 	public String findCommerceBoss(String apply) {
 		return findDeptBoss("商务部");
 	}
 
-	// jx 查找【商务部】负责人
+	// jx 查找【商务部】负责人 - 流程图中使用
 	public String findCommerceLeader(String apply) {
 		return findDeptLeader("商务部");
 	}

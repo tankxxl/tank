@@ -63,6 +63,11 @@
     <task:executor id="executor" pool-size="10"/>
     <task:scheduler id="scheduler" pool-size="10"/>
     <task:annotation-driven scheduler="scheduler" executor="executor"/>
+    <!-- spring 自带定时任务，基于xml配置 -->
+    <!--<task:scheduled-tasks>-->
+    <!--<task:scheduled ref="scheduledTask" method="pushQuestionnaire2" cron="*/5 * * * * ?" />-->
+    <!--<task:scheduled ref="scheduledTask" method="pushQuestionnaire3" cron="*/7 * * * * ?" />-->
+    <!--</task:scheduled-tasks>-->
 
 
     

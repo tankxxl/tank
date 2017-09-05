@@ -53,7 +53,6 @@
                     success : function(data) {
                         //alert("Data Saved: " + customer.industry+"--"+customer.customerCategory);
                         //alert($("#customer\\.customerCategory").val());
-                        console.log(data);
                         if(data.error){
                             alert(data.error);
                             return;

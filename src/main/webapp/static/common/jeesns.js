@@ -198,7 +198,6 @@ var jeesns = {
             },
             success:function(res){
                 jeesnsDialog.close(index);
-                console.log("jeesnsAjax=" + window.location.href);
                 if(res.code == 0){
                     jeesnsDialog.successTips(res.message);
                 }else if(res.code == -1){

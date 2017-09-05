@@ -8,7 +8,6 @@
 		$(document).ready(function() {
 
 		    jeesnsDialog.closeAll();
-		    console.log("ExecutionList=" + window.location.href);
 			$("#contentTable").find("input[export]").each(function(){
 				$(this).click(function(){
 					var proId =$(this).attr("proId");

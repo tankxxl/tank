@@ -63,6 +63,7 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 		}
 
 		boolean isBossAudit = MyDictUtils.isBossAudit(projectApplyExternal.getEstimatedContractAmount(), projectApplyExternal.getEstimatedGrossProfitMargin());
+
 		if (isBossAudit) { // 需要总经理审批
 			vars.put(ActUtils.VAR_SKIP_BOSS, "0");
 		} else {
@@ -142,9 +143,11 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 					if (StringUtils.isNumeric(suffix)) {
 						int currentCode = Integer.parseInt(suffix);
 						currentCode++;
+						// 项目专员审批后，保存项目编号
 						dao.updatePorCode(String.valueOf(currentCode));
 					}
 				}
+				// 项目专员审批后，保存立项申请单
 				save(projectApplyExternal);
 			}
 		} else if (UserTaskType.UT_OWNER.equals(taskDefKey)) {
@@ -254,6 +257,7 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 	/**
 	 * 业务状态、项目的业务状态、立项审批中、立项完成、招标审批中、招标完成、合同、结项等。
 	 * 在各个流程引擎开始和结束时修改项目主表中的字段。
+	 * 项目的大阶段
 	 * @param id
 	 * @param stageValue
 	 */
