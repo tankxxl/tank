@@ -115,6 +115,11 @@ public class Page<T> {
 		if (StringUtils.isNotBlank(orderBy)){
 			this.setOrderBy(orderBy);
 		}
+		// 设置排序参数
+		String sortOrder = request.getParameter("sortOrder");
+		if (StringUtils.isNotBlank(sortOrder)){
+			this.setSortOrder(sortOrder);
+		}
 	}
 	
 	/**
@@ -575,5 +580,33 @@ public class Page<T> {
 //		this.count = page.getTotalElements();
 //		this.list = page.getContent();
 //	}
-	
+
+	private long total; // bootstrap table使用，用于返回数据给table
+	private List<T> rows; // bootstrap table使用，用于返回数据给table
+
+	private String sortOrder; // //排位命令（desc，asc）
+
+	public long getTotal() {
+		return getCount();
+	}
+
+	public void setTotal(long total) {
+		this.total = total;
+	}
+
+	public List<T> getRows() {
+		return getList();
+	}
+
+	public void setRows(List<T> rows) {
+		this.rows = rows;
+	}
+
+	public String getSortOrder() {
+		return sortOrder;
+	}
+
+	public void setSortOrder(String sortOrder) {
+		this.sortOrder = sortOrder;
+	}
 }

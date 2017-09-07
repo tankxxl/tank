@@ -38,7 +38,7 @@
 
 		a.docPath AS "docPath",
 		
-		u4.name AS "saler.name",
+		saler.name AS "saler.name",
 		s5.id AS "saler.office.id",
 		s5.name AS "saler.office.name",
 		c5.customer_name AS "customer.customerName",
@@ -51,9 +51,9 @@
 
 	<!-- 定义sql片段，替换多次出现的语句 -->
 	<sql id="projectApplyExternalJoins">
-		LEFT JOIN sys_user u4 ON u4.id = a.saler_id
+		LEFT JOIN sys_user saler ON saler.id = a.saler_id
 		LEFT JOIN customer c5 ON c5.id = a.customer_id
-		LEFT JOIN sys_office s5 on s5.id =u4.office_id
+		LEFT JOIN sys_office s5 on s5.id =saler.office_id
 		LEFT JOIN customer_contact c6 ON c6.id = a.customer_contact_id
 	</sql>
     
@@ -81,7 +81,10 @@
 		<where>
 			a.del_flag = #{DEL_FLAG_NORMAL}
 			<if test="projectCode != null and projectCode != ''">
-				AND a.project_code = #{projectCode}
+				AND a.project_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{projectCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{projectCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{projectCode},'%')</if>
 			</if>
 			<if test="projectName != null and projectName != ''">
 				AND a.project_name LIKE 
@@ -126,7 +129,7 @@
 		</where>
 		<choose>
 			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
-				ORDER BY ${page.orderBy}
+				ORDER BY ${page.orderBy} ${page.sortOrder}
 			</when>
 			<otherwise>
 				ORDER BY a.update_date DESC

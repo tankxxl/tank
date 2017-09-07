@@ -69,10 +69,32 @@ public class ProjectApplyExternalController extends BaseController {
 	@RequiresPermissions("apply:external:projectApplyExternal:view")
 	@RequestMapping(value = {"list", ""})
 	public String list(ProjectApplyExternal projectApplyExternal, HttpServletRequest request, HttpServletResponse response, Model model) {
-		projectApplyExternal.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+		// projectApplyExternal.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "saler"));
+		// Page<ProjectApplyExternal> page = applyService.findPage(new Page<ProjectApplyExternal>(request, response), projectApplyExternal);
+		// model.addAttribute("page", page);
+		// return "modules/apply/external/projectApplyExternalList";
+		return "modules/apply/external/ApplyList";
+	}
+
+	/**
+	 * ajax，只返回数据
+	 * @param projectApplyExternal
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "table")
+	@ResponseBody
+	public Page<ProjectApplyExternal> table(ProjectApplyExternal projectApplyExternal, HttpServletRequest request, HttpServletResponse response, Model model) {
+		projectApplyExternal.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "saler"));
 		Page<ProjectApplyExternal> page = applyService.findPage(new Page<ProjectApplyExternal>(request, response), projectApplyExternal);
 		model.addAttribute("page", page);
-		return "modules/apply/external/projectApplyExternalList";
+		// return "modules/apply/external/projectApplyExternalList";
+		// return "modules/apply/external/DemoList";
+
+		return page;
+
 	}
 
 	@RequestMapping(value = "updateDocPath")

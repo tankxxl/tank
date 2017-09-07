@@ -28,9 +28,9 @@
 <script src="${ctxStatic}/layer/layer.js" type="text/javascript"></script>
 <script src="${ctxStatic}/common/jeesns.js" type="text/javascript"></script>
 
-<script src="${ctxStatic}/bootstrap-table/dist/bootstrap-table.js"></script>
-<link href="${ctxStatic}/bootstrap-table/dist/bootstrap-table.css" rel="stylesheet" />
-<script src="${ctxStatic}/bootstrap-table/dist/locale/bootstrap-table-zh-CN.js"></script>
+<script src="${ctxStatic}/bootstrap-table-1.11.1/dist/bootstrap-table.js"></script>
+<link href="${ctxStatic}/bootstrap-table-1.11.1/dist/bootstrap-table.css" rel="stylesheet" />
+<script src="${ctxStatic}/bootstrap-table-1.11.1/dist/locale/bootstrap-table-zh-CN.js"></script>
 
 
 <script type="text/javascript">var ctx = '${ctx}', ctxStatic='${ctxStatic}';</script>

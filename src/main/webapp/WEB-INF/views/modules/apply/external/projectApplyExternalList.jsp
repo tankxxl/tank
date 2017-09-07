@@ -28,14 +28,13 @@
 					}
 				});
 			});
-			
-			
-			
-			
+
 		});
+		// n pageNo,页码
+		// s pageSize,估定值，页大小
 		function page(n,s){
-			$("#pageNo").val(n);
-			$("#pageSize").val(s);
+			$("#pageNo").val(n); // 赋值，传给后台
+			$("#pageSize").val(s); // 赋值，传给后台
 			$("#searchForm").submit();
         	return false;
         }
