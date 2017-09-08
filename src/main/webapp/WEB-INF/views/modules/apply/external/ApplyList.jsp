@@ -28,6 +28,11 @@
         	return false;
         }
 	</script>
+
+	<script src="${ctxStatic}/bootstrap-table-1.11.1/dist/extensions/mobile/bootstrap-table-mobile.js"></script>
+	<script src="${ctxStatic}/bootstrap-table-1.11.1/dist/extensions/resizable/bootstrap-table-resizable.js"></script>
+	<script src="${ctxStatic}/bootstrap-table-1.11.1/dist/extensions/editable/bootstrap-table-editable.js"></script>
+
 </head>
 <body>
 <ul class="nav nav-tabs">
@@ -89,7 +94,7 @@
 		<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
 	</button>
 </div>
-<table id="table"></table>
+<table id="table" data-mobile-responsive="true"></table>
 <script>
 // 执行代码
 $(function () {
@@ -130,17 +135,20 @@ var TableInit = function () {
 		$('#table').bootstrapTable('destroy');
 
 		$('#table').bootstrapTable({
+			resizable: true,
 			toolbar: '#toolbar',
 			url: '${ctx }/apply/external/projectApplyExternal/table',
 			method: 'post',                      //请求方式（*）
 			contentType: "application/x-www-form-urlencoded",
             queryParams : oTableInit.queryParams,  //传递参数（*）
+            dataField : "list", //很重要，这是后端返回的实体数据！表示后端传递的对象数据，名字要与对象的名字相同。
             classes : 'table table-bordered', // Class样式
 			striped: true,                      //是否显示行间隔色
 			cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
 			pagination: true,                   //是否显示分页（*）
+			sortName: "updateDate",             // 定义排序列
 			sortable: true,                     //是否启用排序
-			sortOrder: "asc",                   //排序方式
+			sortOrder: "desc",                   //排序方式
 			sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
 			pageNumber: 1,                      //初始化加载第一页，默认第一页,并记录
 			pageSize: 30,                     //每页的记录行数（*）
@@ -159,10 +167,11 @@ var TableInit = function () {
 			rowStyle: function (row, index) { //设置行的特殊样式
 				//这里有5个取值颜色['active', 'success', 'info', 'warning', 'danger'];
 				var strclass = "";
-				if (index == 0) {
+				if (index == 1) {
 					strclass = "danger";
 				}
 				return { classes: strclass };
+//				return strclass;
 			},
 			columns: [{
 				checkbox: true,
@@ -211,11 +220,12 @@ var TableInit = function () {
                 field: 'procStatus',
                 title: '审批状态',
                 formatter: function (value, row, index) {
-                    // 通过formatter可以自定义列显示的内容
-                    // value: 当前field的值，即id
-                    // row: 当前行的数据
                     <%--${fns:getDictLabel(projectApplyExternal.procStatus, 'AuditStatus', '')};--%>
                     return getDictLabel(${fns:toJson(fns:getDictList('AuditStatus'))}, value);
+                },
+                cellStyle: function (value, row, index) {
+                    showTip(value);
+					return "text-warning";
                 }
 
             }, {
@@ -244,6 +254,10 @@ var TableInit = function () {
 					return btnExport + btnView + btnTrace + btnDelete + btnEdit;
 				}
 			} ],
+			responseHandler: function (res) {
+				// 在ajax获取到数据，渲染表格之前，修改数据源
+				return res;
+            },
 			onLoadSuccess: function () {
 //            alert("数据加载成功！");
 			},

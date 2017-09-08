@@ -582,7 +582,8 @@ public class Page<T> {
 //	}
 
 	private long total; // bootstrap table使用，用于返回数据给table
-	private List<T> rows; // bootstrap table使用，用于返回数据给table
+	// bootstrap table默认使用rows作为返回的数据key值，可以在前端用dataField: 'list'来改变代表数据的key值
+	// private List<T> rows; // bootstrap table使用，用于返回数据给table
 
 	private String sortOrder; // //排位命令（desc，asc）
 
@@ -594,13 +595,13 @@ public class Page<T> {
 		this.total = total;
 	}
 
-	public List<T> getRows() {
-		return getList();
-	}
-
-	public void setRows(List<T> rows) {
-		this.rows = rows;
-	}
+	// public List<T> getRows() {
+	// 	return getList();
+	// }
+    //
+	// public void setRows(List<T> rows) {
+	// 	this.rows = rows;
+	// }
 
 	public String getSortOrder() {
 		return sortOrder;
