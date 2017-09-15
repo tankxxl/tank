@@ -93,13 +93,13 @@
 					<if test="dbName == 'mysql'">concat('%',#{projectName},'%')</if>
 			</if>
 			<if test="saler != null and saler.id != null and saler.id != ''">
-				AND a.saler_id LIKE 
+				AND a.saler_id =
 					<if test="dbName == 'oracle'">'%'||#{saler.id}||'%'</if>
 					<if test="dbName == 'mssql'">'%'+#{saler.id}+'%'</if>
 					<if test="dbName == 'mysql'">concat('%',#{saler.id},'%')</if>
 			</if>
 			<if test="customer != null and customer.id != null and customer.id != ''">
-				AND a.customer_id LIKE 
+				AND a.customer_id =
 					<if test="dbName == 'oracle'">'%'||#{customer.id}||'%'</if>
 					<if test="dbName == 'mssql'">'%'+#{customer.id}+'%'</if>
 					<if test="dbName == 'mysql'">concat('%',#{customer.id},'%')</if>

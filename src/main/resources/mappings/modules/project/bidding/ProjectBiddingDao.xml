@@ -78,7 +78,7 @@
 				<if test="dbName == 'mysql'">concat('%',#{apply.projectName},'%')</if>
 			</if>
 			<if test="category != null and category != ''">
-				AND a.category LIKE
+				AND a.category =
 				<if test="dbName == 'oracle'">'%'||#{category}||'%'</if>
 				<if test="dbName == 'mssql'">'%'+#{category}+'%'</if>
 				<if test="dbName == 'mysql'">concat('%',#{category},'%')</if>

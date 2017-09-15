@@ -47,7 +47,7 @@
 			</li>
 			<li><label>行业：</label>
 				<form:select path="industry" class="input-medium">
-					<form:option value="" label=""/>
+					<form:option value="" label="全部"/>
 					<form:options items="${fns:getDictList('customer_industry')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
 				</form:select>
 			</li>
