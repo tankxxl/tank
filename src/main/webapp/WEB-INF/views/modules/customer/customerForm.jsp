@@ -73,8 +73,10 @@
 		</div>
 		<div class="control-group">
 			<label class="control-label">客户负责人：</label>
-			<sys:treeselect id="principal" name="principal.id" value="${customer.principal.id}" labelName="principal.name" labelValue="${customer.principal.name}"
-					title="用户" url="/sys/office/treeData?type=3" cssClass="input-small" allowClear="true" notAllowSelectParent="true"/>
+			<div class="controls">
+				<sys:treeselect id="principal" name="principal.id" value="${customer.principal.id}" labelName="principal.name" labelValue="${customer.principal.name}"
+					title="用户" url="/sys/office/treeData?type=3" cssClass="input-xlarge" allowClear="true" notAllowSelectParent="true"/>
+			</div>
 		</div>
 		<div class="control-group">
 			<label class="control-label">电话：</label>
