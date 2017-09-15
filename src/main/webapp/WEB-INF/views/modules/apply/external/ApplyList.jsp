@@ -135,7 +135,7 @@ var TableInit = function () {
 		$('#table').bootstrapTable('destroy');
 
 		$('#table').bootstrapTable({
-			resizable: true,
+//			resizable: true,
 			toolbar: '#toolbar',
 			url: '${ctx }/apply/external/projectApplyExternal/table',
 			method: 'post',                      //请求方式（*）
@@ -181,12 +181,26 @@ var TableInit = function () {
 				title: '项目编号',
 				align: 'center',
 				valign: 'middle',
+                formatter: function (value, row, index) {
+				    if (value) {
+				        return '<a href="${ctx}/apply/external/projectApplyExternal/form?id=' + row.id + '">' + value + '</a>';
+					} else {
+				        return value;
+                    }
+                }
 				// width: '180'
 			}, {
 				field: 'projectName',
 				title: '项目名称',
 				resizable: true,
-				sortable: true
+				sortable: true,
+				formatter: function (value, row, index) {
+				    if (row.projectCode) {
+				        return value;
+					} else {
+                        return '<a href="${ctx}/apply/external/projectApplyExternal/form?id=' + row.id + '">' + value + '</a>';
+					}
+				}
 			}, {
 				field: 'saler.name',
 				title: '销售人员'
@@ -224,7 +238,6 @@ var TableInit = function () {
                     return getDictLabel(${fns:toJson(fns:getDictList('AuditStatus'))}, value);
                 },
                 cellStyle: function (value, row, index) {
-                    showTip(value);
 					return "text-warning";
                 }
 
@@ -251,7 +264,8 @@ var TableInit = function () {
                 		btnEdit = '<a href="${ctx}/apply/external/projectApplyExternal/modify?id=' + row.id + '">修改</a>&nbsp';
                     </shiro:hasPermission>
 
-					return btnExport + btnView + btnTrace + btnDelete + btnEdit;
+					// return btnExport + btnView + btnTrace + btnDelete + btnEdit;
+                    return btnExport + btnTrace + btnDelete + btnEdit;
 				}
 			} ],
 			responseHandler: function (res) {
