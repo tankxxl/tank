@@ -77,7 +77,7 @@ public class SystemAuthorizingRealm extends AuthorizingRealm {
 		User user = getSystemService().getUserByLoginName(token.getUsername());
 		if (user != null) {
 			if (Global.NO.equals(user.getLoginFlag())){
-				throw new AuthenticationException("msg:该已帐号禁止登录.");
+				throw new AuthenticationException("msg:该帐号已禁止登录.");
 			}
 			byte[] salt = Encodes.decodeHex(user.getPassword().substring(0,16));
 			return new SimpleAuthenticationInfo(new Principal(user, token.isMobileLogin()), 
