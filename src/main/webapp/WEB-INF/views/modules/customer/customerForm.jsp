@@ -94,7 +94,7 @@
 			<label class="control-label">行业：</label>
 			<div class="controls">
 				<form:select path="industry" class="input-xlarge required">
-					<form:option value="" label=""/>
+					<form:option value="" label="请选择"/>
 					<form:options items="${fns:getDictList('customer_industry')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
 				</form:select>
 				<span class="help-inline"><font color="red">*</font> </span>
@@ -104,7 +104,7 @@
 			<label class="control-label">客户类型：</label>
 			<div class="controls">
 				<form:select path="customerCategory" class="input-xlarge required">
-					<form:option value="" label=""/>
+					<form:option value="" label="请选择"/>
 					<form:options items="${fns:getDictList('customer_category')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
 				</form:select>
 				<span class="help-inline"><font color="red">*</font> </span>

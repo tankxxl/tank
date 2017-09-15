@@ -66,13 +66,13 @@
 			</li>
 			<li><label>项目类别：</label>
 				<form:select path="category" class="input-medium">
-					<form:option value="" label=""/>
+					<form:option value="" label="请选择"/>
 					<form:options items="${fns:getDictList('pro_category')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
 				</form:select>
 			</li>
 			<li><label>审批状态：</label>
 				<form:select path="procStatus" class="input-medium">
-					<form:option value="" label=""/>
+					<form:option value="" label="请选择"/>
 					<form:options items="${fns:getDictList('AuditStatus')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
 				</form:select>
 			</li>
