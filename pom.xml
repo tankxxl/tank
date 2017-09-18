@@ -634,6 +634,22 @@
 			<scope>system</scope>
 			<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/UserAgentUtils-1.13.jar</systemPath>
 		</dependency>
+
+		<!-- swagger begin -->
+		<!-- springfox-swagger2 可以将代码中的注解转换为符合 Swagger 的 API 规范的 swagger.json 文件,
+		springfox-swagger-ui 提供了将 swagger.json 转换为 html 页面的服务. -->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>2.7.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>2.7.0</version>
+		</dependency>
+		<!-- swagger end -->
 		
 		<!-- 自定义jar依赖包
 		<dependency>

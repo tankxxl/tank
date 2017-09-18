@@ -123,7 +123,8 @@
 		<!-- 共6列 -->
 		<tr>
 			<td  class="tit">项目名称</td>
-			<td class="" >
+			<td>
+				<div style="white-space:nowrap;" >
 				<sys:treeselect
 						id="apply"
 						name="apply.id"
@@ -133,19 +134,19 @@
 						title="项目"
 						url="/apply/external/projectApplyExternal/treeData?proMainStage=11"
 						cssClass="required"
-						cssStyle="width: 90%"
 						dataMsgRequired="项目必选"
 						allowClear="true"
 						notAllowSelectParent="true"
 						customClick="changeProject"/>
 				<span class="help-inline"><font color="red">*</font> </span>
+				</div>
 			</td>
 			<td  class="tit">项目编号</td>
-			<td class="" >
+			<td >
 				<label id="project_code">${projectBidding.apply.projectCode }</label>
 			</td>
 			<td  class="tit">项目销售</td>
-			<td class="" >
+			<td >
 				<label id="project_saler">${projectBidding.apply.saler.name }</label>
 			</td>
 		</tr>

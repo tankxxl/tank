@@ -62,6 +62,12 @@
 		}
 
 		function delRow(obj, prefix){
+            // span->td->tr->table.rows.length
+            var rows = obj.parentNode.parentNode.parentNode.rows.length;
+            if (rows == 1) {
+                showTip("至少要保留一行！");
+                return;
+            }
 			var id = $(prefix+"_id");
 			var delFlag = $(prefix+"_delFlag");
 			if (id.val() == ""){
