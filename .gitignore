@@ -17,3 +17,4 @@
 
 .DS_Store
 .idea/
+/src/main/resources/jeesite.properties

@@ -563,8 +563,23 @@ public class ActTaskService extends BaseService {
 		// 使用spring注入引擎请使用下面的这行代码
 		Context.setProcessEngineConfiguration(processEngine.getProcessEngineConfiguration());
 //		return ProcessDiagramGenerator.generateDiagram(bpmnModel, "png", activeActivityIds);
+
+		// return processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator()
+		// 		.generateDiagram(bpmnModel, "png", activeActivityIds);
+
 		return processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator()
-				.generateDiagram(bpmnModel, "png", activeActivityIds);
+				.generateDiagram(
+						bpmnModel,
+						"png",
+						activeActivityIds,
+						new ArrayList(),
+						// 解决跟踪流程图时的乱码
+						processEngine.getProcessEngineConfiguration().getActivityFontName(),
+						processEngine.getProcessEngineConfiguration().getLabelFontName(),
+						processEngine.getProcessEngineConfiguration().getAnnotationFontName(),
+						null,
+						1.0
+				);
 	}
 	
 	/**
