@@ -16,9 +16,18 @@
 		a.del_flag AS "delFlag",
 		a.proc_ins_id AS "procInsId",
 		a.process_status AS "procStatus",
+
 		u5.name AS "projectManager.name",
 		u5.login_name AS "projectManager.loginName",
-		
+
+
+		u4.id AS "apply.saler.id",
+		u4.name AS "apply.saler.name",
+		u4.login_name AS "apply.saler.loginName",
+
+		s5.name AS "saler.office.name",
+		s5.id AS "saler.office.id",
+
 		pro_apply.project_code AS "apply.projectCode",
 		pro_apply.project_name AS "apply.projectName",
 		pro_apply.pro_main_stage AS "apply.proMainStage",

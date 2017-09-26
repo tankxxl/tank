@@ -10,18 +10,24 @@ import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.service.BaseService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.common.web.JxlsExcelView;
 import com.thinkgem.jeesite.modules.act.entity.Act;
 import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContractItem;
+import com.thinkgem.jeesite.modules.project.entity.execution.ProjectExecution;
 import com.thinkgem.jeesite.modules.project.service.contract.ProjectContractService;
+import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import com.thinkgem.jeesite.modules.sys.utils.ExportUtils;
 import com.thinkgem.jeesite.modules.sys.utils.POIUtils;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.jxls.common.Context;
+import org.jxls.transform.poi.PoiTransformer;
+import org.jxls.util.JxlsHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,15 +35,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.OutputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 合同Controller
@@ -308,6 +313,105 @@ public class ProjectContractController extends BaseController {
 		}
 		return;
 
+	}
+
+
+	// 新jxls导出
+	@RequiresPermissions("project:contract:projectContract:view")
+	@RequestMapping(value = "export1")
+	public ModelAndView export1(HttpServletRequest request, HttpServletResponse response, Map map) {
+
+		ProjectContract projectContract = (ProjectContract) map.get("projectContract");
+		if (StringUtils.isBlank(projectContract.getId())) {// 合同组为空
+			return null;
+		}
+
+
+		Map<String, Object> model = new HashMap();
+
+		List<ProjectContractItem> projectContractItemList = projectContract.getProjectContractItemList();
+		List<String> contractCodeList = new ArrayList<String>();
+
+		for (int i = 0; i < projectContractItemList.size(); i++) {
+			projectContractItemList.get(i).setContract(projectContract);
+			contractCodeList.add(projectContractItemList.get(i).getContractCode());
+		}
+
+		List<Act> actList =actTaskService.histoicFlowListPass(projectContract.getProcInsId(),null, null);
+
+
+		String temp = DictUtils.getDictLabel(projectContract.getApply().getCategory(), "pro_category", "");
+		model.put("pro_category", temp);
+
+		model.put("contractList", projectContractItemList);
+		model.put("sheetNames", contractCodeList);
+		model.put("acts", actList);
+
+
+		String  exportFileName = projectContract.getApply().getProjectName() + "_销售合同（签约）审批表";
+
+		return new ModelAndView(new JxlsExcelView("ProjectContract2.xls",exportFileName, false), model);
+
+
+
+		// //模板位置、下载的文件
+		// String workBookFileRealPathName = request.getSession().getServletContext().getRealPath("/")+ "/WEB-INF/excel/project/ProjectContract2.xls";
+		// String fileReturnName = projectContract.getApply().getProjectName() + "_销售合同（签约）审批表";
+        //
+		// OutputStream os = null;
+		// FileInputStream workBookFis = null;
+		// System.out.println();
+		// try {
+		// 	List<Act> actList = null;
+		// 	actList = actTaskService.histoicFlowListPass(
+		// 			projectContract.getProcInsId(), null, null);
+        //
+		// 	os = response.getOutputStream();
+		// 	// 得到模板workbook
+		// 	workBookFis = new FileInputStream(workBookFileRealPathName);
+		// 	HSSFWorkbook wb = new HSSFWorkbook(workBookFis);
+		// 	List<ProjectContractItem> projectContractItemList = projectContract.getProjectContractItemList();
+		// 	List<String> contractCodeList = new ArrayList<String>();
+        //
+		// 	for (int i = 0; i < projectContractItemList.size(); i++) {
+		// 		contractCodeList.add(projectContractItemList.get(i).getContractCode());
+		// 	}
+        //
+		// 	// Context context = PoiTransformer.createInitialContext();
+		// 	Context context = new Context();
+		// 	context.putVar("contractList", projectContractItemList);
+		// 	context.putVar("sheetNames", contractCodeList);
+		// 	context.putVar("acts", actList);
+		// 	context.putVar("pro_category", "任刚在");
+		// 	JxlsHelper.getInstance()
+		// 			.setUseFastFormulaProcessor(false)
+		// 			.processTemplate(workBookFis, os, context);
+        //
+        //
+		// 	// 移除第一页的modelSheet
+		// 	// wb.removeSheetAt(0);
+		// 	String codedFileName = java.net.URLEncoder.encode(fileReturnName, "UTF-8");
+		// 	response.setHeader("content-disposition", "attachment;filename=" + codedFileName + ".xls");
+		// 	// wb.write(os);
+		// 	// os.close();
+		// 	os.flush();
+		// 	workBookFis.close();
+        //
+		// } catch (Exception e) {
+		// 	System.out.println(e);
+		// 	// addMessage(redirectAttributes, "导出用户失败！失败信息："+e.getMessage());
+		// } finally {
+        //
+		// 	try {
+		// 		if (os != null) {
+		// 			os.flush();
+		// 			os.close();
+		// 		}
+		// 	} catch (Exception e) {
+		// 		System.out.println(e);
+		// 	}
+		// }
+		// return;
 	}
 
 }

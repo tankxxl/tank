@@ -20,9 +20,16 @@ public class JxlsExcelView extends AbstractView {
 
     private String templatePath;
     private String exportFileName;
+    private boolean useFastFormulaProcessor = true;
 
     public JxlsExcelView(String templatePath, String exportFileName) {
+        this(templatePath, exportFileName, true);
+    }
+
+    public JxlsExcelView(String templatePath, String exportFileName, boolean useFastFormulaProcessor) {
         this.templatePath = templatePath;
+        this.useFastFormulaProcessor = useFastFormulaProcessor;
+
         if (exportFileName != null) {
             try {
                 exportFileName = URLEncoder.encode(exportFileName, "UTF-8");
@@ -59,7 +66,14 @@ public class JxlsExcelView extends AbstractView {
             e.printStackTrace();
         }
 
-        JxlsHelper.getInstance().processTemplate(is, os, context);
+        if (useFastFormulaProcessor) {
+            JxlsHelper.getInstance().processTemplate(is, os, context);
+        } else {
+            JxlsHelper.getInstance()
+                    .setUseFastFormulaProcessor(false)
+                    .processTemplate(is, os, context);
+        }
+
 
         os.flush();
         is.close();

@@ -12,7 +12,7 @@
 					var proId =$(this).attr("proId");
 					top.$.jBox.confirm("确认要导出用户数据吗？","系统提示",function(v,h,f){
 						if(v=="ok"){
-							$("#searchForm").attr("action","${ctx}/project/contract/projectContract/export?id="+proId);
+							$("#searchForm").attr("action","${ctx}/project/contract/projectContract/export1?id="+proId);
 							$("#searchForm").submit();
 						}
 					},{buttonsFocus:1});
