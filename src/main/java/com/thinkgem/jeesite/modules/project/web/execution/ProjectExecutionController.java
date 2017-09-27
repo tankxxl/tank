@@ -50,6 +50,11 @@ public class ProjectExecutionController extends BaseController {
 	private ActTaskService actTaskService;
 
     /**
+	 *
+	 * @ModelAttribute属性和@SessionAttribute属性主要用来在不同控制器和模型之间共享数据，
+	 * 默认情况下，map的信息只是在request当前请求有效，如果想在一个controller中共享数据，可以使用这两个属性。
+	 * 可以在前台页面访问到ModelAttribute标记的方法(方法返回值)
+	 *
      * 如果把@ModelAttribute放在方法的注解上时，代表的是：该Controller的所有方法在调用前，先执行此@ModelAttribute方法
 	 *
 	 * 在页面请求form方法前，会首先执行@ModelAttribute标注的get方法，get方法中返回一个ProjectExecution对象，
