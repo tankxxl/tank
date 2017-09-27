@@ -173,7 +173,7 @@
 	<table class="table-form">
 		<tr>
 			<td colspan="2" class="tit">项目编号</td>
-			<td class="" colspan="3">
+			<td class="" colspan="5">
 				<c:if test="${projectApplyExternal.act.taskDefKey eq 'usertask_specialist'}">
 					<form:input path="projectCode" maxlength="64" class="required"/>
 					<span class="help-inline"><font color="red">*</font></span>
@@ -184,21 +184,21 @@
 					${projectApplyExternal.projectCode }
 				</c:if>
 			</td>
-			<td class="tit">项目归属</td>
-			<td colspan="2">
-				<c:choose>
-				<c:when test="${projectApplyExternal.act.taskDefKey eq 'usertask_specialist'}">
-					<form:select path="ownership" class="input-medium required" style="width:89%;">
-						<form:option value="" label=""/>
-						<form:options items="${fns:getDictList('pro_ownership')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
-					</form:select>
-					<span class="help-inline"><font color="red">*</font> </span>
-				</c:when>
-				<c:otherwise>
-					${fns:getDictLabel(projectApplyExternal.ownership, 'pro_ownership', '')}
-				</c:otherwise>
-				</c:choose>
-			</td>
+			<%--<td class="tit">项目归属</td>--%>
+			<%--<td colspan="2">--%>
+				<%--<c:choose>--%>
+				<%--<c:when test="${projectApplyExternal.act.taskDefKey eq 'usertask_specialist'}">--%>
+					<%--<form:select path="ownership" class="input-medium required" style="width:89%;">--%>
+						<%--<form:option value="" label=""/>--%>
+						<%--<form:options items="${fns:getDictList('pro_ownership')}" itemLabel="label" itemValue="value" htmlEscape="false"/>--%>
+					<%--</form:select>--%>
+					<%--<span class="help-inline"><font color="red">*</font> </span>--%>
+				<%--</c:when>--%>
+				<%--<c:otherwise>--%>
+					<%--${fns:getDictLabel(projectApplyExternal.ownership, 'pro_ownership', '')}--%>
+				<%--</c:otherwise>--%>
+				<%--</c:choose>--%>
+			<%--</td>--%>
 		</tr>
 		<tr>
 			<td  class="tit" colspan="2">项目名称</td>

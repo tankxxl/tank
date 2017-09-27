@@ -720,8 +720,15 @@ public class ActTaskService extends BaseService {
 			String activitiId = (String) PropertyUtils.getProperty(processInstance, "activityId");
 			logger.debug("current activity id: {}", activitiId);
 
-			currentTask = taskService.createTaskQuery().processInstanceId(processInstance.getId()).taskDefinitionKey(activitiId)
-					.singleResult();
+			// rgz activitiId = null时为节点多实例，返回多个task，我们只取一个就行了。
+			if (StringUtils.isEmpty(activitiId)) {
+				currentTask = taskService.createTaskQuery()
+						.processInstanceId(processInstance.getId()).taskDefinitionKey(activitiId).list().get(0);
+			} else {
+				currentTask = taskService.createTaskQuery().processInstanceId(processInstance.getId()).taskDefinitionKey(activitiId)
+						.singleResult();
+			}
+
 			logger.debug("current task for processInstance: {}", ToStringBuilder.reflectionToString(currentTask));
 
 		} catch (Exception e) {

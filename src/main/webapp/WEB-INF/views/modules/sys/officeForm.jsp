@@ -99,6 +99,20 @@
 					title="用户" url="/sys/office/treeData?type=3" allowClear="true" notAllowSelectParent="true"/>
 			</div>
 		</div>
+
+		<div class="control-group">
+			<label class="control-label">分管领导:</label>
+			<div class="controls">
+				<sys:treeselect
+						id="branchPersons"
+						name="branchPersons" value="${office.branchPersons}"
+						labelName="branchPersonsName" labelValue="${office.branchPersonsName}"
+						title="用户" url="/sys/office/treeData?type=3"
+						allowClear="true" notAllowSelectParent="true"
+						checked="true" />
+			</div>
+		</div>
+
 		<div class="control-group">
 			<label class="control-label">联系地址:</label>
 			<div class="controls">

@@ -33,7 +33,10 @@
 		pp.name AS "primaryPerson.name",
 		pp.login_name AS "primaryPerson.loginName",
 		dp.name AS "deputyPerson.name",
-		dp.login_name AS "deputyPerson.loginName"
+		dp.login_name AS "deputyPerson.loginName",
+
+		a.branch_persons AS "branchPersons",
+		( select group_concat(m.name) from sys_user m where FIND_in_set(m.id, a.branch_persons) ) AS "branchPersonsName"
 	</sql>
 	
 	<sql id="officeJoins">
@@ -106,7 +109,9 @@
 			del_flag,
 			useable,
 			primary_person,
-			deputy_person
+			deputy_person,
+
+			branch_persons
 		) VALUES (
 			#{id}, 
 			#{parent.id}, 
@@ -131,7 +136,9 @@
 			#{delFlag},
 			#{useable},
 			#{primaryPerson.id},
-			#{deputyPerson.id}
+			#{deputyPerson.id},
+
+			#{branchPersons}
 		)
 	</insert>
 	
@@ -155,7 +162,9 @@
 			remarks = #{remarks},
 			useable=#{useable},
 			primary_person=#{primaryPerson.id},
-			deputy_person=#{deputyPerson.id}
+			deputy_person=#{deputyPerson.id},
+
+			branch_persons=#{branchPersons}
 		WHERE id = #{id}
 	</update>
 	

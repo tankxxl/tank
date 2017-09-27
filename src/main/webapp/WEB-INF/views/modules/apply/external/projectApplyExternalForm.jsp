@@ -155,7 +155,7 @@
 	<table class="table-form">
 		<tr>
 			<td colspan="2" class="tit">项目编号</td>
-			<td class="" colspan="3">
+			<td class="" colspan="5">
 
 				<shiro:hasPermission name="apply:external:projectApplyExternal:onlySave">
 					<form:input path="projectCode" maxlength="64" class="required"/>
@@ -166,14 +166,14 @@
 				</shiro:lacksPermission>
 
 			</td>
-			<td class="tit">项目归属</td>
-			<td colspan="2">
-				<form:select path="ownership" class="" style="width:89%;">
-					<form:option value="" label=""/>
-					<form:options items="${fns:getDictList('pro_ownership')}" itemLabel="label" itemValue="value"/>
-				</form:select>
-				<span class="help-inline"><font color="red">*</font> </span>
-			</td>
+			<%--<td class="tit">项目归属</td>--%>
+			<%--<td colspan="2">--%>
+				<%--<form:select path="ownership" class="" style="width:89%;">--%>
+					<%--<form:option value="" label=""/>--%>
+					<%--<form:options items="${fns:getDictList('pro_ownership')}" itemLabel="label" itemValue="value"/>--%>
+				<%--</form:select>--%>
+				<%--<span class="help-inline"><font color="red">*</font> </span>--%>
+			<%--</td>--%>
 		</tr>
 		<tr>
 			<td  class="tit" colspan="2">项目名称</td>

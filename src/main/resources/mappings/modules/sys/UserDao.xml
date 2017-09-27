@@ -96,6 +96,9 @@
 		o.phone AS "office.phone",
 		o.fax AS "office.fax",
 		o.email AS "office.email",
+
+		o.branch_persons AS "office.branchPersons",
+
     	oa.id AS "office.area.id",
     	oa.name AS "office.area.name",
     	oa.parent_id AS "office.area.parent.id",

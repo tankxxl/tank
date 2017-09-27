@@ -15,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 根据loginName得到相应的节点审批人
  * 当使用表达式设置candidateUsers、Groups时，这些方法查找出来的返回值必须是String或List<String>
@@ -204,6 +207,33 @@ public class AssigneeService extends BaseService {
 		} catch (Exception e) {
 		}
 		return office;
+	}
+
+	// jx used. 一个部门多个分管领导要会签
+	public List<String> findBranchBossLoginNameList(String apply) {
+		User user = UserUtils.getByLoginName(apply);
+		List<String> loginNames = new ArrayList<String>();
+		if (user == null ||
+				user.getOffice() == null ) {
+			loginNames.add("thinkgem");
+			return loginNames;
+		}
+
+		// 优先判断少的，多个分管的字段优先级高
+		loginNames = user.getOffice().getBranchPersonsLoginNameList();
+		if (loginNames != null && loginNames.size() !=0) {
+			return loginNames;
+		}
+		// 重新生成一个对象，因为上面=null了
+		loginNames = new ArrayList<String>();
+		user = user.getOffice().getDeputyPerson();
+		if (user == null || StringUtils.isEmpty(user.getLoginName())) {
+			loginNames.add("thinkgem");
+			return loginNames;
+		}
+
+		loginNames.add(user.getLoginName());
+		return loginNames;
 	}
 
 

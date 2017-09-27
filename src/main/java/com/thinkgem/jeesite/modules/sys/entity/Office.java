@@ -3,10 +3,13 @@
  */
 package com.thinkgem.jeesite.modules.sys.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import com.thinkgem.jeesite.common.utils.StringUtils;
+import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import org.hibernate.validator.constraints.Length;
 
 import com.thinkgem.jeesite.common.persistence.TreeEntity;
@@ -37,6 +40,9 @@ public class Office extends TreeEntity<Office> {
 	private User primaryPerson;//主负责人
 	private User deputyPerson;//副负责人
 	private List<String> childDeptList;//快速添加子部门
+
+	private String branchPersons; // 江西-分管领导，可以有多个。用于数据库字段存储，存id
+	private String branchPersonsName; // 合成字段，用于前台展示(展示branchPersons字段)，数据来源于数据库
 	
 	public Office(){
 		super();
@@ -209,7 +215,51 @@ public class Office extends TreeEntity<Office> {
 //	public String getParentId() {
 //		return parent != null && parent.getId() != null ? parent.getId() : "0";
 //	}
-	
+
+	public String getBranchPersons() {
+		return branchPersons;
+	}
+
+	public void setBranchPersons(String branchPersons) {
+		this.branchPersons = branchPersons;
+	}
+
+	public String getBranchPersonsName() {
+		return branchPersonsName;
+	}
+
+	public void setBranchPersonsName(String branchPersonsName) {
+		this.branchPersonsName = branchPersonsName;
+	}
+
+	public List<String> getBranchPersonsLoginNameList() {
+		if (StringUtils.isEmpty(this.getBranchPersons())) {
+			return null;
+		}
+		// 数据库是按id,id整体存储的
+		String[] ids = StringUtils.split(this.getBranchPersons(), ",");
+		if (ids == null) {
+			return null;
+		}
+		if (ids.length == 0 ) {
+			return null;
+		}
+		User user = null;
+		List<String> list = new ArrayList<String>();
+		for (int i = 0; i < ids.length; i++) {
+			user = UserUtils.get(ids[i]);
+			if (user == null) {
+				break;
+			}
+			if (StringUtils.isEmpty(user.getLoginName())) {
+				break;
+			}
+			list.add(user.getLoginName());
+		}
+		return list;
+		// return StringUtils.join(list, ";");
+	}
+
 	@Override
 	public String toString() {
 		return name;
