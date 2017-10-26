@@ -8,8 +8,7 @@ $(function () {
     jeesns.jeesnsLink();
 });
 
-
-
+//
 var jeesns = {
     reg_rule : {
         'selected'   :    /.+/,
@@ -180,13 +179,15 @@ var jeesns = {
             var title = $(this).attr('title');
             var width = $(this).attr('width');
             var height = $(this).attr('height');
+            var func = $(this).attr('func');
+            console.log("func=" + func);
             if(width == undefined || width == ""){
                 width = "500px";
             }
             if(height == undefined || height == ""){
                 height = "300px";
             }
-            jeesnsDialog.open(url,title,width,height);
+            jeesnsDialog.open(url, title, width, height, func);
             return false;
         });
     },
@@ -198,7 +199,8 @@ var jeesns = {
             type: type,
             data: data,
             cache: false,
-            dataType: "json",
+            contentType: "application/json",
+            dataType: "json", // 表示返回值类型，非必须
             timeout: 20000,
             beforeSend: function(){
                 index = jeesnsDialog.loading();
@@ -235,7 +237,7 @@ var jeesns = {
         });
     }
 };
-
+// 全局变量jeesnsDialog对象
 var jeesnsDialog = {
     loading : function () {
         //加载层
@@ -284,20 +286,36 @@ var jeesnsDialog = {
         jeesnsDialog.tips(msg, "success");
     },
 
-    open : function (url,title,width,height) {
+    open : function (url, title, width, height, func) {
         layer.open({
             title: title,
-            type: 2,
+            type: 2,  // 0（信息框，默认）1（页面层）2（iframe层）3（加载层）4（tips层）
             area: [width,height],
             fix: true,
             maxmin: true,
             content: url,
-            scrollbar: false
-            // cancel: function(){
-            //     window.location.href = window.location.href;
-            // }
+            scrollbar: false,
+            btn: ['确认', '取消'], // 按钮1和按钮2的回调分别是yes和btn2，而从按钮3开始，则回调为btn3: function(){}，以此类推
+            yes: function (index, layero) {  // 按钮【确认】的回调
+                // 获取弹出层页面的变量
+                // switchState = $(layero).find("iframe")[0].contentWindow.switchState;
+                var data = $(layero).find("iframe")[0].contentWindow.formData();
+                console.log('对话框的值=' + data);
+                if (data && func) {
+                    func(data);
+                }
+                layer.close(index);
+            },
+            btn2: function(index) {
+                alertx("取消按钮");
+                layer.close(index);
+            },
+            cancel: function(index){ // 点击右上角x号按钮的回调
+                alert("右上角x测试");
+                // window.location.href = window.location.href;
+            }
         });
-    }
+    } // end open function
 };
 
 

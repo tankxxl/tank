@@ -7,19 +7,14 @@
 	<script type="text/javascript">
 		$(document).ready(function() {
 
-            // 验证值小数位数不能超过两位
-            jQuery.validator.addMethod("decimal", function (value, element) {
-                var decimal = /^-?\d+(\.\d{1,2})?$/;
-                return this.optional(element) || (decimal.test(value));
-            }, $.validator.format("小数位数不能超过两位!"));
-
             // 初始化全局变量，修改表单使用
 		    treeGetParam = "?prjId=${projectInvoice.apply.id}";
 
-			//$("#name").focus();
 			$("#inputForm").validate({
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
+					var formData = $(form).serializeJsonObject();
+					console.log("formData=" + JSON.stringify(formData));
 					form.submit();
 				},
 				errorContainer: "#messageBox",
@@ -36,7 +31,6 @@
 
         // 选择项目后触发事件
         function changeProject(projectId, idx) {
-
             // JavaScript全局变量，用于传递参数，新建表单使用。
 		    treeGetParam = "?prjId=" + projectId;
 
@@ -142,25 +136,20 @@
 
     <%-- 定义一系列工具栏 --%>
     <div id="toolbar" class="btn-group">
-        <a href="${ctx}/project/invoice/add" func="func()"
-           width="800px" height="600px" target="_jeesnsOpen" title="添加">
-            <label class="btn btn-default">添加</label> </a>
-        <%--<button id="btn_add" type="button" class="btn btn-default">--%>
-            <%--<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增--%>
-        <%--</button>--%>
+        <a href="${ctx}/project/invoice/addItem?id=${projectInvoice.id}" func="func()"
+           width="800px" height="600px" target="_jeesnsOpen" title="添加Layer">
+            <label class="btn btn-default">添加auto</label> </a>
+        <button id="btn_add" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+        </button>
         <button id="btn_edit" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改
         </button>
-        <button id="btn_delete" type="button" class="btn btn-default">
+        <button id="btn_delete" type="button" class="btn btn-default" disabled>
             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
         </button>
 
-        <!-- Button trigger modal -->
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal3">
-            Launch modal
-        </button>
-
-        <a class="btn btn-primary" @click="add()"><i class="fa fa-plus"></i>&nbsp;新增</a>
+        <a class="btn btn-primary" @click="myAddClick()"><i class="fa fa-plus"></i>&nbsp;新增</a>
         <a class="btn btn-primary" @click="update()"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
         <a class="btn btn-primary" @click="del()"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
     </div>
@@ -179,6 +168,9 @@
             <input id="btnSubmit" class="btn btn-primary" type="submit" value="只保存表单数据" onclick="$('#flag').val('saveOnly')" data-toggle="tooltip" title="管理员才能操作！"/>&nbsp;
         </shiro:hasPermission>
 
+        <input id="btnSubmit" class="btn btn-primary" type="button"
+               value="ajax保存" @click="submitx()" />&nbsp;
+
         <input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.back()"/>
     </div>
 
@@ -186,107 +178,6 @@
         <act:histoicFlow procInsId="${projectInvoice.procInsId}" />
     </c:if>
 </form:form>
-
-<!-- Modal -->
-<div class="modal fade" id="exampleModal3" tabindex="-1"
-     role="dialog" aria-labelledby="exampleModal3Label" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModal3Label">Modal title</h5>
-                <%--<button type="button" class="close" data-dismiss="modal" aria-label="Close">--%>
-                    <%--<span aria-hidden="true">×</span>--%>
-                <%--</button>--%>
-            </div>
-            <div class="modal-body">
-                <%--修改的时候如何把值写上去，要在方法里用jquery一个一个写上去？？--%>
-                <form role="form">
-                    <div class="form-group">
-                        <label for="apply">项目：</label>
-                        <sys:treeselect id="apply" name="apply.id"
-                                        value="${projectInvoice.apply.id}"
-                                        labelName="apply.projectName"
-                                        labelValue="${projectInvoice.apply.projectName}"
-                                        title="项目名称"
-                                        url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11"
-                                        cssClass="required"  allowClear="true" notAllowSelectParent="true"
-                                        customClick="changeProject"/>
-
-
-                        <%--<input type="text" id="username" class="form-control" placeholder="请输入用户名" v-model="newItem.projectName" />--%>
-                    </div>
-                    <div class="form-group">
-                        <label for="age">合同：</label>
-                        <input type="text" id="age" class="form-control" placeholder="请输入年龄" v-model="newItem.projectCode" />
-                    </div>
-
-                    <div class="form-group">
-                        <label for="age">客户名称：</label>
-                        <input type="text" class="form-control" placeholder="请输入年龄" v-model="newItem.projectCode" />
-                    </div>
-
-                    <div class="form-group">
-                        <label for="age">开票内容：</label>
-                        <input type="text" class="form-control" placeholder="请输入年龄" v-model="newItem.projectCode" />
-                    </div>
-                    <div class="form-group">
-                        <label for="age">规格型号：</label>
-                        <input type="text" class="form-control" placeholder="请输入年龄" v-model="newItem.projectCode" />
-                    </div>
-                    <div class="form-group">
-                        <label for="age">数量：</label>
-                        <input type="text" class="form-control" placeholder="请输入年龄" v-model="newItem.projectCode" />
-                    </div>
-                    <div class="form-group">
-                        <label for="age">单位：</label>
-                        <input type="text" class="form-control" placeholder="请输入年龄" v-model="newItem.projectCode" />
-                    </div>
-                    <div class="form-group">
-                        <label for="age">单价：</label>
-                        <input type="text" class="form-control" placeholder="请输入年龄" v-model="newItem.projectCode" />
-                    </div>
-                    <div class="form-group">
-                        <label for="age">金额：</label>
-                        <input type="text" class="form-control" placeholder="请输入年龄" v-model="newItem.projectCode" />
-                    </div>
-                    <div class="form-group">
-                        <label for="age">利润点：</label>
-                        <input type="text" class="form-control" placeholder="请输入年龄" v-model="newItem.projectCode" />
-                    </div>
-                    <div class="form-group">
-                        <label for="age">结算周期：</label>
-                        <input type="text" class="form-control" placeholder="请输入年龄" v-model="newItem.projectCode" />
-                    </div>
-                    <div class="form-group">
-                        <label for="age">发票号：</label>
-                        <input type="text" class="form-control" placeholder="请输入年龄" v-model="newItem.projectCode" />
-                    </div>
-                    <div class="form-group">
-                        <label for="age">备注：</label>
-                        <input type="text" class="form-control" placeholder="请输入年龄" v-model="newItem.projectCode" />
-                    </div>
-                    <%--<div class="form-group">--%>
-                        <%--<label for="age">年龄：</label>--%>
-                        <%--<input type="text" class="form-control" placeholder="请输入年龄" v-model="newItem.projectCode" />--%>
-                    <%--</div>--%>
-                    <%--<div class="form-group">--%>
-                        <%--<label for="age">年龄：</label>--%>
-                        <%--<input type="text" class="form-control" placeholder="请输入年龄" v-model="newItem.projectCode" />--%>
-                    <%--</div>--%>
-
-                    <!-- <div class="form-group">
-                      <input type="button" value="添加" class="btn btn-primary" v-on:click="add()" />
-                      <input type="reset" value="重置" class="btn btn-danger" />
-                    </div> -->
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" @click="add()" class="btn btn-primary" data-dismiss="modal">Save changes</button>
-            </div>
-        </div>
-    </div>
-</div> <%-- end modal dialog --%>
 </div> <%-- end v-cloak --%>
 
 <%--<script src="${ctxStatic}/modules/project/invoice/InvoiceForm.js"></script>--%>
@@ -320,11 +211,14 @@ var TableInit = function () {
         $('#table').bootstrapTable({
 //			resizable: true,
             toolbar: '#toolbar',
-            url: '${ctx }/project/invoice/table',
+            contentType:'application/x-www-form-urlencoded; charset=UTF-8',
+            <%--url: '${ctx }/project/invoice/table',--%>
+            data: ${fns:toJson(projectInvoice.invoiceItemList)},
             method: 'post',                      //请求方式（*）
-            contentType: "application/x-www-form-urlencoded",
+
             queryParams : oTableInit.queryParams,  //传递参数（*）
-            dataField : "list", //很重要，这是后端返回的实体数据！表示后端传递的对象数据，名字要与对象的名字相同。
+            dataField : "list", //很重要，这是后端返回的实体数据！表示后端传递的对象数据，名字要与对象的名字相同。默认值：rows
+            totalField: "total", // 很重要，跟后端返回的数据相关。默认值：total
             classes : 'table table-bordered', // Class样式
             striped: true,                      //是否显示行间隔色
             cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
@@ -361,6 +255,7 @@ var TableInit = function () {
             }, {
                 field: 'projectCode',
                 title: '项目编号',
+                titleTooltip: "tips",
                 align: 'center',
                 valign: 'middle',
                 formatter: function (value, row, index) {
@@ -372,11 +267,23 @@ var TableInit = function () {
                 }
                 // width: '180'
             }, {
-                field: 'projectName',
+                field: 'apply.projectName',
                 title: '项目名称',
                 resizable: true,
                 sortable: true,
-                formatter: function (value, row, index) {
+                cellStyle: function(value, row, index) {
+                    var classes = ['active', 'success', 'info', 'warning', 'danger'];
+                    if (index % 2 === 0 && index / 2 < classes.length) {
+                        return {
+                            //classes: classes[index / 2]
+                            css: {
+                                "background-color": "red",
+                            }
+                        };
+                    }
+                    return {};
+                },
+                formatter: function (value, row, index) { // 可以在此合成字段返回：row.field1 + row.field2
                     if (row.projectCode) {
                         return value;
                     } else {
@@ -384,10 +291,10 @@ var TableInit = function () {
                     }
                 }
             }, {
-                field: 'saler.name',
+                field: 'apply.projectCode',
                 title: '客户名称'
             }, {
-                field: 'customer.customerName',
+                field: 'goodsName',
                 title: '开票内容'
             }, {
                 field: 'category',
@@ -400,9 +307,6 @@ var TableInit = function () {
                 field: 'updateDate',
                 title: '数量',
                 formatter: function (value, row, index) {
-                    // 通过formatter可以自定义列显示的内容
-                    // value: 当前field的值，即id
-                    // row: 当前行的数据
 //                    return new Date(value).Format("yyyy-MM-dd");
                     return value;
                 }
@@ -441,25 +345,22 @@ var TableInit = function () {
                         btnExport = '<input export="btnExport" class="btn btn-primary" type="button" proId="' + row.id + '" value="导出"/>&nbsp';
                     }
                     btnView = '<a href="${ctx}/apply/external/projectApplyExternal/form?id=' + row.id + '">详情</a>&nbsp';
-
-                    <shiro:hasPermission name="apply:external:projectApplyExternal:edit">
-                    if (row.procStatus == '2') {
-                        btnDelete = '<a href="${ctx}/apply/external/projectApplyExternal/delete?id=' + row.id + '" onclick="return confirmx("确认要删除该外部立项申请吗？", this.href)">删除</a>&nbsp';
-                    } else {
-                        btnTrace = '<a class="trace" target="_blank" procInsId="' + row.procInsId + '" href="${ctx}/act/task/trace1?procInsId=' + row.procInsId + '">跟踪</a>&nbsp';
-                    }
-                    </shiro:hasPermission>
-
-                    <shiro:hasPermission name="apply:external:projectApplyExternal:modify">
-                    btnEdit = '<a href="${ctx}/apply/external/projectApplyExternal/modify?id=' + row.id + '">修改</a>&nbsp';
-                    </shiro:hasPermission>
-
                     // return btnExport + btnView + btnTrace + btnDelete + btnEdit;
                     return btnExport + btnTrace + btnDelete + btnEdit;
                 }
             } ],
-            responseHandler: function (res) {
-                // 在ajax获取到数据，渲染表格之前，修改数据源
+            responseHandler: function (res) { // 在ajax获取到数据，渲染表格之前，修改数据源
+//                if(res.total > 0) {
+//                    return {
+//                        "rows": res.rows,
+//                        "total": res.total
+//                    }
+//                } else {
+//                    return {
+//                        "rows": [],
+//                        "total": 0
+//                    }
+//                }
                 return res;
             },
             onLoadSuccess: function () {
@@ -474,36 +375,28 @@ var TableInit = function () {
             },
             onClickRow: function (row, $element) {
                 console.log(row.projectName);
-//                window.location.href = "/qStock/qProInfo/" + row.ProductId;
+//              window.location.href = "/qStock/qProInfo/" + row.ProductId;
             }
         });
     }; // end Init()
 
-    //得到查询的参数
+    //定义对象的私有方法-queryParams，得到查询的参数
     oTableInit.queryParams = function (params) {
         //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
         var temp = $("#searchForm").serializeJsonObject();
         temp["pageSize"] = params.limit;                        //页面大小
         temp["pageNo"] = (params.offset / params.limit) + 1;  //页码
 //        temp["sort"] = params.sort;                         //排序列名
-        temp["orderBy"] = params.sort;                         //排序列名
+        temp["orderBy"] = params.sort;                         //排序列名，传到后台排序
         temp["sortOrder"] = params.order;                   //排位命令（desc，asc）
         //特殊格式的条件处理
-//        temp["WHC_Age"] = $("#WHC_Age").val() + "~" + $("#WHC_Age2").val();
+//        temp["WHC_Age"] = $("#WHC_Age").val();
         return temp;
-
-//		var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
-//            pageNo: (params.offset / params.limit) + 1,   //页码，传到后台分页
-//            pageSize: params.limit,                       //页面大小
-//            sort: params.sort,      //排序列名，传到后台排序
-//            sortOrder: params.order //排位命令（desc，asc），传到后台排序
-//		};
-//		return temp;
     }; // end queryParams()
     return oTableInit;
 }; // end var TableInit
 
-
+// buttonInit对象
 var ButtonInit = function () {
     var oInit = new Object();
     var postdata = {};
@@ -539,19 +432,29 @@ var ButtonInit = function () {
         //    $('#myModal').modal();
         //});
 
+        // 监听table的事件，设置btn的状态
+        $("#table").on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function() {
+            $("#btn_delete").prop('disabled', !$("#table").bootstrapTable('getSelections').length);
+        });
+
         $("#btn_delete").click(function () {
 //		    var arrselections = $("#table").bootstrapTable('getSelections'); // 取出row数组[row1, row2]
-            var ids = getIdSelections();  // 'id1,id2,id3'
-
+//            var ids = getIdSelections();  // 'id1,id2,id3'
 //		    if (arrselections.length <= 0) {
 //		        toastr.warning('请选择有效数据');
 //		        return;
 //		    }
+
+            var ids = $.map($("#table").bootstrapTable('getSelections'), function(row) {
+                return row.id;
+            });
             // 前台删除
             $('#table').bootstrapTable('remove', {
                 field: 'id',
                 values: ids
             });
+            // 设置btn_del的状态
+            $("#btn_delete").prop('disabled', true);
 //
 //		    Ewin.confirm({ message: "确认要删除选择的数据吗？" }).on(function (e) {
 //		        if (!e) {
@@ -571,9 +474,7 @@ var ButtonInit = function () {
 //		                toastr.error('Error');
 //		            },
 //		            complete: function () {
-//
 //		            }
-//
 //		        });
 //		    });
         });
@@ -602,7 +503,6 @@ var ButtonInit = function () {
             var oTable = new TableInit();
             oTable.Init();
 //            $("#table").bootstrapTable('refresh', oTable.queryParams);
-
         });
 
     };
@@ -610,25 +510,25 @@ var ButtonInit = function () {
 }; // end var ButtonInit
 
 
-//Email字段(column)格式化
+// 全局函数，Email字段(column)格式化
 function emailFormatter(value, row, index) {
     return "<a href='mailto:" + value + "' title='单击打开连接'>" + value + "</a>";
 }
-
+// 全局函数
 function getTableSelect() {
     var rows = $('#table').bootstrapTable('getSelections');
     if (rows.length > 0) {
         ID = rows[0].id;
     }
-    alertx(ID);
+    alertx(rows);
 }
-
+// 全局函数
 function getIdSelections() {
     return $.map( $('#table').bootstrapTable('getSelections'), function (row) {
         return row.id
     });
 }
-
+// 全局函数
 function Delete() {
     var ids = ""; // 得到用户选择的数据的ID
     var rows = $("#table").bootstrapTable('getSelections');
@@ -638,17 +538,25 @@ function Delete() {
     ids = ids.substring(0, ids.length - 1);
 //		DeleteByIds(ids);
 }
-
-$('#table').on('click-row.bs.table', function (e, row, element) {
+// 给table绑定事件 - aka.onClickRow
+/**
+ * row: the record corresponding to the clicked row
+ * $element: the tr element
+ * field: the field name corresponding to the clicked cell
+ */
+$('#table').on('click-row.bs.table', function (row, $element, field) {
+    console.log("row=" + row);
+    console.log("$element=" + $element);
+    console.log("field=" + field);
     $('.success').removeClass('success'); // 去除之前选中的行的选中样式
-    $(element).addClass('success'); // 添加当前选中的success样式用于区别
+//    $(element).addClass('success'); // 添加当前选中的success样式用于区别
 });
-
+// 全局函数
 function getSelectedRow() {
     var index = $('#table').find('tr.success').data('index'); // 获得选中的行
     return $('#table').bootstrapTable('getData')[index]; // 返回选中行所有数据
 }
-
+// 全局函数
 function search() {
     var opt = {
         url: 'doDynamicsList',
@@ -666,7 +574,7 @@ function search() {
     $('#table').bootstrapTable('refresh',opt);
 }
 
-
+// 全局变量，定义vm变量，
 // Vue三部分：el、data、methods
 var vm = new Vue({
     el:'#rrapp',
@@ -686,6 +594,35 @@ var vm = new Vue({
         }
     }, // data end
     methods: {
+        submitx: function () {
+            $('#flag').val('saveOnly');
+            var json = $("#inputForm").serializeJsonObject();
+            var seri = $("#inputForm").serialize();
+            var data = $("#table").bootstrapTable('getData');
+            var myData = [];
+            for (var i = 0; i < data.length; i++) {
+                myData.push({'apply.id': data[i].apply.id,
+                             'apply.projectName': data[i].apply.projectName});
+            }
+//            json.invoiceItemList = data;
+            json.invoiceItemList = myData;
+            console.log("form.json=" + JSON.stringify(json));
+            console.log("form.seri=" + JSON.stringify(seri));
+            console.log("table.data.json=" + JSON.stringify(data));
+            console.log("table.myData.json=" + JSON.stringify(myData));
+//            $("#inputForm").submit();
+            jeesns.jeesnsAjax('${ctx}/project/invoice/save', 'POST', json);
+        },
+        myAddClick: function(){
+            jeesnsDialog.open('${ctx}/project/invoice/addItem?id=${projectInvoice.id}',
+                '增加开票项', '600px', '600px', function(data) {
+                $('#table').bootstrapTable('append', data);
+                alert(JSON.stringify(data));
+            });
+
+        },
+
+
         query: function () {
             vm.reload();
         },
@@ -695,11 +632,6 @@ var vm = new Vue({
             vm.roleList = {};
             vm.user = {deptName:null, deptId:null, status:1, roleIdList:[]};
 
-//            vm.newItem = {
-//                projectCode:"rgz" + r,
-//                projectName: "18rgz" + r,
-//                remarks: "rgz " + r
-//            };
             $('#table').bootstrapTable('append', vm.newItem);
             vm.newItem = {};
             //获取角色信息
@@ -817,7 +749,9 @@ var vm = new Vue({
             }).trigger("reloadGrid");
         }
     }  // method end
-});
+});  // end vm
+
+
 </script>
 </body>
 </html>

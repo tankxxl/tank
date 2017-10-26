@@ -34,6 +34,12 @@ public class ProjectInvoiceItem extends ActEntity<ProjectInvoiceItem> {
     private String procInsId;		// 流程实例ID
     private String procStatus;		// 流程审批状态
 
+
+    // bj invoice
+    private String clientName; // 客户名称
+    private String content; // 开票内容
+    private String settlement; // 结算周期
+
     public ProjectInvoiceItem() {
         super();
     }
@@ -152,4 +158,28 @@ public class ProjectInvoiceItem extends ActEntity<ProjectInvoiceItem> {
         this.procStatus = procStatus;
     }
 
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getSettlement() {
+        return settlement;
+    }
+
+    public void setSettlement(String settlement) {
+        this.settlement = settlement;
+    }
 }

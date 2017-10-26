@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" isELIgnored="false" %>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<meta name="author" content="http://jeesite.com/"/>
+<meta name="author" content="http://www.jicdata.com/"/>
 <meta name="renderer" content="webkit">
 <meta http-equiv="X-UA-Compatible" content="IE=8,IE=9,IE=10" />
 <meta http-equiv="Expires" content="0">
@@ -25,8 +25,13 @@
 <link href="${ctxStatic}/common/jeesite.css" type="text/css" rel="stylesheet" />
 <script src="${ctxStatic}/common/jeesite.js" type="text/javascript"></script>
 
+
 <script src="${ctxStatic}/layer/layer.js" type="text/javascript"></script>
 <script src="${ctxStatic}/common/jeesns.js" type="text/javascript"></script>
+
+<script src="${ctxStatic}/modules/project/common.js" type="text/javascript"></script>
+
+<script src="${ctxStatic}/form2js-master/src/form2js.js" type="text/javascript"></script>
 
 <script src="${ctxStatic}/bootstrap-table/dist/bootstrap-table.js"></script>
 <link href="${ctxStatic}/bootstrap-table/dist/bootstrap-table.css" rel="stylesheet" />

@@ -9,6 +9,7 @@ import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceDao;
 import com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceItemDao;
 import com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceReturnDao;
+import com.thinkgem.jeesite.modules.project.entity.approval.Project;
 import com.thinkgem.jeesite.modules.project.entity.execution.ProjectExecutionItem;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoice;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoiceItem;
@@ -58,6 +59,21 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
 
         invoice.setInvoiceItemList(itemDao.findList(new ProjectInvoiceItem(invoice)));
         return invoice;
+    }
+
+    /**
+     * 单独获得item进行编辑，弹出dialog专门编辑item
+     * @param id itemId，从前台传入
+     * @return
+     */
+    public ProjectInvoiceItem getItem(String id) {
+        // return super.get(id);
+        ProjectInvoiceItem item = itemDao.get(id);
+        // in case param id is not invoiceItem's id.
+        if (item == null) {
+            item = new ProjectInvoiceItem();
+        }
+        return item;
     }
 
     public List<ProjectInvoice> findListByContractId(ProjectInvoice projectInvoice) {

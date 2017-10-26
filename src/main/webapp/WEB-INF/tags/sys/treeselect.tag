@@ -38,7 +38,7 @@
 <script type="text/javascript">
 
      treeGetParam = "";
-
+     console.log("treeUrl init =" + treeGetParam);
      <%--<c:choose>--%>
      <%--<c:when test="${allowInput}">--%>
             <%--$("#${id}Button").click(function(){--%>
@@ -50,7 +50,7 @@
 
 	$("#${id}Button, #${id}Name").click(function(event){
 
-//	    console.log("treeUrl=" + treeGetParam);
+	    console.log("treeUrl=" + treeGetParam);
 
 		// 是否限制选择，如果限制，设置为disabled
 		if ($("#${id}Button").hasClass("disabled")){
