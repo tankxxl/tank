@@ -38,7 +38,6 @@
 <script type="text/javascript">
 
      treeGetParam = "";
-     console.log("treeUrl init =" + treeGetParam);
      <%--<c:choose>--%>
      <%--<c:when test="${allowInput}">--%>
             <%--$("#${id}Button").click(function(){--%>

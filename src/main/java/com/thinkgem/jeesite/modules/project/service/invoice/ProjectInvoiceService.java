@@ -118,7 +118,7 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
             varMap.put(ActUtils.VAR_PRJ_TYPE, projectInvoice.getApply().getCategory());
 
             varMap.put(ActUtils.VAR_TITLE, projectInvoice.getApply().getProjectName());
-
+            System.out.println();
             return launch(projectInvoice, varMap);
         } else { // 把驳回到申请人(重新修改业务表单，重新发起流程、销毁流程)也当成一个特殊的审批节点
             // 只要不是启动流程，其它任意节点的跳转都当成节点审批
@@ -137,6 +137,11 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
         // isNewRecord = projectInvoice.getIsNewRecord();
         super.save(projectInvoice);
         saveItem(projectInvoice);
+    }
+
+    @Transactional(readOnly = false)
+    public void deleteItemByIds(String[] ids) {
+        itemDao.deleteByIds(ids);
     }
 
     // /**
@@ -197,9 +202,9 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
 //                continue;
 //            }
 
-            if (item.getId() == null){
-                continue;
-            }
+            // if (item.getId() == null){
+            //     continue;
+            // }
 
             if (ProjectExecutionItem.DEL_FLAG_NORMAL.equals(item.getDelFlag())){
                 if (StringUtils.isBlank(item.getId())){

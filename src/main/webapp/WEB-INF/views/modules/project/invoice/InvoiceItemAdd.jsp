@@ -7,6 +7,9 @@
 	<script type="text/javascript">
 		$(document).ready(function() {
 
+            // 初始化全局变量，修改表单使用
+            treeGetParam = "?prjId=${projectInvoiceItem.apply.id}";
+
             // 验证值小数位数不能超过两位
             jQuery.validator.addMethod("decimal", function (value, element) {
                 var decimal = /^-?\d+(\.\d{1,2})?$/;
@@ -28,15 +31,16 @@
 						error.insertAfter(element);
 					}
 				}
-			});
+			}); // end validate()
+            console.log("dialog ready.");
+//            console.log("dialog.init=" + JSON.stringify(parent.row));
+            js2form(document.getElementById('inputForm'), parent.row);
 		});  // end init
 
         function formData() {
             var json = form2js($('#inputForm')[0]);
-            var json2 = $('#inputForm').serializeJsonObject();
-            console.log("json2=" + JSON.stringify(json2));
+//            var json2 = $('#inputForm').serializeJsonObject();
             console.log(JSON.stringify(json));
-            console.log(json);
             return json;
         }
 
@@ -48,27 +52,30 @@
             $.post('${ctx}/apply/external/projectApplyExternal/getAsJson',
                 { id: projectId },
                 function (apply) {
-                    $("#project_code").text(apply.projectCode);
-                    $("#customer_name").text(apply.customer.customerName);
-                    $("#customer_contact_name").text(apply.customerContact.contactName);
-                    $("#customer_contact_phone").text(apply.customerContact.phone);
+//                当项目改变时，合同字段要清零
+                    $("#contractId").val("");
+                    $("#contractName").val("");
+
+//                    $("#project_code").text(apply.projectCode);
+//                    $("#customer_name").text(apply.customer.customerName);
+//                    $("#customer_contact_name").text(apply.customerContact.contactName);
+//                    $("#customer_contact_phone").text(apply.customerContact.phone);
                 });
         }
 
         // 选择合同后触发事件
         function changedContract(itemId, idx) {
-            $.post('${ctx}/project/contract/projectContract/getItemAsJson',
+            $.post('${ctx}/project/contract/projectContract/getAsJson',
                 {id: itemId}, function (item) {
-                    $('#contract_amount').text(item.contractAmount);
-                    $('#contract_gross_margin').text(item.grossProfitMargin);
-                    $('#contractId').val(item.contract.id);
+//                    $('#contract_amount').text(item.contractAmount);
+//                    $('#contract_gross_margin').text(item.grossProfitMargin);
+//                    $('#contractId').val(item.contract.id);
                 });
         }
 
 	</script>
 </head>
 <body>
-
 
 <form:form id="inputForm" modelAttribute="projectInvoiceItem"
            action="${ctx}/project/invoice/save"
@@ -82,6 +89,7 @@
             <sys:treeselect id="apply" name="apply.id" value="${projectInvoiceItem.apply.id}"
                             labelName="apply.projectName" labelValue="${projectInvoiceItem.apply.projectName}"
                             title="项目名称"
+                            cssStyle="width: 85%"
                             url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11"
                             cssClass="required"  allowClear="true" notAllowSelectParent="true"
                             customClick="changeProject"/>
@@ -90,10 +98,26 @@
             <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
+
     <div class="control-group">
-        <label class="control-label">客户名称:</label>
+        <label class="control-label">合同号:</label>
         <div class="controls">
-            <form:input path="goodsName" class="required"/>
+            <sys:treeselect
+                    id="contract"
+                    name="contract.id"
+                    value="${projectInvoiceItem.contract.id}"
+                    labelName="contract.contractCode"
+                    labelValue="${projectInvoiceItem.contract.contractCode}"
+                    title="合同"
+                    url="/project/contract/projectContract/treeContractList"
+                    cssStyle="width: 85%"
+                    allowClear="true"
+                    dependBy="apply"
+                    dependMsg="请先选择项目！"
+                    notAllowSelectParent="true"
+                    customClick="changedContract"/>
+
+            <%--<form:input path="contract.contractCode" class="required"/>--%>
             <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
@@ -101,7 +125,7 @@
     <div class="control-group">
         <label class="control-label">客户名称:</label>
         <div class="controls">
-            <form:input path="spec" class="required"/>
+            <form:input path="clientName" class="required"/>
             <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
@@ -109,7 +133,7 @@
     <div class="control-group">
         <label class="control-label">开票内容:</label>
         <div class="controls">
-            <form:input path="num" class="required"/>
+            <form:input path="content" class="required"/>
             <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
@@ -117,7 +141,7 @@
     <div class="control-group">
         <label class="control-label">规格型号:</label>
         <div class="controls">
-            <form:input path="price" class="required"/>
+            <form:input path="spec" class="required"/>
             <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
@@ -125,7 +149,7 @@
     <div class="control-group">
         <label class="control-label">数量:</label>
         <div class="controls">
-            <form:input path="apply.projectCode" class="required"/>
+            <form:input path="num" class="required"/>
             <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
@@ -133,7 +157,7 @@
     <div class="control-group">
         <label class="control-label">单位:</label>
         <div class="controls">
-            <form:input path="apply.projectName" class="required"/>
+            <form:input path="unit" class="required"/>
             <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
@@ -141,7 +165,7 @@
     <div class="control-group">
         <label class="control-label">单价:</label>
         <div class="controls">
-            <form:input path="apply.category" class="required"/>
+            <form:input path="price" class="required"/>
             <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
@@ -149,7 +173,7 @@
     <div class="control-group">
         <label class="control-label">金额:</label>
         <div class="controls">
-            <form:input path="apply.description" class="required"/>
+            <form:input path="amount" class="required"/>
             <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
@@ -157,7 +181,7 @@
     <div class="control-group">
         <label class="control-label">利润点:</label>
         <div class="controls">
-            <form:input path="apply.estimatedGrossProfitMarginDescription" class="required"/>
+            <form:input path="profit" class="required"/>
             <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
@@ -165,15 +189,7 @@
     <div class="control-group">
         <label class="control-label">结算周期:</label>
         <div class="controls">
-            <form:input path="apply.riskAnalysis" class="required"/>
-            <span class="help-inline"><font color="red">*</font> </span>
-        </div>
-    </div>
-
-    <div class="control-group">
-        <label class="control-label">合同号:</label>
-        <div class="controls">
-            <form:input path="apply.ownership" class="required"/>
+            <form:input path="settlement" class="required"/>
             <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
@@ -181,7 +197,7 @@
     <div class="control-group">
         <label class="control-label">发票号:</label>
         <div class="controls">
-            <form:input path="apply.proMainStage" class="required"/>
+            <form:input path="invoiceNo" class="required"/>
             <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
@@ -198,4 +214,5 @@
     <%--</div>--%>
 </form:form>
 </body>
+
 </html>

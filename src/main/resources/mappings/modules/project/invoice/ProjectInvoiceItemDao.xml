@@ -9,6 +9,8 @@
         a.contract_item_id AS "contractItem.id",
         contractItem.contract_code AS "contractItem.contractCode",
 
+        apply.project_name AS "apply.projectName",
+
         a.goods_name AS "goodsName",
         a.spec AS "spec",
         a.num AS "num",
@@ -17,6 +19,14 @@
         a.cost_amount AS "costAmount",
 
         a.attachment AS "attachment",
+
+        a.return_date AS "returnDate",
+        a.client_name AS "clientName",
+        a.content AS "content",
+        a.settlement AS "settlement",
+        a.unit AS "unit",
+        a.profit AS "profit",
+        a.invoice_no AS "invoiceNo",
 
         a.id AS "id",
         a.create_by AS "createBy.id",
@@ -31,9 +41,9 @@
 
     <sql id="joins">
         LEFT JOIN project_invoice b ON b.id = a.invoice_id
-        LEFT JOIN project_apply_external apply ON apply.id = b.project_id
-        LEFT JOIN project_contract contract ON contract.id = b.contract_id
-        LEFT JOIN project_contract_item contractItem ON contractItem.id = b.contract_item_id
+        LEFT JOIN project_apply_external apply ON apply.id = a.project_id
+        LEFT JOIN project_contract contract ON contract.id = a.contract_id
+        LEFT JOIN project_contract_item contractItem ON contractItem.id = a.contract_item_id
     </sql>
 
     <select id="get" resultType="ProjectInvoiceItem">
@@ -100,6 +110,14 @@
 
         attachment,
 
+        return_date,
+        client_name,
+        content,
+        settlement,
+        unit,
+        profit,
+        invoice_no,
+
         create_by,
         create_date,
         update_by,
@@ -110,10 +128,10 @@
         proc_status
         ) VALUES (
         #{id},
-        #{invoice.apply.id},
+        #{apply.id},
         #{invoice.id},
-        #{invoice.contract.id},
-        #{invoice.contractItem.id},
+        #{contract.id},
+        #{contractItem.id},
 
         #{goodsName},
         #{spec},
@@ -123,6 +141,15 @@
         #{costAmount},
 
         #{attachment},
+
+        #{returnDate},
+        #{clientName},
+        #{content},
+        #{settlement},
+        #{unit},
+        #{profit},
+        #{invoiceNo},
+
 
         #{createBy.id},
         #{createDate},
@@ -151,6 +178,14 @@
 
         attachment = #{attachment},
 
+        return_date = #{returnDate},
+        client_name = #{clientName},
+        content = #{content},
+        settlement = #{settlement},
+        unit = #{unit},
+        profit = #{profit},
+        invoice_no = #{invoiceNo},
+
         update_by = #{updateBy.id},
         update_date = #{updateDate},
         remarks = #{remarks},
@@ -170,6 +205,24 @@
                 WHERE invoice_id = #{invoice.id}
             </otherwise>
         </choose>
+    </update>
+
+    <delete id="deleteByIdsForReal" parameterType="list">
+        delete from project_invoice_item where id in
+        <foreach collection="array" item="i" open="(" separator=","
+                 close=")">
+            #{i}
+        </foreach>
+    </delete>
+
+    <update id="deleteByIds" parameterType="list">
+        UPDATE project_invoice_item SET
+        del_flag = '1'
+        where id in
+        <foreach collection="array" item="i" open="(" separator=","
+                 close=")">
+            #{i}
+        </foreach>
     </update>
 
 </mapper>

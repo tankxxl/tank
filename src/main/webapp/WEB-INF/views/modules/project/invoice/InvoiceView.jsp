@@ -6,9 +6,6 @@
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
-            // 初始化全局变量，修改表单使用
-		    treeGetParam = "?prjId=${projectInvoice.apply.id}";
-
 			//$("#name").focus();
 			$("#inputForm").validate({
 				submitHandler: function(form){
@@ -27,91 +24,6 @@
 			});
 		});
 
-        // dom(tbody), index, template, json data
-		function addRow(list, idx, tpl, row){
-			$(list).append(Mustache.render(tpl, {
-				idx: idx, delBtn: true, row: row
-			}));
-
-			$(list+idx).find("select").each(function(){
-				$(this).val($(this).attr("data-value"));
-			});
-
-			$(list+idx).find("input[type='checkbox'], input[type='radio']").each(function(){
-				var ss = $(this).attr("data-value").split(',');
-				for (var i=0; i<ss.length; i++){
-					if($(this).val() == ss[i]) {
-						$(this).attr("checked","checked");
-					}
-				}
-			});
-		}
-
-		function delRow(obj, prefix){
-			var id = $(prefix+"_id");
-			var delFlag = $(prefix+"_delFlag");
-			if (id.val() == ""){
-				$(obj).parent().parent().remove();
-			}else if(delFlag.val() == "0"){
-				delFlag.val("1");
-				$(obj).html("&divide;").attr("title", "撤销删除");
-				$(obj).parent().parent().addClass("error");
-			}else if(delFlag.val() == "1"){
-				delFlag.val("0");
-				$(obj).html("&times;").attr("title", "删除");
-				$(obj).parent().parent().removeClass("error");
-			}
-		}
-
-        // 选择项目后触发事件
-        function changeProject(projectId, idx) {
-
-            // JavaScript全局变量，用于传递参数，新建表单使用。
-		    treeGetParam = "?prjId=" + projectId;
-
-            // 向后台获取项目信息，并将相关信息回显
-            $.post('${ctx}/apply/external/projectApplyExternal/getAsJson',
-                {id: projectId},
-                function (apply) {
-
-                $("#project_code").text(apply.projectCode);
-                $("#customer_name").text(apply.customer.customerName);
-                $("#customer_contact_name").text(apply.customerContact.contactName);
-                $("#customer_contact_phone").text(apply.customerContact.phone);
-
-//                treeUrl = apply.id;
-                <%--var ss = ${fns:getDictLabel(apply.category , 'pro_category', apply.category)};--%>
-//                console.log(ss);
-//                $("#project_category").text(ss);
-
-                //清除合同相关的值
-                $("#contract_amount").text("");
-                $("#contract_gross_margin").text("");
-                $("#contractItemId").val("");
-                $("#contractItemName").val("");
-
-                $("#contractId").val("");
-            });
-        }
-
-        // 选择合同后触发事件
-        function changedContract(itemId, idx) {
-            $.post('${ctx}/project/contract/projectContract/getItemAsJson',
-                {id: itemId}, function (item) {
-
-                if (item) {
-                    $('#contract_amount').text(item.contractAmount);
-                    $('#contract_gross_margin').text(item.grossProfitMargin);
-                    $('#contractId').val(item.contract.id);
-                } else {
-                    $('#contract_amount').text("");
-                    $('#contract_gross_margin').text("");
-                    $('#contractId').val("");
-                }
-
-            });
-        }
-
 	</script>
 </head>
 <body>
@@ -125,7 +37,6 @@
         <shiro:lacksPermission name="project:invoice:edit">查看</shiro:lacksPermission></a></li>
 </ul><br/>
 
-<%--<spring:htmlEscape defaultHtmlEscape="false" />--%>
 <form:form id="inputForm" modelAttribute="projectInvoice" htmlEscape="false"
            action="${ctx}/project/invoice/saveAudit" method="post" class="form-horizontal">
     <form:hidden path="id"/>
@@ -138,298 +49,38 @@
     <%--设置id，前端设置值，传回后端--%>
     <form:hidden id="contractId" path="contract.id" />
     <sys:message content="${message}"/>
+
     <table class="table-form">
-        <%--<tr>--%>
-            <%--<th colspan="6" class="tit">项目信息</th>--%>
-        <%--</tr>--%>
-            <caption>项目信息</caption>
+        <caption>项目信息</caption>
         <tr>
-            <td class="tit">项目名称</td>
-            <td colspan="1" class="tit_content text-center" >
-            ${projectInvoice.apply.projectName}
+            <td class="tit" >申请人</td>
+            <td colspan="2">
+                ${projectInvoice.createBy.name}
             </td>
 
-            <td class="tit">项目编码</td>
-            <td class="text-center">
-                <label id="project_code" >${projectInvoice.apply.projectCode}</label>
+            <td class="tit" >部门</td>
+            <td colspan="2">
+                ${projectInvoice.createBy.office.name}
             </td>
-        </tr>
-        <tr>
-            <td class="tit">客户名称</td>
-            <td class="text-center"><label id="customer_name">${projectInvoice.apply.customer.customerName}</label></td>
-            <td class="tit">联系方式</td>
-            <td class="text-center">
-                <label id="customer_contact_name">${projectInvoice.apply.customerContact.contactName}</label>
-                <label id="customer_contact_phone">${projectInvoice.apply.customerContact.phone}</label>
-            </td>
-        </tr>
-
-        <tr>
-            <td class="tit">销售合同号</td>
-            <td class="">${projectInvoice.contractItem.contractCode}</td>
-            <td class="tit">合同金额</td>
-            <td class="text-center"><label id="contract_amount">${projectInvoice.contractItem.contractAmount}</label></td>
-            <%--<td class="tit">合同毛利率</td>--%>
-            <%--<td class="text-center"><label id="contract_gross_margin">${projectInvoice.contractItem.grossProfitMargin}</label></td>--%>
-        </tr>
-
-        <tr>
-            <td class="tit">合同类别</td>
-            <td class="text-center">
-                ${fns:getDictLabel(projectInvoice.contractType , 'jic_contract_type', '')}
-            </td>
-            <td class="tit">开票金额</td>
-            <td > ${projectInvoice.invoiceAmount} </td>
-        </tr>
-
-        <tr>
-            <td class="tit" >开票类型</td>
-            <td class="text-center">
-                ${fns:getDictLabel(projectInvoice.invoiceType , 'jic_invoice_type', '')}
-            </td>
-
-            <c:choose>
-                <c:when test="${projectExecution.act.taskDefKey eq 'usertask_invoice'}">
-                    <td class="tit">开票日期</td>
-                    <td>
-                        <input name="invoiceDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate required"
-                               value="<fmt:formatDate value="${projectInvoice.invoiceDate}" pattern="yyyy-MM-dd"/>"
-                               onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
-                    </td>
-                </c:when>
-                <c:otherwise>
-                    <td class="tit">开票日期</td>
-
-                    <td><fmt:formatDate value="${projectInvoice.invoiceDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
-                </c:otherwise>
-            </c:choose>
-
-        </tr>
-
-        <tr>
-            <td class="tit">客户名称</td>
-            <td > ${projectInvoice.customerName} </td>
-            <td class="tit">税号</td>
-            <td > ${projectInvoice.taxNo} </td>
-        </tr>
-
-        <tr>
-            <td class="tit">开户行名称</td>
-            <td > ${projectInvoice.bankName} </td>
-
-            <td class="tit">开户行账号</td>
-            <td > ${projectInvoice.bankNo} </td>
-
-        </tr>
-
-        <tr>
-            <td class="tit">地址</td>
-            <td > ${projectInvoice.address} </td>
-            <td class="tit">电话</td>
-            <td > ${projectInvoice.phone} </td>
         </tr>
 
         <tr>
             <td class="tit">备注</td>
-            <td colspan="5"> ${projectInvoice.remarks} </td>
+            <td colspan="5">
+                ${projectInvoice.remarks}
+            </td>
         </tr>
 
         <tr>
             <td class="tit" >文件附件</td>
             <td colspan="5">
                 <form:hidden id="attachment" path="attachment" maxlength="20000"  />
-                <sys:ckfinder input="attachment" type="files" uploadPath="/project/purchase" selectMultiple="true" readonly="true"/>
-            </td>
-        </tr>
-        <c:if test="${not empty projectInvoice.act.taskId && projectInvoice.act.status != 'finish'}">
-        <tr>
-            <td class="tit">您的意见</td>
-            <td colspan="5">
-                <form:textarea path="act.comment" class="required" rows="5" maxlength="4000" style="width:95%"/>
-                <span class="help-inline" style="color: red;">*</span>
-            </td>
-        </tr>
-        </c:if>
-
-        <tr>
-            <td  class="tit" colspan="6">填表说明</td>
-        </tr>
-        <tr>
-            <td colspan="6">
-                <span class="help-block" >
-                    1、 必须将《项目收入成本预测表》作为附件，否则不予批准；<br/>
-                    2、 售前工程师、项目经理、解决方案部负责人、服务交付部或软件开发部负责人、技术部分管领导负责逐级确认投标书中的技术部分，包括产品配置、技术方案、技术偏离表、技术承诺等内容；<br/>
-                </span>
+                <sys:ckfinder input="attachment" type="files" uploadPath="/project/purchase" readonly="true" />
             </td>
         </tr>
     </table>
-    <br/><br/>
 
-    <div class="">
-
-        <c:if test="${ not empty projectInvoiceList}">
-        <table id="contentTable1" class="table table-striped table-bordered table-condensed">
-
-            <caption>已开发票信息</caption>
-            <thead>
-            <tr>
-                <th>开票金额</th>
-                <th>开票日期</th>
-            </tr>
-            </thead>
-            <tbody id="invoiceList"></tbody>
-            <tfoot>
-            <tr>
-                <td>
-                    <label id="total" >已开发票总计：</label>
-                </td>
-                <td>
-                    <label id="remain" ></label>
-                </td>
-            </tr>
-        </table>
-        </c:if>
-
-        <script type="text/template" id="entityTpl">//<!--
-        <tr id="invoiceList{{idx}}">
-            <input id="invoiceList{{idx}}_id" name="invoiceList[{{idx}}].id" type="hidden" value="{{row.id}}"/>
-            <input id="invoiceList{{idx}}_delFlag" name="invoiceList[{{idx}}].delFlag" type="hidden" value="0"/>
-            <td>{{row.invoiceAmount}}</td>
-            <td>{{row.invoiceDate}}</td>
-        </tr>//-->
-        </script>
-
-
-        <c:if test="${ not empty returnList}">
-            <table id="tableReturn" class="table table-striped table-bordered table-condensed">
-
-                <caption>已回款信息</caption>
-                <thead>
-                <tr>
-                    <th>回款金额</th>
-                    <th>回款日期</th>
-                </tr>
-                </thead>
-                <tbody id="returnList"></tbody>
-                <tfoot>
-                <tr>
-                    <td>
-                        <label id="totalReturn" >已回款总计：</label>
-                    </td>
-                    <td>
-                        <label id="remainReturn" ></label>
-                    </td>
-                </tr>
-            </table>
-        </c:if>
-
-        <script type="text/template" id="returnTpl">//<!--
-        <tr id="returnList{{idx}}">
-            <input id="returnList{{idx}}_id" name="returnList[{{idx}}].id" type="hidden" value="{{row.id}}"/>
-            <input id="returnList{{idx}}_delFlag" name="returnList[{{idx}}].delFlag" type="hidden" value="0"/>
-            <td>{{row.amount}}</td>
-            <td>{{row.returnDate}}</td>
-        </tr>//-->
-        </script>
-
-
-        <table id="contentTable" class="table table-striped table-bordered table-condensed">
-                <%--<thead>--%>
-                <%--<tr><td class="tit">产品配置清单</td> <tr>--%>
-            <caption>本次申请开票信息</caption>
-            <thead>
-            <tr>
-                <th>商品名称</th>
-                <th>规格型号</th>
-                <th>数量(套)</th>
-                <th>单价(含税)</th>
-                <th>金额(含税)</th>
-                <th>本次结转成本金额</th>
-                <shiro:hasPermission name="project:invoice:edit">
-                    <th width="10">&nbsp;</th>
-                </shiro:hasPermission>
-            </tr>
-            </thead>
-            <tbody id="invoiceItemList"></tbody>
-        </table>
-
-        <%--开票信息--%>
-        <script type="text/template" id="itemTpl">//<!--
-        <tr id="invoiceItemList{{idx}}">
-            <input id="invoiceItemList{{idx}}_id" name="invoiceItemList[{{idx}}].id" type="hidden" value="{{row.id}}"/>
-            <input id="invoiceItemList{{idx}}_delFlag" name="invoiceItemList[{{idx}}].delFlag" type="hidden" value="0"/>
-            <td> {{row.goodsName}} </td>
-            <td> {{row.spec}} </td>
-
-            <td> {{row.num}} </td>
-
-            <td> {{row.price}} </td>
-            <td> {{row.amount}} </td>
-
-            <td> {{row.costAmount}} </td>
-        </tr>//-->
-        </script>
-        <script type="text/javascript">
-
-            <%--初始化全局变量--%>
-            <%--treeGetParam = "?prjId=" + ${projectExecution.apply.id};--%>
-            var itemRowIdx = 0, itemTpl = $("#itemTpl").html().replace(/(\/\/\<!\-\-)|(\/\/\-\->)/g,"");
-            // another table
-            var rowIdx = 0, entityTpl = $("#entityTpl").html().replace(/(\/\/\<!\-\-)|(\/\/\-\->)/g,"");
-
-            var rowReturnIdx = 0, returnTpl = $("#returnTpl").html().replace(/(\/\/\<!\-\-)|(\/\/\-\->)/g,"");
-
-            $(document).ready(function() {
-//                开票信息-只读
-                var data = ${fns:toJson(projectInvoice.invoiceItemList)};
-                for (var i=0; i<data.length; i++){
-                    addRow('#invoiceItemList', itemRowIdx, itemTpl, data[i]);
-                    itemRowIdx = itemRowIdx + 1;
-                }
-                if (itemRowIdx ==0) {
-                    addRow('#invoiceItemList', itemRowIdx, itemTpl, data[i]);
-                    itemRowIdx = itemRowIdx + 1;
-                }
-
-//                已开发票信息-只读
-                var data1 = ${fns:toJson(projectInvoiceList)};
-                var sum = 0;
-                for (var i=0; i<data1.length; i++){
-                    addRow('#invoiceList', rowIdx, entityTpl, data1[i]);
-                    sum = sum + Number(data1[i].invoiceAmount);
-                    rowIdx = rowIdx + 1;
-                }
-                $("#total").text("已开票金额总计：" + sum);
-
-                // 已回款信息-只读
-                var dataReturn = ${fns:toJson(returnList)};
-                var sum = 0;
-                for (var i=0; i<dataReturn.length; i++){
-                    addRow('#returnList', rowReturnIdx, returnTpl, dataReturn[i]);
-                    sum = sum + Number(dataReturn[i].amount);
-                    rowReturnIdx = rowReturnIdx + 1;
-                }
-                $("#totalReturn").text("已回款金额总计：" + sum);
-
-                // 只能输入数字，并且关闭输入法
-                $(".checkNum").keypress(function(event) {
-                    var keyCode = event.which;
-                    if (keyCode == 46 || (keyCode >= 48 && keyCode <= 57) || keyCode == 8) // 8是删除键
-                        return true;
-                    else
-                        return false;
-                }).focus(function() {
-                    this.style.imeMode = 'disabled';
-                    /* imeMode有四种形式，分别是：
-                     active 代表输入法为中文
-                     inactive 代表输入法为英文
-                     auto 代表打开输入法 (默认)
-                     disable 代表关闭输入法 */
-                });
-
-            }); // end ready
-        </script>
-    </div>
+    <table id="table" data-mobile-responsive="true"></table>
 
     <div class="form-actions">
         <shiro:hasPermission name="project:invoice:edit">
@@ -447,5 +98,203 @@
     </c:if>
 </form:form>
 <validate:jsValidate modelAttribute="projectInvoice"></validate:jsValidate>
+
+<script>
+    // 执行代码
+    $(function () {
+        //1.初始化Table
+        var oTable = new TableInit();
+        oTable.Init();
+
+        //2.初始化Button的点击事件
+        var oButtonInit = new ButtonInit();
+        oButtonInit.Init();
+    });
+
+    // 定义部分
+    // 定义一个对象
+    var TableInit = function () {
+        var oTableInit = new Object();
+
+        // 定义对象的方法，初始化Table
+        oTableInit.Init = function () {
+            // 先销毁表格
+            $('#table').bootstrapTable('destroy');
+
+            $('#table').bootstrapTable({
+                toolbar: '#toolbar',
+                contentType:'application/x-www-form-urlencoded; charset=UTF-8',
+                data: ${fns:toJson(projectInvoice.invoiceItemList)},
+                selectItemName: 'selectItemName',  // radio or checkbox 的字段名
+                method: 'post',                      //请求方式（*）
+                queryParams : oTableInit.queryParams,  //传递参数（*）
+                dataField : "list", //很重要，这是后端返回的实体数据！表示后端传递的对象数据，名字要与对象的名字相同。默认值：rows
+                totalField: "total", // 很重要，跟后端返回的数据相关。默认值：total，如果在这里不指定自定义的fieldname，就要在responseHandler回调函数中修改了
+                classes : 'table table-bordered', // Class样式
+                striped: true,                      //是否显示行间隔色
+                cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                pagination: true,                   //是否显示分页（*）
+                sortName: "updateDate",             // 定义排序列
+                sortable: true,                     //是否启用排序
+                sortOrder: "desc",                   //排序方式
+                sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                pageNumber: 1,                      //初始化加载第一页，默认第一页,并记录
+                pageSize: 30,                     //每页的记录行数（*）
+                pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                search: false,                      //是否显示表格搜索
+                strictSearch: true,
+                showColumns: true,                  //是否显示所有的列（选择显示的列）
+                showRefresh: true,                  //是否显示刷新按钮
+                minimumCountColumns: 2,             //最少允许的列数
+                uniqueId: "ID",                     //每一行的唯一标识，一般为主键列
+                showToggle: true,                   //是否显示详细视图和列表视图的切换按钮
+                cardView: false,                    //是否显示详细视图
+                detailView: false,                  //是否显示父子表
+                rowStyle: function (row, index) { //设置行的特殊样式
+                    var strclass = "";
+                    if (index == 1) {
+                        strclass = "danger";
+                    }
+                    return { classes: strclass };
+//				return strclass;
+                },
+                columns: [{
+                    field: 'apply.id',
+                    title: '项目编号',
+                    titleTooltip: "tips",
+                    align: 'center',
+                    valign: 'middle',
+                    visible: false
+                    // width: '180'
+                }, {
+                    field: 'apply.projectName',
+                    title: '项目名称',
+                    sortable: true,
+                    formatter: function (value, row, index) { // 可以在此合成字段返回：row.field1 + row.field2
+                        return value;
+                    }
+                }, {
+                    field: 'clientName',
+                    title: '客户名称'
+                }, {
+                    field: 'content',
+                    title: '开票内容'
+                }, {
+                    field: 'spec',
+                    title: '规格型号',
+                    formatter: function (value, row, index) {
+                        return value; <%--return getDictLabel(${fns:toJson(fns:getDictList('pro_category'))}, value);--%>
+                    }
+                }, {
+                    field: 'num',
+                    title: '数量',
+                    formatter: function (value, row, index) {
+//                    return new Date(value).Format("yyyy-MM-dd");
+                        return value;
+                    }
+
+                }, {
+                    field: 'unit',
+                    title: '单位'
+                }, {
+                    field: 'price',
+                    title: '单价'
+                }, {
+                    field: 'amount',
+                    title: '金额'
+                }, {
+                    field: 'profit',
+                    title: '利润点'
+                }, {
+                    field: 'settlement',
+                    title: '结算周期'
+                }, {
+                    field: 'contract.contractCode',
+                    title: '合同号'
+                }, {
+                    field: 'contract.id',
+                    title: '合同id',
+                    visible: false
+                }, {
+                    field: 'invoiceNo',
+                    title: '发票号'
+                }, {
+                    field: 'remarks',
+                    title: '备注'
+                }, {
+                    field: 'id',
+                    title: '操作',
+                    align: 'center',
+                    formatter:function(value,row,index){
+                        var btnExport = '', btnView = '', btnDelete = '', btnTrace = '', btnEdit = '';
+                        if (row.procStatus == '2') {
+                            btnExport = '<input export="btnExport" class="btn btn-primary" type="button" proId="' + row.id + '" value="导出"/>&nbsp';
+                        }
+                        btnView = '<a href="${ctx}/apply/external/projectApplyExternal/form?id=' + row.id + '">详情</a>&nbsp';
+                        return btnExport + btnTrace + btnDelete + btnEdit;
+                    }
+                } ],
+            });
+        }; // end Init()
+
+        //定义对象的私有方法-queryParams，得到查询的参数
+        oTableInit.queryParams = function (params) {
+            //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+            var temp = $("#searchForm").serializeJsonObject();
+            temp["pageSize"] = params.limit;                        //页面大小
+            temp["pageNo"] = (params.offset / params.limit) + 1;  //页码
+//        temp["sort"] = params.sort;                         //排序列名
+            temp["orderBy"] = params.sort;                         //排序列名，传到后台排序
+            temp["sortOrder"] = params.order;                   //排位命令（desc，asc）
+            //特殊格式的条件处理
+//        temp["WHC_Age"] = $("#WHC_Age").val();
+            return temp;
+        }; // end queryParams()
+        return oTableInit;
+    }; // end var TableInit
+
+    // buttonInit对象
+    var ButtonInit = function () {
+        var oInit = new Object();
+        var postdata = {};
+
+        oInit.Init = function () {
+
+            // 监听table的事件，设置btn的状态
+            $("#table").on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function() {
+                $("#btn_delete").prop('disabled', !$("#table").bootstrapTable('getSelections').length);
+                $("#btn_edit").prop('disabled', !$("#table").bootstrapTable('getSelections').length);
+            });
+
+            $("#btnSubmit").click(function () {
+                var oTable = new TableInit();
+                oTable.Init();
+//            $("#table").bootstrapTable('refresh', oTable.queryParams);
+            });
+
+        };
+        return oInit;
+    }; // end var ButtonInit
+
+    // 全局函数
+    function search() {
+        var opt = {
+            url: 'doDynamicsList',
+            silent: true,
+            query:{
+                'sd.dno':searchForm.dno.value,
+                'sd.userInfo.userName':searchForm.userName.value,
+                'sd.userInfo.name':searchForm.name.value,
+                'sd.title':searchForm.title.value,
+                'sd.text':searchForm.text.value
+            }
+        };
+        // 需要先摧毁table
+        $("#table").bootstrapTable('destroy');
+        $('#table').bootstrapTable('refresh',opt);
+    }
+
+</script>
+
 </body>
 </html>

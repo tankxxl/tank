@@ -4,16 +4,19 @@
 package com.thinkgem.jeesite.modules.project.entity.invoice;
 
 import com.thinkgem.jeesite.common.persistence.ActEntity;
+import com.thinkgem.jeesite.common.persistence.DataEntity;
 import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContractItem;
+
+import java.util.Date;
 
 /**
  * 开票item Entity
  * @author jicdata
  * @version 2016-03-08
  */
-public class ProjectInvoiceItem extends ActEntity<ProjectInvoiceItem> {
+public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
 
 	private static final long serialVersionUID = 1L;
     private ProjectInvoice invoice;		// 开票申请表 父类
@@ -22,12 +25,12 @@ public class ProjectInvoiceItem extends ActEntity<ProjectInvoiceItem> {
     private ProjectContract contract;       // 合同申请单
     private ProjectContractItem contractItem;  // 合同项item
 
-    private String goodsName; //
-    private String spec; //
-    private String num; //
-    private String price; //
-    private String amount; //
-    private String costAmount; //
+    private String goodsName; // 商品名称
+    private String spec; // 规格型号
+    private String num; // 数量(套)
+    private String price; // 单价
+    private String amount; // 金额
+    private String costAmount; // 本次结转成本金额
 
     private String attachment;
 
@@ -39,6 +42,12 @@ public class ProjectInvoiceItem extends ActEntity<ProjectInvoiceItem> {
     private String clientName; // 客户名称
     private String content; // 开票内容
     private String settlement; // 结算周期
+    private String unit; // 单位(元、套、个)
+    private String profit; // 利润点
+    private String invoiceNo; // 发票号
+
+    private Date returnDate;	// 预计回款日期
+
 
     public ProjectInvoiceItem() {
         super();
@@ -140,15 +149,6 @@ public class ProjectInvoiceItem extends ActEntity<ProjectInvoiceItem> {
         this.attachment = attachment;
     }
 
-    @Override
-    public String getProcInsId() {
-        return procInsId;
-    }
-
-    @Override
-    public void setProcInsId(String procInsId) {
-        this.procInsId = procInsId;
-    }
 
     public String getProcStatus() {
         return procStatus;
@@ -181,5 +181,37 @@ public class ProjectInvoiceItem extends ActEntity<ProjectInvoiceItem> {
 
     public void setSettlement(String settlement) {
         this.settlement = settlement;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
+    public String getProfit() {
+        return profit;
+    }
+
+    public void setProfit(String profit) {
+        this.profit = profit;
+    }
+
+    public String getInvoiceNo() {
+        return invoiceNo;
+    }
+
+    public void setInvoiceNo(String invoiceNo) {
+        this.invoiceNo = invoiceNo;
+    }
+
+    public Date getReturnDate() {
+        return returnDate;
+    }
+
+    public void setReturnDate(Date returnDate) {
+        this.returnDate = returnDate;
     }
 }

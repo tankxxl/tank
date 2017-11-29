@@ -192,15 +192,16 @@ var jeesns = {
         });
     },
     // 执行ajax请求
-    jeesnsAjax : function(url,type,data){
+    jeesnsAjax : function(url,type,data, func){
         var index;
         $.ajax({
             url: url,
             type: type,
-            data: data,
+            data: JSON.stringify(data),
             cache: false,
-            contentType: "application/json",
-            dataType: "json", // 表示返回值类型，非必须
+            contentType: 'application/json;charset=UTF-8',
+            // contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+            dataType: 'json', // 表示返回值类型，非必须
             timeout: 20000,
             beforeSend: function(){
                 index = jeesnsDialog.loading();
@@ -211,27 +212,29 @@ var jeesns = {
             },
             success:function(res){
                 jeesnsDialog.close(index);
-                console.log("jeesnsAjax=" + window.location.href);
                 if(res.code == 0){
                     jeesnsDialog.successTips(res.message);
                 }else if(res.code == -1){
                     jeesnsDialog.errorTips(res.message)
                 }else if(res.code==1){
-                    jeesnsDialog.loading();
+                    // jeesnsDialog.loading();
                     jeesnsDialog.successTips(res.message);
                     setTimeout(function(){
                         window.location.href=window.location.href;
                     },10);
                 }else if(res.code==2){
-                    jeesnsDialog.loading();
+                    // jeesnsDialog.loading();
                     jeesnsDialog.successTips(res.message);
                     setTimeout(function(){
                         window.location.href=res.url;
-                    },3000);
+                    },10);
                 }else if(res.code==3){
                     parent.window.location.href=parent.window.location.href;
                 }else{
                     jeesnsDialog.tips(res.message);
+                }
+                if (func != undefined) {
+                    func(res);
                 }
             }
         });
@@ -293,13 +296,19 @@ var jeesnsDialog = {
             area: [width,height],
             fix: true,
             maxmin: true,
-            content: url,
+            content: url, // 弹出框内容
             scrollbar: false,
-            btn: ['确认', '取消'], // 按钮1和按钮2的回调分别是yes和btn2，而从按钮3开始，则回调为btn3: function(){}，以此类推
+            btn: ['确认', '取消'], // 按钮1和按钮2的回调分别是yes(btn1)和btn2，而从按钮3开始，则回调为btn3: function(){}，以此类推
             yes: function (index, layero) {  // 按钮【确认】的回调
                 // 获取弹出层页面的变量
                 // switchState = $(layero).find("iframe")[0].contentWindow.switchState;
+                // layero.find("iframe"); 找到iframe的jquery对象
+                // layero.find("iframe")[0]; 将jquery对象转化为dom对象
+                // contentWindow 获取当前iframe的内容window对象(dom对象)
                 var data = $(layero).find("iframe")[0].contentWindow.formData();
+                //当点击‘确定’按钮的时候，获取弹出层返回的值
+                // var res = window["layui-layer-iframe" + index].callbackdata();
+
                 console.log('对话框的值=' + data);
                 if (data && func) {
                     func(data);
@@ -307,11 +316,11 @@ var jeesnsDialog = {
                 layer.close(index);
             },
             btn2: function(index) {
-                alertx("取消按钮");
+                console.log("点击取消按钮");
                 layer.close(index);
             },
             cancel: function(index){ // 点击右上角x号按钮的回调
-                alert("右上角x测试");
+                console.log("点击右上角x按钮");
                 // window.location.href = window.location.href;
             }
         });

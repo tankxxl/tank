@@ -91,6 +91,15 @@ function hasClass(tag, clsName) {
     return false;
 }
 
+// bootstrap-table操作开始
+// 全局函数
+function getSelectedIds(elemId) {
+    return $.map( $(elemId).bootstrapTable('getSelections'), function (row) {
+        return row.id
+    });
+}
+// bootstrap-table操作结束
+
 
 function isString(value) {
     if (value && typeof value === 'object') {
@@ -105,6 +114,10 @@ function isNumber(value) {
 
 function isArray(value) {
     return value && typeof value === 'object' && value.constructor === Array;
+}
+
+function isArraySingle(value) {
+    return (isArray(value) && value.length == 1);
 }
 
 function isFunction(value) {

@@ -4,6 +4,7 @@
 package com.thinkgem.jeesite.modules.apply.entity.external;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thinkgem.jeesite.common.persistence.ActEntity;
 import com.thinkgem.jeesite.modules.customer.entity.Customer;
 import com.thinkgem.jeesite.modules.customer.entity.CustomerContact;
@@ -92,6 +93,7 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 	/**
 	 * 插入之前执行方法，需要手动调用(设置销售为第一次填报的用户) 在ProjectInternalService.java中save方法调用了
 	 */
+	@JsonIgnore
 	public void preInsert4ProInteralApply() {
 
 		if (this.getIsNewRecord()) {

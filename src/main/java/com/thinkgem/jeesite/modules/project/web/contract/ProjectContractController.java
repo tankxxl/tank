@@ -313,6 +313,32 @@ public class ProjectContractController extends BaseController {
 		// or return list;
     }
 
+
+	/**
+	 * 根据项目id获取合同列表， 一次只能申请一个合同，所以不用contract_item表。
+	 * 根据项目id获取 合同项(item)列表
+	 * @param prjId 项目id
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "treeContractList")
+	public List<Map<String, Object>> treeContractList(@RequestParam(required=false) String prjId) {
+		ProjectContract contract = new ProjectContract();
+		contract.getApply().setId(prjId);
+		List<Map<String, Object>> mapList = Lists.newArrayList();
+		List<ProjectContract> list = contractService.findList(contract);
+		for (int i=0; i<list.size(); i++){
+			ProjectContract e = list.get(i);
+			Map<String, Object> map = Maps.newHashMap();
+			map.put("id", e.getId());
+			map.put("name", e.getContractCode());
+			mapList.add(map);
+		}
+
+		return mapList;
+		// or return list;
+	}
+
     /**
      * Json形式返回合同item信息
      * @param id 合同Item id
@@ -323,6 +349,17 @@ public class ProjectContractController extends BaseController {
     public ProjectContractItem getItemAsJson(@RequestParam(required=false) String id) {
 		return contractService.getContractItem(id);
     }
+
+	/**
+	 * Json形式返回合同item信息
+	 * @param id 合同Item id
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "getAsJson")
+	public ProjectContract getAsJson(@RequestParam(required=false) String id) {
+		return contractService.get(id);
+	}
 
 	/**
 	 * 获取我的通知数目(快到期的合同数量)

@@ -141,6 +141,13 @@
 				]]>
 			</if>
 
+			<if test="apply!=null and apply.id != null and apply.id != ''">
+				AND pro_apply.id LIKE
+				<if test="dbName == 'oracle'">'%'||#{apply.id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{apply.id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{apply.id},'%')</if>
+			</if>
+
 			<if test="apply!=null and apply.projectCode != null and apply.projectCode != ''">
 				AND pro_apply.project_code LIKE 
 					<if test="dbName == 'oracle'">'%'||#{apply.projectCode}||'%'</if>

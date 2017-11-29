@@ -70,9 +70,10 @@
 	<table id="contentTable" class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
-				<th>项目编号</th>
-				<th>项目名称</th>
-                <th>合同编号</th>
+				<%--<th>项目编号</th>--%>
+				<%--<th>项目名称</th>--%>
+                <%--<th>合同编号</th>--%>
+				<th>备注</th>
 				<th>更新时间</th>
 				<th>审批状态</th>
 				<shiro:hasPermission name="project:invoice:edit"><th>操作</th></shiro:hasPermission>
@@ -81,17 +82,20 @@
 		<tbody>
 		<c:forEach items="${page.list}" var="invoice">
 			<tr>
-				<td><a href="${ctx}/project/invoice/form?id=${invoice.id}">
-					${invoice.apply.projectCode}
-				</a></td>
+				<%--<td><a href="${ctx}/project/invoice/form?id=${invoice.id}">--%>
+					<%--${invoice.apply.projectCode}--%>
+				<%--</a></td>--%>
+				<%--<td>--%>
+					<%--${invoice.apply.projectName}--%>
+				<%--</td>--%>
+
+                <%--<td>--%>
+                    <%--${invoice.contractItem.contractCode}--%>
+                <%--</td>--%>
+
 				<td>
-					${invoice.apply.projectName}
+				${invoice.remarks}
 				</td>
-
-                <td>
-                    ${invoice.contractItem.contractCode}
-                </td>
-
 				<td>
 					<fmt:formatDate value="${invoice.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/>
 				</td>
@@ -124,7 +128,7 @@
                     <shiro:hasPermission name="project:invoice:admin">
                         <a href="${ctx}/project/invoice/modify?id=${invoice.id}">修改</a>
                     </shiro:hasPermission>
-					<a href="${ctx}/project/invoice/returnForm?id=${invoice.id}">回款</a>
+					<%--<a href="${ctx}/project/invoice/returnForm?id=${invoice.id}">回款</a>--%>
 
     				<%-- <a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}">详情</a>
     				<a class="trace" target="_blank" procInsId="${projectContract.procInsId}" href="${ctx}/act/task/trace1?procInsId=${projectContract.procInsId}">跟踪1</a>

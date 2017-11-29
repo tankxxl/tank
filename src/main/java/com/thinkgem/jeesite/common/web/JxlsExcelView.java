@@ -6,6 +6,7 @@ import org.jxls.expression.JexlExpressionEvaluator;
 import org.jxls.transform.Transformer;
 import org.jxls.util.JxlsHelper;
 import org.springframework.web.servlet.view.AbstractView;
+import org.springframework.web.servlet.view.document.AbstractExcelView;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -22,9 +23,16 @@ import java.util.Map;
 public class JxlsExcelView extends AbstractView {
     private static final String CONTENT_TYPE = "application/vnd.ms-excel";
 
+    // AbstractExcelView;
+
     private String templatePath;
     private String exportFileName;
 
+    /**
+     *
+     * @param templatePath 模版相对于当前classpath路径
+     * @param exportFileName 导出文件名
+     */
     public JxlsExcelView(String templatePath, String exportFileName) {
         this.templatePath = templatePath;
         if (exportFileName != null) {

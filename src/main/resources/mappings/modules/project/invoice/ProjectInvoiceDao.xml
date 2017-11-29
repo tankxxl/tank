@@ -50,8 +50,12 @@
 
 		u4.name AS "saler.name",
 		u4.login_name AS "saler.loginName",
-		s5.name AS "saler.office.name"
+		s5.name AS "saler.office.name",
 
+
+		u6.name AS "createBy.name",
+		u6.login_name AS "createBy.loginName",
+		s6.name AS "createBy.office.name"
 		
 	</sql>
 	
@@ -63,6 +67,10 @@
 		LEFT JOIN customer_contact c6 ON c6.id = pro_apply.customer_contact_id
 		LEFT JOIN sys_user u4 ON u4.id = pro_apply.saler_id
 		LEFT JOIN sys_office s5 on s5.id =u4.office_id
+
+		LEFT JOIN sys_user u6 ON u6.id = a.create_by
+		LEFT JOIN sys_office s6 ON s6.id = u6.office_id
+
 	</sql>
     
 	<select id="get" resultType="ProjectInvoice">

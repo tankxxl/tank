@@ -8,6 +8,7 @@ $(function () {
     }, $.validator.format("小数位数不能超过两位!"));
 
     //自定义函数处理queryParams的批量增加 - 自动将form表单封装成json
+    // 如：input控件的name='act.id'，此函数生成的json为:'act.id': '123'，不能满足ajax请求，RequestBody接收复杂对象的需求。
     $.fn.serializeJsonObject = function () {
         var json = {};
         var form = this.serializeArray();
@@ -115,32 +116,93 @@ window.confirm = function(msg, callback){
 }*/
 
 //选择一条记录
-function getSelectedRow() {
-    // 元素id必须为table
-    var grid = $("#table");
-    var rowKey = grid.getGridParam("selrow");
-    if(!rowKey){
-    	alert("请选择一条记录");
-    	return ;
-    }
-    
-    var selectedIDs = grid.getGridParam("selarrrow");
-    if(selectedIDs.length > 1){
-    	alert("只能选择一条记录");
-    	return ;
-    }
-    
-    return selectedIDs[0];
+// function getSelectedRow() {
+//     // 元素id必须为table
+//     var grid = $("#table");
+//     var rowKey = grid.getGridParam("selrow");
+//     if(!rowKey){
+//     	alert("请选择一条记录");
+//     	return ;
+//     }
+//
+//     var selectedIDs = grid.getGridParam("selarrrow");
+//     if(selectedIDs.length > 1){
+//     	alert("只能选择一条记录");
+//     	return ;
+//     }
+//
+//     return selectedIDs[0];
+// }
+//
+// //选择多条记录
+// function getSelectedRows() {
+//     var grid = $("#table");
+//     var rowKey = grid.getGridParam("selrow");
+//     if(!rowKey){
+//     	alert("请选择一条记录");
+//     	return ;
+//     }
+//
+//     return grid.getGridParam("selarrrow");
+// }
+
+//JavaScript 构建一个 form
+function MakeForm() {
+
+    // 创建一个 form
+    var form1 = document.createElement("form");
+
+    form1.id = "form1";
+    form1.name = "form1";
+
+    // 添加到 body 中
+    document.body.appendChild(form1);
+
+    // 创建一个输入
+    var input = document.createElement("input");
+
+    // 设置相应参数
+    input.type = "text";
+    input.name = "value1";
+    input.value = "1234567";
+
+    // 将该输入框插入到 form 中
+    form1.appendChild(input);
+
+    // form 的提交方式
+    form1.method = "POST";
+
+    // form 提交路径
+    form1.action = "/servlet/info";
+
+    // 对该 form 执行提交
+    form1.submit();
+
+    // 提交完成后，再删除该 form
+    document.body.removeChild(form1);
 }
 
-//选择多条记录
-function getSelectedRows() {
-    var grid = $("#table");
-    var rowKey = grid.getGridParam("selrow");
-    if(!rowKey){
-    	alert("请选择一条记录");
-    	return ;
-    }
-    
-    return grid.getGridParam("selarrrow");
-}
+// JQuery动态创建表单并提交
+$('#btnRGZZZ').click(function(){
+    // 取得要提交的参数
+    var my_val = $.trim($('#ipt').val());
+    // 取得要提交页面的URL
+    var action = $(this).attr('href');
+    // 创建Form
+    var form = $('<form></form>');
+    // 设置属性
+    form.attr('action', action);
+    form.attr('method', 'post');
+    // form的target属性决定form在哪个页面提交
+    // _self -> 当前页面 _blank -> 新页面
+    form.attr('target', '_self');
+    // 创建Input
+    var my_input = $('<input type="text" name="my_name" />');
+    my_input.attr('value', my_val);
+    // 附加到Form
+    form.append(my_input);
+    // 提交表单
+    form.submit();
+    // 注意return false取消链接的默认动作
+    return false;
+});

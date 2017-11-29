@@ -14,5 +14,12 @@ import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoiceItem;
  */
 @MyBatisDao
 public interface ProjectInvoiceItemDao extends CrudDao<ProjectInvoiceItem> {
+
+    /**
+     * 批量删除数据
+     * @param ids
+     * @return
+     */
+    public int deleteByIds(String[] ids);
 	
 }
