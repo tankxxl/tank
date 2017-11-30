@@ -120,6 +120,8 @@ public class ActUtils {
 	public static final String VAR_SKIP_DEV = "skip_dev";
 	// 1为直接跳转到结束节点，0为逐级审批，用在投标备案流程
 	public static final String VAR_END = "end";
+	// 是否重开票
+	public static final String VAR_RESIGN = "resign";
 
 	// 此变量不需要了，可以通过ProcessDefCache.get(task.getProcessDefinitionId())获得
 	@Deprecated

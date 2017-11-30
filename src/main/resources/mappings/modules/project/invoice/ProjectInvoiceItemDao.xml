@@ -7,10 +7,11 @@
         a.invoice_id AS "invoice.id",
         a.contract_id AS "contract.id",
         a.contract_item_id AS "contractItem.id",
-        contractItem.contract_code AS "contractItem.contractCode",
+        contract.contract_code AS "contract.contractCode",
 
         apply.project_name AS "apply.projectName",
 
+        a.invoice_type AS "invoiceType",
         a.goods_name AS "goodsName",
         a.spec AS "spec",
         a.num AS "num",
@@ -101,6 +102,7 @@
         contract_id,
         contract_item_id,
 
+        invoice_type,
         goods_name,
         spec,
         num,
@@ -132,7 +134,7 @@
         #{invoice.id},
         #{contract.id},
         #{contractItem.id},
-
+        #{invoiceType},
         #{goodsName},
         #{spec},
         #{num},
@@ -168,7 +170,7 @@
         invoice_id = #{invoice.id},
         contract_id = #{contract.id},
         contract_item_id = #{contractItem.id},
-
+        invoice_type = #{invoiceType},
         goods_name = #{goodsName},
         spec = #{spec},
         num  = #{num},

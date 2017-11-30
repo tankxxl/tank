@@ -22,8 +22,10 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
     private ProjectInvoice invoice;		// 开票申请表 父类
     private ProjectApplyExternal apply;		// 外部项目立项编号
 
-    private ProjectContract contract;       // 合同申请单
-    private ProjectContractItem contractItem;  // 合同项item
+    private ProjectContract contract;       // 合同申请单 合同号直接在申请单中，一对一
+    private ProjectContractItem contractItem;  // 合同项item bjkj不用
+
+    private String invoiceType; // 开票类型
 
     private String goodsName; // 商品名称
     private String spec; // 规格型号
@@ -91,6 +93,14 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
 
     public void setContractItem(ProjectContractItem contractItem) {
         this.contractItem = contractItem;
+    }
+
+    public String getInvoiceType() {
+        return invoiceType;
+    }
+
+    public void setInvoiceType(String invoiceType) {
+        this.invoiceType = invoiceType;
     }
 
     public String getGoodsName() {

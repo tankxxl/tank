@@ -8,7 +8,8 @@
 		$(document).ready(function() {
 
             // 初始化全局变量，修改表单使用
-            treeGetParam = "?prjId=${projectInvoiceItem.apply.id}";
+            <%--treeGetParam = "?prjId=${projectInvoiceItem.apply.id}";--%>
+            treeGetParam = "?prjId=" + parent.row.apply.id;
 
             // 验证值小数位数不能超过两位
             jQuery.validator.addMethod("decimal", function (value, element) {
@@ -32,15 +33,16 @@
 					}
 				}
 			}); // end validate()
-            console.log("dialog ready.");
-//            console.log("dialog.init=" + JSON.stringify(parent.row));
-            js2form(document.getElementById('inputForm'), parent.row);
+//            js2form(document.getElementById('inputForm'), parent.row);
+//            console.log("parent.row=" + JSON.stringify(parent.row));
+//            $("#invoiceType").val("专票");
+//            $("#invoiceType").find("option[text='专票']").attr("selected",true);
+
 		});  // end init
 
         function formData() {
-            var json = form2js($('#inputForm')[0]);
-//            var json2 = $('#inputForm').serializeJsonObject();
-            console.log(JSON.stringify(json));
+            var json = form2js($('#inputForm')[0], '.', false);
+            console.log("dialog=" + JSON.stringify(json));
             return json;
         }
 
@@ -93,8 +95,6 @@
                             url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11"
                             cssClass="required"  allowClear="true" notAllowSelectParent="true"
                             customClick="changeProject"/>
-
-            <%--<form:input path="customerName" class="required"/>--%>
             <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
@@ -116,8 +116,17 @@
                     dependMsg="请先选择项目！"
                     notAllowSelectParent="true"
                     customClick="changedContract"/>
+            <span class="help-inline"><font color="red">*</font> </span>
+        </div>
+    </div>
 
-            <%--<form:input path="contract.contractCode" class="required"/>--%>
+    <div class="control-group">
+        <label class="control-label">开票类型:</label>
+        <div class="controls">
+            <form:select path="invoiceType" class="" style="width:80%;">
+                <form:option value="" label=""/>
+                <form:options items="${fns:getDictList('jic_invoice_type')}" itemLabel="label" itemValue="value"/>
+            </form:select>
             <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>

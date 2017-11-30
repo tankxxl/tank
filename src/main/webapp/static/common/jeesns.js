@@ -308,19 +308,15 @@ var jeesnsDialog = {
                 var data = $(layero).find("iframe")[0].contentWindow.formData();
                 //当点击‘确定’按钮的时候，获取弹出层返回的值
                 // var res = window["layui-layer-iframe" + index].callbackdata();
-
-                console.log('对话框的值=' + data);
                 if (data && func) {
                     func(data);
                 }
                 layer.close(index);
             },
-            btn2: function(index) {
-                console.log("点击取消按钮");
+            btn2: function(index) { // 点击取消按钮
                 layer.close(index);
             },
             cancel: function(index){ // 点击右上角x号按钮的回调
-                console.log("点击右上角x按钮");
                 // window.location.href = window.location.href;
             }
         });

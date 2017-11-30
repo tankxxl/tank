@@ -25,7 +25,7 @@ public abstract class ActEntity<T> extends DataEntity<T> implements Serializable
     public List<Act> getActs() {
         return acts;
     }
-
+	@JsonIgnore
     public void setActs(List<Act> acts) {
         this.acts = acts;
     }

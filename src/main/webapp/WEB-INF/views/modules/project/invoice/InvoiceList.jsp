@@ -115,6 +115,7 @@
 				<td>
 					<c:if test="${invoice.procStatus == '2'}">
 					<input export="btnExport" class="btn btn-primary" type="button" proId="${invoice.id}" value="导出"/>
+					<a href="${ctx}/project/invoice/resignView?id=${invoice.id}">重开</a>
 					</c:if>
     				<a href="${ctx}/project/invoice/form?id=${invoice.id}">详情</a>
 

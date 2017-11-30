@@ -50,6 +50,7 @@ public class ProjectInvoiceController extends BaseController {
 	@Autowired
 	private ActTaskService actTaskService;
 
+	String prefix = "modules/project/invoice/";
 	String vEdit = "InvoiceFormLayer";
 	String vViewAudit = "InvoiceView";
 
@@ -69,7 +70,7 @@ public class ProjectInvoiceController extends BaseController {
 		}
 		return entity;
 	}
-
+	@ModelAttribute
 	public ProjectInvoiceItem getItem(@RequestParam(required = false) String id) {
 		ProjectInvoiceItem item = null;
 		if (StringUtils.isNotBlank(id)){
@@ -146,8 +147,8 @@ public class ProjectInvoiceController extends BaseController {
 		return prefix + view;
 	}
 
-	@RequestMapping(value = "addItem")
-	public String addItem(ProjectInvoiceItem projectInvoiceItem, Model model) {
+	@RequestMapping(value = "addItemView")
+	public String addItemView(ProjectInvoiceItem projectInvoiceItem, Model model) {
 		String prefix = "modules/project/invoice/";
 		String view = "InvoiceItemAdd";
 
@@ -155,6 +156,16 @@ public class ProjectInvoiceController extends BaseController {
 		return prefix + view;
 	}
 
+	@RequestMapping(value = "resignView")
+	public String resignView(ProjectInvoiceItem projectInvoiceItem, Model model) {
+		String prefix = "modules/project/invoice/";
+		String view = "InvoiceItemAdd";
+
+		model.addAttribute("projectInvoiceItem", projectInvoiceItem);
+		return prefix + view;
+	}
+
+	// no used
 	@RequestMapping(value = "update")
 	public String update(ProjectInvoice projectInvoice, Model model) {
 		String prefix = "modules/project/invoice/";
@@ -172,9 +183,10 @@ public class ProjectInvoiceController extends BaseController {
         model.addAttribute("projectInvoiceList", invoiceList);
 		List<ProjectInvoiceReturn> returnList = invoiceService.findReturnByContractId(projectInvoice);
 		model.addAttribute("returnList", returnList);
-		return "modules/project/invoice/" + vEdit;
+		return prefix + vEdit;
 	}
 
+	// no used
 	@RequestMapping(value = "returnForm")
 	public String returnForm(ProjectInvoice projectInvoice, Model model) {
 		model.addAttribute("projectInvoice", projectInvoice);
@@ -241,6 +253,7 @@ public class ProjectInvoiceController extends BaseController {
 		String flag = projectInvoice.getAct().getFlag();
 		// ajax json传输时使用func字段
 		flag = projectInvoice.getFunc();
+		projectInvoice.getAct().setFlag(flag);
 
 		// flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
 		if ("saveOnly".equals(flag)) { // 只保存表单数据
@@ -267,28 +280,23 @@ public class ProjectInvoiceController extends BaseController {
 		RespEntity respEntity = new RespEntity(2, "成功修改！");
 		respEntity.setUrl(url);
 		return respEntity;
-		// return url;
 	}
 
 	@RequestMapping(value = "test1")
 	@ResponseBody
 	public String test1(@RequestBody ProjectInvoice projectInvoice) {
-
 		String flag = projectInvoice.getDelFlag();
 		System.out.println(flag);
-
 		return "test";
 	}
 
 	@RequestMapping(value = "test2")
 	@ResponseBody
 	public String test2(@RequestBody String jsonStr) {
-
 		String flag = jsonStr;
 		ProjectInvoice invoice = JsonMapper.getInstance().fromJson(jsonStr, ProjectInvoice.class);
 		System.out.println(flag);
 		System.out.println(invoice.getId());
-
 		return "test";
 	}
 

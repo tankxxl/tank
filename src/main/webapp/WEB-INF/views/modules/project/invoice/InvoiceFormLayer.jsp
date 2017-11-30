@@ -102,7 +102,7 @@
 
     <%-- 定义一系列工具栏 --%>
     <div id="toolbar" class="btn-group">
-        <%--<a href="${ctx}/project/invoice/addItem?id=${projectInvoice.id}" func="func()"--%>
+        <%--<a href="${ctx}/project/invoice/addItemView?id=${projectInvoice.id}" func="func()"--%>
            <%--width="800px" height="600px" target="_jeesnsOpen" title="添加Layer">--%>
             <%--<label class="btn btn-default">添加auto</label> </a>--%>
 
@@ -187,7 +187,7 @@ var TableInit = function () {
             sortName: "updateDate",             // 定义排序列
             sortable: true,                     //是否启用排序
             sortOrder: "desc",                   //排序方式
-            sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+            sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
             pageNumber: 1,                      //初始化加载第一页，默认第一页,并记录
             pageSize: 30,                     //每页的记录行数（*）
             pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
@@ -218,7 +218,6 @@ var TableInit = function () {
                 title: '项目编号',
                 titleTooltip: "tips",
                 align: 'center',
-                valign: 'middle',
                 visible: false
             }, {
                 field: 'apply.projectName',
@@ -239,11 +238,19 @@ var TableInit = function () {
                 },
                 formatter: function (value, row, index) { // 可以在此合成字段返回：row.field1 + row.field2
                     return value;
-                    <%--if (row.projectCode) {--%>
-                        <%--return value;--%>
-                    <%--} else {--%>
-                        <%--return '<a href="${ctx}/apply/external/projectApplyExternal/form?id=' + row.id + '">' + value + '</a>';--%>
-                    <%--}--%>
+                }
+            }, {
+                field: 'contract.contractCode',
+                title: '合同号'
+            }, {
+                field: 'contract.id',
+                title: '合同id',
+                visible: false
+            }, {
+                field: 'invoiceType',
+                title: '发票类型',
+                formatter: function (value, row, index) {
+                    return getDictLabel(${fns:toJson(fns:getDictList('jic_invoice_type'))}, value);
                 }
             }, {
                 field: 'clientName',
@@ -283,13 +290,6 @@ var TableInit = function () {
                 field: 'settlement',
                 title: '结算周期'
             }, {
-                field: 'contract.contractCode',
-                title: '合同号'
-            }, {
-                field: 'contract.id',
-                title: '合同id',
-                visible: false
-            }, {
                 field: 'invoiceNo',
                 title: '发票号'
             }, {
@@ -298,6 +298,7 @@ var TableInit = function () {
             }, {
                 field: 'id',
                 title: '操作',
+                visible: false,
                 align: 'center',
                 formatter:function(value,row,index){
                     var btnExport = '', btnView = '', btnDelete = '', btnTrace = '', btnEdit = '';
@@ -322,11 +323,9 @@ var TableInit = function () {
 //                }
                 return res;
             },
-            onLoadSuccess: function () {
-//            alert("数据加载成功！");
+            onLoadSuccess: function () { // 数据加载成功！
             },
-            onLoadError: function () {
-//                alert("数据加载失败！");
+            onLoadError: function () { // 数据加载失败！
             },
             onDblClickRow: function (row, $element, field) {
                 editById(row.id);
@@ -388,11 +387,11 @@ var ButtonInit = function () {
             });
         });
 
-        $("#btnSubmit").click(function () {
-            var oTable = new TableInit();
-            oTable.Init();
-//            $("#table").bootstrapTable('refresh', oTable.queryParams);
-        });
+//        $("#btnSubmit").click(function () {
+//            var oTable = new TableInit();
+//            oTable.Init();
+////            $("#table").bootstrapTable('refresh', oTable.queryParams);
+//        });
     };
     return oInit;
 }; // end var ButtonInit
@@ -425,16 +424,6 @@ function getSelectedIndexes() {
 //    alert('Checked row index: ' + index.join(', '));
 }
 
-//function getSelectedIndex() {
-//    var index = getSelectedIndexes();
-//    if (!isArray(index))
-//        return;
-//    if (index.length != 1) {
-//        jeesnsDialog.tips("只能选择一条数据");
-//        return;
-//    }
-//    return index[0];
-//}
 // 给table绑定事件 - aka.onClickRow
 /**
  * row: the record corresponding to the clicked row
@@ -460,8 +449,7 @@ function search() {
         query:{
             'sd.dno':searchForm.dno.value,
             'sd.userInfo.userName':searchForm.userName.value,
-            'sd.userInfo.name':searchForm.name.value,
-            'sd.text':searchForm.text.value
+            'sd.userInfo.name':searchForm.name.value
         }
     };
     // 需要先摧毁table
@@ -473,33 +461,9 @@ function submitG() {
 //    $('#contractId').val('rgz');
     var json = form2js($("#inputForm")[0]);
     var data = $("#table").bootstrapTable('getData');
-//            var myData = [];
-//            for (var i = 0; i < data.length; i++) {
-//                myData.push({'apply.id': data[i].apply.id,
-//                             'apply.projectName': data[i].apply.projectName,
-//                            'goodsName': data[i].goodsName,
-//                            'spec': data[i].spec  });
-//            }
     json.invoiceItemList = data;
-//            json.invoiceItemList = myData;
     console.log("form.json=" + JSON.stringify(json));
-//            $("#inputForm").submit();
     jeesns.jeesnsAjax('${ctx}/project/invoice/saveAjax', 'POST', json);
-    <%--$.ajax({--%>
-        <%--headers: {--%>
-            <%--'Accept': 'application/json',--%>
-            <%--'Content-Type': 'application/json'--%>
-        <%--},--%>
-        <%--url: '${ctx}/project/invoice/saveAjax',--%>
-        <%--type: 'post',--%>
-        <%--data: JSON.stringify(json),--%>
-        <%--contentType: 'application/json;charset=UTF-8',--%>
-        <%--dataType: 'json', // 表示返回值类型，非必须--%>
-        <%--timeout: 20000,--%>
-        <%--success:function(res){--%>
-            <%--window.location.href=res.url;--%>
-        <%--}--%>
-    <%--});--%>
 }
 // 全局变量，用于给编辑框传递参数
 row = null;
@@ -543,46 +507,10 @@ var vm = new Vue({
             $('#func').val('saveOnly');
             submitG();
         },
-        submitx: function () {
-            $('#flag').val('saveOnly');
-            $('#func').val('saveOnly');
-            $('#contractId').val('rgz');
-//            var json = $("#inputForm").serializeJsonObject();
-            var json = form2js($("#inputForm")[0]);
-//            var seri = $("#inputForm").serialize();
-//            var seriArray = $("#inputForm").serializeArray();
-            var data = $("#table").bootstrapTable('getData');
-//            var myData = [];
-//            for (var i = 0; i < data.length; i++) {
-//                myData.push({'apply.id': data[i].apply.id,
-//                             'apply.projectName': data[i].apply.projectName,
-//                            'goodsName': data[i].goodsName,
-//                            'spec': data[i].spec  });
-//            }
-            json.invoiceItemList = data;
-//            json.invoiceItemList = myData;
-            console.log("form.json=" + JSON.stringify(json));
-//            $("#inputForm").submit();
-            $.ajax({
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                url: '${ctx}/project/invoice/save',
-                type: 'post',
-                data: JSON.stringify(json),
-                contentType: 'application/json;charset=UTF-8',
-                dataType: 'json', // 表示返回值类型，非必须
-                timeout: 20000,
-                success:function(res){
-                    console.log("jeesnsAjax=" + window.location.href);
-                }
-            });
-        },
         myAddClick: function(){ // vue增加
             row = null;
             rowIndex = null;
-            jeesnsDialog.open('${ctx}/project/invoice/addItem?id=${projectInvoice.id}',
+            jeesnsDialog.open('${ctx}/project/invoice/addItemView',
                 '增加开票项', '600px', '650px', function(data) {
                 $('#table').bootstrapTable('append', data);
             });
@@ -603,19 +531,18 @@ var vm = new Vue({
 //            this.getRoleList();
 //            vm.getDept();
         },
-        getDept: function(){
+        getDept: function() {
             //加载部门树
             $.get(baseURL + "sys/dept/list", function(r){
                 ztree = $.fn.zTree.init($("#deptTree"), setting, r);
                 var node = ztree.getNodeByParam("deptId", vm.user.deptId);
                 if(node != null){
                     ztree.selectNode(node);
-
                     vm.user.deptName = node.name;
                 }
             })
         },
-        update: function () {
+        update: function() {
             // 全局变量，用于给iframe的dialog传值，修改时用
             var indexes = getSelectedIndexes();
             if (!isArraySingle(indexes)) {
@@ -625,11 +552,10 @@ var vm = new Vue({
             row = getSelectedRow();
             rowIndex = indexes[0];
 
-            jeesnsDialog.open('${ctx}/project/invoice/addItem?id=' + row.id,
+            jeesnsDialog.open('${ctx}/project/invoice/addItemView?id=' + row.id,
                 '增加开票项', '600px', '650px', function(data) {
                     $('#table').bootstrapTable('updateRow', {index: rowIndex, row: data});
                 });
-//            vm.showList = false;
 //            vm.getUser(userId);
 //            //获取角色信息
 //            this.getRoleList();
@@ -691,7 +617,6 @@ var vm = new Vue({
         }
     }  // method end
 });  // end vm
-
 
 </script>
 </body>

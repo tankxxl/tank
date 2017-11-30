@@ -6,18 +6,23 @@ package com.thinkgem.jeesite.modules.project.service.invoice;
 import com.thinkgem.jeesite.common.service.JicActService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
+import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
 import com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceDao;
 import com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceItemDao;
 import com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceReturnDao;
 import com.thinkgem.jeesite.modules.project.entity.approval.Project;
+import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
+import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContractItem;
 import com.thinkgem.jeesite.modules.project.entity.execution.ProjectExecutionItem;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoice;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoiceItem;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoiceReturn;
+import com.thinkgem.jeesite.modules.project.utils.MyDictUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,20 +89,65 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
         return returnDao.findListByContractId(projectInvoice);
     }
 
-    /**
-	 * 保存并结束流程
-	 * @param projectInvoice
-	 */
-	@Transactional(readOnly = false)
-	public void saveFinishProcess(ProjectInvoice projectInvoice) {
-        // 保存
-        // save(projectInvoice);
-        // 开启流程
-        // String procInsId = launchWorkflow(projectInvoice);
-        String procInsId = saveLaunch(projectInvoice);
-        // 结束流程
-        endProcess(procInsId);
-	}
+    // 流程启动之前，设置map
+    @Override
+    public void setupVariable(ProjectInvoice projectInvoice, Map<String, Object> vars) {
+        vars.put(ActUtils.VAR_RESIGN, "1");
+
+        // vars.put(ActUtils.VAR_PRJ_TYPE, projectInvoice.getApply().getCategory());
+
+        // vars.put(ActUtils.VAR_PROC_DEF_KEY, projectInvoice.getDictRemarks());
+
+        // vars.put(ActUtils.VAR_TITLE, projectInvoice.getApply().getProjectName());
+
+        // if (StringUtils.isEmpty(projectInvoice.getApply().getProjectName())) {
+            // vars.put(ActUtils.VAR_TITLE, projectInvoice.getClientName());
+        // }
+
+        // 设置合同金额
+        // vars.put(ActUtils.VAR_AMOUNT, projectInvoice.getAmount());
+
+        // if ("03".equals(projectInvoice.getApply().getCategory()) ) {
+        //     System.out.println("");
+        //     // 分支上使用，没在节点上使用
+        //     vars.put(ActUtils.VAR_TYPE, "2");
+        // } else {
+        //     vars.put(ActUtils.VAR_TYPE, "1");
+        // }
+    }
+
+    // 审批过程中
+    @Override
+    public void processAudit(ProjectInvoice projectInvoice, Map<String, Object> vars) {
+        // 对不同环节的业务逻辑进行操作
+        String taskDefKey = projectInvoice.getAct().getTaskDefKey();
+        if ( UserTaskType.UT_SPECIALIST.equals(taskDefKey) ) {
+            // 	// 保存合同编号
+            // 	save(projectContract);
+        }
+    }
+
+    // 审批结束时，更新实体的字段
+    @Override
+    public void processAuditEnd(ProjectInvoice projectInvoice) {
+    }
+
+
+    //
+    // /**
+	//  * 保存并结束流程
+	//  * @param projectInvoice
+	//  */
+	// @Transactional(readOnly = false)
+	// public void saveFinishProcess(ProjectInvoice projectInvoice) {
+     //    // 保存
+     //    // save(projectInvoice);
+     //    // 开启流程
+     //    // String procInsId = launchWorkflow(projectInvoice);
+     //    String procInsId = saveLaunch(projectInvoice);
+     //    // 结束流程
+     //    endProcess(procInsId);
+	// }
 
     /**
      * 保存表单数据，并启动流程
@@ -107,25 +157,21 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
      *
      * @param projectInvoice
      */
-    @Transactional(readOnly = false)
-    public String saveLaunch(ProjectInvoice projectInvoice) {
-        if (projectInvoice.getIsNewRecord()) {
-            // 启动流程的时候，把业务数据放到流程变量里
-            Map<String, Object> varMap = new HashMap<String, Object>();
-            varMap.put(ActUtils.VAR_PRJ_ID, projectInvoice.getApply().getId());
-
-            // varMap.put(ActUtils.VAR_PROC_NAME, ActUtils.PROC_NAME_invoice);
-            varMap.put(ActUtils.VAR_PRJ_TYPE, projectInvoice.getApply().getCategory());
-
-            varMap.put(ActUtils.VAR_TITLE, projectInvoice.getApply().getProjectName());
-            System.out.println();
-            return launch(projectInvoice, varMap);
-        } else { // 把驳回到申请人(重新修改业务表单，重新发起流程、销毁流程)也当成一个特殊的审批节点
-            // 只要不是启动流程，其它任意节点的跳转都当成节点审批
-            saveAudit(projectInvoice);
-            return null;
-        }
-    }
+    // @Transactional(readOnly = false)
+    // public String saveLaunch(ProjectInvoice projectInvoice) {
+    //     if (projectInvoice.getIsNewRecord()) {
+    //         // 启动流程的时候，把业务数据放到流程变量里
+    //         Map<String, Object> varMap = new HashMap<String, Object>();
+    //         // varMap.put(ActUtils.VAR_PRJ_ID, projectInvoice.getApply().getId());
+    //         // varMap.put(ActUtils.VAR_PRJ_TYPE, projectInvoice.getApply().getCategory());
+    //         // varMap.put(ActUtils.VAR_TITLE, projectInvoice.getApply().getProjectName());
+    //         return launch(projectInvoice, varMap);
+    //     } else { // 把驳回到申请人(重新修改业务表单，重新发起流程、销毁流程)也当成一个特殊的审批节点
+    //         // 只要不是启动流程，其它任意节点的跳转都当成节点审批
+    //         saveAudit(projectInvoice);
+    //         return null;
+    //     }
+    // }
 
     /**
      * 保存表单数据
@@ -137,6 +183,13 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
         // isNewRecord = projectInvoice.getIsNewRecord();
         super.save(projectInvoice);
         saveItem(projectInvoice);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void delete(ProjectInvoice projectInvoice) {
+        super.delete(projectInvoice);
+        itemDao.delete(new ProjectInvoiceItem(projectInvoice));
     }
 
     @Transactional(readOnly = false)

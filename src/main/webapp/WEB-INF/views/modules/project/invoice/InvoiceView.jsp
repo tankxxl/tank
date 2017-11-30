@@ -137,7 +137,7 @@
                 sortName: "updateDate",             // 定义排序列
                 sortable: true,                     //是否启用排序
                 sortOrder: "desc",                   //排序方式
-                sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
                 pageNumber: 1,                      //初始化加载第一页，默认第一页,并记录
                 pageSize: 30,                     //每页的记录行数（*）
                 pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
@@ -163,15 +163,39 @@
                     title: '项目编号',
                     titleTooltip: "tips",
                     align: 'center',
-                    valign: 'middle',
                     visible: false
-                    // width: '180'
                 }, {
                     field: 'apply.projectName',
                     title: '项目名称',
+                    resizable: true,
                     sortable: true,
+                    cellStyle: function(value, row, index) {
+                        var classes = ['active', 'success', 'info', 'warning', 'danger'];
+                        if (index % 2 === 0 && index / 2 < classes.length) {
+                            return {
+                                //classes: classes[index / 2]
+                                css: {
+//                                "background-color": "red",
+                                }
+                            };
+                        }
+                        return {};
+                    },
                     formatter: function (value, row, index) { // 可以在此合成字段返回：row.field1 + row.field2
                         return value;
+                    }
+                }, {
+                    field: 'contract.contractCode',
+                    title: '合同号'
+                }, {
+                    field: 'contract.id',
+                    title: '合同id',
+                    visible: false
+                }, {
+                    field: 'invoiceType',
+                    title: '发票类型',
+                    formatter: function (value, row, index) {
+                        return getDictLabel(${fns:toJson(fns:getDictList('jic_invoice_type'))}, value);
                     }
                 }, {
                     field: 'clientName',
@@ -184,7 +208,9 @@
                     title: '规格型号',
                     formatter: function (value, row, index) {
                         return value; <%--return getDictLabel(${fns:toJson(fns:getDictList('pro_category'))}, value);--%>
+
                     }
+
                 }, {
                     field: 'num',
                     title: '数量',
@@ -209,13 +235,6 @@
                     field: 'settlement',
                     title: '结算周期'
                 }, {
-                    field: 'contract.contractCode',
-                    title: '合同号'
-                }, {
-                    field: 'contract.id',
-                    title: '合同id',
-                    visible: false
-                }, {
                     field: 'invoiceNo',
                     title: '发票号'
                 }, {
@@ -224,6 +243,7 @@
                 }, {
                     field: 'id',
                     title: '操作',
+                    visible: false,
                     align: 'center',
                     formatter:function(value,row,index){
                         var btnExport = '', btnView = '', btnDelete = '', btnTrace = '', btnEdit = '';
@@ -233,7 +253,7 @@
                         btnView = '<a href="${ctx}/apply/external/projectApplyExternal/form?id=' + row.id + '">详情</a>&nbsp';
                         return btnExport + btnTrace + btnDelete + btnEdit;
                     }
-                } ],
+                } ]
             });
         }; // end Init()
 
