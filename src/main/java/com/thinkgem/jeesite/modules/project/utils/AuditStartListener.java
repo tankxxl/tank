@@ -71,8 +71,8 @@ public class AuditStartListener implements ExecutionListener{
 //      businessKey = project_apply_external:11e6bec955d34b3a8f05b1aaf72b7c94
 //      processInstanceId = 0373e076ce6e479fbe188cb412a9aba9
 
-        String id = (String) execution.getVariable("objId");
-        String prjId = (String) execution.getVariable("prjId");
+        String id = (String) execution.getVariable(ActUtils.VAR_OBJ_ID);
+        String prjId = (String) execution.getVariable(ActUtils.VAR_PRJ_ID);
 
         ExecutionEntity executionEntity = (ExecutionEntity) execution;
         String defKey = executionEntity.getProcessDefinitionKey();

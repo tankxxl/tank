@@ -33,6 +33,7 @@
     <script src="${ctxStatic}/modules/project/common.js"></script>
 </head>
 <body>
+<%-- Vue，这是我们的View，script标签中是Model和ViewModel --%>
 <div id="rrapp" v-cloak>
 <ul class="nav nav-tabs">
     <c:if test="${ empty projectInvoice.act.taskId}">
@@ -470,8 +471,10 @@ row = null;
 rowIdx = null;
 // 全局变量，定义vm变量，
 // Vue三部分：el、data、methods
+// 创建一个Vue实例或"ViewModel"，它连接View与Model
 var vm = new Vue({
     el:'#rrapp',
+    // 这是我们的Model，也可以写到外面(全局)
     data:{
         q:{
             username: null
@@ -528,6 +531,8 @@ var vm = new Vue({
             $('#table').bootstrapTable('append', vm.newItem);
             vm.newItem = {};
             //获取角色信息
+            // 方法内 'this' 指向 vm
+//            this.message = 'hello';
 //            this.getRoleList();
 //            vm.getDept();
         },

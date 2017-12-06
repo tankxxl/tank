@@ -350,7 +350,7 @@ public class ProjectInvoiceController extends BaseController {
         ProjectInvoice projectInvoice=(ProjectInvoice) map.get("projectInvoice");
 
 		List<Act> actList =actTaskService.histoicFlowListPass(projectInvoice.getProcInsId(),null, null);
-		String  fileReturnName=projectInvoice.getApply().getProjectName()+"_合同执行审批表";
+		String  fileReturnName=projectInvoice.getRemarks() + "_开票审批表";
 		String workBookFileRealPathName =request.getSession().getServletContext().getRealPath("/")+"WEB-INF/excel/project/ProjectBidding.xls";
 		ExportUtils.export(response, projectInvoice, actList, workBookFileRealPathName, fileReturnName,"yyyy-MM-dd");
 	}

@@ -92,7 +92,7 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
     // 流程启动之前，设置map
     @Override
     public void setupVariable(ProjectInvoice projectInvoice, Map<String, Object> vars) {
-        vars.put(ActUtils.VAR_RESIGN, "1");
+        vars.put(ActUtils.VAR_RESIGN, "0");
 
         // vars.put(ActUtils.VAR_PRJ_TYPE, projectInvoice.getApply().getCategory());
 
