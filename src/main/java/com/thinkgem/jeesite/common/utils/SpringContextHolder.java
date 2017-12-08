@@ -3,10 +3,6 @@
  */
 package com.thinkgem.jeesite.common.utils;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Date;
-
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +12,20 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import com.thinkgem.jeesite.common.config.Global;
-
 /**
+ *
+ * spring有两个核心接口：BeanFactory和ApplicationContext，其中ApplicationContext是BeanFactory的子接口。
+ * 他们都可代表Spring容器，Spring容器是生成Bean实例的工厂，并且管理容器中的Bean。
+ * 我们一般不使用BeanFactory实例作为spring容器，而是使用ApplicationContext实例作为容器，它增强了BeanFactory的功能。
+ *
  * 以静态变量保存Spring ApplicationContext, 可在任何代码任何地方任何时候取出ApplicaitonContext.
+ *
+ * 实现BeanFactoryAware或ApplicationContextAware接口的Bean，就拥有访问BeanFactory容器的能力
+ * 实现BeanFactoryAware接口的Bean实例将会拥有对容器的访问能力。
+ *
+ * BeanFactoryAware接口仅有如下一个方法：
+ * SetBeanFactory(BeanFactory beanFactory)：该方法有一个参数beanFactory，该参数指向创建它的BeanFactory。
+ * 该方法将由Spring调动，当Spring调用该方法时会将Spring容器作为参数传入该方法。
  * 
  * @author Zaric
  * @date 2013-5-29 下午1:25:40
@@ -28,6 +34,7 @@ import com.thinkgem.jeesite.common.config.Global;
 @Lazy(false)
 public class SpringContextHolder implements ApplicationContextAware, DisposableBean {
 
+	// 将BeanFactory容器以成员变量保存
 	private static ApplicationContext applicationContext = null;
 
 	private static Logger logger = LoggerFactory.getLogger(SpringContextHolder.class);

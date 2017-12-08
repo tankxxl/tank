@@ -51,6 +51,8 @@ public class ProjectInvoiceController extends BaseController {
 
     /**
      * 如果把@ModelAttribute放在方法的注解上时，代表的是：该Controller的所有方法在调用前，先执行此@ModelAttribute方法
+	 * 绑定键值对到Model中
+	 *
      * @param id
      * @return
      */
