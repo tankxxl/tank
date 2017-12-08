@@ -46,8 +46,9 @@
 		<property name="dataSource" ref="dataSource" />
 	</bean>
 	
-	<!-- 配置 Annotation 驱动，扫描@Transactional注解的类定义事务  -->
+	<!-- 基于注解的事务配置方式 配置 事务的Annotation 驱动，扫描@Transactional注解的类定义事务，  -->
 	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+    <!-- 事务还有一种传统声明式的配置方式，用到了<tx:advice>和<aop:config>等，要定义好多属性，并且指定应用事务的方法名 -->
     <!-- MyBatis end -->
     
 	<!-- 配置 JSR303 Bean Validator 定义 -->

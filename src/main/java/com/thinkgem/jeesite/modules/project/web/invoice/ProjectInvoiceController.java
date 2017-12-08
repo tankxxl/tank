@@ -13,13 +13,10 @@ import com.thinkgem.jeesite.common.web.BaseController;
 import com.thinkgem.jeesite.modules.act.entity.Act;
 import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
-import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
-import com.thinkgem.jeesite.modules.project.entity.bidding.ProjectBidding;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoice;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoiceItem;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoiceReturn;
 import com.thinkgem.jeesite.modules.project.service.invoice.ProjectInvoiceService;
-import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import com.thinkgem.jeesite.modules.sys.utils.ExportUtils;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -29,10 +26,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -298,6 +293,28 @@ public class ProjectInvoiceController extends BaseController {
 		System.out.println(flag);
 		System.out.println(invoice.getId());
 		return "test";
+	}
+
+	@RequestMapping(value = "test3")
+	@ResponseBody
+	public String test3() {
+		// String flag = jsonStr;
+		// ProjectInvoice invoice = JsonMapper.getInstance().fromJson(jsonStr, ProjectInvoice.class);
+		// System.out.println(flag);
+		System.out.println("test3");
+		// System.out.println(invoice.getId());
+		return "test3";
+	}
+
+	@RequestMapping(value = "test4")
+	@ResponseBody
+	public String test4() {
+		// String flag = jsonStr;
+		// ProjectInvoice invoice = JsonMapper.getInstance().fromJson(jsonStr, ProjectInvoice.class);
+		// System.out.println(flag);
+		System.out.println("test4");
+		// System.out.println(invoice.getId());
+		return "test4";
 	}
 
 	// 批量删除子表
