@@ -10,6 +10,7 @@ import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
 import com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceDao;
 import com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceItemDao;
 import com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceReturnDao;
+import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.execution.ProjectExecutionItem;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoice;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoiceItem;
@@ -212,6 +213,22 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
     @Transactional(readOnly = false)
     public void deleteItemByIds(String[] ids) {
         itemDao.deleteByIds(ids);
+    }
+
+    /**
+     * 根据合同号获取开票项是否重了
+     * 一个合同号只能发起一次开票流程，之后只能走重开票流程
+     * @param contractCode
+     * @return
+     */
+
+    public ProjectInvoiceItem getItemByContractCode(String contractCode) {
+        ProjectInvoiceItem item = new ProjectInvoiceItem();
+        ProjectContract contract = new ProjectContract();
+        item.setContract(contract);
+        contract.setContractCode(contractCode);
+
+        return  itemDao.findByContractCode(item);
     }
 
     // /**

@@ -76,6 +76,19 @@
         </choose>
     </select>
 
+    <select id="findByContractCode" resultType="ProjectInvoiceItem">
+        SELECT
+        <include refid="columns"/>
+        FROM project_invoice_item a
+        <include refid="joins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="contract!=null and contract.contractCode != null and contract.contractCode != ''">
+                AND contract.contract_code = #{contract.contractCode}
+            </if>
+        </where>
+    </select>
+
     <select id="findAllList" resultType="ProjectInvoiceItem">
         SELECT
         <include refid="columns"/>
@@ -209,6 +222,7 @@
         </choose>
     </update>
 
+    <!-- no use -->
     <delete id="deleteByIdsForReal" parameterType="list">
         delete from project_invoice_item where id in
         <foreach collection="array" item="i" open="(" separator=","

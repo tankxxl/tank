@@ -21,5 +21,12 @@ public interface ProjectInvoiceItemDao extends CrudDao<ProjectInvoiceItem> {
      * @return
      */
     public int deleteByIds(String[] ids);
+
+    /**
+     * 按合同号查找发票项，查重使用
+     * @param item
+     * @return
+     */
+    public ProjectInvoiceItem findByContractCode(ProjectInvoiceItem item);
 	
 }

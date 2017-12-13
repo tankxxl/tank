@@ -102,7 +102,8 @@
 					}
                     // rgz 赋值
 					$("#${id}Id").val(ids.join(",").replace(/u_/ig,""));
-					$("#${id}Name").val(names.join(","));
+					$("#${id}Name").val(names.join(",")).change();
+                    // 手动触发change事件
 
 
                     // rgz 若为单选模式，点击确定时响应参数传入的自定义事件

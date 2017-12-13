@@ -195,6 +195,23 @@ public class ProjectInvoiceController extends BaseController {
 		return "modules/project/invoice/InvoiceViewReturnForm";
 	}
 
+	/**
+	 * 验证合同号是否重复
+	 * @param code
+	 * @return
+	 */
+	@ResponseBody
+	// @RequiresPermissions(value={"pur:wzmcgl:add","pur:wzmcgl:edit"},logical= Logical.OR)
+	@RequestMapping(value = "hasCode")
+	public String hasCode(String oldCode, @RequestParam("contract.contractCode") String code) {
+		if (code!=null && code.equals(oldCode)) {
+			return "true";
+		} else if (code!=null && invoiceService.getItemByContractCode(code) == null) {
+			return "true";
+		}
+		return "false";
+	}
+
 
 	/**
 	 * 启动流程、保存申请单、销毁流程、删除申请单。

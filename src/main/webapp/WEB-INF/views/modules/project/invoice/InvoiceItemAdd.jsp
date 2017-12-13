@@ -9,7 +9,13 @@
 
             // 初始化全局变量，修改表单使用
             <%--treeGetParam = "?prjId=${projectInvoiceItem.apply.id}";--%>
-            treeGetParam = "?prjId=" + parent.row.apply.id;
+            <%-- jsp中的js代码错误一定要处理 --%>
+            var mCode = null;
+            if (parent.row) {
+                treeGetParam = "?prjId=" + parent.row.apply.id;
+                mCode = parent.row.contract.contractCode;
+
+            }
 
             // 验证值小数位数不能超过两位
             jQuery.validator.addMethod("decimal", function (value, element) {
@@ -19,6 +25,22 @@
 
 			//$("#name").focus();
 			$("#inputForm").validate({
+                // debug: true, // 调试模式，验证成功也不会跳转到目标页面
+                rules: {
+                    "contract.contractCode": { // 使用name而不是id
+                        required: true,
+                        <%--remote: "${ctx}/project/invoice/hasCode?oldCode=" + encodeURIComponent('${projectInvoiceItem.contract.contractCode}')--%>
+                        <%-- 自己写一个oldCode参数，后面还会默认加上正在验证的控件的值，用的是控件的name作为key，
+                             如本次请求中url?oldCode=&contract.contractCode=xxx，
+                             由于key中间有点，所有controller中接收最后一个参数值时，
+                             应该使用@RequestParam("contract.contractCode") String code接收 --%>
+                        remote: "${ctx}/project/invoice/hasCode?oldCode=" + mCode
+                    }
+
+                },
+                messages: {
+                    "contract.contractCode": {remote: "合同号已存在"}
+                },
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
 					form.submit();
@@ -38,8 +60,16 @@
 //            $("#invoiceType").val("专票");
 //            $("#invoiceType").find("option[text='专票']").attr("selected",true);
 
+            $("#contractName").change(function(){
+                console.log("contractName 修改了");
+                // debugger;
+                $("#inputForm").validate().element($("#contractName"));
+            });
+
+
 		});  // end init
 
+        // 父页面调用，用来收集dialog中的值
         function formData() {
             var json = form2js($('#inputForm')[0], '.', false);
             console.log("dialog=" + JSON.stringify(json));
@@ -102,6 +132,7 @@
     <div class="control-group">
         <label class="control-label">合同号:</label>
         <div class="controls">
+            <input id="oldContractCode" name="oldContractCode" type="hidden" value="${projectInvoiceItem.contract.contractCode}" />
             <sys:treeselect
                     id="contract"
                     name="contract.id"
@@ -115,6 +146,7 @@
                     dependBy="apply"
                     dependMsg="请先选择项目！"
                     notAllowSelectParent="true"
+                    cssClass="required"
                     customClick="changedContract"/>
             <span class="help-inline"><font color="red">*</font> </span>
         </div>
