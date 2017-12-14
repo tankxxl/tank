@@ -11,7 +11,6 @@ import com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceDao;
 import com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceItemDao;
 import com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceReturnDao;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
-import com.thinkgem.jeesite.modules.project.entity.execution.ProjectExecutionItem;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoice;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoiceItem;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoiceReturn;
@@ -79,7 +78,8 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
         if (invoice == null)
             return invoice;
 
-        invoice.setInvoiceItemList(itemDao.findList(new ProjectInvoiceItem(invoice)));
+        // invoice.setInvoiceItemList(itemDao.findList(new ProjectInvoiceItem(invoice)));
+        invoice.setInvoiceItemList(itemDao.findHeadList(new ProjectInvoiceItem(invoice)));
         return invoice;
     }
 
@@ -283,7 +283,8 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
     // }
 
     private void saveItem(ProjectInvoice projectInvoice) {
-        for (ProjectInvoiceItem item : projectInvoice.getInvoiceItemList()){
+
+        for (ProjectInvoiceItem item : projectInvoice.getInvoiceItemList()) {
 
 //            if (StringUtils.isBlank(item.getId())) {
 //                continue;
@@ -293,16 +294,19 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
             //     continue;
             // }
 
-            if (ProjectExecutionItem.DEL_FLAG_NORMAL.equals(item.getDelFlag())){
-                if (StringUtils.isBlank(item.getId())){
+            if (ProjectInvoiceItem.DEL_FLAG_NORMAL.equals(item.getDelFlag())) {
+                if (StringUtils.isBlank(item.getId())) {
                     item.setInvoice(projectInvoice);
                     item.preInsert();
                     itemDao.insert(item);
-                }else{
-                    item.preUpdate();
-                    itemDao.update(item);
+                } else {
+                    item.incVer(); // ver + 1
+                    // item.preUpdate();
+                    // itemDao.update(item);
+                    item.preInsert();
+                    itemDao.insert(item); // 保存新版本
                 }
-            }else{
+            } else {
                 itemDao.delete(item);
             }
         }

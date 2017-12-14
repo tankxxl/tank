@@ -29,6 +29,51 @@
         a.profit AS "profit",
         a.invoice_no AS "invoiceNo",
 
+        a.ver AS "ver",
+        a.reason AS "reason",
+
+        a.id AS "id",
+        a.create_by AS "createBy.id",
+        a.create_date AS "createDate",
+        a.update_by AS "updateBy.id",
+        a.update_date AS "updateDate",
+        a.remarks AS "remarks",
+        a.del_flag AS "delFlag",
+        a.proc_ins_id AS "procInsId",
+        a.proc_status AS "procStatus"
+    </sql>
+
+    <sql id="columnsHead">
+        a.project_id AS "apply.id",
+        a.invoice_id AS "invoice.id",
+        a.contract_id AS "contract.id",
+        a.contract_item_id AS "contractItem.id",
+        contract.contract_code AS "contract.contractCode",
+
+        apply.project_name AS "apply.projectName",
+
+        a.invoice_type AS "invoiceType",
+        a.goods_name AS "goodsName",
+        a.spec AS "spec",
+        a.num AS "num",
+        a.price AS "price",
+        a.amount AS "amount",
+        a.cost_amount AS "costAmount",
+
+        a.attachment AS "attachment",
+
+        a.return_date AS "returnDate",
+        a.client_name AS "clientName",
+        a.content AS "content",
+        a.settlement AS "settlement",
+        a.unit AS "unit",
+        a.profit AS "profit",
+        a.invoice_no AS "invoiceNo",
+
+        a.ver AS "ver",
+        t2.num AS "verNum",
+        a.reason AS "reason",
+
         a.id AS "id",
         a.create_by AS "createBy.id",
         a.create_date AS "createDate",
@@ -42,6 +87,14 @@
 
     <sql id="joins">
         LEFT JOIN project_invoice b ON b.id = a.invoice_id
+        LEFT JOIN project_apply_external apply ON apply.id = a.project_id
+        LEFT JOIN project_contract contract ON contract.id = a.contract_id
+        LEFT JOIN project_contract_item contractItem ON contractItem.id = a.contract_item_id
+    </sql>
+
+    <sql id="joinsHead">
+        LEFT JOIN project_invoice b ON b.id = t2.invoice_id
+        LEFT JOIN project_invoice_item a ON t2.ver = a.ver
         LEFT JOIN project_apply_external apply ON apply.id = a.project_id
         LEFT JOIN project_contract contract ON contract.id = a.contract_id
         LEFT JOIN project_contract_item contractItem ON contractItem.id = a.contract_item_id
@@ -62,6 +115,32 @@
         <include refid="joins"/>
         <where>
             a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="invoice!=null and invoice.id != null and invoice.id != ''">
+                AND a.invoice_id = #{invoice.id}
+            </if>
+        </where>
+        <choose>
+            <when test="page !=null and page.orderBy != null and page.orderBy != ''">
+                ORDER BY ${page.orderBy}
+            </when>
+            <otherwise>
+                ORDER BY a.create_date ASC
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="findHeadList" resultType="ProjectInvoiceItem">
+        SELECT
+        <include refid="columns"/>
+        FROM (
+          SELECT t1.invoice_id, count(ver) num, max(t1.ver) ver
+          FROM project_invoice_item as t1
+          WHERE t1.del_flag = #{DEL_FLAG_NORMAL}
+          GROUP BY t1.invoice_id
+        ) AS t2
+        <include refid="joinsHead"/>
+        <where>
+            t2.invoice_id = a.invoice_id
             <if test="invoice!=null and invoice.id != null and invoice.id != ''">
                 AND a.invoice_id = #{invoice.id}
             </if>
@@ -133,6 +212,9 @@
         profit,
         invoice_no,
 
+        ver,
+        reason,
+
         create_by,
         create_date,
         update_by,
@@ -165,6 +247,8 @@
         #{profit},
         #{invoiceNo},
 
+        #{ver},
+        #{reason},
 
         #{createBy.id},
         #{createDate},
@@ -200,6 +284,9 @@
         unit = #{unit},
         profit = #{profit},
         invoice_no = #{invoiceNo},
+
+        ver = #{ver},
+        reason = #{reason},
 
         update_by = #{updateBy.id},
         update_date = #{updateDate},

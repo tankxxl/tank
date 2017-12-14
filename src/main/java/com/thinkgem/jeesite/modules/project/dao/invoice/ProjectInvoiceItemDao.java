@@ -7,6 +7,8 @@ import com.thinkgem.jeesite.common.persistence.CrudDao;
 import com.thinkgem.jeesite.common.persistence.annotation.MyBatisDao;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoiceItem;
 
+import java.util.List;
+
 /**
  * 项目合同执行DAO接口
  * @author jicdata
@@ -28,5 +30,13 @@ public interface ProjectInvoiceItemDao extends CrudDao<ProjectInvoiceItem> {
      * @return
      */
     public ProjectInvoiceItem findByContractCode(ProjectInvoiceItem item);
+
+
+    /**
+     * 查最新版本的开票项
+     * @param item
+     * @return
+     */
+    public List<ProjectInvoiceItem> findHeadList(ProjectInvoiceItem item);
 	
 }

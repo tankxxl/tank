@@ -3,7 +3,6 @@
  */
 package com.thinkgem.jeesite.modules.project.entity.invoice;
 
-import com.thinkgem.jeesite.common.persistence.ActEntity;
 import com.thinkgem.jeesite.common.persistence.DataEntity;
 import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
@@ -47,6 +46,9 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
     private String unit; // 单位(元、套、个)
     private String profit; // 利润点
     private String invoiceNo; // 发票号
+    private int ver; // 版本号
+    private int verNum; // 共有多少版本
+    private String reason; // 重开票原因
 
     private Date returnDate;	// 预计回款日期
 
@@ -223,5 +225,34 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
 
     public void setReturnDate(Date returnDate) {
         this.returnDate = returnDate;
+    }
+
+    public int getVer() {
+        return ver;
+    }
+
+    public void setVer(int ver) {
+        this.ver = ver;
+    }
+
+    public int getVerNum() {
+        return verNum;
+    }
+
+    public void setVerNum(int verNum) {
+        this.verNum = verNum;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    // 版本号自增1
+    public void incVer() {
+        setVer(this.getVer() + 1);
     }
 }

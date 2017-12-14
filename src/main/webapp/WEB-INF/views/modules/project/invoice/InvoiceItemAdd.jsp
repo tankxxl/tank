@@ -75,6 +75,10 @@
             console.log("dialog=" + JSON.stringify(json));
             return json;
         }
+        
+        function test() {
+            console.log("我是按钮，点击了");
+        }
 
         // 选择项目后触发事件
         function changeProject(projectId, idx) {
@@ -253,6 +257,8 @@
         <%--<shiro:hasPermission name="sys:role:edit"><input id="btnSubmit" class="btn btn-primary" type="submit" value="保 存"/>&nbsp;</shiro:hasPermission>--%>
         <%--<input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.go(-1)"/>--%>
     <%--</div>--%>
+<%-- 在dialog的form定义一个隐藏的btn，在dlg的按钮回调中查找并提交form，还没验证通过 --%>
+    <button class="layui-btn layui-btn-small bcql-icon icon-save" style="display: none;" onclick="test();" value="test"></button>
 </form:form>
 </body>
 

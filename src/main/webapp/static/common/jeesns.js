@@ -306,6 +306,8 @@ var jeesnsDialog = {
                 // layero.find("iframe")[0]; 将jquery对象转化为dom对象
                 // contentWindow 获取当前iframe的内容window对象(dom对象)
                 var data = $(layero).find("iframe")[0].contentWindow.formData();
+                // 在dialog的form定义一个隐藏的btn，在dlg的按钮回调中查找并提交form
+                // $($(layero).find("iframe")[0]).find('#spec').val(); // 还没验证通过
                 //当点击‘确定’按钮的时候，获取弹出层返回的值
                 // var res = window["layui-layer-iframe" + index].callbackdata();
                 if (data && func) {
