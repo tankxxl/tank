@@ -129,6 +129,7 @@
         </choose>
     </select>
 
+    <!-- 查询最新版本 -->
     <select id="findHeadList" resultType="ProjectInvoiceItem">
         SELECT
         <include refid="columns"/>
@@ -151,6 +152,28 @@
             </when>
             <otherwise>
                 ORDER BY a.create_date ASC
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- 查询某一合同的所有开票项版本 -->
+    <select id="findVerList" resultType="ProjectInvoiceItem">
+        SELECT
+        <include refid="columns"/>
+        FROM project_invoice_item a
+        <include refid="joins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="invoice!=null and invoice.id != null and invoice.id != ''">
+                AND a.contract_id = #{contract.id}
+            </if>
+        </where>
+        <choose>
+            <when test="page !=null and page.orderBy != null and page.orderBy != ''">
+                ORDER BY ${page.orderBy}
+            </when>
+            <otherwise>
+                ORDER BY a.ver DESC
             </otherwise>
         </choose>
     </select>

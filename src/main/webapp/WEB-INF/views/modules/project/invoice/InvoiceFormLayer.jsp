@@ -161,6 +161,41 @@ $(function () {
     oButtonInit.Init();
 }); // 执行代码结束
 
+
+function InitSubTable(index, row, $detail) {
+    var contract_id = row.contract.id;
+    console.log(JSON.stringify(row));
+    var cur_table = $detail.html('<table></table>').find('table');
+    $(cur_table).bootstrapTable({
+        url: '${ctx}/project/invoice/findVerList',
+        method: 'get',
+        queryParams: { contractId: contract_id },
+        ajaxOptions: { contractId: contract_id },
+        clickToSelect: true,
+        detailView: false,//父子表
+        uniqueId: "ID",
+        pageSize: 10,
+        pageList: [10, 25],
+        columns: [{
+            field: 'MENU_NAME',
+            title: '菜单名称'
+        }, {
+            field: 'MENU_URL',
+            title: '菜单URL'
+        }, {
+            field: 'PARENT_ID',
+            title: '父级菜单'
+        }, {
+            field: 'MENU_LEVEL',
+            title: '菜单级别'
+        }, ],
+        //无线循环取子表，直到子表里面没有记录
+        onExpandRow: function (index, row, $Subdetail) {
+            // oInit.InitSubTable(index, row, $Subdetail);
+        }
+    });
+}
+
 // 定义部分
 // 定义一个对象
 var TableInit = function () {
@@ -202,7 +237,7 @@ var TableInit = function () {
             uniqueId: "ID",                     //每一行的唯一标识，一般为主键列
             showToggle: true,                   //是否显示详细视图和列表视图的切换按钮
             cardView: false,                    //是否显示详细视图
-            detailView: false,                  //是否显示父子表
+            detailView: true,                  //是否显示父子表
             rowStyle: function (row, index) { //设置行的特殊样式
                 var strclass = "";
                 if (index == 1) {
@@ -331,6 +366,16 @@ var TableInit = function () {
             onDblClickRow: function (row, $element, field) {
                 editById(row.id);
             },
+            onExpandRow: function (index, row, $detail) {
+                // index: 父表当前行的行索引
+                // row: 父表当前行的Json数据对象
+                // $detail: 当前行下面创建的新行里面的td对象
+                // 第三个参数尤其重要，因为生成的子表的table是装载在$detail对象里面的。
+                // bootstrap table为我们生成了$detail这个对象，然后我们只需要往它里面填充我们想要的table即可。
+                console.log("我们Expand了");
+                // ButtonInit.InitSubTable(index, row, $detail);
+                InitSubTable(index, row, $detail);
+            },
             onClickRow: function (row, $element, field) {
                 console.log(row.projectName);
 //              window.location.href = "/qStock/qProInfo/" + row.ProductId;
@@ -358,6 +403,40 @@ var TableInit = function () {
 var ButtonInit = function () {
     var oInit = new Object();
     var postdata = {};
+
+    //初始化子表格(无线循环)
+    oInit.InitSubTable = function (index, row, $detail) {
+        var contract_id = row.contract_id;
+        var cur_table = $detail.html('<table></table>').find('table');
+        $(cur_table).bootstrapTable({
+            url: '${ctx}/project/invoice/findVerList',
+            method: 'get',
+            queryParams: { contractId: contract_id },
+            ajaxOptions: { contractId: contract_id },
+            clickToSelect: true,
+            detailView: false,//父子表
+            uniqueId: "ID",
+            pageSize: 10,
+            pageList: [10, 25],
+            columns: [{
+                field: 'MENU_NAME',
+                title: '菜单名称'
+            }, {
+                field: 'MENU_URL',
+                title: '菜单URL'
+            }, {
+                field: 'PARENT_ID',
+                title: '父级菜单'
+            }, {
+                field: 'MENU_LEVEL',
+                title: '菜单级别'
+            }, ],
+            //无线循环取子表，直到子表里面没有记录
+            onExpandRow: function (index, row, $Subdetail) {
+                // oInit.InitSubTable(index, row, $Subdetail);
+            }
+        });
+    };
 
     oInit.Init = function () {
 //        $("#btn_add").click(function () {

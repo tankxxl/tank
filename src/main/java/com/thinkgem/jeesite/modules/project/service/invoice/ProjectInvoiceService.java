@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -79,8 +80,31 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
             return invoice;
 
         // invoice.setInvoiceItemList(itemDao.findList(new ProjectInvoiceItem(invoice)));
+        // 只查最新版本
         invoice.setInvoiceItemList(itemDao.findHeadList(new ProjectInvoiceItem(invoice)));
         return invoice;
+    }
+
+    public List<ProjectInvoiceItem> findVerList(String contractId) {
+        if (StringUtils.isEmpty(contractId)) {
+            return new ArrayList<>();
+        }
+
+        ProjectInvoiceItem item = new ProjectInvoiceItem();
+        ProjectContract contract = new ProjectContract();
+        contract.setId(contractId);
+        item.setContract(contract);
+
+        List<ProjectInvoiceItem> items = itemDao.findVerList(item);
+        if (items == null) {
+            return new ArrayList<>();
+        }
+        if (items.isEmpty()) {
+            return items;
+        }
+        // 去掉最新版本
+        items.remove(0);
+        return items;
     }
 
     /**

@@ -33,10 +33,18 @@ public interface ProjectInvoiceItemDao extends CrudDao<ProjectInvoiceItem> {
 
 
     /**
-     * 查最新版本的开票项
+     * 按开票申请单查最新版本的所有开票项
      * @param item
      * @return
      */
     public List<ProjectInvoiceItem> findHeadList(ProjectInvoiceItem item);
+
+    /**
+     * 按合同号查询所有的开票版本
+     * @param item
+     * @return
+     */
+    public List<ProjectInvoiceItem> findVerList(ProjectInvoiceItem item);
+
 	
 }

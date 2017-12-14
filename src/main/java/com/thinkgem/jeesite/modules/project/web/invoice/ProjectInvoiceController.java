@@ -212,6 +212,18 @@ public class ProjectInvoiceController extends BaseController {
 		return "false";
 	}
 
+	/**
+	 * 按合同号查询所有的开票版本
+	 * @param contractId 合同号
+	 * @return
+	 */
+	@ResponseBody
+	// @RequiresPermissions(value={"pur:wzmcgl:add","pur:wzmcgl:edit"},logical= Logical.OR)
+	@RequestMapping(value = "findVerList")
+	public List<ProjectInvoiceItem> findVerList(String contractId) {
+		return invoiceService.findVerList(contractId);
+	}
+
 
 	/**
 	 * 启动流程、保存申请单、销毁流程、删除申请单。
