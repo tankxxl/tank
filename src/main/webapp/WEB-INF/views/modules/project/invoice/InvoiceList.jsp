@@ -94,7 +94,9 @@
                 <%--</td>--%>
 
 				<td>
-				${invoice.remarks}
+					<a href="${ctx}/project/invoice/form?id=${invoice.id}">
+						${invoice.remarks}
+					</a>
 				</td>
 				<td>
 					<fmt:formatDate value="${invoice.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/>

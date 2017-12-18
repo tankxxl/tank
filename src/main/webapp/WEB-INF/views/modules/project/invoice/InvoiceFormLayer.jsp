@@ -9,8 +9,6 @@
 			$("#inputForm").validate({
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
-					var formData = $(form).serializeJsonObject();
-					console.log("formData=" + JSON.stringify(formData));
 					form.submit();
 				},
 				errorContainer: "#messageBox",
@@ -21,9 +19,15 @@
 					} else {
 						error.insertAfter(element);
 					}
-				}
+                    // 指明错误放置的位置，默认情况是：error.appendTo(element.parent());
+                    // 即把错误信息放在验证的元素后面
+                }
 			});
-		});
+
+            // 必填项提示，后面加星提示
+            $('.required').after('<span style="color:red">&nbsp;*</span>');
+
+        });
 	</script>
 
     <script src="${ctxStatic}/bootstrap-table/dist/extensions/mobile/bootstrap-table-mobile.js"></script>
@@ -85,7 +89,7 @@
             <td class="tit">备注</td>
             <td colspan="5">
                 <div style="white-space:nowrap;">
-                    <form:textarea path="remarks" style="width:98%"  maxlength="255"
+                    <form:textarea path="remarks" class="required" style="width:96%" maxlength="255"
                                    placeholder=""/>
                 </div>
             </td>
@@ -95,7 +99,7 @@
             <td class="tit" >文件附件</td>
             <td colspan="5">
                 <form:hidden id="attachment" path="attachment" maxlength="20000"  />
-                <sys:ckfinder input="attachment" type="files" uploadPath="/project/purchase" selectMultiple="true" />
+                <sys:ckfinder input="attachment" type="files" uploadPath="/project/invoice" selectMultiple="true" />
             </td>
         </tr>
     </table>
@@ -103,10 +107,6 @@
 
     <%-- 定义一系列工具栏 --%>
     <div id="toolbar" class="btn-group">
-        <%--<a href="${ctx}/project/invoice/addItemView?id=${projectInvoice.id}" func="func()"--%>
-           <%--width="800px" height="600px" target="_jeesnsOpen" title="添加Layer">--%>
-            <%--<label class="btn btn-default">添加auto</label> </a>--%>
-
         <button id="btn_add" @click="myAddClick()" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
         </button>
@@ -135,11 +135,7 @@
             <input id="btnSubmit" class="btn btn-primary" type="button" value="保存并结束流程" @click="btn3()" data-toggle="tooltip" title="小心操作！"/>&nbsp;
             <input id="btnSubmit" class="btn btn-primary" type="button" value="只保存表单数据" @click="btn4()" data-toggle="tooltip" title="管理员才能操作！"/>&nbsp;
         </shiro:hasPermission>
-
-        <%--<input id="btnSubmit" class="btn btn-primary" type="button"--%>
-               <%--value="ajax保存" @click="submitx()" />--%>
         &nbsp;&nbsp;
-
         <input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.back()"/>
     </div>
 
@@ -161,8 +157,16 @@ $(function () {
     oButtonInit.Init();
 }); // 执行代码结束
 
-
+/**
+ * index: 父表当前行的行索引
+ * row: 父表当前行的Json数据对象
+ * $detail: 当前行下面创建的新行里面的td对象
+ * 第三个参数尤其重要，因为生成的子表的table是装载在$detail对象里面的。
+ * bootstrap table为我们生成了$detail这个对象，然后我们只需要往它里面填充我们想要的table即可。
+ *
+ */
 function InitSubTable(index, row, $detail) {
+    // 得到合同号id，去查所有版本
     var contract_id = row.contract.id;
     console.log(JSON.stringify(row));
     var cur_table = $detail.html('<table></table>').find('table');
@@ -177,18 +181,64 @@ function InitSubTable(index, row, $detail) {
         pageSize: 10,
         pageList: [10, 25],
         columns: [{
-            field: 'MENU_NAME',
-            title: '菜单名称'
+            field: 'apply.id',
+            title: '项目编号',
+            titleTooltip: "tips",
+            align: 'center',
+            visible: false
         }, {
-            field: 'MENU_URL',
-            title: '菜单URL'
+            field: 'apply.projectName',
+            title: '项目名称',
+            resizable: true,
+            visible: false,
+            sortable: true
         }, {
-            field: 'PARENT_ID',
-            title: '父级菜单'
+            field: 'contract.contractCode',
+            title: '合同号'
         }, {
-            field: 'MENU_LEVEL',
-            title: '菜单级别'
-        }, ],
+            field: 'contract.id',
+            title: '合同id',
+            visible: false
+        }, {
+            field: 'invoiceType',
+            title: '发票类型',
+            formatter: function (value, row, index) {
+                return getDictLabel(${fns:toJson(fns:getDictList('jic_invoice_type'))}, value);
+            }
+        }, {
+            field: 'clientName',
+            title: '客户名称'
+        }, {
+            field: 'content',
+            title: '开票内容'
+        }, {
+            field: 'spec',
+            title: '规格型号'
+        }, {
+            field: 'num',
+            title: '数量'
+        }, {
+            field: 'unit',
+            title: '单位'
+        }, {
+            field: 'price',
+            title: '单价'
+        }, {
+            field: 'amount',
+            title: '金额'
+        }, {
+            field: 'ver',
+            title: '版本'
+        }, {
+            field: 'settlement',
+            title: '结算周期'
+        }, {
+            field: 'invoiceNo',
+            title: '发票号'
+        }, {
+            field: 'remarks',
+            title: '备注'
+        }],
         //无线循环取子表，直到子表里面没有记录
         onExpandRow: function (index, row, $Subdetail) {
             // oInit.InitSubTable(index, row, $Subdetail);
@@ -372,12 +422,10 @@ var TableInit = function () {
                 // $detail: 当前行下面创建的新行里面的td对象
                 // 第三个参数尤其重要，因为生成的子表的table是装载在$detail对象里面的。
                 // bootstrap table为我们生成了$detail这个对象，然后我们只需要往它里面填充我们想要的table即可。
-                console.log("我们Expand了");
                 // ButtonInit.InitSubTable(index, row, $detail);
                 InitSubTable(index, row, $detail);
             },
             onClickRow: function (row, $element, field) {
-                console.log(row.projectName);
 //              window.location.href = "/qStock/qProInfo/" + row.ProductId;
             }
         });
@@ -419,18 +467,63 @@ var ButtonInit = function () {
             pageSize: 10,
             pageList: [10, 25],
             columns: [{
-                field: 'MENU_NAME',
-                title: '菜单名称'
+                field: 'apply.id',
+                title: '项目编号',
+                titleTooltip: "tips",
+                align: 'center',
+                visible: false
             }, {
-                field: 'MENU_URL',
-                title: '菜单URL'
+                field: 'apply.projectName',
+                title: '项目名称',
+                resizable: true,
+                sortable: true
             }, {
-                field: 'PARENT_ID',
-                title: '父级菜单'
+                field: 'contract.contractCode',
+                title: '合同号'
             }, {
-                field: 'MENU_LEVEL',
-                title: '菜单级别'
-            }, ],
+                field: 'contract.id',
+                title: '合同id',
+                visible: false
+            }, {
+                field: 'invoiceType',
+                title: '发票类型',
+                formatter: function (value, row, index) {
+                    return getDictLabel(${fns:toJson(fns:getDictList('jic_invoice_type'))}, value);
+                }
+            }, {
+                field: 'clientName',
+                title: '客户名称'
+            }, {
+                field: 'content',
+                title: '开票内容'
+            }, {
+                field: 'spec',
+                title: '规格型号'
+            }, {
+                field: 'num',
+                title: '数量'
+            }, {
+                field: 'unit',
+                title: '单位'
+            }, {
+                field: 'price',
+                title: '单价'
+            }, {
+                field: 'amount',
+                title: '金额'
+            }, {
+                field: 'profit',
+                title: '利润点'
+            }, {
+                field: 'settlement',
+                title: '结算周期'
+            }, {
+                field: 'invoiceNo',
+                title: '发票号'
+            }, {
+                field: 'remarks',
+                title: '备注'
+            }],
             //无线循环取子表，直到子表里面没有记录
             onExpandRow: function (index, row, $Subdetail) {
                 // oInit.InitSubTable(index, row, $Subdetail);
@@ -443,13 +536,14 @@ var ButtonInit = function () {
         //    $("#myModalLabel").text("新增");
         //    $("#myModal").find(".form-control").val("");
         //    $('#myModal').modal()
-        //    postdata.DEPARTMENT_ID = "";
 //        });
 
         // 监听table的事件，设置btn的状态
         $("#table").on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function() {
             $("#btn_delete").prop('disabled', !$("#table").bootstrapTable('getSelections').length);
             $("#btn_edit").prop('disabled', !$("#table").bootstrapTable('getSelections').length);
+            // $("#btn_resign").prop('disabled', !$("#table").bootstrapTable('getSelections').length);
+
         });
 
         $("#btn_delete").click(function () {
@@ -464,6 +558,7 @@ var ButtonInit = function () {
                 // 设置btn_del的状态
                 $("#btn_delete").prop('disabled', true);
                 $("#btn_edit").prop('disabled', true);
+                // $("#btn_resign").prop('disabled', true);
             });
         });
 
@@ -511,25 +606,17 @@ function getSelectedIndexes() {
  * field: the field name corresponding to the clicked cell
  */
 $('#table').on('click-row.bs.table', function (row, $element, field) {
-    console.log("row=" + row);
-    console.log("$element=" + $element);
-    console.log("field=" + field);
+    // console.log("row=" + row);
 //    $('.success').removeClass('success'); // 去除之前选中的行的选中样式
 //    $(element).addClass('success'); // 添加当前选中的success样式用于区别
 });
-//function getSelectedRow() {
-//    var index = $('#table').find('tr.success').data('index'); // 获得选中的行
-//    return $('#table').bootstrapTable('getData')[0]; // 返回选中行所有数据
-//}
 // 全局函数
 function search() {
     var opt = {
         url: 'doDynamicsList',
         silent: true,
         query:{
-            'sd.dno':searchForm.dno.value,
             'sd.userInfo.userName':searchForm.userName.value,
-            'sd.userInfo.name':searchForm.name.value
         }
     };
     // 需要先摧毁table
@@ -538,32 +625,36 @@ function search() {
 }
 
 function submitG() {
-//    $('#contractId').val('rgz');
+    var jform = $("#inputForm");
+    jform.validate();
+    if (!jform.valid()) {
+        jeesnsDialog.tips("请修改。");
+        return;
+    }
     var json = form2js($("#inputForm")[0]);
     var data = $("#table").bootstrapTable('getData');
+    if (data === undefined || data.length == 0) {
+        jeesnsDialog.tips("开票项不能为空。");
+        return;
+    }
     json.invoiceItemList = data;
-    console.log("form.json=" + JSON.stringify(json));
+    // console.log("form.json=" + JSON.stringify(json));
     jeesns.jeesnsAjax('${ctx}/project/invoice/saveAjax', 'POST', json);
 }
 // 全局变量，用于给编辑框传递参数
+// 当前选中行
 row = null;
+// 当前选中行的index
 rowIdx = null;
 // 全局变量，定义vm变量，
 // Vue三部分：el、data、methods
 // 创建一个Vue实例或"ViewModel"，它连接View与Model
 var vm = new Vue({
     el:'#rrapp',
-    // 这是我们的Model，也可以写到外面(全局)
-    data:{
-        q:{
-            username: null
-        },
+    data:{ // 这是我们的Model，也可以写到外面(全局)
         showList: true,
-        title:null,
-        roleList:{},
         newItem: {},
         user:{
-            status:1,
             deptId:null,
             roleIdList:[]
         }
@@ -602,18 +693,13 @@ var vm = new Vue({
             vm.reload();
         },
         add: function() {
-            vm.showList = false;
             vm.title = "新增";
             vm.roleList = {};
-            vm.user = {deptName:null, deptId:null, status:1, roleIdList:[]};
 
             $('#table').bootstrapTable('append', vm.newItem);
             vm.newItem = {};
-            //获取角色信息
             // 方法内 'this' 指向 vm
 //            this.message = 'hello';
-//            this.getRoleList();
-//            vm.getDept();
         },
         getDept: function() {
             //加载部门树
@@ -658,18 +744,6 @@ var vm = new Vue({
                 vm.reload();
             });
         },
-        getUser: function(userId){
-            $.get(baseURL + "sys/user/info/"+userId, function(r){
-                vm.user = r.user;
-                vm.user.password = null;
-                vm.getDept();
-            });
-        },
-        getRoleList: function(){
-            $.get(baseURL + "sys/role/select", function(r){
-                vm.roleList = r.list;
-            });
-        },
         deptTree: function(){
             layer.open({
                 type: 1,
@@ -690,14 +764,6 @@ var vm = new Vue({
                     layer.close(index);
                 }
             });
-        },
-        reload: function () {
-            vm.showList = true;
-            var page = $("#jqGrid").jqGrid('getGridParam','page');
-            $("#jqGrid").jqGrid('setGridParam',{
-                postData:{'username': vm.q.username},
-                page:page
-            }).trigger("reloadGrid");
         }
     }  // method end
 });  // end vm

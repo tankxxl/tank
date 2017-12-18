@@ -50,6 +50,18 @@ $(document).ready(function() {
         return returnVal;
     }, "小数点后最多为两位"); // 验证错误信息
 
+    // 验证值小数位数不能超过两位
+    jQuery.validator.addMethod("decimal", function (value, element) {
+        var decimal = /^-?\d+(\.\d{1,2})?$/;
+        return this.optional(element) || (decimal.test(value));
+    }, $.validator.format("小数位数不能超过两位!"));
+
+    // // 必填项提示，后面加星提示
+    // $('input[required]').before('<span style="color:red">*</span>');
+    // $('textarea[required]').before('<span style="color:red">*</span>');
+    // $('textarea[required]').after('<span style="color:red">*</span>');
+    // $('.required').after('<span style="color:red">*</span>');
+
 	// 扩展getElementsByClassName函数（兼容IE低版本）
     if (!document.getElementsByClassName ) {
         document.getElementsByClassName = function (cls) {

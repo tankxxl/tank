@@ -46,8 +46,19 @@ public class ProjectInvoiceController extends BaseController {
 	private ActTaskService actTaskService;
 
 	String prefix = "modules/project/invoice/";
-	String vEdit = "InvoiceFormLayer";
-	String vViewAudit = "InvoiceView";
+	String vList = "InvoiceList"; // 申请单列表
+	String vEdit = "InvoiceFormLayer"; // 申请单form
+	String vItemForm = "InvoiceItemForm"; // 开票项form
+	String vViewAudit = "InvoiceView"; // 申请单view
+	/**
+	 * 重开跟编辑页面相似
+	 * 重开页面的操作有：
+	 * 1、修改发票项
+	 * 2、选择发票项
+	 * 3、新增申请单、新增开票项(版本号也增加)
+	 * 4、不能新增和删除开票项（这是跟编辑页面的区别）
+	 */
+	String vResignForm = "InvoiceResignForm";
 
     /**
      * 如果把@ModelAttribute放在方法的注解上时，代表的是：该Controller的所有方法在调用前，先执行此@ModelAttribute方法
@@ -85,7 +96,8 @@ public class ProjectInvoiceController extends BaseController {
 		projectInvoice.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
 		Page<ProjectInvoice> page = invoiceService.findPage(new Page<ProjectInvoice>(request, response), projectInvoice);
 		model.addAttribute("page", page);
-		return "modules/project/invoice/InvoiceList";
+		// return "modules/project/invoice/InvoiceList";
+		return prefix + vList;
 	}
 
 	/**
@@ -97,7 +109,7 @@ public class ProjectInvoiceController extends BaseController {
 	@RequiresPermissions("project:invoice:view")
 	@RequestMapping(value = "form")
 	public String form(ProjectInvoice projectInvoice, Model model) {
-		String prefix = "modules/project/invoice/";
+		// String prefix = "modules/project/invoice/";
 		String view = "InvoiceForm";
 
 		// @todo test
@@ -146,20 +158,15 @@ public class ProjectInvoiceController extends BaseController {
 
 	@RequestMapping(value = "addItemView")
 	public String addItemView(ProjectInvoiceItem projectInvoiceItem, Model model) {
-		String prefix = "modules/project/invoice/";
-		String view = "InvoiceItemAdd";
-
 		model.addAttribute("projectInvoiceItem", projectInvoiceItem);
-		return prefix + view;
+		return prefix + vItemForm;
 	}
 
 	@RequestMapping(value = "resignView")
-	public String resignView(ProjectInvoiceItem projectInvoiceItem, Model model) {
-		String prefix = "modules/project/invoice/";
-		String view = "InvoiceItemAdd";
-
-		model.addAttribute("projectInvoiceItem", projectInvoiceItem);
-		return prefix + view;
+	public String resignView(ProjectInvoice projectInvoice, Model model) {
+		// ModelAttribute注解已经把实体放入Model中了
+		// model.addAttribute("projectInvoice", projectInvoice);
+		return prefix + vResignForm;
 	}
 
 	// no used
@@ -265,15 +272,22 @@ public class ProjectInvoiceController extends BaseController {
 		}
 	}
 
+	/**
+	 * ajax前端提交，要手动收集form、table中的数据，所以使用ajax提交
+	 * @param projectInvoice
+	 * @param model
+	 * @param redirectAttributes
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@RequiresPermissions("project:invoice:edit")
 	@RequestMapping(value = "saveAjax")
 	@ResponseBody
 	public RespEntity saveAjax(@RequestBody ProjectInvoice projectInvoice,
 							   Model model, RedirectAttributes redirectAttributes,
 							   HttpServletRequest request, HttpServletResponse response) {
-		// if (!beanValidator(model, projectInvoice)){
-		// 	return form(projectInvoice, model);
-		// }
+
 		String path = request.getContextPath();
 		// form提交时，使用act.flag字段
 		String flag = projectInvoice.getAct().getFlag();
@@ -286,6 +300,13 @@ public class ProjectInvoiceController extends BaseController {
 			invoiceService.save(projectInvoice);
 		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
 			invoiceService.saveFinishProcess(projectInvoice);
+		} else if ("resign".equals(flag)){ // 重开票，保存，发起流程
+			projectInvoice.setId("");
+			for (ProjectInvoiceItem item : projectInvoice.getInvoiceItemList()) {
+				item.setId("");
+			}
+			projectInvoice.getAct().setFlag("yes");
+			invoiceService.saveLaunch(projectInvoice);
 		} else {
 			invoiceService.saveLaunch(projectInvoice);
 		}
@@ -308,14 +329,6 @@ public class ProjectInvoiceController extends BaseController {
 		return respEntity;
 	}
 
-	@RequestMapping(value = "test1")
-	@ResponseBody
-	public String test1(@RequestBody ProjectInvoice projectInvoice) {
-		String flag = projectInvoice.getDelFlag();
-		System.out.println(flag);
-		return "test";
-	}
-
 	@RequestMapping(value = "test2")
 	@ResponseBody
 	public String test2(@RequestBody String jsonStr) {
@@ -326,32 +339,16 @@ public class ProjectInvoiceController extends BaseController {
 		return "test";
 	}
 
-	@RequestMapping(value = "test3")
-	@ResponseBody
-	public String test3() {
-		// String flag = jsonStr;
-		// ProjectInvoice invoice = JsonMapper.getInstance().fromJson(jsonStr, ProjectInvoice.class);
-		// System.out.println(flag);
-		System.out.println("test3");
-		// System.out.println(invoice.getId());
-		return "test3";
-	}
+	//
 
-	@RequestMapping(value = "test4")
-	@ResponseBody
-	public String test4() {
-		// String flag = jsonStr;
-		// ProjectInvoice invoice = JsonMapper.getInstance().fromJson(jsonStr, ProjectInvoice.class);
-		// System.out.println(flag);
-		System.out.println("test4");
-		// System.out.println(invoice.getId());
-		return "test4";
-	}
-
-	// 批量删除子表
+	/**
+	 * ajax批量删除子表(开票项)
+	 * @param ids 前端传递的ids
+	 * @return
+	 */
 	@RequestMapping(value = "deleteItemByIds")
 	@ResponseBody
-	public RespEntity deleteItemByIds(@RequestBody String[] ids, HttpServletRequest request, HttpServletResponse response) {
+	public RespEntity deleteItemByIds(@RequestBody String[] ids) {
 		System.out.println("ids=" + ids);
 		invoiceService.deleteItemByIds(ids);
 
@@ -360,7 +357,6 @@ public class ProjectInvoiceController extends BaseController {
 		// respEntity.setUrl(url);
 		return respEntity;
 	}
-
 
 
 	@RequiresPermissions("project:invoice:edit")
@@ -384,11 +380,9 @@ public class ProjectInvoiceController extends BaseController {
 		} else {
 			invoiceService.saveAudit(projectInvoice);
 		}
-
 		return "redirect:" + adminPath + "/act/task/todo/";
 	}
-	
-	
+
 	/**
 	 * 使用的导出
 	 */
@@ -414,11 +408,9 @@ public class ProjectInvoiceController extends BaseController {
 	@RequestMapping(value = "getAsJson")
 	public ProjectInvoice getAsJson(@RequestParam(required=false) String id, Model model) {
 		model.addAttribute("prjId", id);
-
 		ProjectInvoice projectInvoice = get(id);
 		// 转换字典数据
 		// apply.setCategory(DictUtils.getDictLabel(apply.getCategory(), "pro_category", ""));
-
 		return projectInvoice;
 	}
 
@@ -449,13 +441,4 @@ public class ProjectInvoiceController extends BaseController {
 		return page;
 	}
 
-	@RequestMapping(value = "tableItem")
-	@ResponseBody
-	public Page<ProjectInvoice> tableItem(ProjectInvoice projectInvoice, HttpServletRequest request, HttpServletResponse response, Model model) {
-		projectInvoice.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
-		Page<ProjectInvoice> page = invoiceService.findPage(new Page<ProjectInvoice>(request, response), projectInvoice);
-		model.addAttribute("page", page);
-		// return "modules/apply/external/DemoList";
-		return page;
-	}
 }

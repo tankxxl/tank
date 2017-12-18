@@ -2,44 +2,31 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp"%>
 <html>
 <head>
-	<title>回款管理</title>
+	<title>开票添加</title>
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
-
             // 初始化全局变量，修改表单使用
-            <%--treeGetParam = "?prjId=${projectInvoiceItem.apply.id}";--%>
             <%-- jsp中的js代码错误一定要处理 --%>
-            var mCode = null;
+            mOldCode = null;
             if (parent.row) {
                 treeGetParam = "?prjId=" + parent.row.apply.id;
-                mCode = parent.row.contract.contractCode;
-
+                mOldCode = parent.row.contract.contractCode;
             }
-
-            // 验证值小数位数不能超过两位
-            jQuery.validator.addMethod("decimal", function (value, element) {
-                var decimal = /^-?\d+(\.\d{1,2})?$/;
-                return this.optional(element) || (decimal.test(value));
-            }, $.validator.format("小数位数不能超过两位!"));
-
-			//$("#name").focus();
 			$("#inputForm").validate({
-                // debug: true, // 调试模式，验证成功也不会跳转到目标页面
                 rules: {
                     "contract.contractCode": { // 使用name而不是id
                         required: true,
-                        <%--remote: "${ctx}/project/invoice/hasCode?oldCode=" + encodeURIComponent('${projectInvoiceItem.contract.contractCode}')--%>
                         <%-- 自己写一个oldCode参数，后面还会默认加上正在验证的控件的值，用的是控件的name作为key，
                              如本次请求中url?oldCode=&contract.contractCode=xxx，
                              由于key中间有点，所有controller中接收最后一个参数值时，
                              应该使用@RequestParam("contract.contractCode") String code接收 --%>
-                        remote: "${ctx}/project/invoice/hasCode?oldCode=" + mCode
+                        remote: "${ctx}/project/invoice/hasCode?oldCode=" + mOldCode
                     }
 
                 },
                 messages: {
-                    "contract.contractCode": {remote: "合同号已存在"}
+                    "contract.contractCode": {remote: "合同号已存在，请走重开流程"}
                 },
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
@@ -53,16 +40,15 @@
 					} else {
 						error.insertAfter(element);
 					}
+					// error.appendTo( element.parent().next() );
 				}
 			}); // end validate()
 //            js2form(document.getElementById('inputForm'), parent.row);
-//            console.log("parent.row=" + JSON.stringify(parent.row));
-//            $("#invoiceType").val("专票");
-//            $("#invoiceType").find("option[text='专票']").attr("selected",true);
+
+            // 必填项提示，后面加星提示
+            $('.required').after('<span style="color:red">&nbsp;*</span>');
 
             $("#contractName").change(function(){
-                console.log("contractName 修改了");
-                // debugger;
                 $("#inputForm").validate().element($("#contractName"));
             });
 
@@ -71,6 +57,12 @@
 
         // 父页面调用，用来收集dialog中的值
         function formData() {
+            var valid = $("#inputForm").valid();
+            if (!valid) {
+                jeesnsDialog.tips("输入有误。");
+                // return;
+            }
+
             var json = form2js($('#inputForm')[0], '.', false);
             console.log("dialog=" + JSON.stringify(json));
             return json;
@@ -91,11 +83,7 @@
 //                当项目改变时，合同字段要清零
                     $("#contractId").val("");
                     $("#contractName").val("");
-
 //                    $("#project_code").text(apply.projectCode);
-//                    $("#customer_name").text(apply.customer.customerName);
-//                    $("#customer_contact_name").text(apply.customerContact.contactName);
-//                    $("#customer_contact_phone").text(apply.customerContact.phone);
                 });
         }
 
@@ -103,8 +91,6 @@
         function changedContract(itemId, idx) {
             $.post('${ctx}/project/contract/projectContract/getAsJson',
                 {id: itemId}, function (item) {
-//                    $('#contract_amount').text(item.contractAmount);
-//                    $('#contract_gross_margin').text(item.grossProfitMargin);
 //                    $('#contractId').val(item.contract.id);
                 });
         }
@@ -112,7 +98,7 @@
 	</script>
 </head>
 <body>
-
+<br/>
 <form:form id="inputForm" modelAttribute="projectInvoiceItem"
            action="${ctx}/project/invoice/save"
            method="post" class="form-horizontal">
@@ -129,7 +115,6 @@
                             url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11"
                             cssClass="required"  allowClear="true" notAllowSelectParent="true"
                             customClick="changeProject"/>
-            <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
 
@@ -152,18 +137,17 @@
                     notAllowSelectParent="true"
                     cssClass="required"
                     customClick="changedContract"/>
-            <span class="help-inline"><font color="red">*</font> </span>
+
         </div>
     </div>
 
     <div class="control-group">
         <label class="control-label">开票类型:</label>
         <div class="controls">
-            <form:select path="invoiceType" class="" style="width:80%;">
+            <form:select path="invoiceType" class="required" style="width:80%;">
                 <form:option value="" label=""/>
                 <form:options items="${fns:getDictList('jic_invoice_type')}" itemLabel="label" itemValue="value"/>
             </form:select>
-            <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
 
@@ -171,7 +155,6 @@
         <label class="control-label">客户名称:</label>
         <div class="controls">
             <form:input path="clientName" class="required"/>
-            <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
 
@@ -179,7 +162,6 @@
         <label class="control-label">开票内容:</label>
         <div class="controls">
             <form:input path="content" class="required"/>
-            <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
 
@@ -187,7 +169,6 @@
         <label class="control-label">规格型号:</label>
         <div class="controls">
             <form:input path="spec" class="required"/>
-            <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
 
@@ -195,7 +176,6 @@
         <label class="control-label">数量:</label>
         <div class="controls">
             <form:input path="num" class="required"/>
-            <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
 
@@ -203,7 +183,6 @@
         <label class="control-label">单位:</label>
         <div class="controls">
             <form:input path="unit" class="required"/>
-            <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
 
@@ -211,7 +190,6 @@
         <label class="control-label">单价:</label>
         <div class="controls">
             <form:input path="price" class="required"/>
-            <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
 
@@ -219,7 +197,6 @@
         <label class="control-label">金额:</label>
         <div class="controls">
             <form:input path="amount" class="required"/>
-            <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
 
@@ -227,7 +204,6 @@
         <label class="control-label">利润点:</label>
         <div class="controls">
             <form:input path="profit" class="required"/>
-            <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
 
@@ -235,7 +211,6 @@
         <label class="control-label">结算周期:</label>
         <div class="controls">
             <form:input path="settlement" class="required"/>
-            <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
 
@@ -243,7 +218,6 @@
         <label class="control-label">发票号:</label>
         <div class="controls">
             <form:input path="invoiceNo" class="required"/>
-            <span class="help-inline"><font color="red">*</font> </span>
         </div>
     </div>
 

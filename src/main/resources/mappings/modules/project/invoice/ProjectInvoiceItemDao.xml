@@ -164,7 +164,7 @@
         <include refid="joins"/>
         <where>
             a.del_flag = #{DEL_FLAG_NORMAL}
-            <if test="invoice!=null and invoice.id != null and invoice.id != ''">
+            <if test="contract != null and contract.id != null and contract.id != ''">
                 AND a.contract_id = #{contract.id}
             </if>
         </where>

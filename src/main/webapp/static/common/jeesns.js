@@ -301,15 +301,18 @@ var jeesnsDialog = {
             btn: ['确认', '取消'], // 按钮1和按钮2的回调分别是yes(btn1)和btn2，而从按钮3开始，则回调为btn3: function(){}，以此类推
             yes: function (index, layero) {  // 按钮【确认】的回调
                 // 获取弹出层页面的变量
-                // switchState = $(layero).find("iframe")[0].contentWindow.switchState;
                 // layero.find("iframe"); 找到iframe的jquery对象
                 // layero.find("iframe")[0]; 将jquery对象转化为dom对象
                 // contentWindow 获取当前iframe的内容window对象(dom对象)
                 var data = $(layero).find("iframe")[0].contentWindow.formData();
-                // 在dialog的form定义一个隐藏的btn，在dlg的按钮回调中查找并提交form
-                // $($(layero).find("iframe")[0]).find('#spec').val(); // 还没验证通过
                 //当点击‘确定’按钮的时候，获取弹出层返回的值
                 // var res = window["layui-layer-iframe" + index].callbackdata();
+                if (!data) {
+                    return;
+                }
+                // var body = layer.getChildFrame('body', index);  //巧妙的地方在这里哦
+                // var jform = $(body).find("#inputForm");
+
                 if (data && func) {
                     func(data);
                 }
