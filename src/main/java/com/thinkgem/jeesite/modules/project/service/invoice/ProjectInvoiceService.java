@@ -247,7 +247,7 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
 
     private void saveAddVerItem(ProjectInvoice projectInvoice) {
         for (ProjectInvoiceItem item : projectInvoice.getInvoiceItemList()) {
-            item.setInvoice(projectInvoice);
+            item.setInvoice(projectInvoice); // 重新设置一下申请单id
             item.incVer(); // ver + 1
             // item.preUpdate();
             // itemDao.update(item);

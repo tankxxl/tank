@@ -204,8 +204,10 @@ public class ProjectInvoiceController extends BaseController {
 
 	/**
 	 * 验证合同号是否重复
+	 * 使用于前端的jQuery validate插件，服务端只能输出 "true" 或 "false"，不能有其它输出.
+	 *
 	 * @param code
-	 * @return
+	 * @return true、false
 	 */
 	@ResponseBody
 	// @RequiresPermissions(value={"pur:wzmcgl:add","pur:wzmcgl:edit"},logical= Logical.OR)

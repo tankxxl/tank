@@ -6,13 +6,15 @@
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
+            // 二选一的情况，二个输入框，有一个输入就算通过。groups可以把多处报错放到一处，depends可以解决多选一的情况。
+            // jQuery validate插件生效的入口，在form组件上执行validate();方法，validate所有的配置都在方法参数里
 			$("#inputForm").validate({
-				submitHandler: function(form){
+				submitHandler: function(form){ //验证通过后的执行方法
 					loading('正在提交，请稍等...');
 					form.submit();
 				},
 				errorContainer: "#messageBox",
-				errorPlacement: function(error, element) {
+				errorPlacement: function(error, element) { //错误提示在什么地方
 					$("#messageBox").text("输入有误，请先更正。");
 					if (element.is(":checkbox")||element.is(":radio")||element.parent().is(".input-append")){
 						error.appendTo(element.parent().parent());
