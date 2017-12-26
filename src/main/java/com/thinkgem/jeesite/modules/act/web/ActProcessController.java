@@ -3,15 +3,11 @@
  */
 package com.thinkgem.jeesite.modules.act.web;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.stream.XMLStreamException;
-
+import com.thinkgem.jeesite.common.persistence.Page;
+import com.thinkgem.jeesite.common.persistence.RespEntity;
+import com.thinkgem.jeesite.common.utils.StringUtils;
+import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.act.service.ActProcessService;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +21,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.thinkgem.jeesite.common.persistence.Page;
-import com.thinkgem.jeesite.common.utils.StringUtils;
-import com.thinkgem.jeesite.common.web.BaseController;
-import com.thinkgem.jeesite.modules.act.service.ActProcessService;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.stream.XMLStreamException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 /**
  * 流程定义相关Controller
@@ -194,6 +193,31 @@ public class ActProcessController extends BaseController {
 			addMessage(redirectAttributes, "删除流程实例成功，实例ID=" + procInsId);
 		}
 		return "redirect:" + adminPath + "/act/process/running/";
+	}
+
+	/**
+	 * 删除流程实例
+	 * @param procInsId 流程实例ID
+	 * @param reason 删除原因
+	 */
+	@RequiresPermissions("act:process:edit")
+	@RequestMapping(value = "deleteProcInsAjax")
+	@ResponseBody
+	public Object deleteProcInsAjax(String procInsId, String reason, Model model) {
+
+		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面
+		RespEntity resp = new RespEntity(1, "成功修改！");
+
+		if (StringUtils.isEmpty(procInsId) || StringUtils.isEmpty(reason)) {
+			resp.setCode(-2);
+			resp.setMessage("参数错误");
+			return resp;
+		}
+		actProcessService.deleteProcIns(procInsId, reason);
+		resp.setCode(1);
+		resp.setMessage("删除流程实例成功，实例ID=" + procInsId);
+
+		return resp;
 	}
 	
 }

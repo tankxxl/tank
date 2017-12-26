@@ -142,9 +142,9 @@
 			</shiro:hasPermission>
 
 			<shiro:hasPermission name="apply:external:projectApplyExternal:onlySave">
-				<input id="btnSubmit" class="btn btn-primary" type="submit" value="保存"/>&nbsp;
+				<%--<input id="btnSubmit" class="btn btn-primary" type="submit" value="保存"/>&nbsp;--%>
 			</shiro:hasPermission>
-
+			&nbsp;&nbsp;&nbsp;&nbsp;
 			<input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.back()"/>
 		</div>
 		
