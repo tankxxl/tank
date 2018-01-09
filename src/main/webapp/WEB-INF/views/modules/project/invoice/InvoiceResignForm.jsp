@@ -497,7 +497,11 @@ function submitG() {
         return;
     }
     var json = form2js($("#inputForm")[0]);
-    var data = $("#table").bootstrapTable('getData');
+
+    // 重开票时只提交勾选的项
+    // var data = $("#table").bootstrapTable('getData');
+    var data = $("#table").bootstrapTable('getSelections');
+
     if (data === undefined || data.length == 0) {
         jeesnsDialog.tips("开票项不能为空。");
         return;

@@ -223,14 +223,13 @@ public class ProjectInvoiceController extends BaseController {
 	@RequestMapping(value = "hasCode")
 	public String hasCode(String oldCode, @RequestParam("contract.contractCode") String code) {
 
-		//@ todo
-		return "true";
-		// if (code!=null && code.equals(oldCode)) {
-		// 	return "true";
-		// } else if (code!=null && invoiceService.getItemByContractCode(code) == null) {
-		// 	return "true";
-		// }
-		// return "false";
+		// return "true";
+		if (code!=null && code.equals(oldCode)) {
+			return "true";
+		} else if (code!=null && invoiceService.getItemByContractCode(code) == null) {
+			return "true";
+		}
+		return "false";
 	}
 
 	/**

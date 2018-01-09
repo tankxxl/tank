@@ -6,6 +6,7 @@ package com.thinkgem.jeesite.modules.project.entity.invoice;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.common.collect.Lists;
 import com.thinkgem.jeesite.common.persistence.ActEntity;
+import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContractItem;
@@ -210,5 +211,15 @@ public class ProjectInvoice extends ActEntity<ProjectInvoice> {
 
     public void setFunc(String func) {
         this.func = func;
+    }
+
+
+    public boolean hasAct() {
+	    if (super.hasAct()) {
+	        if (StringUtils.isNotEmpty(this.getAct().getTaskId())) {
+	            return true;
+            }
+        }
+        return false;
     }
 }
