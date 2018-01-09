@@ -50,7 +50,7 @@
 	</bean>
 	
 	<!-- 基于注解的事务配置方式 配置 事务的Annotation 驱动，扫描@Transactional注解的类定义事务 -->
-    <!-- enable transaction annotation support -->
+    <!-- 一看前缀是tx:就知道这是跟事务相关的注解，enable transaction annotation support -->
 	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
     <!-- 事务还有一种传统声明式的配置方式，用到了<tx:advice>和<aop:config>等，要定义好多属性，并且指定应用事务的方法名 -->
     <!-- MyBatis end -->
@@ -67,6 +67,7 @@
     <!--<task:annotation-driven scheduler="scheduler" executor="executor" proxy-target-class="true"/>-->
     <task:executor id="executor" pool-size="10"/>
     <task:scheduler id="scheduler" pool-size="10"/>
+    <!-- 一看前缀是task:就知道这是要启动执行任务相关的注解 -->
     <task:annotation-driven scheduler="scheduler" executor="executor"/>
     <!-- spring 自带定时任务，有两种方式：
         1、基于xml配置，可以不用动代码修改定时测略

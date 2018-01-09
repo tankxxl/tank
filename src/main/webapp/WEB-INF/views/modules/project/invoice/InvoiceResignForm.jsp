@@ -124,6 +124,7 @@
 
     <table id="table" data-mobile-responsive="true"></table>
     <div class="form-actions">
+        <span>请选中需要重开的发票记录！</span>
         <shiro:hasPermission name="project:invoice:edit">
         <input id="btnSubmit" class="btn btn-primary" type="button" value="提交重开发票申请" @click="btn1()" />&nbsp;
         </shiro:hasPermission>

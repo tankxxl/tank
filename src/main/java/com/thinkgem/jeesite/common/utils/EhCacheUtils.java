@@ -9,6 +9,9 @@ import net.sf.ehcache.Element;
 
 /**
  * Cache工具类
+ *
+ * 此类跟CacheUtils类一样
+ *
  * @author ThinkGem
  * @version 2013-5-29
  */

@@ -57,10 +57,9 @@
 
         // 父页面调用，用来收集dialog中的值
         function formData() {
-            var valid = $("#inputForm").valid();
-            if (!valid) {
+            if (!$("#inputForm").valid()) {
                 jeesnsDialog.tips("输入有误。");
-                // return;
+                return;
             }
 
             var json = form2js($('#inputForm')[0], '.', false);
@@ -168,42 +167,42 @@
     <div class="control-group">
         <label class="control-label">规格型号:</label>
         <div class="controls">
-            <form:input path="spec" class="required"/>
+            <form:input path="spec"/>
         </div>
     </div>
 
     <div class="control-group">
         <label class="control-label">数量:</label>
         <div class="controls">
-            <form:input path="num" class="required"/>
+            <form:input path="num"/>
         </div>
     </div>
 
     <div class="control-group">
         <label class="control-label">单位:</label>
         <div class="controls">
-            <form:input path="unit" class="required"/>
+            <form:input path="unit"/>
         </div>
     </div>
 
     <div class="control-group">
         <label class="control-label">单价:</label>
         <div class="controls">
-            <form:input path="price" class="required"/>
+            <form:input path="price"/>
         </div>
     </div>
 
     <div class="control-group">
         <label class="control-label">金额:</label>
         <div class="controls">
-            <form:input path="amount" class="required"/>
+            <form:input path="amount"/>
         </div>
     </div>
 
     <div class="control-group">
         <label class="control-label">利润点:</label>
         <div class="controls">
-            <form:input path="profit" class="required"/>
+            <form:input path="profit"/>
         </div>
     </div>
 
@@ -214,12 +213,22 @@
         </div>
     </div>
 
+    <%--<c:if test="${projectInvoice.act.taskDefKey eq 'usertask_software_development_leader'}">--%>
+    <c:if test="${0 eq 1}">
     <div class="control-group">
         <label class="control-label">发票号:</label>
         <div class="controls">
-            <form:input path="invoiceNo" class="required"/>
+            <form:input path="invoiceNo" />
         </div>
     </div>
+
+    <div class="control-group">
+        <label class="control-label">回款日期:</label>
+        <div class="controls">
+            <form:input path="returnDate" />
+        </div>
+    </div>
+    </c:if>
 
     <div class="control-group">
         <label class="control-label">备注:</label>

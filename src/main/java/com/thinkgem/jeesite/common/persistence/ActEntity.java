@@ -49,7 +49,7 @@ public abstract class ActEntity<T> extends DataEntity<T> implements Serializable
 		super(id);
 	}
 	
-	@JsonIgnore
+	// @JsonIgnore
 	public Act getAct() {
 		if (act == null){
 			act = new Act();

@@ -164,6 +164,25 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
         }
     }
 
+    /**
+     * 单独修改一个item
+     *
+     * @param invoiceItem
+     */
+    @Transactional(readOnly = false)
+    public void saveItem(ProjectInvoiceItem invoiceItem) {
+
+        if (invoiceItem.getIsNewRecord()){
+            System.out.println();
+            invoiceItem.preInsert();
+            itemDao.insert(invoiceItem);
+        }else{
+            invoiceItem.preUpdate();
+            itemDao.update(invoiceItem);
+        }
+
+    }
+
     @Override
     @Transactional(readOnly = false)
     public void delete(ProjectInvoice projectInvoice) {

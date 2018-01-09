@@ -46,7 +46,7 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
     private String unit; // 单位(元、套、个)
     private String profit; // 利润点
     private String invoiceNo; // 发票号
-    private int ver; // 版本号
+    private int ver; // 版本号，数据库真实存在
     private int verNum; // 共有多少版本
     private String reason; // 重开票原因
 

@@ -10,6 +10,7 @@
 			$("#inputForm").validate({
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
+					debugger;
 					form.submit();
 				},
 				errorContainer: "#messageBox",
@@ -25,8 +26,14 @@
 		});
 
 	</script>
+
+    <script src="${ctxStatic}/vue/vue.min.js"></script>
+
+    <%--<script src="${ctxStatic}/modules/project/common.js"></script>--%>
+
 </head>
 <body>
+<div id="rrapp" v-cloak>
 <ul class="nav nav-tabs">
     <c:if test="${ empty projectInvoice.act.taskId}">
         <li><a href="${ctx}/project/invoice/">开票列表</a></li>
@@ -48,6 +55,8 @@
     <form:hidden id="flag" path="act.flag"/>
     <%--设置id，前端设置值，传回后端--%>
     <form:hidden id="contractId" path="contract.id" />
+    <form:hidden id="func" path="func" />
+
     <sys:message content="${message}"/>
 
     <table class="table-form">
@@ -89,13 +98,21 @@
         </c:if>
     </table>
 
+<%-- 定义一系列工具栏 --%>
+<div id="toolbar" class="btn-group">
+    <c:if test="${projectInvoice.act.taskDefKey eq 'usertask_finance_leader_temp'}">
+    <button id="btn_edit" @click="update()" type="button" class="btn btn-default" disabled>
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改
+    </button>
+    </c:if>
+</div>
     <table id="table" data-mobile-responsive="true"></table>
 
     <div class="form-actions">
         <shiro:hasPermission name="project:invoice:edit">
 
         <c:if test="${not empty projectInvoice.act.taskId && projectInvoice.act.status != 'finish'}">
-            <input id="btnSubmit" class="btn btn-primary" type="submit" value="同 意" onclick="$('#flag').val('yes')"/>&nbsp;&nbsp;&nbsp;&nbsp;
+            <input id="btnSubmit" class="btn btn-primary" type="submit" value="同 意" onclick="$('#flag').val('yes'); return check()"/>&nbsp;&nbsp;&nbsp;&nbsp;
             <input id="btnSubmit" class="btn btn-inverse" type="submit" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;&nbsp;
         </c:if>
         </shiro:hasPermission>&nbsp;&nbsp;
@@ -107,19 +124,11 @@
     </c:if>
 </form:form>
 <validate:jsValidate modelAttribute="projectInvoice"></validate:jsValidate>
+</div> <%-- end v-cloak --%>
 
 <script>
 
-// 执行代码(入口)
-$(function () {
-    //1.初始化Table
-    var oTable = new TableInit();
-    oTable.Init();
 
-    //2.初始化Button的点击事件
-    var oButtonInit = new ButtonInit();
-    oButtonInit.Init();
-});
 
 /**
  * index: 父表当前行的行索引
@@ -151,6 +160,15 @@ function InitSubTable(index, row, $detail) {
             titleTooltip: "tips",
             align: 'center',
             visible: false
+        }, {
+            field: 'rowId',
+            title: '序号',
+            align: 'center',
+            visible: true,
+            formatter: function(value, row, index) {
+                row.rowId = index;
+                return index + 1;
+            }
         }, {
             field: 'apply.projectName',
             title: '项目名称',
@@ -236,6 +254,7 @@ function InitSubTable(index, row, $detail) {
                 pagination: true,                   //是否显示分页（*）
                 sortName: "updateDate",             // 定义排序列
                 sortable: true,                     //是否启用排序
+                editable: true, // 开启编辑模式
                 sortOrder: "desc",                   //排序方式
                 sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
                 pageNumber: 1,                      //初始化加载第一页，默认第一页,并记录
@@ -258,15 +277,33 @@ function InitSubTable(index, row, $detail) {
                     return { classes: strclass };
 //				return strclass;
                 },
-                columns: [{
+                columns: [
+                    <c:if test="${projectInvoice.act.taskDefKey eq 'usertask_finance_leadertemp'}">
+                    {
+                        checkbox: true,
+                        visible: true                  //是否显示复选框
+                    },
+                    </c:if>
+
+                    {
                     field: 'apply.id',
                     title: '项目编号',
                     titleTooltip: "tips",
                     align: 'center',
                     visible: false
                 }, {
+                    field: 'rowId',
+                    title: '序号',
+                    align: 'center',
+                    visible: true,
+                    formatter: function(value, row, index) {
+                        row.rowId = index;
+                        return index + 1;
+                    }
+                }, {
                     field: 'apply.projectName',
                     title: '项目名称',
+                    edit:false,
                     resizable: true,
                     sortable: true,
                     cellStyle: function(value, row, index) {
@@ -318,7 +355,6 @@ function InitSubTable(index, row, $detail) {
 //                    return new Date(value).Format("yyyy-MM-dd");
                         return value;
                     }
-
                 }, {
                     field: 'unit',
                     title: '单位'
@@ -337,6 +373,43 @@ function InitSubTable(index, row, $detail) {
                 }, {
                     field: 'invoiceNo',
                     title: '发票号'
+                        <c:if test="${projectInvoice.act.taskDefKey eq 'usertask_finance_leader'}">
+                    ,
+                    editable: {
+                        type: 'text',
+                        title: '发票号',
+                        emptytext: '点我填写',
+                        validate: function (value) {
+                            if ($.trim(value) == '') {
+                                return '发票号不能为空!';
+                            }
+                        }
+                    }
+                        </c:if>
+                }, {
+                    field: 'returnDate',
+                    title: '回款日期',
+                    formatter: function (value, row, index) {
+                        if (value) {
+                            return new Date(value).Format("yyyy-MM-dd");
+                        } else {
+                            return value;
+                        }
+
+                    }
+                        <c:if test="${projectInvoice.act.taskDefKey eq 'usertask_finance_leader'}">
+                    ,
+                    editable: {
+                        type: 'date',
+                        title: '回款日期',
+                        format: 'yyyy-mm-dd',
+                        emptytext: '点我填写',
+                        viewformat: 'yyyy-mm-dd',
+                        datepicker: {
+                            weekStart: 1
+                        }
+                    }
+                        </c:if>
                 }, {
                     field: 'remarks',
                     title: '备注'
@@ -363,6 +436,18 @@ function InitSubTable(index, row, $detail) {
                     // ButtonInit.InitSubTable(index, row, $detail);
                     InitSubTable(index, row, $detail);
                 },
+                onEditableSave: function (field, row, oldValue, $el) {
+                    // field : 编辑的字段名称，如：returnDate、invoiceNo等
+                    // ajax提交更新
+                    // tips(row + oldValue + field);
+                    // jeesnsDialog.tips(row.returnDate  + JSON.stringify($el));
+
+                    $('#table').bootstrapTable("resetView");
+                    // $('#table').bootstrapTable( {} );
+                    // $('#table').bootstrapTable('updateRow', {index: row.rowId, row: row});
+                    jeesns.jeesnsAjax('${ctx}/project/invoice/saveItemAjax', 'POST', row);
+
+                }
             });
         }; // end Init()
 
@@ -405,25 +490,253 @@ function InitSubTable(index, row, $detail) {
         return oInit;
     }; // end var ButtonInit
 
-    // 全局函数
-    function search() {
-        var opt = {
-            url: 'doDynamicsList',
-            silent: true,
-            query:{
-                'sd.dno':searchForm.dno.value,
-                'sd.userInfo.userName':searchForm.userName.value,
-                'sd.userInfo.name':searchForm.name.value,
-                'sd.title':searchForm.title.value,
-                'sd.text':searchForm.text.value
-            }
-        };
-        // 需要先摧毁table
-        $("#table").bootstrapTable('destroy');
-        $('#table').bootstrapTable('refresh',opt);
+
+// 全局函数
+// 选择一条记录
+function getSelectedRow() {
+    var rows = getSelectedRows();
+    if (rows.length > 0)
+        return rows[0];
+    return null;
+}
+
+// 选择多条记录
+function getSelectedRows() {
+    return $('#table').bootstrapTable('getSelections');
+}
+
+function getSelectedIndexes() {
+    var index = [];
+    $('input[name="selectItemName"]:checked').each(function () {
+        index.push($(this).data('index'));
+    });
+    return index;
+//    alert('Checked row index: ' + index.join(', '));
+}
+
+function submitG() {
+    var jform = $("#inputForm");
+    jform.validate();
+    if (!jform.valid()) {
+        jeesnsDialog.tips("请修改。");
+        return;
     }
+    var json = form2js($("#inputForm")[0]);
+
+    debugger;
+    if (!check()) {
+        return;
+    }
+
+    var data = $("#table").bootstrapTable('getData');
+    if (data === undefined || data.length == 0) {
+        jeesnsDialog.tips("开票项不能为空。");
+        return;
+    }
+    json.invoiceItemList = data;
+    // console.log("form.json=" + JSON.stringify(json));
+    jeesns.jeesnsAjax('${ctx}/project/invoice/auditAjax', 'POST', json);
+}
+
+
+function check() {
+    // $('#flag').val('yes');
+    // 空值的个数
+    var nos =  $.map($('#table').bootstrapTable('getData'), function (row) {
+        // 空值才返回数据
+        if (!row.invoiceNo || !row.returnDate) {
+            return "qq";
+        }
+    });
+
+    // var tt =  $.map($('#table').bootstrapTable('getData'), function (row) {
+    //     return row.returnDate;
+    // });
+    // console.log("数据为：" + tt);
+    // 如果没有空值，返回true，提交form
+    if (nos.length == 0) {
+        // $("#inputForm").submit();
+        return true;
+    } else {
+        <c:if test="${projectInvoice.act.taskDefKey eq 'usertask_finance_leader'}">
+        jeesnsDialog.tips("请在表格中输入发票号和回款日期！");
+        // window.alert("请在表格中输入发票号和回款日期");
+        return false;
+        </c:if>
+
+        <c:if test="${projectInvoice.act.taskDefKey != 'usertask_finance_leader'}">
+        return true;
+        </c:if>
+    }
+}
+
+
+// 全局函数
+function search() {
+    var opt = {
+        url: 'doDynamicsList',
+        silent: true,
+        query:{
+            'sd.userInfo.userName':searchForm.userName.value,
+            'sd.text':searchForm.text.value
+        }
+    };
+    // 需要先摧毁table
+    $("#table").bootstrapTable('destroy');
+    $('#table').bootstrapTable('refresh',opt);
+}
+
+
+// 全局变量，用于给编辑框传递参数
+// 当前选中行
+row = null;
+// 当前选中行的index
+rowIdx = null;
+// 全局变量，定义vm变量，
+// Vue三部分：el、data、methods
+// 创建一个Vue实例或"ViewModel"，它连接View与Model
+var vm = new Vue({
+    el:'#rrapp',
+    data:{ // 这是我们的Model，也可以写到外面(全局)
+        showList: true,
+        newItem: {},
+        user:{
+            deptId:null,
+            roleIdList:[]
+        }
+    }, // data end
+    methods: {
+        btn1: function () {
+            $('#flag').val('yes');
+            $('#func').val('yes');
+            submitG();
+        },
+        btn2: function () {
+            $('#flag').val('no');
+            $('#func').val('no');
+            submitG();
+        },
+        btn3: function () {
+            $('#flag').val('saveFinishProcess');
+            $('#func').val('saveFinishProcess');
+            submitG();
+        },
+        btn4: function () {
+            $('#flag').val('saveOnly');
+            $('#func').val('saveOnly');
+            submitG();
+        },
+        myAddClick: function(){ // vue增加
+            row = null;
+            rowIndex = null;
+            jeesnsDialog.open('${ctx}/project/invoice/addItemView',
+                '增加开票项', '600px', '650px', function(data) {
+                    $('#table').bootstrapTable('append', data);
+                });
+        },
+
+        query: function () {
+            vm.reload();
+        },
+        add: function() {
+            vm.title = "新增";
+            vm.roleList = {};
+
+            $('#table').bootstrapTable('append', vm.newItem);
+            vm.newItem = {};
+            // 方法内 'this' 指向 vm
+//            this.message = 'hello';
+        },
+        getDept: function() {
+            //加载部门树
+            $.get(baseURL + "sys/dept/list", function(r){
+                ztree = $.fn.zTree.init($("#deptTree"), setting, r);
+                var node = ztree.getNodeByParam("deptId", vm.user.deptId);
+                if(node != null){
+                    ztree.selectNode(node);
+                    vm.user.deptName = node.name;
+                }
+            })
+        },
+        update: function() {
+            // 全局变量，用于给iframe的dialog传值，修改时用
+            var indexes = getSelectedIndexes();
+            if (!isArraySingle(indexes)) {
+                jeesnsDialog.tips("只能选择一条数据");
+                return;
+            }
+            row = getSelectedRow();
+            rowIndex = indexes[0];
+
+            jeesnsDialog.open('${ctx}/project/invoice/addItemView?id=' + row.id,
+                '增加开票项', '600px', '650px', function(data) {
+                    $('#table').bootstrapTable('updateRow', {index: rowIndex, row: data});
+                });
+//            vm.getUser(userId);
+//            //获取角色信息
+//            this.getRoleList();
+        },
+        del: function () {
+            var userIds = getSelectedRows();
+            confirm('确定要删除选中的记录？', function(){
+                jeesns.jeesnsAjax('${ctx}/sys/user/delete', 'POST', userIds, function(r){
+                    vm.reload();
+                });
+            });
+        },
+        saveOrUpdate: function () {
+            var url = vm.user.userId == null ? "sys/user/save" : "sys/user/update";
+            jeesns.jeesnsAjax(url, 'POST', vm.user, function(r){
+                vm.reload();
+            });
+        },
+        deptTree: function(){
+            layer.open({
+                type: 1,
+                offset: '50px',
+                skin: 'layui-layer-molv',
+                title: "选择部门",
+                area: ['300px', '450px'],
+                shade: 0,
+                shadeClose: false,
+                content: jQuery("#deptLayer"),
+                btn: ['确定', '取消'],
+                btn1: function (index) {
+                    var node = ztree.getSelectedNodes();
+                    //选择上级部门
+                    vm.user.deptId = node[0].deptId;
+                    vm.user.deptName = node[0].name;
+
+                    layer.close(index);
+                }
+            });
+        }
+    }  // method end
+});  // end vm
 
 </script>
 
+<script src="${ctxStatic}/bootstrap-table/dist/extensions/mobile/bootstrap-table-mobile.js"></script>
+<script src="${ctxStatic}/bootstrap-table/dist/extensions/resizable/bootstrap-table-resizable.js"></script>
+<script src="${ctxStatic}/bootstrap-table/dist/extensions/editable/bootstrap-table-editable.js"></script>
+
+
+<link href="${ctxStatic}/x-editable-1.5.1/dist/bootstrap-editable/css/bootstrap-editable.css" rel="stylesheet" />
+<script src="${ctxStatic}/x-editable-1.5.1/dist/bootstrap-editable/js/bootstrap-editable.min.js"></script>
+
+<script>
+    // 执行代码(入口)
+    $(function () {
+        //1.初始化Table
+        var oTable = new TableInit();
+        oTable.Init();
+
+        //2.初始化Button的点击事件
+        var oButtonInit = new ButtonInit();
+        oButtonInit.Init();
+    });
+</script>
+
 </body>
+
 </html>

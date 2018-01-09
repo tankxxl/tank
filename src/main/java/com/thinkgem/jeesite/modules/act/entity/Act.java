@@ -146,7 +146,8 @@ public class Act extends BaseEntity<Act> {
 	public void setProcDef(ProcessDefinition procDef) {
 		this.procDef = procDef;
 	}
-	
+
+	@JsonIgnore
 	public String getProcDefName() {
 		return procDef.getName();
 	}
@@ -310,6 +311,7 @@ public class Act extends BaseEntity<Act> {
 		return vars;
 	}
 
+	@JsonIgnore
 	public void setVars(Variable vars) {
 		this.vars = vars;
 	}
@@ -318,6 +320,7 @@ public class Act extends BaseEntity<Act> {
 	 * 通过Map设置流程变量值
 	 * @param map
 	 */
+	@JsonIgnore
 	public void setVars(Map<String, Object> map) {
 		this.vars = new Variable(map);
 	}

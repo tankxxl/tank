@@ -189,6 +189,15 @@ function InitSubTable(index, row, $detail) {
             align: 'center',
             visible: false
         }, {
+            field: 'rowId',
+            title: '序号',
+            align: 'center',
+            visible: true,
+            formatter: function(value, row, index) {
+                row.rowId = index;
+                return index + 1;
+            }
+        }, {
             field: 'apply.projectName',
             title: '项目名称',
             resizable: true,
@@ -307,6 +316,15 @@ var TableInit = function () {
                 titleTooltip: "tips",
                 align: 'center',
                 visible: false
+            }, {
+                field: 'rowId',
+                title: '序号',
+                align: 'center',
+                visible: false,
+                formatter: function(value, row, index) {
+                    row.rowId = index;
+                    return index + 1;
+                }
             }, {
                 field: 'apply.projectName',
                 title: '项目名称',
@@ -545,7 +563,12 @@ var ButtonInit = function () {
             $("#btn_delete").prop('disabled', !$("#table").bootstrapTable('getSelections').length);
             $("#btn_edit").prop('disabled', !$("#table").bootstrapTable('getSelections').length);
             // $("#btn_resign").prop('disabled', !$("#table").bootstrapTable('getSelections').length);
+        });
 
+        // 监听点击事件获取当前行号
+        $("#table").on('click-row.bs.table', function(e, row, $element) {
+            var index = $element.data('index');
+            console.log("当前行号=" + index);
         });
 
         $("#btn_delete").click(function () {
@@ -642,6 +665,7 @@ function submitG() {
     json.invoiceItemList = data;
     // console.log("form.json=" + JSON.stringify(json));
     jeesns.jeesnsAjax('${ctx}/project/invoice/saveAjax', 'POST', json);
+    <%--jeesns.jeesnsAjax('${ctx}/project/invoice/test2', 'POST', json);--%>
 }
 // 全局变量，用于给编辑框传递参数
 // 当前选中行

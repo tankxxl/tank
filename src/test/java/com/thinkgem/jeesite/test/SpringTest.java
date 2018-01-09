@@ -1,6 +1,8 @@
 package com.thinkgem.jeesite.test;
 
+import com.thinkgem.jeesite.modules.mail.service.MailService;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
 * Created by rgz on 09/12/2016.
@@ -14,8 +16,8 @@ public class SpringTest extends BaseTestCase {
 //    @Autowired
 //    ScheduledTask task;
 
-//    @Autowired
-//    MailService mailService;
+   @Autowired
+   MailService mailService;
 
 
    @Test
@@ -31,8 +33,8 @@ public class SpringTest extends BaseTestCase {
 
    @Test
    public void testSpringAsync() throws InterruptedException {
-//        mailService.doBusiness();
-//        logger.info("test completed.");
+       mailService.doBusiness();
+       logger.info("test completed.");
    }
 
 

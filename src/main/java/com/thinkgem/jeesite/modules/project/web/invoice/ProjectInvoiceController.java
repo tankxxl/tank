@@ -118,6 +118,10 @@ public class ProjectInvoiceController extends BaseController {
 
 		model.addAttribute("projectInvoice", projectInvoice);
 
+		String jsonStr = JsonMapper.getInstance().toJson(projectInvoice);
+		// ProjectInvoice invoice = JsonMapper.getInstance().fromJson(jsonStr, ProjectInvoice.class);
+		System.out.println(jsonStr);
+
 		// 待办、已办入口界面传的act是一样的，只是act中的status不一样。
 
 		if (projectInvoice.getIsNewRecord()) {
@@ -126,9 +130,14 @@ public class ProjectInvoiceController extends BaseController {
 				// 入口2：从已办任务界面来的请求，1、实体是新建的，2、act是activi框架填充的。
 				// 此时实体应该由流程id来查询。
 				view = vViewAudit; // "projectBiddingView";
-				projectInvoice = invoiceService.findByProcInsId(projectInvoice);
+				projectInvoice = invoiceService.findByProcInsId(projectInvoice); // 只是加载主表记录
 				if (projectInvoice == null) {
 					projectInvoice = new ProjectInvoice();
+					model.addAttribute("projectInvoice", projectInvoice);
+					return prefix + view;
+				}
+				if (StringUtils.isNotEmpty(projectInvoice.getId())) {
+					projectInvoice = invoiceService.get(projectInvoice.getId());
 				}
 				model.addAttribute("projectInvoice", projectInvoice);
 			}
@@ -213,12 +222,15 @@ public class ProjectInvoiceController extends BaseController {
 	// @RequiresPermissions(value={"pur:wzmcgl:add","pur:wzmcgl:edit"},logical= Logical.OR)
 	@RequestMapping(value = "hasCode")
 	public String hasCode(String oldCode, @RequestParam("contract.contractCode") String code) {
-		if (code!=null && code.equals(oldCode)) {
-			return "true";
-		} else if (code!=null && invoiceService.getItemByContractCode(code) == null) {
-			return "true";
-		}
-		return "false";
+
+		//@ todo
+		return "true";
+		// if (code!=null && code.equals(oldCode)) {
+		// 	return "true";
+		// } else if (code!=null && invoiceService.getItemByContractCode(code) == null) {
+		// 	return "true";
+		// }
+		// return "false";
 	}
 
 	/**
@@ -337,7 +349,7 @@ public class ProjectInvoiceController extends BaseController {
 		String flag = jsonStr;
 		ProjectInvoice invoice = JsonMapper.getInstance().fromJson(jsonStr, ProjectInvoice.class);
 		System.out.println(flag);
-		System.out.println(invoice.getId());
+		// System.out.println(invoice.getId());
 		return "test";
 	}
 
@@ -383,6 +395,72 @@ public class ProjectInvoiceController extends BaseController {
 			invoiceService.saveAudit(projectInvoice);
 		}
 		return "redirect:" + adminPath + "/act/task/todo/";
+	}
+
+	/**
+	 * ajax前端提交，要手动收集form、table中的数据，所以使用ajax提交
+	 * @param projectInvoice
+	 * @param model
+	 * @param redirectAttributes
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequiresPermissions("project:invoice:edit")
+	@RequestMapping(value = "auditAjax")
+	@ResponseBody
+	public RespEntity auditAjax(@RequestBody ProjectInvoice projectInvoice,
+							   Model model, RedirectAttributes redirectAttributes,
+							   HttpServletRequest request, HttpServletResponse response) {
+
+		String path = request.getContextPath();
+		// form提交时，使用act.flag字段
+		String flag = projectInvoice.getAct().getFlag();
+		// ajax json传输时使用func字段
+		flag = projectInvoice.getFunc();
+		projectInvoice.getAct().setFlag(flag);
+
+		// flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
+
+		if ("save".equalsIgnoreCase(projectInvoice.getAct().getFlag())) {
+			invoiceService.save(projectInvoice);
+		} else {
+			invoiceService.saveAudit(projectInvoice);
+		}
+
+		String url = path + "/" + adminPath + "/act/task/todo/";
+
+		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面
+		RespEntity respEntity = new RespEntity(2, "审批成功！");
+		respEntity.setUrl(url);
+		return respEntity;
+	}
+
+
+	/**
+	 * ajax前端提交，要手动收集form、table中的数据，所以使用ajax提交
+	 * @param projectInvoice
+	 * @param model
+	 * @param redirectAttributes
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "saveItemAjax")
+	@ResponseBody
+	public RespEntity saveItemAjax(@RequestBody ProjectInvoiceItem invoiceItem,
+								Model model, RedirectAttributes redirectAttributes,
+								HttpServletRequest request, HttpServletResponse response) {
+
+		// String path = request.getContextPath();
+		// String url = path + "/" + adminPath + "/act/task/todo/";
+
+		invoiceService.saveItem(invoiceItem);
+
+		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面
+		RespEntity respEntity = new RespEntity(1, "修改成功！");
+		// respEntity.setUrl(url);
+		return respEntity;
 	}
 
 	/**

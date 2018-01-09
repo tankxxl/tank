@@ -9,13 +9,18 @@ import net.sf.ehcache.Element;
 
 /**
  * Cache工具类
+ *
+ * 使用ehcache组件来处理缓存
+ * 此工具类为包装类，对外暴露友好的接口，把它当Map使用就行
+ *
  * @author ThinkGem
  * @version 2013-5-29
  */
 public class CacheUtils {
-	
+	// cacheManager组件由Spring创建
 	private static CacheManager cacheManager = ((CacheManager)SpringContextHolder.getBean("cacheManager"));
 
+	// 可以把cache当成数据库或字典，此处为表名或类型
 	private static final String SYS_CACHE = "sysCache";
 
 	/**
