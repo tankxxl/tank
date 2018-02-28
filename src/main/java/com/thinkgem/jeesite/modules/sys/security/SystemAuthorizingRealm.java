@@ -194,6 +194,8 @@ public class SystemAuthorizingRealm extends AuthorizingRealm {
 	}
 	
 	/**
+	 * Bean的初始化和销毁
+	 * Spring对Bean生命周期的操作提供了支持。
 	 * 设定密码校验的Hash算法与迭代次数
 	 */
 	@PostConstruct

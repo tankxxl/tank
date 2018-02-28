@@ -15,10 +15,14 @@ import org.springframework.stereotype.Service;
 /**
  *
  * spring有两个核心接口：BeanFactory和ApplicationContext，其中ApplicationContext是BeanFactory的子接口。
+ * Spring最重要的概念就是：容器，最核心的资产就是BeanFactory
+ * BeanFactory是厨师，他的菜单就是bean的配置文件
+ * 除BeanFactory的概念之外，还有上下文ApplicationContext的概念
+ * 所以ApplicationContext继承于BeanFactory
  * 他们都可代表Spring容器，Spring容器是生成Bean实例的工厂，并且管理容器中的Bean。
  * 我们一般不使用BeanFactory实例作为spring容器，而是使用ApplicationContext实例作为容器，它增强了BeanFactory的功能。
  *
- * 以静态变量保存Spring ApplicationContext, 可在任何代码任何地方任何时候取出ApplicaitonContext.
+ * 以静态变量保存Spring ApplicationContext, 可在任何代码任何地方任何时候取出ApplicationContext.
  *
  * 实现BeanFactoryAware或ApplicationContextAware接口的Bean，就拥有访问BeanFactory容器的能力
  * 实现BeanFactoryAware接口的Bean实例将会拥有对容器的访问能力。

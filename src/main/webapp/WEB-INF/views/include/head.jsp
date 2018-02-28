@@ -1,5 +1,7 @@
-<%@ page contentType="text/html;charset=UTF-8" isELIgnored="false" %>
+<%@ page pageEncoding="UTF-8" contentType="text/html;charset=UTF-8" isELIgnored="false" %>
+<%-- above is Servlet Page Encoding, tells JVM  --%>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<%-- above is HTML Page Encoding, tell the browser how to handle page characters --%>
 <meta name="author" content="http://www.jicdata.com/"/>
 <meta name="renderer" content="webkit">
 <meta http-equiv="X-UA-Compatible" content="IE=8,IE=9,IE=10" />
