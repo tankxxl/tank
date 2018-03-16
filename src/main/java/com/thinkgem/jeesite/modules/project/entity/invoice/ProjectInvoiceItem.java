@@ -52,6 +52,8 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
 
     private Date returnDate;	// 预计回款日期
 
+    private String invalid; // 作废标志0有效1作废
+
 
     public ProjectInvoiceItem() {
         super();
@@ -254,5 +256,13 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
     // 版本号自增1
     public void incVer() {
         setVer(this.getVer() + 1);
+    }
+
+    public String getInvalid() {
+        return invalid;
+    }
+
+    public void setInvalid(String invalid) {
+        this.invalid = invalid;
     }
 }

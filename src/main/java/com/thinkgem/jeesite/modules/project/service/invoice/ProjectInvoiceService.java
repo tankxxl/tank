@@ -74,6 +74,22 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
         return invoice;
     }
 
+    /**
+     * 单独获得item进行编辑，弹出dialog专门编辑item
+     * @param id itemId，从前台传入
+     * @return
+     */
+    public ProjectInvoiceItem getItem(String id) {
+        // return super.get(id);
+        ProjectInvoiceItem item = itemDao.get(id);
+        // in case param id is not invoiceItem's id.
+        if (item == null) {
+            item = new ProjectInvoiceItem();
+        }
+        return item;
+    }
+
+    // 根据某个合同申请号id查找全部版本
     public List<ProjectInvoiceItem> findVerList(String contractId) {
         if (StringUtils.isEmpty(contractId)) {
             return new ArrayList<>();
@@ -96,20 +112,7 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
         return items;
     }
 
-    /**
-     * 单独获得item进行编辑，弹出dialog专门编辑item
-     * @param id itemId，从前台传入
-     * @return
-     */
-    public ProjectInvoiceItem getItem(String id) {
-        // return super.get(id);
-        ProjectInvoiceItem item = itemDao.get(id);
-        // in case param id is not invoiceItem's id.
-        if (item == null) {
-            item = new ProjectInvoiceItem();
-        }
-        return item;
-    }
+
 
     public List<ProjectInvoice> findListByContractId(ProjectInvoice projectInvoice) {
         return dao.findListByContractId(projectInvoice);
@@ -119,7 +122,7 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
         return returnDao.findListByContractId(projectInvoice);
     }
 
-    // 流程启动之前，设置map
+    // 流程相关，流程启动之前，设置map
     @Override
     public void setupVariable(ProjectInvoice projectInvoice, Map<String, Object> vars) {
         vars.put(ActUtils.VAR_TITLE, projectInvoice.getRemarks() );
@@ -128,23 +131,23 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
         } else {
             vars.put(ActUtils.VAR_RESIGN, "0");
         }
-
     }
 
-    // 审批过程中
+    // 审批过程中，可以保存业务数据
     @Override
     public void processAudit(ProjectInvoice projectInvoice, Map<String, Object> vars) {
         // 对不同环节的业务逻辑进行操作
         String taskDefKey = projectInvoice.getAct().getTaskDefKey();
         if ( UserTaskType.UT_SPECIALIST.equals(taskDefKey) ) {
-            // 	// 保存合同编号
-            // 	save(projectContract);
+            // 保存合同编号
+            // save(projectInvoice);
         }
     }
 
-    // 审批结束时，更新实体的字段
+    // 审批结束时，可以保存业务数据
     @Override
     public void processAuditEnd(ProjectInvoice projectInvoice) {
+        // save(projectInvoice);
     }
 
     /**
@@ -155,32 +158,14 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
     // 方法上的Transactional会覆盖类上声明的事务
     @Transactional(readOnly = false) // 增删改都要写readOnly=false
     public void save(ProjectInvoice projectInvoice) {
-        // isNewRecord = projectInvoice.getIsNewRecord();
+        // 父类保存自己
         super.save(projectInvoice);
+        // ，保存自己的孩子，如果是重开流程
         if ( "resign".equals(projectInvoice.getFunc()) ) {
             saveAddVerItem(projectInvoice);
         } else {
-            saveItem(projectInvoice);
+            saveItems(projectInvoice);
         }
-    }
-
-    /**
-     * 单独修改一个item
-     *
-     * @param invoiceItem
-     */
-    @Transactional(readOnly = false)
-    public void saveItem(ProjectInvoiceItem invoiceItem) {
-
-        if (invoiceItem.getIsNewRecord()){
-            System.out.println();
-            invoiceItem.preInsert();
-            itemDao.insert(invoiceItem);
-        }else{
-            invoiceItem.preUpdate();
-            itemDao.update(invoiceItem);
-        }
-
     }
 
     @Override
@@ -197,21 +182,22 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
 
     /**
      * 根据合同号获取开票项是否重了
-     * 一个合同号只能发起一次开票流程，之后只能走重开票流程
+     * 一个合同号只能发起一次开票流程，之后只能走重开票流程，
+     * 说错了，可以任意发起开票、重开流程
      * @param contractCode
      * @return
      */
-
     public ProjectInvoiceItem getItemByContractCode(String contractCode) {
         ProjectInvoiceItem item = new ProjectInvoiceItem();
         ProjectContract contract = new ProjectContract();
         item.setContract(contract);
         contract.setContractCode(contractCode);
 
-        return  itemDao.findByContractCode(item);
+        return itemDao.findByContractCode(item);
     }
 
-    private void saveItem(ProjectInvoice projectInvoice) {
+    // 保存申请单中所有的开票
+    private void saveItems(ProjectInvoice projectInvoice) {
 
         for (ProjectInvoiceItem item : projectInvoice.getInvoiceItemList()) {
 
@@ -264,6 +250,7 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
         }
     }
 
+    // 增加一条开票，并增加版本号
     private void saveAddVerItem(ProjectInvoice projectInvoice) {
         for (ProjectInvoiceItem item : projectInvoice.getInvoiceItemList()) {
             item.setInvoice(projectInvoice); // 重新设置一下申请单id
@@ -273,6 +260,24 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
             item.preInsert();
             itemDao.insert(item); // 新增数据，并增加版本号
         }
+    }
+
+    /**
+     * 单独修改一个item
+     *
+     * @param invoiceItem
+     */
+    @Transactional(readOnly = false)
+    public void saveItem(ProjectInvoiceItem invoiceItem) {
+
+        if (invoiceItem.getIsNewRecord()){
+            invoiceItem.preInsert();
+            itemDao.insert(invoiceItem);
+        }else{
+            invoiceItem.preUpdate();
+            itemDao.update(invoiceItem);
+        }
+
     }
 
 }

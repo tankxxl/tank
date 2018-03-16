@@ -31,6 +31,7 @@
 
         a.ver AS "ver",
         a.reason AS "reason",
+        a.invalid AS "invalid",
 
         a.id AS "id",
         a.create_by AS "createBy.id",
@@ -73,6 +74,7 @@
         a.ver AS "ver",
         t2.num AS "verNum",
         a.reason AS "reason",
+        a.invalid AS "invalid",
 
         a.id AS "id",
         a.create_by AS "createBy.id",
@@ -237,6 +239,7 @@
 
         ver,
         reason,
+        invalid,
 
         create_by,
         create_date,
@@ -272,6 +275,7 @@
 
         #{ver},
         #{reason},
+        #{invalid},
 
         #{createBy.id},
         #{createDate},
@@ -310,6 +314,7 @@
 
         ver = #{ver},
         reason = #{reason},
+        invalid = #{invalid},
 
         update_by = #{updateBy.id},
         update_date = #{updateDate},
