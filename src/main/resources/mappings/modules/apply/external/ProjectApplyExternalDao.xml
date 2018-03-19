@@ -35,6 +35,7 @@
 		a.finish_flag AS "finishFlag",
 		
 		a.outsourcing AS "outsourcing",
+		a.resource AS "resource",
 
 		a.docPath AS "docPath",
 		
@@ -200,6 +201,7 @@
 			pro_stage,
 			proc_ins_id,
 			process_status,
+			resource,
 
 			docPath
 		) VALUES (
@@ -228,6 +230,7 @@
 			#{proStage},
 			#{processInstanceId},
 			#{processStatus},
+			#{resource},
 
 			#{docPath}
 		)
@@ -263,6 +266,7 @@
 			finish_flag = #{finishFlag},
 			
 			outsourcing = #{outsourcing},
+			resource = #{resource},
 
 			docPath = #{docPath}
 			

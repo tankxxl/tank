@@ -170,7 +170,7 @@
         <%--<c:if test="${}"--%>
 		<table class="table-form">
 			<tr>
-				<td colspan="2" class="tit">项目编号${rand}</td>
+				<td colspan="2" class="tit">项目编号</td>
 				<td class="tit_content" colspan="3">
 
 					<shiro:hasPermission name="apply:external:projectApplyExternal:onlySave">
@@ -395,10 +395,14 @@
 					</div>
 				</td>
 			</tr>
-			<%--<tr>--%>
-				<%--<td class="tit">资源需求</td>--%>
-				<%--<td colspan="5"></td>--%>
-			<%--</tr>--%>
+			<tr>
+				<td class="tit">资源需求</td>
+				<td colspan="6">
+					<div style="white-space:nowrap;">
+						<form:textarea path="resource" style="width:98%"  htmlEscape="false" maxlength="255"/>
+					</div>
+				</td>
+			</tr>
 			
 			<tr>
 				<td class="tit" >文件附件</td>
@@ -418,8 +422,7 @@
                     1、项目预计合同金额默认以人民币为单位，以其他货币为单位时，应注明货币单位；<br>
                     2、项目的预计毛利率原则上不得低于公司规定的毛利率标准，若预计毛利率低于公司要求标准时，须对预计毛利率不达标的原因进行说明；<br>
                     3、如对项目信息有更详细的说明或者其他相关文档的，可使用文件附件的形式提交；<br>
-                    4、超过分管领导授权的项目需公司总经理进行审批；<br>
-                    5、项目立项审批完成后，由项目管理部专人负责定时打印本表进行存档。
+                    4、超过分管领导授权的项目需公司总经理进行审批；
 				</div>
 				</td>
 			</tr>

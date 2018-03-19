@@ -57,6 +57,8 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 	
 	private String outsourcing; // 此项目是否有外包
 
+	private String resource; // 资源需求，山东使用
+
     private String docPath; // 项目路径标识，参与附件路径，uuid
 
     public String getDocPath() {
@@ -308,6 +310,12 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 	public void setOutsourcing(String outsourcing) {
 		this.outsourcing = outsourcing;
 	}
-	
-	
+
+	public String getResource() {
+		return resource;
+	}
+
+	public void setResource(String resource) {
+		this.resource = resource;
+	}
 }
