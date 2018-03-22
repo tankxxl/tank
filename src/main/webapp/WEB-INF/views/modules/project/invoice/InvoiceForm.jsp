@@ -142,7 +142,7 @@
 
     <%-- 定义一系列工具栏 --%>
     <div id="toolbar" class="btn-group">
-        <a href="${ctx}/project/invoice/add" func="func()"
+        <a href="${ctx}/project/invoice/add" callback="func()"
            width="800px" height="600px" target="_jeesnsOpen" title="添加">
             <label class="btn btn-default">添加</label> </a>
         <%--<button id="btn_add" type="button" class="btn btn-default">--%>

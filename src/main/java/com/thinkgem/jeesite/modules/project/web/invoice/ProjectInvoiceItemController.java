@@ -15,8 +15,7 @@ import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoice;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoiceItem;
-import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoiceReturn;
-import com.thinkgem.jeesite.modules.project.service.invoice.ProjectInvoiceService;
+import com.thinkgem.jeesite.modules.project.service.invoice.ProjectInvoiceItemService;
 import com.thinkgem.jeesite.modules.sys.utils.ExportUtils;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -41,7 +40,8 @@ import java.util.Map;
 public class ProjectInvoiceItemController extends BaseController {
 
 	@Autowired
-	private ProjectInvoiceService invoiceService;
+	private ProjectInvoiceItemService invoiceItemService;
+
 	@Autowired
 	private ActTaskService actTaskService;
 
@@ -68,35 +68,42 @@ public class ProjectInvoiceItemController extends BaseController {
      * @return
      */
 	@ModelAttribute
-	public ProjectInvoice get(@RequestParam(required=false) String id) {
-        ProjectInvoice entity = null;
+	public ProjectInvoiceItem get(@RequestParam(required=false) String id) {
+		ProjectInvoiceItem entity = null;
 		if (StringUtils.isNotBlank(id)){
-			entity = invoiceService.get(id);
+			entity = invoiceItemService.get(id);
 		}
 		if (entity == null){
-			entity = new ProjectInvoice();
+			entity = new ProjectInvoiceItem();
 		}
 		return entity;
-	}
-	@ModelAttribute
-	public ProjectInvoiceItem getItem(@RequestParam(required = false) String id) {
-		ProjectInvoiceItem item = null;
-		if (StringUtils.isNotBlank(id)){
-			item = invoiceService.getItem(id);
-		}
-		if (item == null){
-			item = new ProjectInvoiceItem();
-		}
-		return item;
 	}
 
 	@RequiresPermissions("project:invoice:view")
 	@RequestMapping(value = {"list", ""})
-	public String list(ProjectInvoice projectInvoice, HttpServletRequest request, HttpServletResponse response, Model model) {
+	public String list(ProjectInvoiceItem projectInvoiceItem, HttpServletRequest request, HttpServletResponse response, Model model) {
 		// projectInvoice.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
 		// Page<ProjectInvoice> page = invoiceService.findPage(new Page<ProjectInvoice>(request, response), projectInvoice);
 		// model.addAttribute("page", page);
 		return prefix + vList;
+	}
+
+	/**
+	 * ajax，只返回数据列表
+	 * @param projectInvoiceItem
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "table")
+	@ResponseBody
+	public Page<ProjectInvoiceItem> table(ProjectInvoiceItem projectInvoiceItem, HttpServletRequest request, HttpServletResponse response, Model model) {
+		projectInvoiceItem.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+		Page<ProjectInvoiceItem> page = invoiceItemService.findPage(new Page<ProjectInvoiceItem>(request, response), projectInvoiceItem);
+		model.addAttribute("page", page);
+		// return "modules/apply/external/DemoList";
+		return page;
 	}
 
 	/**
@@ -129,14 +136,14 @@ public class ProjectInvoiceItemController extends BaseController {
 				// 入口2：从已办任务界面来的请求，1、实体是新建的，2、act是activi框架填充的。
 				// 此时实体应该由流程id来查询。
 				view = vViewAudit; // "projectBiddingView";
-				projectInvoice = invoiceService.findByProcInsId(projectInvoice); // 只是加载主表记录
+				// projectInvoice = invoiceService.findByProcInsId(projectInvoice); // 只是加载主表记录
 				if (projectInvoice == null) {
 					projectInvoice = new ProjectInvoice();
 					model.addAttribute("projectInvoice", projectInvoice);
 					return prefix + view;
 				}
 				if (StringUtils.isNotEmpty(projectInvoice.getId())) {
-					projectInvoice = invoiceService.get(projectInvoice.getId());
+					// projectInvoice = invoiceService.get(projectInvoice.getId());
 				}
 				model.addAttribute("projectInvoice", projectInvoice);
 			}
@@ -191,10 +198,10 @@ public class ProjectInvoiceItemController extends BaseController {
 	@RequestMapping(value = "modify")
 	public String modify(ProjectInvoice projectInvoice, Model model) {
 		model.addAttribute("projectInvoice", projectInvoice);
-        List<ProjectInvoice> invoiceList = invoiceService.findListByContractId(projectInvoice);
-        model.addAttribute("projectInvoiceList", invoiceList);
-		List<ProjectInvoiceReturn> returnList = invoiceService.findReturnByContractId(projectInvoice);
-		model.addAttribute("returnList", returnList);
+        // List<ProjectInvoice> invoiceList = invoiceService.findListByContractId(projectInvoice);
+        // model.addAttribute("projectInvoiceList", invoiceList);
+		// List<ProjectInvoiceReturn> returnList = invoiceService.findReturnByContractId(projectInvoice);
+		// model.addAttribute("returnList", returnList);
 		return prefix + vEdit;
 	}
 
@@ -202,10 +209,10 @@ public class ProjectInvoiceItemController extends BaseController {
 	@RequestMapping(value = "returnForm")
 	public String returnForm(ProjectInvoice projectInvoice, Model model) {
 		model.addAttribute("projectInvoice", projectInvoice);
-		List<ProjectInvoice> invoiceList = invoiceService.findListByContractId(projectInvoice);
-		model.addAttribute("projectInvoiceList", invoiceList);
-		List<ProjectInvoiceReturn> returnList = invoiceService.findReturnByContractId(projectInvoice);
-		model.addAttribute("returnList", returnList);
+		// List<ProjectInvoice> invoiceList = invoiceService.findListByContractId(projectInvoice);
+		// model.addAttribute("projectInvoiceList", invoiceList);
+		// List<ProjectInvoiceReturn> returnList = invoiceService.findReturnByContractId(projectInvoice);
+		// model.addAttribute("returnList", returnList);
 
 		return "modules/project/invoice/InvoiceViewReturnForm";
 	}
@@ -222,13 +229,14 @@ public class ProjectInvoiceItemController extends BaseController {
 	@RequestMapping(value = "hasCode")
 	public String hasCode(String oldCode, @RequestParam("contract.contractCode") String code) {
 
-		// return "true";
-		if (code!=null && code.equals(oldCode)) {
-			return "true";
-		} else if (code!=null && invoiceService.getItemByContractCode(code) == null) {
-			return "true";
-		}
-		return "false";
+		return "true";
+
+		// if (code!=null && code.equals(oldCode)) {
+		// 	return "true";
+		// } else if (code!=null && invoiceService.getItemByContractCode(code) == null) {
+		// 	return "true";
+		// }
+		// return "false";
 	}
 
 	/**
@@ -240,7 +248,8 @@ public class ProjectInvoiceItemController extends BaseController {
 	// @RequiresPermissions(value={"pur:wzmcgl:add","pur:wzmcgl:edit"},logical= Logical.OR)
 	@RequestMapping(value = "findVerList")
 	public List<ProjectInvoiceItem> findVerList(String contractId) {
-		return invoiceService.findVerList(contractId);
+		// return invoiceService.findVerList(contractId);
+		return null;
 	}
 
 
@@ -264,13 +273,13 @@ public class ProjectInvoiceItemController extends BaseController {
 		flag = projectInvoice.getFunc();
 
         // flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
-		if ("saveOnly".equals(flag)) { // 只保存表单数据
-			invoiceService.save(projectInvoice);
-		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
-			invoiceService.saveFinishProcess(projectInvoice);
-		} else {
-			invoiceService.saveLaunch(projectInvoice);
-		}
+        // if ("saveOnly".equals(flag)) { // 只保存表单数据
+			// invoiceService.save(projectInvoice);
+        // } else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
+			// invoiceService.saveFinishProcess(projectInvoice);
+        // } else {
+			// invoiceService.saveLaunch(projectInvoice);
+        // }
 
 		addMessage(redirectAttributes, "保存成功");
 
@@ -308,20 +317,20 @@ public class ProjectInvoiceItemController extends BaseController {
 		projectInvoice.getAct().setFlag(flag);
 
 		// flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
-		if ("saveOnly".equals(flag)) { // 只保存表单数据
-			invoiceService.save(projectInvoice);
-		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
-			invoiceService.saveFinishProcess(projectInvoice);
-		} else if ("resign".equals(flag)){ // 重开票，保存，发起流程
-			projectInvoice.setId("");
-			for (ProjectInvoiceItem item : projectInvoice.getInvoiceItemList()) {
-				item.setId("");
-			}
-			projectInvoice.getAct().setFlag("yes");
-			invoiceService.saveLaunch(projectInvoice);
-		} else {
-			invoiceService.saveLaunch(projectInvoice);
-		}
+		// if ("saveOnly".equals(flag)) { // 只保存表单数据
+		// 	invoiceService.save(projectInvoice);
+		// } else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
+		// 	invoiceService.saveFinishProcess(projectInvoice);
+		// } else if ("resign".equals(flag)){ // 重开票，保存，发起流程
+		// 	projectInvoice.setId("");
+		// 	for (ProjectInvoiceItem item : projectInvoice.getInvoiceItemList()) {
+		// 		item.setId("");
+		// 	}
+		// 	projectInvoice.getAct().setFlag("yes");
+		// 	invoiceService.saveLaunch(projectInvoice);
+		// } else {
+		// 	invoiceService.saveLaunch(projectInvoice);
+		// }
 
 		addMessage(redirectAttributes, "保存成功");
 
@@ -362,7 +371,7 @@ public class ProjectInvoiceItemController extends BaseController {
 	@ResponseBody
 	public RespEntity deleteItemByIds(@RequestBody String[] ids) {
 		System.out.println("ids=" + ids);
-		invoiceService.deleteItemByIds(ids);
+		// invoiceService.deleteItemByIds(ids);
 
 		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面
 		RespEntity respEntity = new RespEntity(0, "删除成功！");
@@ -374,7 +383,7 @@ public class ProjectInvoiceItemController extends BaseController {
 	@RequiresPermissions("project:invoice:edit")
 	@RequestMapping(value = "delete")
 	public String delete(ProjectInvoice projectInvoice, RedirectAttributes redirectAttributes) {
-        invoiceService.delete(projectInvoice);
+        // invoiceService.delete(projectInvoice);
 		addMessage(redirectAttributes, "删除成功");
 		return "redirect:"+Global.getAdminPath()+ "/project/invoice/?repage";
 	}
@@ -387,11 +396,11 @@ public class ProjectInvoiceItemController extends BaseController {
 			addMessage(model, "请填写审核意见。");
 			return form(projectInvoice, model);
 		}
-		if ("save".equalsIgnoreCase(projectInvoice.getAct().getFlag())) {
-			invoiceService.save(projectInvoice);
-		} else {
-			invoiceService.saveAudit(projectInvoice);
-		}
+		// if ("save".equalsIgnoreCase(projectInvoice.getAct().getFlag())) {
+		// 	invoiceService.save(projectInvoice);
+		// } else {
+		// 	invoiceService.saveAudit(projectInvoice);
+		// }
 		return "redirect:" + adminPath + "/act/task/todo/";
 	}
 
@@ -420,11 +429,11 @@ public class ProjectInvoiceItemController extends BaseController {
 
 		// flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
 
-		if ("save".equalsIgnoreCase(projectInvoice.getAct().getFlag())) {
-			invoiceService.save(projectInvoice);
-		} else {
-			invoiceService.saveAudit(projectInvoice);
-		}
+		// if ("save".equalsIgnoreCase(projectInvoice.getAct().getFlag())) {
+		// 	invoiceService.save(projectInvoice);
+		// } else {
+		// 	invoiceService.saveAudit(projectInvoice);
+		// }
 
 		String url = path + "/" + adminPath + "/act/task/todo/";
 
@@ -437,7 +446,7 @@ public class ProjectInvoiceItemController extends BaseController {
 
 	/**
 	 * ajax前端提交，要手动收集form、table中的数据，所以使用ajax提交
-	 * @param projectInvoice
+	 * @param invoiceItem
 	 * @param model
 	 * @param redirectAttributes
 	 * @param request
@@ -453,7 +462,7 @@ public class ProjectInvoiceItemController extends BaseController {
 		// String path = request.getContextPath();
 		// String url = path + "/" + adminPath + "/act/task/todo/";
 
-		invoiceService.saveItem(invoiceItem);
+		// invoiceService.saveItem(invoiceItem);
 
 		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面
 		RespEntity respEntity = new RespEntity(1, "修改成功！");
@@ -486,10 +495,11 @@ public class ProjectInvoiceItemController extends BaseController {
 	@RequestMapping(value = "getAsJson")
 	public ProjectInvoice getAsJson(@RequestParam(required=false) String id, Model model) {
 		model.addAttribute("prjId", id);
-		ProjectInvoice projectInvoice = get(id);
+		// ProjectInvoice projectInvoice = get(id);
 		// 转换字典数据
 		// apply.setCategory(DictUtils.getDictLabel(apply.getCategory(), "pro_category", ""));
-		return projectInvoice;
+		// return projectInvoice;
+		return null;
 	}
 
 	// json形式返回开票item信息
@@ -497,26 +507,9 @@ public class ProjectInvoiceItemController extends BaseController {
 	@RequestMapping(value = "getItemAsJson")
 	public ProjectInvoiceItem getItemAsJson(@RequestParam(required = false) String id, Model model) {
 		model.addAttribute("itemId", id);
-		ProjectInvoiceItem item = getItem(id);
-		return item;
-	}
-
-	/**
-	 * ajax，只返回数据
-	 * @param projectInvoice
-	 * @param request
-	 * @param response
-	 * @param model
-	 * @return
-	 */
-	@RequestMapping(value = "table")
-	@ResponseBody
-	public Page<ProjectInvoice> table(ProjectInvoice projectInvoice, HttpServletRequest request, HttpServletResponse response, Model model) {
-		projectInvoice.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
-		Page<ProjectInvoice> page = invoiceService.findPage(new Page<ProjectInvoice>(request, response), projectInvoice);
-		model.addAttribute("page", page);
-		// return "modules/apply/external/DemoList";
-		return page;
+		// ProjectInvoiceItem item = getItem(id);
+		// return item;
+		return null;
 	}
 
 }

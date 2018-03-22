@@ -223,13 +223,13 @@ public class ProjectInvoiceController extends BaseController {
 	@RequestMapping(value = "hasCode")
 	public String hasCode(String oldCode, @RequestParam("contract.contractCode") String code) {
 
-		// return "true";
-		if (code!=null && code.equals(oldCode)) {
-			return "true";
-		} else if (code!=null && invoiceService.getItemByContractCode(code) == null) {
-			return "true";
-		}
-		return "false";
+		return "true";
+		// if (code!=null && code.equals(oldCode)) {
+		// 	return "true";
+		// } else if (code!=null && invoiceService.getItemByContractCode(code) == null) {
+		// 	return "true";
+		// }
+		// return "false";
 	}
 
 	/**
@@ -362,7 +362,6 @@ public class ProjectInvoiceController extends BaseController {
 	@RequestMapping(value = "deleteItemByIds")
 	@ResponseBody
 	public RespEntity deleteItemByIds(@RequestBody String[] ids) {
-		System.out.println("ids=" + ids);
 		invoiceService.deleteItemByIds(ids);
 
 		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面
@@ -438,12 +437,6 @@ public class ProjectInvoiceController extends BaseController {
 
 	/**
 	 * ajax前端提交，要手动收集form、table中的数据，所以使用ajax提交
-	 * @param projectInvoice
-	 * @param model
-	 * @param redirectAttributes
-	 * @param request
-	 * @param response
-	 * @return
 	 */
 	@RequestMapping(value = "saveItemAjax")
 	@ResponseBody

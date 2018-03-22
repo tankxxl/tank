@@ -179,20 +179,20 @@ var jeesns = {
             var title = $(this).attr('title');
             var width = $(this).attr('width');
             var height = $(this).attr('height');
-            var func = $(this).attr('func');
-            console.log("func=" + func);
+            var callback = $(this).attr('callback');
+            // console.log("callback=" + callback);
             if(width == undefined || width == ""){
                 width = "500px";
             }
             if(height == undefined || height == ""){
                 height = "300px";
             }
-            jeesnsDialog.open(url, title, width, height, func);
+            jeesnsDialog.open(url, title, width, height, callback);
             return false;
         });
     },
     // 执行ajax请求
-    jeesnsAjax : function(url,type,data, func){
+    jeesnsAjax : function(url,type,data, callback){
         var index;
         $.ajax({
             url: url,
@@ -203,38 +203,39 @@ var jeesns = {
             // contentType: "application/x-www-form-urlencoded; charset=UTF-8",
             dataType: 'json', // 表示返回值类型，非必须
             timeout: 20000,
-            beforeSend: function(){
+            beforeSend: function() { //
                 index = jeesnsDialog.loading();
             },
-            error: function(){
+            error: function() { // 非业务
                 jeesnsDialog.close(index);
-                jeesnsDialog.errorTips("请求失败")
+                jeesnsDialog.errorTips("请求失败");
             },
-            success:function(res){
+            success: function(res) { // busi here
                 jeesnsDialog.close(index);
-                if(res.code == 0){
+                if (res.code == 0) {
                     jeesnsDialog.successTips(res.message);
-                }else if(res.code == -1){
-                    jeesnsDialog.errorTips(res.message)
-                }else if(res.code==1){
+                } else if(res.code == -1) {
+                    jeesnsDialog.errorTips(res.message);
+                } else if(res.code==1) {
                     // jeesnsDialog.loading();
                     jeesnsDialog.successTips(res.message);
-                    setTimeout(function(){
-                        window.location.href=window.location.href;
-                    },10);
-                }else if(res.code==2){
+                    setTimeout(function() {
+                        window.location.href = window.location.href;
+                    }, 10);
+                } else if(res.code==2) {
                     // jeesnsDialog.loading();
                     jeesnsDialog.successTips(res.message);
-                    setTimeout(function(){
-                        window.location.href=res.url;
+                    setTimeout(function() {
+                        window.location.href = res.url;
                     },10);
-                }else if(res.code==3){
-                    parent.window.location.href=parent.window.location.href;
+                } else if(res.code==3) {
+                    parent.window.location.href = parent.window.location.href;
                 }else{
                     jeesnsDialog.tips(res.message);
                 }
-                if (func != undefined) {
-                    func(res);
+                // 最后把返回数据回调出去
+                if (callback != undefined) {
+                    callback(res);
                 }
             }
         });
@@ -289,7 +290,7 @@ var jeesnsDialog = {
         jeesnsDialog.tips(msg, "success");
     },
 
-    open : function (url, title, width, height, func) {
+    open : function (url, title, width, height, callback) {
         layer.open({
             title: title,
             type: 2,  // 0（信息框，默认）1（页面层）2（iframe层）3（加载层）4（tips层）
@@ -313,8 +314,8 @@ var jeesnsDialog = {
                 // var body = layer.getChildFrame('body', index);  //巧妙的地方在这里哦
                 // var jform = $(body).find("#inputForm");
 
-                if (data && func) {
-                    func(data);
+                if (data && callback) {
+                    callback(data);
                 }
                 layer.close(index);
             },

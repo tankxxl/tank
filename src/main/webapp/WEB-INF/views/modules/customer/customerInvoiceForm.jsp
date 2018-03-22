@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp"%>
 <html>
 <head>
-	<title>客户联系人管理</title>
+	<title>开票客户管理</title>
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
@@ -58,16 +58,17 @@
 </head>
 <body>
 	<ul class="nav nav-tabs">
-		<li><a href="${ctx}/customer/customer/">客户列表</a></li>
-		<li class="active"><a href="${ctx}/customer/customer/form?id=${customer.id}">客户
-			<shiro:hasPermission name="customer:customer:edit">
-				${not empty customer.id?'修改':'添加'}
+		<li><a href="${ctx}/customer/invoice/">开票客户列表</a></li>
+		<li class="active"><a href="${ctx}/customer/invoice/form?id=${customerInvoice.id}">开票客户
+			<shiro:hasPermission name="customer:invoice:edit">
+				${not empty customerInvoice.id?'修改':'添加'}
 			</shiro:hasPermission>
-			<shiro:lacksPermission name="customer:customer:edit">查看</shiro:lacksPermission></a>
+			<shiro:lacksPermission name="customer:invoice:edit">查看</shiro:lacksPermission></a>
 		</li>
 	</ul><br/>
-	<form:form id="inputForm" modelAttribute="customer" htmlEscape="false"
-			   action="${ctx}/customer/customer/save" method="post" class="form-horizontal">
+	<form:form id="inputForm" modelAttribute="customerInvoice" htmlEscape="false"
+			   action="${ctx}/customer/invoice/save"
+			   method="post" class="form-horizontal">
 		<form:hidden path="id"/>
 		<sys:message content="${message}"/>		
 		<div class="control-group">
@@ -80,7 +81,8 @@
 		<div class="control-group">
 			<label class="control-label">客户负责人：</label>
 			<div class="controls">
-				<sys:treeselect id="principal" name="principal.id" value="${customer.principal.id}" labelName="principal.name" labelValue="${customer.principal.name}"
+				<sys:treeselect id="principal" name="principal.id" value="${customerInvoice.principal.id}"
+								labelName="principal.name" labelValue="${customerInvoice.principal.name}"
 					title="用户" url="/sys/office/treeData?type=3" cssClass="input-xlarge" allowClear="true" notAllowSelectParent="true"/>
 			</div>
 		</div>
@@ -135,7 +137,7 @@
 			</div>
 		</div>
 		<div class="form-actions">
-			<shiro:hasPermission name="customer:customer:edit">
+			<shiro:hasPermission name="customer:invoice:edit">
 				<input id="btnSubmit" class="btn btn-primary" type="submit" value="保 存"/>&nbsp;
 			</shiro:hasPermission>
 			<input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.go(-1)"/>

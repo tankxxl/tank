@@ -6,10 +6,18 @@
         a.project_id AS "apply.id",
         a.invoice_id AS "invoice.id",
         a.contract_id AS "contract.id",
-        a.contract_item_id AS "contractItem.id",
-        contract.contract_code AS "contract.contractCode",
 
         apply.project_name AS "apply.projectName",
+        apply.project_code AS "apply.projectCode",
+		apply.pro_main_stage AS "apply.proMainStage",
+		apply.category AS "apply.category",
+		apply.estimated_contract_amount AS "apply.estimatedContractAmount",
+		apply.estimated_gross_profit_margin AS "apply.estimatedGrossProfitMargin",
+		apply.outsourcing AS "apply.outsourcing",
+
+		contract.contract_name AS "contract.contractName",
+		contract.contract_code AS "contract.contractCode",
+		contract.client_name AS "contract.clientName",
 
         a.invoice_type AS "invoiceType",
         a.goods_name AS "goodsName",
@@ -22,6 +30,8 @@
         a.attachment AS "attachment",
 
         a.return_date AS "returnDate",
+        a.return_amount AS "returnAmount",
+
         a.client_name AS "clientName",
         a.content AS "content",
         a.settlement AS "settlement",
@@ -32,6 +42,10 @@
         a.ver AS "ver",
         a.reason AS "reason",
         a.invalid AS "invalid",
+
+        u4.name AS "saler.name",
+		u4.login_name AS "saler.loginName",
+		s5.name AS "saler.office.name",
 
         a.id AS "id",
         a.create_by AS "createBy.id",
@@ -48,10 +62,17 @@
         a.project_id AS "apply.id",
         a.invoice_id AS "invoice.id",
         a.contract_id AS "contract.id",
-        a.contract_item_id AS "contractItem.id",
-        contract.contract_code AS "contract.contractCode",
 
         apply.project_name AS "apply.projectName",
+        apply.project_code AS "apply.projectCode",
+		apply.pro_main_stage AS "apply.proMainStage",
+		apply.category AS "apply.category",
+		apply.estimated_contract_amount AS "apply.estimatedContractAmount",
+		apply.estimated_gross_profit_margin AS "apply.estimatedGrossProfitMargin",
+		apply.outsourcing AS "apply.outsourcing",
+
+        contract.contract_name AS "contract.contractName",
+		contract.contract_code AS "contract.contractCode",
 
         a.invoice_type AS "invoiceType",
         a.goods_name AS "goodsName",
@@ -64,6 +85,8 @@
         a.attachment AS "attachment",
 
         a.return_date AS "returnDate",
+        a.return_amount AS "returnAmount",
+
         a.client_name AS "clientName",
         a.content AS "content",
         a.settlement AS "settlement",
@@ -91,7 +114,9 @@
         LEFT JOIN project_invoice b ON b.id = a.invoice_id
         LEFT JOIN project_apply_external apply ON apply.id = a.project_id
         LEFT JOIN project_contract contract ON contract.id = a.contract_id
-        LEFT JOIN project_contract_item contractItem ON contractItem.id = a.contract_item_id
+
+        LEFT JOIN sys_user u4 ON u4.id = apply.saler_id
+		LEFT JOIN sys_office s5 on s5.id =u4.office_id
     </sql>
 
     <sql id="joinsHead">
@@ -99,7 +124,9 @@
         LEFT JOIN project_invoice_item a ON t2.ver = a.ver
         LEFT JOIN project_apply_external apply ON apply.id = a.project_id
         LEFT JOIN project_contract contract ON contract.id = a.contract_id
-        LEFT JOIN project_contract_item contractItem ON contractItem.id = a.contract_item_id
+
+        LEFT JOIN sys_user u4 ON u4.id = apply.saler_id
+		LEFT JOIN sys_office s5 on s5.id =u4.office_id
     </sql>
 
     <select id="get" resultType="ProjectInvoiceItem">
@@ -120,6 +147,29 @@
             <if test="invoice!=null and invoice.id != null and invoice.id != ''">
                 AND a.invoice_id = #{invoice.id}
             </if>
+
+            <if test="apply!=null and apply.projectCode != null and apply.projectCode != ''">
+                AND apply.project_code LIKE
+                <if test="dbName == 'oracle'">'%'||#{apply.projectCode}||'%'</if>
+                <if test="dbName == 'mssql'">'%'+#{apply.projectCode}+'%'</if>
+                <if test="dbName == 'mysql'">concat('%',#{apply.projectCode},'%')</if>
+            </if>
+
+            <if test="apply!=null and apply.projectName != null and apply.projectName != ''">
+                AND apply.project_name LIKE
+                <if test="dbName == 'oracle'">'%'||#{apply.projectName}||'%'</if>
+                <if test="dbName == 'mssql'">'%'+#{apply.projectName}+'%'</if>
+                <if test="dbName == 'mysql'">concat('%',#{apply.projectName},'%')</if>
+            </if>
+
+            <if test="contract!=null and contract.contractCode != null and contract.contractCode != ''">
+                AND contract.contract_code LIKE
+                <if test="dbName == 'oracle'">'%'||#{contract.contractCode}||'%'</if>
+                <if test="dbName == 'mssql'">'%'+#{contract.contractCodeapply.projectName}+'%'</if>
+                <if test="dbName == 'mysql'">concat('%',#{contract.contractCode},'%')</if>
+            </if>
+
+            ${sqlMap.dsf}
         </where>
         <choose>
             <when test="page !=null and page.orderBy != null and page.orderBy != ''">
@@ -230,6 +280,8 @@
         attachment,
 
         return_date,
+        return_amount,
+
         client_name,
         content,
         settlement,
@@ -266,6 +318,8 @@
         #{attachment},
 
         #{returnDate},
+        #{returnAmount},
+
         #{clientName},
         #{content},
         #{settlement},
@@ -305,6 +359,8 @@
         attachment = #{attachment},
 
         return_date = #{returnDate},
+        return_amount = #{returnAmount},
+
         client_name = #{clientName},
         content = #{content},
         settlement = #{settlement},

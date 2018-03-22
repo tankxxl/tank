@@ -106,12 +106,17 @@ function hasClass(tag, clsName) {
 // bootstrap-table操作开始
 // 全局函数
 function getSelectedIds(elemId) {
-    return $.map( $(elemId).bootstrapTable('getSelections'), function (row) {
+    return $.map( $('#' + elemId).bootstrapTable('getSelections'), function (row) {
         return row.id
     });
 }
-// bootstrap-table操作结束
 
+// 选择多条记录
+function getSelectedRows(domId) {
+    return $('#' + domId).bootstrapTable('getSelections');
+}
+
+// bootstrap-table操作结束
 
 function isString(value) {
     if (value && typeof value === 'object') {

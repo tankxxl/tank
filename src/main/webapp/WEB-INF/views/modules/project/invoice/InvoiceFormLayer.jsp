@@ -43,9 +43,9 @@
 <div id="rrapp" v-cloak>
 <ul class="nav nav-tabs">
     <c:if test="${ empty projectInvoice.act.taskId}">
-        <li><a href="${ctx}/project/invoice/">开票列表</a></li>
+        <li><a href="${ctx}/project/invoice/">开票申请列表</a></li>
     </c:if>
-    <li class="active"><a href="${ctx}/project/invoice/form?id=${projectInvoice.id}">开票
+    <li class="active"><a href="${ctx}/project/invoice/form?id=${projectInvoice.id}">开票申请
         <shiro:hasPermission name="project:invoice:edit">${not empty projectInvoice.id?'修改':'添加'}</shiro:hasPermission>
         <shiro:lacksPermission name="project:invoice:edit">查看</shiro:lacksPermission></a></li>
 </ul><br/>
@@ -265,9 +265,7 @@ var TableInit = function () {
     // 定义对象的方法，初始化Table
     oTableInit.Init = function () {
         // 先销毁表格
-        $('#table').bootstrapTable('destroy');
-
-        $('#table').bootstrapTable({
+        $('#table').bootstrapTable('destroy').bootstrapTable({
             toolbar: '#toolbar',
             contentType:'application/x-www-form-urlencoded; charset=UTF-8',
             <%--url: '${ctx }/project/invoice/table',--%>
@@ -369,17 +367,10 @@ var TableInit = function () {
                 title: '规格型号',
                 formatter: function (value, row, index) {
                     return value; <%--return getDictLabel(${fns:toJson(fns:getDictList('pro_category'))}, value);--%>
-
                 }
-
             }, {
                 field: 'num',
-                title: '数量',
-                formatter: function (value, row, index) {
-//                    return new Date(value).Format("yyyy-MM-dd");
-                    return value;
-                }
-
+                title: '数量'
             }, {
                 field: 'unit',
                 title: '单位'
@@ -552,12 +543,6 @@ var ButtonInit = function () {
     };
 
     oInit.Init = function () {
-//        $("#btn_add").click(function () {
-        //    $("#myModalLabel").text("新增");
-        //    $("#myModal").find(".form-control").val("");
-        //    $('#myModal').modal()
-//        });
-
         // 监听table的事件，设置btn的状态
         $("#table").on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function() {
             $("#btn_delete").prop('disabled', !$("#table").bootstrapTable('getSelections').length);
@@ -568,24 +553,28 @@ var ButtonInit = function () {
         // 监听点击事件获取当前行号
         $("#table").on('click-row.bs.table', function(e, row, $element) {
             var index = $element.data('index');
-            console.log("当前行号=" + index);
         });
 
         $("#btn_delete").click(function () {
-            var ids = getSelectedIds('#table');
             // 后台删除
-            jeesns.jeesnsAjax('${ctx}/project/invoice/deleteItemByIds', 'POST', ids, function(resp) {
-                // 前台删除
-                $('#table').bootstrapTable('remove', {
-                    field: 'id',
-                    values: ids
+            confirmx('确定要删除选中的记录？', function(){
+                var ids = getSelectedIds('table');
+                var contractIds = $.map( getSelectedRows('table'), function (row) {
+                    return row.contract.contractCode;
                 });
-                // 设置btn_del的状态
-                $("#btn_delete").prop('disabled', true);
-                $("#btn_edit").prop('disabled', true);
-                // $("#btn_resign").prop('disabled', true);
-            });
-        });
+
+                jeesns.jeesnsAjax('${ctx}/project/invoice/deleteItemByIds', 'POST', ids, function(resp) {
+                    // 前台删除
+                    $('#table').bootstrapTable('remove', {
+                        field: 'contract.contractCode',
+                        values: contractIds
+                    });
+                    // 设置btn_del的状态
+                    $("#btn_delete").prop('disabled', true);
+                    $("#btn_edit").prop('disabled', true);
+                });
+            }); // end confirm
+        }); // end click
 
 //        $("#btnSubmit").click(function () {
 //            var oTable = new TableInit();
@@ -598,23 +587,10 @@ var ButtonInit = function () {
 
 // 全局函数-编辑业务逻辑
 function editById(id) {
-    alertx("id=" + id);
+    alertx("暂未开放");
 }
 
 // 全局函数
-// 选择一条记录
-function getSelectedRow() {
- var rows = getSelectedRows();
- if (rows.length > 0)
-     return rows[0];
- return null;
-}
-
-// 选择多条记录
-function getSelectedRows() {
-    return $('#table').bootstrapTable('getSelections');
-}
-
 function getSelectedIndexes() {
     var index = [];
     $('input[name="selectItemName"]:checked').each(function () {
@@ -637,6 +613,7 @@ $('#table').on('click-row.bs.table', function (row, $element, field) {
 });
 // 全局函数
 function search() {
+    // 正确的使用方法
     var opt = {
         url: 'doDynamicsList',
         silent: true,
@@ -645,8 +622,7 @@ function search() {
         }
     };
     // 需要先摧毁table
-    $("#table").bootstrapTable('destroy');
-    $('#table').bootstrapTable('refresh',opt);
+    $('#table').bootstrapTable('destroy').bootstrapTable('refresh',opt);
 }
 
 function submitG() {
@@ -752,17 +728,14 @@ var vm = new Vue({
                 '增加开票项', '600px', '650px', function(data) {
                     $('#table').bootstrapTable('updateRow', {index: rowIndex, row: data});
                 });
-//            vm.getUser(userId);
-//            //获取角色信息
-//            this.getRoleList();
         },
         del: function () {
-            var userIds = getSelectedRows();
-            confirm('确定要删除选中的记录？', function(){
-                jeesns.jeesnsAjax('${ctx}/sys/user/delete', 'POST', userIds, function(r){
-                    vm.reload();
-                });
-            });
+            <%--var userIds = getSelectedRows('table');--%>
+            <%--confirm('确定要删除选中的记录？', function(){--%>
+                <%--jeesns.jeesnsAjax('${ctx}/sys/user/delete', 'POST', userIds, function(r){--%>
+                    <%--vm.reload();--%>
+                <%--});--%>
+            <%--});--%>
         },
         saveOrUpdate: function () {
             var url = vm.user.userId == null ? "sys/user/save" : "sys/user/update";
@@ -777,8 +750,6 @@ var vm = new Vue({
                 skin: 'layui-layer-molv',
                 title: "选择部门",
                 area: ['300px', '450px'],
-                shade: 0,
-                shadeClose: false,
                 content: jQuery("#deptLayer"),
                 btn: ['确定', '取消'],
                 btn1: function (index) {
@@ -786,7 +757,6 @@ var vm = new Vue({
                     //选择上级部门
                     vm.user.deptId = node[0].deptId;
                     vm.user.deptName = node[0].name;
-
                     layer.close(index);
                 }
             });

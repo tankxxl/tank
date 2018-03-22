@@ -7,6 +7,7 @@ import com.thinkgem.jeesite.common.persistence.DataEntity;
 import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContractItem;
+import com.thinkgem.jeesite.modules.sys.entity.User;
 
 import java.util.Date;
 
@@ -23,6 +24,8 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
 
     private ProjectContract contract;       // 合同申请单 合同号直接在申请单中，一对一
     private ProjectContractItem contractItem;  // 合同项item bjkj不用
+
+    private User saler;
 
     private String invoiceType; // 开票类型
 
@@ -51,8 +54,10 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
     private String reason; // 重开票原因
 
     private Date returnDate;	// 预计回款日期
+    private String returnAmount; // 回款金额
 
     private String invalid; // 作废标志0有效1作废
+
 
 
     public ProjectInvoiceItem() {
@@ -264,5 +269,21 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
 
     public void setInvalid(String invalid) {
         this.invalid = invalid;
+    }
+
+    public User getSaler() {
+        return saler;
+    }
+
+    public void setSaler(User saler) {
+        this.saler = saler;
+    }
+
+    public String getReturnAmount() {
+        return returnAmount;
+    }
+
+    public void setReturnAmount(String returnAmount) {
+        this.returnAmount = returnAmount;
     }
 }

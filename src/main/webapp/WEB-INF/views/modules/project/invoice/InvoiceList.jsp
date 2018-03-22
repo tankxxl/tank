@@ -40,8 +40,8 @@
 </head>
 <body>
 	<ul class="nav nav-tabs">
-		<li class="active"><a href="${ctx}/project/invoice/">开票列表</a></li>
-		<shiro:hasPermission name="project:invoice:edit"><li><a href="${ctx}/project/invoice/form">开票添加</a></li></shiro:hasPermission>
+		<li class="active"><a href="${ctx}/project/invoice/">开票申请列表</a></li>
+		<shiro:hasPermission name="project:invoice:edit"><li><a href="${ctx}/project/invoice/form">开票申请添加</a></li></shiro:hasPermission>
 	</ul>
 	<form:form id="searchForm"
                modelAttribute="projectInvoice"

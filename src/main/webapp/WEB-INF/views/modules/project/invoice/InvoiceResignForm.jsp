@@ -418,7 +418,7 @@ var ButtonInit = function () {
         });
 
         $("#btn_delete").click(function () {
-            var ids = getSelectedIds('#table');
+            var ids = getSelectedIds('table');
             // 后台删除
             jeesns.jeesnsAjax('${ctx}/project/invoice/deleteItemByIds', 'POST', ids, function(resp) {
                 // 前台删除
