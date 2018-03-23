@@ -93,174 +93,170 @@
 <table id="table" data-mobile-responsive="true"></table>
 
 <script>
-	// 执行代码
-	$(function () {
-		//1.初始化Table
-		var oTable = new TableInit();
-		oTable.Init();
-		//2.初始化Button的点击事件
-		var oButtonInit = new ButtonInit();
-		oButtonInit.Init();
-	});
-	// 定义部分
-	// 定义一个对象
-	var TableInit = function () {
-		var oTableInit = new Object();
-		// 初始化Table
-		oTableInit.Init = function () {
-			// 先销毁表格
-			$('#table').bootstrapTable('destroy').bootstrapTable({
+// 执行代码
+$(function () {
+	//1.初始化Table
+	var oTable = new TableInit();
+	oTable.Init();
+	//2.初始化Button的点击事件
+	var oButtonInit = new ButtonInit();
+	oButtonInit.Init();
+});
+// 定义部分
+// 定义一个对象
+var TableInit = function () {
+	var oTableInit = new Object();
+	// 初始化Table
+	oTableInit.Init = function () {
+		// 先销毁表格
+		$('#table').bootstrapTable('destroy').bootstrapTable({
 //			resizable: true,
-			toolbar: '#toolbar',
-			url: '${ctx }/project/invoiceItem/table',
-			method: 'post',                      //请求方式（*）
-			contentType: "application/x-www-form-urlencoded",
-			queryParams : oTableInit.queryParams,  //传递参数（*）
-			dataField : "list", //很重要，这是后端返回的实体数据！表示后端传递的对象数据，名字要与对象的名字相同。
-            totalField: "count",
-			classes : 'table table-bordered table-hover', // Class样式
-			striped: true,                      //是否显示行间隔色
-			cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
-			pagination: true,                   //是否显示分页（*）
-			sortName: "updateDate",             // 定义排序列
-			sortOrder: "desc",                   //排序方式
-			sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
-			pageSize: 30,                     //每页的记录行数（*）
-			strictSearch: true,
-			showColumns: true,                  //是否显示所有的列（选择显示的列）
-			showRefresh: true,                  //是否显示刷新按钮
-            showFullscreen: true,
+		toolbar: '#toolbar',
+		url: '${ctx }/project/invoiceItem/table',
+		method: 'post',                      //请求方式（*）
+		contentType: "application/x-www-form-urlencoded",
+		queryParams : oTableInit.queryParams,  //传递参数（*）
+		dataField : "list", //很重要，这是后端返回的实体数据！表示后端传递的对象数据，名字要与对象的名字相同。
+		totalField: "count",
+		classes : 'table table-bordered table-hover', // Class样式
+		striped: true,                      //是否显示行间隔色
+		cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+		pagination: true,                   //是否显示分页（*）
+		sortName: "updateDate",             // 定义排序列
+		sortOrder: "desc",                   //排序方式
+		sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+		pageSize: 30,                     //每页的记录行数（*）
+		strictSearch: true,
+		showColumns: true,                  //是否显示所有的列（选择显示的列）
+		showRefresh: true,                  //是否显示刷新按钮
+		showFullscreen: true,
 //            singleSelect: true,				//复选框只能选择一条记录
-			clickToSelect: true,                //是否启用点击选中行
-			uniqueId: "id",                     //每一行的唯一标识，一般为主键列
-            idField: "id",
-			showToggle: true,                   //是否显示详细视图和列表视图的切换按钮
-			cardView: false,                    //是否显示详细视图
-			detailView: false,                  //是否显示父子表
-			columns: [{
-				checkbox: true,
-				visible: true                  //是否显示复选框
-			}, {
-				field: 'apply.projectCode',
-				title: '项目编号',
-				align: 'center',
-				valign: 'middle',
-				formatter: function (value, row, index) {
-					if (value) {
-						return '<a href="${ctx}/apply/external/projectApplyExternal/form?id=' + row.apply.id + '">' + value + '</a>';
-					} else {
-						return value;
-					}
+		clickToSelect: true,                //是否启用点击选中行
+		uniqueId: "id",                     //每一行的唯一标识，一般为主键列
+		idField: "id",
+		showToggle: true,                   //是否显示详细视图和列表视图的切换按钮
+		cardView: false,                    //是否显示详细视图
+		detailView: false,                  //是否显示父子表
+		columns: [{
+			checkbox: true,
+			visible: true                  //是否显示复选框
+		}, {
+			field: 'apply.projectCode',
+			title: '项目编号',
+			align: 'center',
+			valign: 'middle',
+			formatter: function (value, row, index) {
+				if (value) {
+					return '<a href="${ctx}/apply/external/projectApplyExternal/form?id=' + row.apply.id + '">' + value + '</a>';
+				} else {
+					return value;
 				}
-			}, {
-				field: 'apply.projectName',
-				title: '项目名称',
-				resizable: true,
-				sortable: true,
-				formatter: function (value, row, index) {
-					if (value) {
-                        return '<a href="${ctx}/apply/external/projectApplyExternal/form?id=' + row.apply.id + '">' + value + '</a>';
-					} else {
-                        return value;
-					}
-				}
-			}, {
-                field: 'contract.clientName',
-                title: '客户名称'
-            }, {
-                field: 'contract.contractCode',
-                title: '合同编号',
-				formatter: function (value, row, index) {
-                    if (value) {
-                        return '<a href="${ctx}/project/contract/projectContract/form?id=' + row.contract.id + '">' + value + '</a>';
-					} else {
-                        return value;
-					}
-				}
-            }, {
-                field: 'invoiceNo',
-                title: '发票号',
-                formatter: function (value, row, index) {
-                    return '<a href="${ctx}/project/contract/projectContract/form?id=' + row.contract.id + '">' + value + '</a>';
-				}
-            }, {
-                field: 'returnAmount',
-                title: '回款金额'
-            }, {
-				field: 'saler.name',
-				title: '销售人员'
-			}, {
-				field: 'updateDate',
-				title: '更新时间',
-				formatter: function (value, row, index) {
-					return new Date(value).Format("yyyy-MM-dd");
-				}
-			}, {
-				field: 'procStatus',
-				title: '审批状态',
-				formatter: function (value, row, index) {
-					return getDictLabel(${fns:toJson(fns:getDictList('AuditStatus'))}, value);
-				},
-				cellStyle: function (value, row, index) {
-					return "text-warning";
-				}
-			}, {
-				field: 'id',
-				title: '操作',
-				align: 'center',
-				formatter:function(value,row,index){
-					var btnExport = '', btnView = '', btnDelete = '', btnTrace = '', btnEdit = '';
-					if (row.procStatus == '2') {
-						btnExport = '<input export="btnExport" class="btn btn-primary" type="button" proId="' + row.id + '" value="导出"/>&nbsp';
-					}
-					btnView = '<a href="${ctx}/apply/external/projectApplyExternal/form?id=' + row.id + '">详情</a>&nbsp';
-					<shiro:hasPermission name="apply:external:projectApplyExternal:edit">
-					if (row.procStatus == '2') {
-						btnDelete = '<a href="${ctx}/apply/external/projectApplyExternal/delete?id=' + row.id + '" onclick="return confirmx("确认要删除该外部立项申请吗？", this.href)">删除</a>&nbsp';
-					} else {
-						btnTrace = '<a class="trace" target="_blank" procInsId="' + row.procInsId + '" href="${ctx}/act/task/trace1?procInsId=' + row.procInsId + '">跟踪</a>&nbsp';
-					}
-					</shiro:hasPermission>
-					<shiro:hasPermission name="apply:external:projectApplyExternal:modify">
-					btnEdit = '<a href="${ctx}/apply/external/projectApplyExternal/modify?id=' + row.id + '">修改</a>&nbsp';
-					</shiro:hasPermission>
-					// return btnExport + btnView + btnTrace + btnDelete + btnEdit;
-					return btnDelete + btnEdit;
-				}
-			} ],
-			responseHandler: function (res) { // 在ajax获取到数据，渲染表格之前，修改数据源
-				return res;
-			},
-				onLoadSuccess: function() {
-
-                },
-
-
-			onLoadError: function () {
-				// alert("数据加载失败！");
-			},
-			onDblClickRow: function (row, $element) {
-				var id = row.id;
-//			EditViewById(id, 'view');
-			},
-			onClickRow: function (row, $element) {
-				console.log(row);
-//                window.location.href = "/qStock/qProInfo/" + row.ProductId;
 			}
-		}); // 定义table
-		}; // end Init()
-		//得到查询的参数
-		oTableInit.queryParams = function (params) {
-			//这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
-			var temp = $("#searchForm").serializeJsonObject();
-			temp["pageSize"] = params.limit;                        //页面大小
-			temp["pageNo"] = (params.offset / params.limit) + 1;  //页码
+		}, {
+			field: 'apply.projectName',
+			title: '项目名称',
+			resizable: true,
+			sortable: true,
+			formatter: function (value, row, index) {
+				if (value) {
+					return '<a href="${ctx}/apply/external/projectApplyExternal/form?id=' + row.apply.id + '">' + value + '</a>';
+				} else {
+					return value;
+				}
+			}
+		}, {
+			field: 'contract.clientName',
+			title: '客户名称'
+		}, {
+			field: 'contract.contractCode',
+			title: '合同编号',
+			formatter: function (value, row, index) {
+				if (value) {
+					return '<a href="${ctx}/project/contract/projectContract/form?id=' + row.contract.id + '">' + value + '</a>';
+				} else {
+					return value;
+				}
+			}
+		}, {
+			field: 'invoiceNo',
+			title: '发票号',
+			formatter: function (value, row, index) {
+				return '<a href="${ctx}/project/contract/projectContract/form?id=' + row.contract.id + '">' + value + '</a>';
+			}
+		}, {
+			field: 'returnAmount',
+			title: '回款金额'
+		}, {
+			field: 'saler.name',
+			title: '销售人员'
+		}, {
+			field: 'updateDate',
+			title: '更新时间',
+			formatter: function (value, row, index) {
+				return new Date(value).Format("yyyy-MM-dd");
+			}
+		}, {
+			field: 'procStatus',
+			title: '审批状态',
+			formatter: function (value, row, index) {
+				return getDictLabel(${fns:toJson(fns:getDictList('AuditStatus'))}, value);
+			},
+			cellStyle: function (value, row, index) {
+				return "text-warning";
+			}
+		}, {
+			field: 'id',
+			title: '操作',
+			align: 'center',
+			formatter:function(value,row,index){
+				var btnExport = '', btnView = '', btnDelete = '', btnTrace = '', btnEdit = '';
+				if (row.procStatus == '2') {
+					btnExport = '<input export="btnExport" class="btn btn-primary" type="button" proId="' + row.id + '" value="导出"/>&nbsp';
+				}
+				btnView = '<a href="${ctx}/apply/external/projectApplyExternal/form?id=' + row.id + '">详情</a>&nbsp';
+				<shiro:hasPermission name="apply:external:projectApplyExternal:edit">
+				if (row.procStatus == '2') {
+					btnDelete = '<a href="${ctx}/apply/external/projectApplyExternal/delete?id=' + row.id + '" onclick="return confirmx("确认要删除该外部立项申请吗？", this.href)">删除</a>&nbsp';
+				} else {
+					btnTrace = '<a class="trace" target="_blank" procInsId="' + row.procInsId + '" href="${ctx}/act/task/trace1?procInsId=' + row.procInsId + '">跟踪</a>&nbsp';
+				}
+				</shiro:hasPermission>
+				<shiro:hasPermission name="apply:external:projectApplyExternal:modify">
+				btnEdit = '<a href="${ctx}/apply/external/projectApplyExternal/modify?id=' + row.id + '">修改</a>&nbsp';
+				</shiro:hasPermission>
+				// return btnExport + btnView + btnTrace + btnDelete + btnEdit;
+				return btnDelete + btnEdit;
+			}
+		} ],
+		responseHandler: function (res) { // 在ajax获取到数据，渲染表格之前，修改数据源
+			return res;
+		},
+		onLoadError: function () {
+			// alert("数据加载失败！");
+		},
+		onDblClickRow: function (row, $element) {
+			var id = row.id;
+//			EditViewById(id, 'view');
+		},
+		onClickRow: function (row, $element) {
+			// console.log(row);
+//                window.location.href = "/qStock/qProInfo/" + row.ProductId;
+		}
+	}); // 定义table
+	}; // end oTableInit.Init()
+
+	//得到查询的参数
+	oTableInit.queryParams = function (params) {
+		//这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+		var temp = $("#searchForm").serializeJsonObject();
+		temp["pageSize"] = params.limit;                        //页面大小
+		temp["pageNo"] = (params.offset / params.limit) + 1;  //页码
 //        temp["sort"] = params.sort;                         //排序列名
-			temp["orderBy"] = params.sort;                         //排序列名
-			temp["sortOrder"] = params.order;                   //排位命令（desc，asc）
-			//特殊格式的条件处理
+		temp["orderBy"] = params.sort;                         //排序列名
+		temp["sortOrder"] = params.order;                   //排位命令（desc，asc）
+		//特殊格式的条件处理
 //        temp["WHC_Age"] = $("#WHC_Age").val() + "~" + $("#WHC_Age2").val();
-			return temp;
+		return temp;
 //		var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
 //            pageNo: (params.offset / params.limit) + 1,   //页码，传到后台分页
 //            pageSize: params.limit,                       //页面大小
@@ -268,9 +264,9 @@
 //            sortOrder: params.order //排位命令（desc，asc），传到后台排序
 //		};
 //		return temp;
-		}; // end queryParams()
-		return oTableInit;
-	}; // end var TableInit
+	}; // end oTableInit.queryParams()
+	return oTableInit;
+}; // end var TableInit
 	var ButtonInit = function () {
 		var oInit = new Object();
 		var postdata = {};
@@ -355,10 +351,8 @@
 		};
 		return oInit;
 	}; // end var ButtonInit
-	//Email字段(column)格式化
-	function emailFormatter(value, row, index) {
-		return "<a href='mailto:" + value + "' title='单击打开连接'>" + value + "</a>";
-	}
+
+
 	function getTableSelect() {
 		var rows = $('#table').bootstrapTable('getSelections');
 		if (rows.length > 0) {
@@ -366,11 +360,7 @@
 		}
 		alertx(ID);
 	}
-	function getIdSelections() {
-		return $.map( $('#table').bootstrapTable('getSelections'), function (row) {
-			return row.id
-		});
-	}
+
 	function Delete() {
 		var ids = ""; // 得到用户选择的数据的ID
 		var rows = $("#table").bootstrapTable('getSelections');

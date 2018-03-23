@@ -186,4 +186,19 @@ public class CustomerInvoiceController extends BaseController {
 
 		return customerInvoice;
 	}
+
+	// true: 不重复，前端放行，可以添加
+	// false: 数据库已经有了
+	// 修改的时候，才有oldName
+	@ResponseBody
+	@RequiresPermissions("customer:customer:edit")
+	@RequestMapping(value = "checkName")
+	public String checkName(String oldName, String customerName) {
+		if (customerName !=null && customerName.equals(oldName)) {
+			return "true";
+		} else if (customerName !=null && customerInvoiceService.getByName(customerName) == null) {
+			return "true";
+		}
+		return "false";
+	}
 }

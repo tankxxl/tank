@@ -28,4 +28,14 @@ public class CustomerInvoiceService extends CrudService<CustomerInvoiceDao, Cust
 		// customer.setCustomerContactList(customerContactDao.findList(new CustomerContact(customer)));
 		return customerInvoice;
 	}
+
+	public CustomerInvoice getByName(String customerName) {
+		CustomerInvoice customer = new CustomerInvoice();
+		customer.setCustomerName(customerName);
+		customer = dao.getByName(customer);
+		if (customer == null){
+			return null;
+		}
+		return customer;
+	}
 }

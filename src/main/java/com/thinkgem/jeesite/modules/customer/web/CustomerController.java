@@ -104,7 +104,7 @@ public class CustomerController extends BaseController {
 		if (!beanValidator(model, customer)){
 			return form(customer, model);
 		}
-		if (!"true".equals(checkLoginName(customer.getOldName(), customer.getCustomerName()))){
+		if (!"true".equals(checkName(customer.getOldName(), customer.getCustomerName()))){
 			addMessage(model, "保存客户'" + customer.getCustomerName() + "'失败，客户名称已存在");
 			return form(customer, model);
 		}
@@ -168,7 +168,6 @@ public class CustomerController extends BaseController {
 			return mapList;
 		}
 
-		
 		Customer customer = new Customer(customerId);
 		List<CustomerContact> list = customerService.findContatList(customer);
 		for (int i=0; i<list.size(); i++){
@@ -233,9 +232,7 @@ public class CustomerController extends BaseController {
 	public CustomerContact getCustomerContactAsJson(@RequestParam(required = false) String id) {
 		return customerService.getCustomerConcat(id);
 	}
-	
-	
-	
+
 	/**
 	 * 
 	 * @param customerConcatId 传过来的客户联系人id
@@ -253,8 +250,7 @@ public class CustomerController extends BaseController {
 		return returnCustomerConcat;
 		
 	}
-	
-//	
+
 	/**
 	 * 客户批量上传
 	 * @param file
@@ -273,7 +269,7 @@ public class CustomerController extends BaseController {
 //			customerService.saveList(customers);
 			for (Customer customer : customers) {
 				try {
-					if ("true".equals(checkLoginName("", customer.getCustomerName()))) {
+					if ("true".equals(checkName("", customer.getCustomerName()))) {
 						BeanValidators.validateWithException(validator, customer);
 						customerService.save(customer);
 						successNum++;
@@ -325,9 +321,14 @@ public class CustomerController extends BaseController {
 		return "redirect:"+Global.getAdminPath()+"/customer/customer/?repage";
 	}
 	
-	
-	public String checkLoginName(String oldCustomerName, String customerName) {
-		if (customerName !=null && customerName.equals(oldCustomerName)) {
+	// true: 不重复，前端放行，可以添加
+	// false: 数据库已经有了
+	// 修改的时候，才有oldName
+	@ResponseBody
+	@RequiresPermissions("customer:customer:edit")
+	@RequestMapping(value = "checkName")
+	public String checkName(String oldName, String customerName) {
+		if (customerName !=null && customerName.equals(oldName)) {
 			return "true";
 		} else if (customerName !=null && customerService.getByName(customerName) == null) {
 			return "true";

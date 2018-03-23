@@ -3,6 +3,7 @@
  */
 package com.thinkgem.jeesite.modules.project.service.invoice;
 
+import com.google.common.collect.Lists;
 import com.thinkgem.jeesite.common.service.JicActService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
@@ -87,6 +88,24 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
             item = new ProjectInvoiceItem();
         }
         return item;
+    }
+
+    /**
+     * 根据item id 获取发票，并关联一个申请单
+     * @param projectInvoice
+     * @param itemIds
+     * @return
+     */
+    public ProjectInvoice getItems(ProjectInvoice projectInvoice, String[] itemIds) {
+        if (projectInvoice == null) {
+            projectInvoice = new ProjectInvoice();
+        }
+        List<ProjectInvoiceItem> itemList = Lists.newArrayList();
+        for (int i = 0; i < itemIds.length; i++) {
+            itemList.add(getItem(itemIds[i]));
+        }
+        projectInvoice.setInvoiceItemList(itemList);
+        return projectInvoice;
     }
 
     // 根据某个合同申请号id查找全部版本

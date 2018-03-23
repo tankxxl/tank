@@ -55,9 +55,9 @@
 			</li>
 			<li class="btns">
 				<input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/>
-				<shiro:hasPermission name="customer:invoice:edit">
-					<input id="btnImport" class="btn btn-primary" type="button" value="导入"/>
-				</shiro:hasPermission>
+				<%--<shiro:hasPermission name="customer:invoice:edit">--%>
+					<%--<input id="btnImport" class="btn btn-primary" type="button" value="导入"/>--%>
+				<%--</shiro:hasPermission>--%>
 				
 			</li>
 			<li class="clearfix"></li>
@@ -109,9 +109,9 @@
 	    				<a href="${ctx}/customer/invoice/form?id=${customerInvoice.id}">修改</a>
 						<a href="${ctx}/customer/invoice/delete?id=${customerInvoice.id}" onclick="return confirmx('确认要删除该客户联系人吗？', this.href)">删除</a>
 					</shiro:hasPermission>
-					<shiro:hasPermission name="customer:invoice:edit">
-	    				<a href="${ctx}/customer/invoice/form4contact?id=${customer.id}">添加联系人</a>
-					</shiro:hasPermission>
+					<%--<shiro:hasPermission name="customer:invoice:edit">--%>
+	    				<%--<a href="${ctx}/customer/invoice/form4contact?id=${customer.id}">添加联系人</a>--%>
+					<%--</shiro:hasPermission>--%>
 				</td>
 			</tr>
 		</c:forEach>

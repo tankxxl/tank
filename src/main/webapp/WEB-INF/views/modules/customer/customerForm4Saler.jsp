@@ -112,12 +112,12 @@
 								<input id="customerContactList{{idx}}_contactName" name="customerContactList[{{idx}}].contactName" type="text" value="{{row.contactName}}" maxlength="64" class="input-small "/>
 							</td>
 							<td>
-								<select id="customerContactList{{idx}}_sex" name="customerContactList[{{idx}}].sex" data-value="{{row.sex}}" class="input-small ">
-									<option value=""></option>
-									<c:forEach items="${fns:getDictList('sex')}" var="dict">
-										<option value="${dict.value}">${dict.label}</option>
-									</c:forEach>
-								</select>
+                            <select id="customerContactList{{idx}}_sex" name="customerContactList[{{idx}}].sex" data-value="{{row.sex}}" class="input-small ">
+                                <option value=""></option>
+                                <c:forEach items="${fns:getDictList('sex')}" var="dict">
+                                    <option value="${dict.value}">${dict.label}</option>
+                                </c:forEach>
+                            </select>
 							</td>
 							<td>
 								<input id="customerContactList{{idx}}_position" name="customerContactList[{{idx}}].position" type="text" value="{{row.position}}" maxlength="64" class="input-small "/>

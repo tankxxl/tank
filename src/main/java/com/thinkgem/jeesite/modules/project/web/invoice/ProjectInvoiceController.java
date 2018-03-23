@@ -78,6 +78,7 @@ public class ProjectInvoiceController extends BaseController {
 		}
 		return entity;
 	}
+	// 根据item id获取发票
 	@ModelAttribute
 	public ProjectInvoiceItem getItem(@RequestParam(required = false) String id) {
 		ProjectInvoiceItem item = null;
@@ -101,7 +102,9 @@ public class ProjectInvoiceController extends BaseController {
 	}
 
 	/**
-	 * 查看审批表单，来源：新建、审批单列表(查看详情)、待办任务列表(act.taskId查看详情)、已办任务列表(act.status查看详情)
+	 * 查看审批表单，根据来源不同显示查看、编辑
+	 * 来源：新建、审批单列表(查看详情)、待办任务列表(act.taskId查看详情)、已办任务列表(act.status查看详情)
+	 *
 	 * @param projectInvoice
 	 * @param model
 	 * @return
@@ -171,10 +174,20 @@ public class ProjectInvoiceController extends BaseController {
 		return prefix + vItemForm;
 	}
 
+	// 后缀view，表示这是一个页面跳转
+	// 功能：准备数据，页面跳转
 	@RequestMapping(value = "resignView")
-	public String resignView(ProjectInvoice projectInvoice, Model model) {
+	public String resignView(@RequestBody String[] itemIds, ProjectInvoice projectInvoice, Model model) {
+		if (itemIds == null) {
+			return null;
+		}
+		if (itemIds.length == 0) {
+			return null;
+		}
+		invoiceService.getItems(projectInvoice, itemIds);
 		// ModelAttribute注解已经把实体放入Model中了
-		// model.addAttribute("projectInvoice", projectInvoice);
+		model.addAttribute("projectInvoice", projectInvoice);
+
 		return prefix + vResignForm;
 	}
 

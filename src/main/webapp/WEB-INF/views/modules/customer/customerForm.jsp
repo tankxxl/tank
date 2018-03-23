@@ -8,6 +8,12 @@
 		$(document).ready(function() {
 			//$("#name").focus();
 			$("#inputForm").validate({
+                rules: {
+                    customerName: {remote: "${ctx}/customer/customer/checkName?oldName=" + encodeURIComponent('${customer.customerName}')}
+                },
+                messages: {
+                    customerName: {remote: "客户名称已存在"}
+                },
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
 					form.submit();
@@ -73,6 +79,7 @@
 		<div class="control-group">
 			<label class="control-label">客户名称：</label>
 			<div class="controls">
+                <input id="oldName" name="oldName" type="hidden" value="${customer.customerName}">
 				<form:input path="customerName" maxlength="64" class="input-xlarge required"/>
 				<span class="help-inline"><font color="red">*</font> </span>
 			</div>
