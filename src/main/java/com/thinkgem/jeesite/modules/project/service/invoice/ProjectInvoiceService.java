@@ -177,9 +177,14 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
     // 方法上的Transactional会覆盖类上声明的事务
     @Transactional(readOnly = false) // 增删改都要写readOnly=false
     public void save(ProjectInvoice projectInvoice) {
+
+        if ( "resign".equals(projectInvoice.getFunc()) ) {
+            projectInvoice.setId(""); // 把各个entity的id去掉，数据库就是新增记录了
+        }
         // 父类保存自己
         super.save(projectInvoice);
-        // ，保存自己的孩子，如果是重开流程
+
+        // ，再保存自己的孩子，如果是重开流程
         if ( "resign".equals(projectInvoice.getFunc()) ) {
             saveAddVerItem(projectInvoice);
         } else {
@@ -271,13 +276,24 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
 
     // 增加一条开票，并增加版本号
     private void saveAddVerItem(ProjectInvoice projectInvoice) {
+        ProjectInvoiceItem invoiceItem = null;
+        String itemId = null;
         for (ProjectInvoiceItem item : projectInvoice.getInvoiceItemList()) {
+            itemId = item.getId(); // 保存原发票id
+            item.setId(""); // 置空，以便重新生成id
+
             item.setInvoice(projectInvoice); // 重新设置一下申请单id
             item.incVer(); // ver + 1
-            // item.preUpdate();
-            // itemDao.update(item);
+
             item.preInsert();
-            itemDao.insert(item); // 新增数据，并增加版本号
+            itemDao.insert(item); // 新增发票，并增加版本号
+
+            // 处理作废的发票，更新一下状态
+            invoiceItem = getItem(itemId); // 从数据库中把老的再取出来
+            invoiceItem.setInvalid("1"); // 作废
+            invoiceItem.setpId(item.getId()); // 关联新的记录id
+            invoiceItem.preUpdate();
+            itemDao.update(invoiceItem); // 更新老发票
         }
     }
 

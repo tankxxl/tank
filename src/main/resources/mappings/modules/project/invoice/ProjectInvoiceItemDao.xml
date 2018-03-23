@@ -6,6 +6,7 @@
         a.project_id AS "apply.id",
         a.invoice_id AS "invoice.id",
         a.contract_id AS "contract.id",
+        a.customer_invoice_id AS "customerInvoice.id",
 
         apply.project_name AS "apply.projectName",
         apply.project_code AS "apply.projectCode",
@@ -40,6 +41,8 @@
         a.invoice_no AS "invoiceNo",
 
         a.ver AS "ver",
+        a.p_id AS "pId",
+
         a.reason AS "reason",
         a.invalid AS "invalid",
 
@@ -62,6 +65,7 @@
         a.project_id AS "apply.id",
         a.invoice_id AS "invoice.id",
         a.contract_id AS "contract.id",
+        a.customer_invoice_id AS "customerInvoice.id",
 
         apply.project_name AS "apply.projectName",
         apply.project_code AS "apply.projectCode",
@@ -95,6 +99,8 @@
         a.invoice_no AS "invoiceNo",
 
         a.ver AS "ver",
+        a.p_id AS "pId",
+
         t2.num AS "verNum",
         a.reason AS "reason",
         a.invalid AS "invalid",
@@ -143,7 +149,7 @@
         FROM project_invoice_item a
         <include refid="joins"/>
         <where>
-            a.del_flag = #{DEL_FLAG_NORMAL}
+            a.del_flag = #{DEL_FLAG_NORMAL} and a.invalid = #{DEL_FLAG_NORMAL}
             <if test="invoice!=null and invoice.id != null and invoice.id != ''">
                 AND a.invoice_id = #{invoice.id}
             </if>
@@ -268,6 +274,7 @@
         invoice_id,
         contract_id,
         contract_item_id,
+        customer_invoice_id,
 
         invoice_type,
         goods_name,
@@ -290,6 +297,8 @@
         invoice_no,
 
         ver,
+        p_id,
+
         reason,
         invalid,
 
@@ -307,6 +316,8 @@
         #{invoice.id},
         #{contract.id},
         #{contractItem.id},
+        #{customerInvoice.id},
+
         #{invoiceType},
         #{goodsName},
         #{spec},
@@ -328,6 +339,8 @@
         #{invoiceNo},
 
         #{ver},
+        #{pId},
+
         #{reason},
         #{invalid},
 
@@ -343,41 +356,42 @@
     </insert>
 
     <update id="update">
-        UPDATE project_invoice_item SET
-        project_id = #{apply.id},
-        invoice_id = #{invoice.id},
-        contract_id = #{contract.id},
-        contract_item_id = #{contractItem.id},
-        invoice_type = #{invoiceType},
-        goods_name = #{goodsName},
-        spec = #{spec},
-        num  = #{num},
-        price = #{price},
-        amount = #{amount},
-        cost_amount = #{costAmount},
+        UPDATE project_invoice_item
+        <trim prefix="set" suffixOverrides=",">
+            <if test="apply!=null and apply.id != null">project_id = #{apply.id},</if>
+            <if test="invoice!=null and invoice.id != null">invoice_id = #{invoice.id},</if>
+            <if test="contract!=null and contract.id != null">contract_id = #{contract.id},</if>
+            <if test="contractItem!=null and contractItem.id != null">contract_item_id = #{contractItem.id},</if>
+            <if test="customerInvoice!=null and customerInvoice.id != null">customer_invoice_id = #{customerInvoice.id},</if>
 
-        attachment = #{attachment},
+            <if test="invoiceType!=null">invoice_type = #{invoiceType},</if>
+            <if test="goodsName!=null">goods_name = #{goodsName},</if>
+            <if test="spec!=null">spec = #{spec},</if>
+            <if test="num!=null">num  = #{num},</if>
+            <if test="price!=null">price = #{price},</if>
+            <if test="amount!=null">amount = #{amount},</if>
+            <if test="costAmount!=null">cost_amount = #{costAmount},</if>
+            <if test="attachment!=null">attachment = #{attachment},</if>
+            <if test="returnDate!=null">return_date = #{returnDate},</if>
+            <if test="returnAmount!=null">return_amount = #{returnAmount},</if>
+            <if test="clientName!=null">client_name = #{clientName},</if>
+            <if test="content!=null">content = #{content},</if>
+            <if test="settlement!=null">settlement = #{settlement},</if>
+            <if test="unit!=null">unit = #{unit},</if>
+            <if test="profit!=null">profit = #{profit},</if>
+            <if test="invoiceNo!=null">invoice_no = #{invoiceNo},</if>
+            <if test="ver!=null">ver = #{ver},</if>
+            <if test="pId!=null">p_id = #{pId},</if>
+            <if test="reason!=null">reason = #{reason},</if>
+            <if test="invalid!=null">invalid = #{invalid},</if>
+            <if test="remarks!=null">remarks = #{remarks},</if>
+            <if test="procInsId!=null">proc_ins_id = #{procInsId},</if>
+            <if test="procStatus!=null">proc_status = #{procStatus},</if>
 
-        return_date = #{returnDate},
-        return_amount = #{returnAmount},
-
-        client_name = #{clientName},
-        content = #{content},
-        settlement = #{settlement},
-        unit = #{unit},
-        profit = #{profit},
-        invoice_no = #{invoiceNo},
-
-        ver = #{ver},
-        reason = #{reason},
-        invalid = #{invalid},
-
-        update_by = #{updateBy.id},
-        update_date = #{updateDate},
-        remarks = #{remarks},
-        proc_ins_id = #{procInsId},
-        proc_status = #{procStatus}
-        WHERE id = #{id}
+            <if test="updateBy!=null and updateBy.id != null">update_by = #{updateBy.id},</if>
+            <if test="updateDate!=null">update_date = #{updateDate},</if>
+        </trim>
+        WHERE id=#{id}
     </update>
 
     <update id="delete">

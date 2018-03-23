@@ -177,6 +177,9 @@ public class ProjectInvoiceController extends BaseController {
 
 	// 后缀view，表示这是一个页面跳转
 	// 功能：准备数据，页面跳转
+    // 重开票、新开票两个动作的入口不一样。
+    // 新开：全是新的对象，但是没值
+    // 重开：item是从前端传入的
 	@RequestMapping(value = "resignView")
 	public String resignView(String[] itemIds,
 								 ProjectInvoice projectInvoice, Model model,
@@ -189,10 +192,6 @@ public class ProjectInvoiceController extends BaseController {
 			return null;
 		}
 
-		// String path = request.getContextPath();
-		// String url = path + "/" + prefix + vResignForm;
-		// url = path + "/" + Global.getAdminPath() + "/project/invoice/form";
-
 		invoiceService.getItems(projectInvoice, itemIds);
 		// ModelAttribute注解已经把实体放入Model中了
 		model.addAttribute("projectInvoice", projectInvoice);
@@ -202,6 +201,7 @@ public class ProjectInvoiceController extends BaseController {
 		// respEntity.setUrl(url);
 		// return respEntity;
 		return prefix + vResignForm;
+		// return prefix + vEdit;
 	}
 
 	// no used
@@ -340,10 +340,10 @@ public class ProjectInvoiceController extends BaseController {
 		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
 			invoiceService.saveFinishProcess(projectInvoice);
 		} else if ("resign".equals(flag)){ // 重开票，保存，发起流程
-			projectInvoice.setId("");
-			for (ProjectInvoiceItem item : projectInvoice.getInvoiceItemList()) {
-				item.setId("");
-			}
+			// projectInvoice.setId(""); // 把各个entity的id去掉，数据库就是新增记录了
+			// for (ProjectInvoiceItem item : projectInvoice.getInvoiceItemList()) {
+			// 	item.setId("");
+			// }
 			projectInvoice.getAct().setFlag("yes");
 			invoiceService.saveLaunch(projectInvoice);
 		} else {

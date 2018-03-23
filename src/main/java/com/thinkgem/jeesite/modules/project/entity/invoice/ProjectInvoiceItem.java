@@ -5,6 +5,7 @@ package com.thinkgem.jeesite.modules.project.entity.invoice;
 
 import com.thinkgem.jeesite.common.persistence.DataEntity;
 import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
+import com.thinkgem.jeesite.modules.customer.entity.CustomerInvoice;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContractItem;
 import com.thinkgem.jeesite.modules.sys.entity.User;
@@ -26,6 +27,8 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
     private ProjectContractItem contractItem;  // 合同项item bjkj不用
 
     private User saler;
+
+    private CustomerInvoice customerInvoice; // 开票客户
 
     private String invoiceType; // 开票类型
 
@@ -50,7 +53,8 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
     private String profit; // 利润点
     private String invoiceNo; // 发票号
     private int ver; // 版本号，数据库真实存在
-    private int verNum; // 共有多少版本
+    private String pId; // 跟ver字段一起使用，实现版本，最新的发票，此值为空
+    private int verNum; // 共有多少版本，计算字段或者组合字段，在sql中运算
     private String reason; // 重开票原因
 
     private Date returnDate;	// 预计回款日期
@@ -62,6 +66,7 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
 
     public ProjectInvoiceItem() {
         super();
+        this.invalid = DEL_FLAG_NORMAL;
     }
 
     public ProjectInvoiceItem(String id){
@@ -285,5 +290,21 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
 
     public void setReturnAmount(String returnAmount) {
         this.returnAmount = returnAmount;
+    }
+
+    public String getpId() {
+        return pId;
+    }
+
+    public void setpId(String pId) {
+        this.pId = pId;
+    }
+
+    public CustomerInvoice getCustomerInvoice() {
+        return customerInvoice;
+    }
+
+    public void setCustomerInvoice(CustomerInvoice customerInvoice) {
+        this.customerInvoice = customerInvoice;
     }
 }
