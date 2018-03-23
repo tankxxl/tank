@@ -148,7 +148,6 @@ window.confirm = function(msg, callback){
 
 //JavaScript 构建一个 form
 function MakeForm() {
-
     // 创建一个 form
     var form1 = document.createElement("form");
 
@@ -180,6 +179,24 @@ function MakeForm() {
 
     // 提交完成后，再删除该 form
     document.body.removeChild(form1);
+}
+
+function post(url, params) {
+    var tempForm = document.createElement("form");
+    tempForm.action = url;
+    tempForm.method = "post";
+    tempForm.style.display = "none";
+    for (var x in params) {
+        var opt = document.createElement("textarea");
+        opt.name = x;
+        opt.value = params[x];
+        // alert(opt.name)
+        tempForm.appendChild(opt);
+    }
+    // 创建->提交->删除
+    document.body.appendChild(tempForm);
+    tempForm.submit();
+    document.body.removeChild(tempForm);
 }
 
 // JQuery动态创建表单并提交

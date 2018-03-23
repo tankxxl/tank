@@ -73,11 +73,12 @@ public class ProjectInvoiceController extends BaseController {
 		if (StringUtils.isNotBlank(id)){
 			entity = invoiceService.get(id);
 		}
-		if (entity == null){
+		if (entity == null) {
 			entity = new ProjectInvoice();
 		}
 		return entity;
 	}
+
 	// 根据item id获取发票
 	@ModelAttribute
 	public ProjectInvoiceItem getItem(@RequestParam(required = false) String id) {
@@ -85,7 +86,7 @@ public class ProjectInvoiceController extends BaseController {
 		if (StringUtils.isNotBlank(id)){
 			item = invoiceService.getItem(id);
 		}
-		if (item == null){
+		if (item == null) {
 			item = new ProjectInvoiceItem();
 		}
 		return item;
@@ -177,17 +178,29 @@ public class ProjectInvoiceController extends BaseController {
 	// 后缀view，表示这是一个页面跳转
 	// 功能：准备数据，页面跳转
 	@RequestMapping(value = "resignView")
-	public String resignView(@RequestBody String[] itemIds, ProjectInvoice projectInvoice, Model model) {
+	public String resignView(String[] itemIds,
+								 ProjectInvoice projectInvoice, Model model,
+								 RedirectAttributes redirectAttributes,
+								 HttpServletRequest request) {
 		if (itemIds == null) {
 			return null;
 		}
 		if (itemIds.length == 0) {
 			return null;
 		}
+
+		// String path = request.getContextPath();
+		// String url = path + "/" + prefix + vResignForm;
+		// url = path + "/" + Global.getAdminPath() + "/project/invoice/form";
+
 		invoiceService.getItems(projectInvoice, itemIds);
 		// ModelAttribute注解已经把实体放入Model中了
 		model.addAttribute("projectInvoice", projectInvoice);
 
+		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面
+		// RespEntity respEntity = new RespEntity(2, "成功！");
+		// respEntity.setUrl(url);
+		// return respEntity;
 		return prefix + vResignForm;
 	}
 

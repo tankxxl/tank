@@ -47,9 +47,9 @@
 <div id="rrapp" v-cloak>
 <ul class="nav nav-tabs">
     <c:if test="${ empty projectInvoice.act.taskId}">
-        <li><a href="${ctx}/project/invoice/">开票列表</a></li>
+        <li><a href="${ctx}/project/invoice/">发票列表</a></li>
     </c:if>
-    <li class="active"><a href="${ctx}/project/invoice/form?id=${projectInvoice.id}">重开票添加</a></li>
+    <li class="active"><a href="${ctx}/project/invoice/form?id=${projectInvoice.id}">重开票申请</a></li>
 </ul><br/>
 
 <form:form id="inputForm" modelAttribute="projectInvoice" htmlEscape="false"
@@ -498,9 +498,9 @@ function submitG() {
     }
     var json = form2js($("#inputForm")[0]);
 
-    // 重开票时只提交勾选的项
-    // var data = $("#table").bootstrapTable('getData');
-    var data = $("#table").bootstrapTable('getSelections');
+    // 重开票时只提交勾选的项或者全部
+    var data = $("#table").bootstrapTable('getData');
+    // var data = $("#table").bootstrapTable('getSelections');
 
     if (data === undefined || data.length == 0) {
         jeesnsDialog.tips("开票项不能为空。");
