@@ -135,6 +135,16 @@
 		LEFT JOIN sys_office s5 on s5.id =u4.office_id
     </sql>
 
+    <sql id="joinsAllVer">
+        LEFT JOIN project_invoice b ON b.id = a.invoice_id
+        LEFT JOIN project_apply_external apply ON apply.id = a.project_id
+        LEFT JOIN project_contract contract ON contract.id = a.contract_id
+        RIGHT JOIN project_invoice_item item ON item.p_id = a.id
+
+        LEFT JOIN sys_user u4 ON u4.id = apply.saler_id
+        LEFT JOIN sys_office s5 on s5.id =u4.office_id
+    </sql>
+
     <select id="get" resultType="ProjectInvoiceItem">
         SELECT
         <include refid="columns"/>
@@ -214,16 +224,19 @@
         </choose>
     </select>
 
-    <!-- 查询某一合同的所有开票项版本 -->
+    <!-- 查询某一合同的所有开票项版本，查询某一发票的所有版本 -->
     <select id="findVerList" resultType="ProjectInvoiceItem">
         SELECT
         <include refid="columns"/>
         FROM project_invoice_item a
-        <include refid="joins"/>
+        <include refid="joinsAllVer"/>
         <where>
             a.del_flag = #{DEL_FLAG_NORMAL}
             <if test="contract != null and contract.id != null and contract.id != ''">
                 AND a.contract_id = #{contract.id}
+            </if>
+            <if test="id != null and id != ''">
+                AND item.p_id = #{id}
             </if>
         </where>
         <choose>

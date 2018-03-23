@@ -266,8 +266,8 @@ public class ProjectInvoiceController extends BaseController {
 	@ResponseBody
 	// @RequiresPermissions(value={"pur:wzmcgl:add","pur:wzmcgl:edit"},logical= Logical.OR)
 	@RequestMapping(value = "findVerList")
-	public List<ProjectInvoiceItem> findVerList(String contractId) {
-		return invoiceService.findVerList(contractId);
+	public List<ProjectInvoiceItem> findVerList(String itemId) {
+		return invoiceService.findVerList(itemId);
 	}
 
 

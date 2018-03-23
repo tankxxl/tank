@@ -109,15 +109,16 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
     }
 
     // 根据某个合同申请号id查找全部版本
-    public List<ProjectInvoiceItem> findVerList(String contractId) {
-        if (StringUtils.isEmpty(contractId)) {
+    public List<ProjectInvoiceItem> findVerList(String itemId) {
+        if (StringUtils.isEmpty(itemId)) {
             return new ArrayList<>();
         }
 
         ProjectInvoiceItem item = new ProjectInvoiceItem();
         ProjectContract contract = new ProjectContract();
-        contract.setId(contractId);
+        // contract.setId(itemId);
         item.setContract(contract);
+        item.setId(itemId);
 
         List<ProjectInvoiceItem> items = itemDao.findVerList(item);
         if (items == null) {

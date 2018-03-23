@@ -170,13 +170,14 @@ $(function () {
 function InitSubTable(index, row, $detail) {
     // 得到合同号id，去查所有版本
     var contract_id = row.contract.id;
+    var itemId = row.id;
     console.log(JSON.stringify(row));
     var cur_table = $detail.html('<table></table>').find('table');
     $(cur_table).bootstrapTable({
         url: '${ctx}/project/invoice/findVerList',
         method: 'get',
-        queryParams: { contractId: contract_id },
-        ajaxOptions: { contractId: contract_id },
+        queryParams: { itemId: itemId },
+        ajaxOptions: { itemId: itemId },
         clickToSelect: true,
         detailView: false,//父子表
         uniqueId: "ID",
