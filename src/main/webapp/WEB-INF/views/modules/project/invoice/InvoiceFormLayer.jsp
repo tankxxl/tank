@@ -168,8 +168,8 @@ $(function () {
  *
  */
 function InitSubTable(index, row, $detail) {
-    // 得到合同号id，去查所有版本
-    var contract_id = row.contract.id;
+    // 得到发票号id，去查所有版本
+    // var contract_id = row.contract.id;
     var itemId = row.id;
     console.log(JSON.stringify(row));
     var cur_table = $detail.html('<table></table>').find('table');
