@@ -192,7 +192,7 @@ var jeesns = {
         });
     },
     // 执行ajax请求
-    jeesnsAjax : function(url,type,data, callback){
+    jeesnsAjax : function(url,type, data, callback){
         var index;
         $.ajax({
             url: url,
@@ -290,7 +290,30 @@ var jeesnsDialog = {
         jeesnsDialog.tips(msg, "success");
     },
 
-    open : function (url, title, width, height, callback) {
+    openView: function (url, title, width, height, callback) {
+        if(width == undefined || width == ""){
+            width = "600px";
+        }
+        if(height == undefined || height == ""){
+            height = "650px";
+        }
+        jeesnsDialog.open(url, title, width, height, true, callback);
+    },
+    openEdit: function (url, title, width, height, callback) {
+        if(width == undefined || width == ""){
+            width = "600px";
+        }
+        if(height == undefined || height == ""){
+            height = "650px";
+        }
+        jeesnsDialog.open(url, title, width, height, false, callback);
+    },
+    // inner
+    open : function (url, title, width, height, viewFlag, callback) {
+        var btns = ['确认', '取消'];
+        if (viewFlag) {
+            btns = ['关闭'];
+        }
         layer.open({
             title: title,
             type: 2,  // 0（信息框，默认）1（页面层）2（iframe层）3（加载层）4（tips层）
@@ -299,15 +322,32 @@ var jeesnsDialog = {
             maxmin: true,
             content: url, // 弹出框内容
             scrollbar: false,
-            btn: ['确认', '取消'], // 按钮1和按钮2的回调分别是yes(btn1)和btn2，而从按钮3开始，则回调为btn3: function(){}，以此类推
+            btn: btns, // 按钮1和按钮2的回调分别是yes(btn1)和btn2，而从按钮3开始，则回调为btn3: function(){}，以此类推
             yes: function (index, layero) {  // 按钮【确认】的回调
+                // 如果只有一个按钮，就直接关闭dlg即可，相当于关闭按钮
+                if (viewFlag) {
+                    layer.close(index);
+                    return;
+                }
                 // 获取弹出层页面的变量
                 // layero.find("iframe"); 找到iframe的jquery对象
                 // layero.find("iframe")[0]; 将jquery对象转化为dom对象
                 // contentWindow 获取当前iframe的内容window对象(dom对象)
                 var data = $(layero).find("iframe")[0].contentWindow.formData();
+                // or
+                // var ifname = "layui-layer-iframe" + index; // 获得layer层的名字
+                // var Ifame = window.frames[ifname]; // 得到框架
+                // var FormID = eval(Ifame.document.getElementById("form1")); // 将字符转成框架中form的对象
+                // Ifame.checkForm(FormID); // 访问框架内的提交函数，并进行提交前的检查
+
+
+
+
                 //当点击‘确定’按钮的时候，获取弹出层返回的值
                 // var res = window["layui-layer-iframe" + index].callbackdata();
+                console.log(data);
+                console.log(!data);
+                // 如果form验证不通过，返回data为空，此处data为空时对话框不关闭
                 if (!data) {
                     return;
                 }

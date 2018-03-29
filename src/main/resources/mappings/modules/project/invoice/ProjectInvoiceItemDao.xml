@@ -20,6 +20,8 @@
 		contract.contract_code AS "contract.contractCode",
 		contract.client_name AS "contract.clientName",
 
+		ci.customer_name AS "customerInvoice.customerName",
+
         a.invoice_type AS "invoiceType",
         a.goods_name AS "goodsName",
         a.spec AS "spec",
@@ -36,6 +38,9 @@
         a.client_name AS "clientName",
         a.content AS "content",
         a.settlement AS "settlement",
+        a.settlement_begin AS "settlementBegin",
+        a.settlement_end AS "settlementEnd",
+
         a.unit AS "unit",
         a.profit AS "profit",
         a.invoice_no AS "invoiceNo",
@@ -120,6 +125,7 @@
         LEFT JOIN project_invoice b ON b.id = a.invoice_id
         LEFT JOIN project_apply_external apply ON apply.id = a.project_id
         LEFT JOIN project_contract contract ON contract.id = a.contract_id
+        LEFT JOIN customer_invoice ci ON ci.id = a.customer_invoice_id
 
         LEFT JOIN sys_user u4 ON u4.id = apply.saler_id
 		LEFT JOIN sys_office s5 on s5.id =u4.office_id
@@ -130,6 +136,7 @@
         LEFT JOIN project_invoice_item a ON t2.ver = a.ver
         LEFT JOIN project_apply_external apply ON apply.id = a.project_id
         LEFT JOIN project_contract contract ON contract.id = a.contract_id
+        LEFT JOIN customer_invoice ci ON ci.id = a.customer_invoice_id
 
         LEFT JOIN sys_user u4 ON u4.id = apply.saler_id
 		LEFT JOIN sys_office s5 on s5.id =u4.office_id
@@ -295,6 +302,9 @@
         client_name,
         content,
         settlement,
+        settlement_begin,
+        settlement_end,
+
         unit,
         profit,
         invoice_no,
@@ -337,6 +347,9 @@
         #{clientName},
         #{content},
         #{settlement},
+        #{settlementBegin},
+        #{settlementEnd},
+
         #{unit},
         #{profit},
         #{invoiceNo},
@@ -380,6 +393,9 @@
             <if test="clientName!=null">client_name = #{clientName},</if>
             <if test="content!=null">content = #{content},</if>
             <if test="settlement!=null">settlement = #{settlement},</if>
+            <if test="settlementBegin!=null">settlement_begin = #{settlementBegin},</if>
+            <if test="settlementEnd!=null">settlement_end = #{settlementEnd},</if>
+
             <if test="unit!=null">unit = #{unit},</if>
             <if test="profit!=null">profit = #{profit},</if>
             <if test="invoiceNo!=null">invoice_no = #{invoiceNo},</if>

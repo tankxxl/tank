@@ -13,7 +13,6 @@ import com.thinkgem.jeesite.common.web.BaseController;
 import com.thinkgem.jeesite.modules.customer.entity.Customer;
 import com.thinkgem.jeesite.modules.customer.entity.CustomerInvoice;
 import com.thinkgem.jeesite.modules.customer.service.CustomerInvoiceService;
-import com.thinkgem.jeesite.modules.sys.service.DictService;
 import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -42,8 +41,6 @@ public class CustomerInvoiceController extends BaseController {
 
 	@Autowired
 	private CustomerInvoiceService customerInvoiceService;
-	@Autowired
-	private DictService dictService;
 	
 	@ModelAttribute
 	public CustomerInvoice get(@RequestParam(required=false) String id) {
@@ -78,6 +75,15 @@ public class CustomerInvoiceController extends BaseController {
 		model.addAttribute("customerInvoice", customerInvoice);
 		return "modules/customer/customerInvoiceForm";
 	}
+
+	@RequiresPermissions("customer:invoice:view")
+	@RequestMapping(value = "view")
+	public String view(CustomerInvoice customerInvoice, Model model) {
+		customerInvoice.setFunc("view");
+		model.addAttribute("customerInvoice", customerInvoice);
+		return "modules/customer/customerInvoiceForm";
+	}
+
 	/**
 	 * 提供界面+数据
 	 * 客户负责人 看到的form界面，功能为添加联系人

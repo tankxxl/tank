@@ -5,13 +5,19 @@
 	<sql id="columns">
 		a.id AS "id",
 		a.customer_name AS "customerName",
+		a.area_id AS "area.id",
+
 		a.phone AS "phone",
-		a.fax AS "fax",
+
+		a.mail_person AS "mailPerson",
+		a.mail_address AS "mailAddress",
+
 		a.industry AS "industry",
+
 		a.province AS "province",
 		a.customer_category AS "customerCategory",
 		a.address AS "address",
-		a.website AS "website",
+
 		a.create_by AS "createBy.id",
 		a.create_date AS "createDate",
 		a.update_by AS "updateBy.id",
@@ -19,6 +25,11 @@
 		a.remarks AS "remarks",
 		a.del_flag AS "delFlag",
 		a.principal AS "principal.id",
+
+		a.tax_no AS "taxNo",
+		a.bank_name AS "bankName",
+		a.bank_no AS "bankNo",
+
 		u4.name AS "principal.name",
 		u5.name AS "createBy.name"
 	</sql>
@@ -27,6 +38,7 @@
 		LEFT JOIN sys_user u4 ON u4.id = a.principal
 		LEFT JOIN sys_user u5 ON u5.id = a.create_by
 		LEFT JOIN sys_office s5 on s5.id =u4.office_id
+		LEFT JOIN sys_area ar ON ar.id = a.area_id
 	</sql>
     
 	<select id="get" resultType="CustomerInvoice">
@@ -96,35 +108,53 @@
 	<insert id="insert">
 		INSERT INTO customer_invoice(
 			id,
+			area_id,
+
 			customer_name,
+			mail_person,
+			mail_address,
+
 			phone,
-			fax,
+
 			industry,
 			customer_category,
 			address,
-			website,
+
 			create_by,
 			create_date,
 			update_by,
 			update_date,
 			remarks,
 			del_flag,
+
+			tax_no,
+			bank_name,
+			bank_no,
+
 			principal
 		) VALUES (
 			#{id},
+			#{area.id},
+
 			#{customerName},
+			#{mailPerson},
+			#{mailAddress},
+
 			#{phone},
-			#{fax},
 			#{industry},
 			#{customerCategory},
 			#{address},
-			#{website},
 			#{createBy.id},
 			#{createDate},
 			#{updateBy.id},
 			#{updateDate},
 			#{remarks},
 			#{delFlag},
+
+			#{taxNo},
+			#{bankName},
+			#{bankNo},
+
 			#{principal.id}
 		)
 	</insert>
@@ -132,15 +162,24 @@
 	<update id="update">
 		UPDATE customer_invoice SET
 			customer_name = #{customerName},
+			area_id = #{area.id},
+
 			phone = #{phone},
-			fax = #{fax},
+			mail_person = #{mailPerson},
+			mail_address = #{mailAddress},
+
 			industry = #{industry},
 			customer_category = #{customerCategory},
 			address = #{address},
-			website = #{website},
+
 			update_by = #{updateBy.id},
 			update_date = #{updateDate},
 			remarks = #{remarks},
+
+			tax_no = #{taxNo},
+			bank_name = #{bankName},
+			bank_no = #{bankNo},
+
 			principal = #{principal.id}
 		WHERE id = #{id}
 	</update>

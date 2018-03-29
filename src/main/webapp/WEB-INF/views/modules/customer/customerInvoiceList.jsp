@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp"%>
 <html>
 <head>
-	<title>客户联系人管理</title>
+	<title>开票客户管理</title>
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
@@ -47,12 +47,6 @@
 			<li><label>客户名称：</label>
 				<form:input path="customerName" maxlength="64" class="input-medium"/>
 			</li>
-			<li><label>行业：</label>
-				<form:select path="industry" class="input-medium">
-					<form:option value="" label=""/>
-					<form:options items="${fns:getDictList('customer_industry')}" itemLabel="label" itemValue="value"/>
-				</form:select>
-			</li>
 			<li class="btns">
 				<input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/>
 				<%--<shiro:hasPermission name="customer:invoice:edit">--%>
@@ -68,9 +62,7 @@
 		<thead>
 			<tr>
 				<th>客户名称</th>
-				<th>行业</th>
 				<th>客户地点</th>
-				<th>负责人</th>
 				<th>创建者</th>
 				<th>创建时间</th>
 				<shiro:hasPermission name="customer:invoice:edit"><th>操作</th></shiro:hasPermission>
@@ -90,13 +82,7 @@
 					</shiro:lacksPermission>
 				</td>
 				<td>
-					${fns:getDictLabel(customerInvoice.industry, 'customer_industry', '')}
-				</td>
-				<td>
 					${customerInvoice.address}
-				</td>
-				<td>
-					${customerInvoice.principal.name}
 				</td>
 				<td>
 					${customerInvoice.createBy.name}

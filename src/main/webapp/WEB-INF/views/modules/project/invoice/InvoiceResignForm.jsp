@@ -550,7 +550,7 @@ var vm = new Vue({
         myAddClick: function(){ // vue增加
             row = null;
             rowIndex = null;
-            jeesnsDialog.open('${ctx}/project/invoice/addItemView',
+            jeesnsDialog.openEdit('${ctx}/project/invoice/addItemView',
                 '增加开票项', '600px', '650px', function(data) {
                 $('#table').bootstrapTable('append', data);
             });
@@ -585,7 +585,7 @@ var vm = new Vue({
             row = getSelectedRow(); // 全局变量赋值
             rowIndex = indexes[0];
 
-            jeesnsDialog.open('${ctx}/project/invoice/addItemView?id=' + row.id,
+            jeesnsDialog.openEdit('${ctx}/project/invoice/addItemView?id=' + row.id,
                 '增加开票项', '600px', '650px', function(data) {
                     $('#table').bootstrapTable('updateRow', {index: rowIndex, row: data});
                 });

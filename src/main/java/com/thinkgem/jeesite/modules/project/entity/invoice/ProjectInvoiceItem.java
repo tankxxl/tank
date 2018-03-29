@@ -49,6 +49,8 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
     private String clientName; // 客户名称
     private String content; // 开票内容
     private String settlement; // 结算周期
+    private Date settlementBegin; //
+    private Date settlementEnd; //
     private String unit; // 单位(元、套、个)
     private String profit; // 利润点
     private String invoiceNo; // 发票号
@@ -61,6 +63,12 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
     private String returnAmount; // 回款金额
 
     private String invalid; // 作废标志0有效1作废
+
+    /**
+     * 1、offset：对冲，前端赋值，用于告诉后端，此记录是做对冲处理
+     * 2、front: 后端赋值，用于告诉前端，此记录不在数据库中，要用前端的数据去填充，用在还没有保存子table，要弹框修改记录时
+     */
+    private String func; // 用于前后端传递信息，不持久化
 
 
 
@@ -306,5 +314,29 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
 
     public void setCustomerInvoice(CustomerInvoice customerInvoice) {
         this.customerInvoice = customerInvoice;
+    }
+
+    public Date getSettlementBegin() {
+        return settlementBegin;
+    }
+
+    public void setSettlementBegin(Date settlementBegin) {
+        this.settlementBegin = settlementBegin;
+    }
+
+    public Date getSettlementEnd() {
+        return settlementEnd;
+    }
+
+    public void setSettlementEnd(Date settlementEnd) {
+        this.settlementEnd = settlementEnd;
+    }
+
+    public String getFunc() {
+        return func;
+    }
+
+    public void setFunc(String func) {
+        this.func = func;
     }
 }

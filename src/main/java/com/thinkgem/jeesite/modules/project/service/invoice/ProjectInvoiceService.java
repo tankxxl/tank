@@ -92,6 +92,7 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
 
     /**
      * 根据item id 获取发票，并关联一个申请单
+     * 这些发票是给前端重开票用的，所以要把发票号给去掉
      * @param projectInvoice
      * @param itemIds
      * @return
@@ -101,8 +102,11 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
             projectInvoice = new ProjectInvoice();
         }
         List<ProjectInvoiceItem> itemList = Lists.newArrayList();
+        ProjectInvoiceItem item ;
         for (int i = 0; i < itemIds.length; i++) {
-            itemList.add(getItem(itemIds[i]));
+            item = getItem(itemIds[i]);
+            item.setInvoiceNo(""); // 给前端返回时，去掉发票号，好让前端重新填写发票号
+            itemList.add(item);
         }
         projectInvoice.setInvoiceItemList(itemList);
         return projectInvoice;

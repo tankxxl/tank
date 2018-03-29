@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.thinkgem.jeesite.modules.project.dao.invoice.ProjectInvoiceDao">
     
-	<sql id="columns">
+	<sql id="columns_bak">
         a.id AS "id",
 		a.project_id AS "apply.id",
 		a.contract_id AS "contract.id",
@@ -52,14 +52,48 @@
 		u4.login_name AS "saler.loginName",
 		s5.name AS "saler.office.name",
 
-
 		u6.name AS "createBy.name",
 		u6.login_name AS "createBy.loginName",
 		s6.name AS "createBy.office.name"
-		
 	</sql>
-	
-	<sql id="joins">
+
+	<sql id="columns">
+        a.id AS "id",
+		a.project_id AS "apply.id",
+		a.contract_id AS "contract.id",
+		a.contract_item_id AS "contractItem.id",
+
+		a.contract_type AS "contractType",
+		a.invoice_type AS "invoiceType",
+		a.customer_name AS "customerName",
+		a.tax_no AS "taxNo",
+		a.bank_name AS "bankName",
+		a.bank_no AS "bankNo",
+		a.address AS "address",
+		a.phone AS "phone",
+
+		a.invoice_amount AS "invoiceAmount",
+		a.return_date AS "returnDate",
+		a.invoice_date AS "invoiceDate",
+
+		a.attachment AS "attachment",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.proc_ins_id AS "procInsId",
+		a.proc_status AS "procStatus",
+
+		u6.name AS "createBy.name",
+		u6.login_name AS "createBy.loginName",
+
+		s6.id AS "createBy.office.id",
+		s6.name AS "createBy.office.name"
+	</sql>
+
+	<sql id="joins_bak">
 		LEFT JOIN project_apply_external pro_apply ON pro_apply.id = a.project_id
 		LEFT JOIN project_contract contract ON contract.project_id = a.project_id
 		LEFT JOIN project_contract_item contract_item ON contract_item.contract_id = contract.id
@@ -70,7 +104,11 @@
 
 		LEFT JOIN sys_user u6 ON u6.id = a.create_by
 		LEFT JOIN sys_office s6 ON s6.id = u6.office_id
-
+	</sql>
+	
+	<sql id="joins">
+		LEFT JOIN sys_user u6 ON u6.id = a.create_by
+		LEFT JOIN sys_office s6 ON s6.id = u6.office_id
 	</sql>
     
 	<select id="get" resultType="ProjectInvoice">

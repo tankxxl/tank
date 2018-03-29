@@ -46,7 +46,11 @@ public class ProjectInvoice extends ActEntity<ProjectInvoice> {
 
     private String attachment; // 文档附件
 
-    private String func; // 功能，由于json传输时act对象不能使用，所以新建一个func用来接收前端传来的功能(如：save、update、delete等)
+    /**
+     * 功能，由于json传输时act对象不能使用，所以新建一个func用来接收前端传来的功能(如：save、update、delete等)
+     *
+     */
+    private String func;
 
 
 	public ProjectInvoice() {

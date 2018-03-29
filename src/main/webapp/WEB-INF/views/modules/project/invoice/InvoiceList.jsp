@@ -3,6 +3,7 @@
 <html>
 <head>
 	<title>开票管理</title>
+	<%-- 开票申请单列表 --%>
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
@@ -117,7 +118,6 @@
 				<td>
 					<c:if test="${invoice.procStatus == '2'}">
 					<input export="btnExport" class="btn btn-primary" type="button" proId="${invoice.id}" value="导出"/>
-					<a href="${ctx}/project/invoice/resignView?id=${invoice.id}">重开</a>
 					</c:if>
     				<a href="${ctx}/project/invoice/form?id=${invoice.id}">详情</a>
 
@@ -125,7 +125,7 @@
 						<a class="trace" target="_blank" procInsId="${invoice.procInsId}" href="${ctx}/act/task/trace1?procInsId=${invoice.procInsId}">跟踪</a>
 					</c:if>
 					<c:if test="${invoice.procStatus == '2'}">
-						<a class="warning" href="${ctx}/project/invoice/delete?id=${invoice.id}" onclick="return confirmx('确认要删除吗？', this.href)">删除</a>
+						<a class="warning" href="${ctx}/project/invoice/delete?id=${invoice.id}" onclick="return confirmx('确认要删除发票申请单吗？', this.href)">删除</a>
 					</c:if>
 
                     <shiro:hasPermission name="project:invoice:admin">

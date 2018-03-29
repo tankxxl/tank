@@ -47,17 +47,19 @@ public class ProjectInvoiceController extends BaseController {
 
 	String prefix = "modules/project/invoice/";
 	String vList = "InvoiceList"; // 申请单列表
+	String vItemList = "InvoiceItemList"; // 发票列表
 	String vEdit = "InvoiceFormLayer"; // 申请单form
 	String vItemForm = "InvoiceItemForm"; // 开票项form
 	String vViewAudit = "InvoiceView"; // 申请单view
 	/**
-	 * 重开跟编辑页面相似
+	 * 重开跟编辑页面相似，前后端通过func变量来区分新开或重开，故此页面作废
 	 * 重开页面的操作有：
 	 * 1、修改发票项
 	 * 2、选择发票项
 	 * 3、新增申请单、新增开票项(版本号也增加)
 	 * 4、不能新增和删除开票项（这是跟编辑页面的区别）
 	 */
+	@Deprecated
 	String vResignForm = "InvoiceResignForm";
 
     /**
@@ -95,7 +97,7 @@ public class ProjectInvoiceController extends BaseController {
 	@RequiresPermissions("project:invoice:view")
 	@RequestMapping(value = {"list", ""})
 	public String list(ProjectInvoice projectInvoice, HttpServletRequest request, HttpServletResponse response, Model model) {
-		projectInvoice.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+		projectInvoice.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s6", "u6"));
 		Page<ProjectInvoice> page = invoiceService.findPage(new Page<ProjectInvoice>(request, response), projectInvoice);
 		model.addAttribute("page", page);
 		// return "modules/project/invoice/InvoiceList";
@@ -116,15 +118,15 @@ public class ProjectInvoiceController extends BaseController {
 		// String prefix = "modules/project/invoice/";
 		String view = "InvoiceForm";
 
-		// @todo test
+		// 使用layer弹框来新增子记录
 		view = "InvoiceFormLayer";
 		// form为编辑页面、view为查看、审批页面
-
-		model.addAttribute("projectInvoice", projectInvoice);
 
 		String jsonStr = JsonMapper.getInstance().toJson(projectInvoice);
 		// ProjectInvoice invoice = JsonMapper.getInstance().fromJson(jsonStr, ProjectInvoice.class);
 		System.out.println(jsonStr);
+
+		model.addAttribute("projectInvoice", projectInvoice);
 
 		// 待办、已办入口界面传的act是一样的，只是act中的status不一样。
 
@@ -171,6 +173,9 @@ public class ProjectInvoiceController extends BaseController {
 
 	@RequestMapping(value = "addItemView")
 	public String addItemView(ProjectInvoiceItem projectInvoiceItem, Model model) {
+		if (StringUtils.isEmpty(projectInvoiceItem.getId())) {
+			projectInvoiceItem.setFunc("front"); // 如果数据库中查不到，则表明数据在前端
+		}
 		model.addAttribute("projectInvoiceItem", projectInvoiceItem);
 		return prefix + vItemForm;
 	}
@@ -191,8 +196,8 @@ public class ProjectInvoiceController extends BaseController {
 		if (itemIds.length == 0) {
 			return null;
 		}
-
 		invoiceService.getItems(projectInvoice, itemIds);
+		projectInvoice.setFunc("resign"); // 告诉前端这是重开，重开、新开共用一个界面
 		// ModelAttribute注解已经把实体放入Model中了
 		model.addAttribute("projectInvoice", projectInvoice);
 
@@ -200,18 +205,21 @@ public class ProjectInvoiceController extends BaseController {
 		// RespEntity respEntity = new RespEntity(2, "成功！");
 		// respEntity.setUrl(url);
 		// return respEntity;
-		return prefix + vResignForm;
-		// return prefix + vEdit;
+
+		// return prefix + vResignForm;
+		return prefix + vEdit;
 	}
 
-	// no used
-	@RequestMapping(value = "update")
-	public String update(ProjectInvoice projectInvoice, Model model) {
-		String prefix = "modules/project/invoice/";
+	@RequestMapping(value = "offsetView")
+	public String offsetView(ProjectInvoice projectInvoice, Model model) {
 		String view = "InvoiceAdd";
 
 		model.addAttribute("projectInvoice", projectInvoice);
-		return prefix + view;
+		return prefix + vItemForm;
+		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面
+		// RespEntity respEntity = new RespEntity(1, "对冲成功！");
+		// // respEntity.setUrl(url);
+		// return respEntity;
 	}
 
 	@RequiresPermissions("project:invoice:admin")
@@ -240,7 +248,6 @@ public class ProjectInvoiceController extends BaseController {
 	/**
 	 * 验证合同号是否重复
 	 * 使用于前端的jQuery validate插件，服务端只能输出 "true" 或 "false"，不能有其它输出.
-	 *
 	 * @param code
 	 * @return true、false
 	 */
@@ -248,7 +255,6 @@ public class ProjectInvoiceController extends BaseController {
 	// @RequiresPermissions(value={"pur:wzmcgl:add","pur:wzmcgl:edit"},logical= Logical.OR)
 	@RequestMapping(value = "hasCode")
 	public String hasCode(String oldCode, @RequestParam("contract.contractCode") String code) {
-
 		return "true";
 		// if (code!=null && code.equals(oldCode)) {
 		// 	return "true";
@@ -260,7 +266,7 @@ public class ProjectInvoiceController extends BaseController {
 
 	/**
 	 * 按合同号查询所有的开票版本
-	 * @param contractId 合同号
+	 * @param itemId 合同号
 	 * @return
 	 */
 	@ResponseBody
@@ -378,8 +384,6 @@ public class ProjectInvoiceController extends BaseController {
 		return "test";
 	}
 
-	//
-
 	/**
 	 * ajax批量删除子表(开票项)
 	 * @param ids 前端传递的ids
@@ -473,6 +477,11 @@ public class ProjectInvoiceController extends BaseController {
 		// String path = request.getContextPath();
 		// String url = path + "/" + adminPath + "/act/task/todo/";
 
+		if (invoiceItem.getFunc() != null && "offset".equals(invoiceItem.getFunc())) {
+			invoiceItem.setpId(invoiceItem.getId()); // 设置关联
+			invoiceItem.setInvalid("1"); // 作废
+			invoiceItem.setId(""); // insert
+		}
 		invoiceService.saveItem(invoiceItem);
 
 		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面

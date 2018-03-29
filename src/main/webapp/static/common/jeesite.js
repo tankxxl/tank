@@ -116,6 +116,16 @@ function getSelectedRows(domId) {
     return $('#' + domId).bootstrapTable('getSelections');
 }
 
+// 得到选中行的行号，用于update操作
+function getSelectedIndexes() {
+    var index = [];
+    $('input[name="selectItemName"]:checked').each(function () {
+        index.push($(this).data('index'));
+    });
+    return index;
+//    alert('Checked row index: ' + index.join(', '));
+}
+
 // bootstrap-table操作结束
 
 function isString(value) {

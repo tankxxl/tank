@@ -3,6 +3,7 @@
 <html>
 <head>
 	<title>开票添加</title>
+    <%-- 发票form --%>
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
@@ -43,7 +44,6 @@
 					// error.appendTo( element.parent().next() );
 				}
 			}); // end validate()
-//            js2form(document.getElementById('inputForm'), parent.row);
 
             // 必填项提示，后面加星提示
             $('.required').after('<span style="color:red">&nbsp;*</span>');
@@ -52,10 +52,10 @@
                 $("#inputForm").validate().element($("#contractName"));
             });
 
-
+            fillForm();
 		});  // end init
 
-        // 父页面调用，用来收集dialog中的值
+        // 回调函数，收集子dlg中的表单数据，父页面调用，用来收集dialog中的值
         function formData() {
             if (!$("#inputForm").valid()) {
                 jeesnsDialog.tips("输入有误。");
@@ -67,8 +67,15 @@
             return json;
         }
         
-        function test() {
-            console.log("我是按钮，点击了");
+        function fillForm() {
+            <c:if test="${projectInvoiceItem.func == 'front'}">
+            if (parent.row) {
+                js2form(document.getElementById('inputForm'), parent.row);
+
+                var ddd = $("#invoiceType").select2();    //获取selectid
+                ddd.val(parent.row.invoiceType).trigger("change");    //设置 value 为four的 option 为选中状态
+            }
+            </c:if>
         }
 
         // 选择项目后触发事件
@@ -102,6 +109,7 @@
            action="${ctx}/project/invoice/save"
            method="post" class="form-horizontal">
     <form:hidden path="id"/>
+    <form:hidden path="invoice.id"/>
     <sys:message content="${message}"/>
 
     <div class="control-group">
@@ -136,24 +144,33 @@
                     notAllowSelectParent="true"
                     cssClass="required"
                     customClick="changedContract"/>
-
         </div>
     </div>
 
     <div class="control-group">
         <label class="control-label">开票类型:</label>
         <div class="controls">
-            <form:select path="invoiceType" class="required" style="width:80%;">
-                <form:option value="" label=""/>
-                <form:options items="${fns:getDictList('jic_invoice_type')}" itemLabel="label" itemValue="value"/>
+            <%--<form:select path="invoiceType" class="required" style="width:80%;">--%>
+                <%--<form:option value="" label=""/>--%>
+                <%--<form:options items="${fns:getDictList('jic_invoice_type')}" itemLabel="label" itemValue="value"/>--%>
+            <%--</form:select>--%>
+
+            <form:select path="invoiceType" items="${fns:getDictList('jic_invoice_type')}"
+                         itemLabel="label" itemValue="value" class="required" style="width:80%;">
             </form:select>
         </div>
     </div>
 
     <div class="control-group">
-        <label class="control-label">客户名称:</label>
+        <label class="control-label">开票客户名称:</label>
         <div class="controls">
-            <form:input path="clientName" class="required"/>
+            <sys:treeselect id="customerInvoice"
+                name="customerInvoice.id" value="${projectInvoiceItem.customerInvoice.id}"
+                labelName="customerInvoice.customerName" labelValue="${projectInvoiceItem.customerInvoice.customerName}"
+                title="选择开票客户"
+                cssStyle="width: 85%"
+                url="/customer/invoice/treeData"
+                cssClass="required"  allowClear="true" notAllowSelectParent="true" />
         </div>
     </div>
 
@@ -206,22 +223,28 @@
         </div>
     </div>
 
+    <shiro:hasAnyRoles name="usertask_finance_leader">
+    <div class="control-group">
+        <label class="control-label">发票编号:</label>
+        <div class="controls">
+            <form:input path="invoiceNo" class="required"/>
+        </div>
+    </div>
+    </shiro:hasAnyRoles>
     <div class="control-group">
         <label class="control-label">结算周期:</label>
         <div class="controls">
-            <form:input path="settlement" class="required"/>
+            <input id="settlementBegin"  name="settlementBegin"  type="text" readonly="readonly" class="input-mini Wdate"
+                   value="<fmt:formatDate value="${projectInvoiceItem.settlementBegin}" pattern="yyyy-MM-dd"/>"
+                   onclick="WdatePicker({dateFmt:'yyyy-MM-dd'});"/>
+            　--　
+            <input id="settlementEnd" name="settlementEnd" type="text" readonly="readonly" class="input-mini Wdate"
+                   value="<fmt:formatDate value="${projectInvoiceItem.settlementEnd}" pattern="yyyy-MM-dd"/>"
+                   onclick="WdatePicker({dateFmt:'yyyy-MM-dd'});"/>
         </div>
     </div>
 
-    <%--<c:if test="${projectInvoice.act.taskDefKey eq 'usertask_software_development_leader'}">--%>
     <c:if test="${0 eq 1}">
-    <div class="control-group">
-        <label class="control-label">发票号:</label>
-        <div class="controls">
-            <form:input path="invoiceNo" />
-        </div>
-    </div>
-
     <div class="control-group">
         <label class="control-label">回款日期:</label>
         <div class="controls">
