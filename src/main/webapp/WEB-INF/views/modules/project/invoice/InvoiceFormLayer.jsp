@@ -382,6 +382,7 @@ function initTable () {
 
     // 得到查询的参数，由bootstrap-table组件调用并传参
     function queryParams (params) {
+        //这里是在ajax发送请求的时候设置一些参数 params有什么东西，自己看看源码就知道了
         //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
         var temp = $("#searchForm").serializeJsonObject();
         temp["pageSize"] = params.limit;                        //页面大小

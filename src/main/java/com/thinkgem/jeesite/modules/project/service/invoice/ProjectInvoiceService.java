@@ -15,11 +15,16 @@ import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoice;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoiceItem;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoiceReturn;
+import com.thinkgem.jeesite.modules.sys.entity.User;
+import com.thinkgem.jeesite.modules.sys.service.SystemService;
+import org.apache.commons.lang.math.RandomUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -59,6 +64,9 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
 
 	@Autowired
     ProjectInvoiceReturnDao returnDao;
+
+	@Autowired
+    SystemService systemService ;
 
 
     @Override
@@ -112,16 +120,16 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
         return projectInvoice;
     }
 
-    // 根据某个合同申请号id查找全部版本
+    // 根据某个发票id查找此发票的全部版本
     public List<ProjectInvoiceItem> findVerList(String itemId) {
         if (StringUtils.isEmpty(itemId)) {
             return new ArrayList<>();
         }
 
         ProjectInvoiceItem item = new ProjectInvoiceItem();
-        ProjectContract contract = new ProjectContract();
+        // ProjectContract contract = new ProjectContract();
         // contract.setId(itemId);
-        item.setContract(contract);
+        // item.setContract(contract);
         item.setId(itemId);
 
         List<ProjectInvoiceItem> items = itemDao.findVerList(item);
@@ -131,11 +139,8 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
         if (items.isEmpty()) {
             return items;
         }
-        // 去掉最新版本
-        // items.remove(0);
         return items;
     }
-
 
 
     public List<ProjectInvoice> findListByContractId(ProjectInvoice projectInvoice) {
@@ -317,7 +322,30 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
             invoiceItem.preUpdate();
             itemDao.update(invoiceItem);
         }
+    }
 
+
+    /**
+     * bean方式给ureport提供数据，方法一定要有以下三个参数
+     * @param dsName
+     * @param datasetName
+     * @param parameters
+     * @return
+     */
+    public List<User> buildReport(String dsName, String datasetName, Map<String, Object> parameters) {
+        List<User> users = systemService.findUser(new User());
+        return users;
+    }
+
+    public List<Map<String, Object>> loadReport(String dsName, String datasetName, Map<String, Object> parameters) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (int i = 0; i < 1000; i++) {
+            Map<String, Object> m = new HashMap<>();
+            m.put("id", 1);
+            m.put("name", RandomStringUtils.random(10, true, false));
+            m.put("salary", RandomUtils.nextInt(10000) + i);
+        }
+        return list;
     }
 
 }

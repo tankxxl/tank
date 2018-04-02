@@ -88,7 +88,7 @@
 		<%--<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除--%>
 	<%--</button>--%>
 </div>
-<table id="table" data-mobile-responsive="true"></table>
+<table id="table" data-mobile-responsive="true" ></table>
 
 <script>
 
@@ -152,6 +152,7 @@ $(function () {
             sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
             pageSize: 30,                     //每页的记录行数（*）
             strictSearch: true,
+            search: false,               //是否显示表格搜索，此搜索是客户端搜索，不会进服务端
             showColumns: true,                  //是否显示所有的列（选择显示的列）
             showRefresh: true,                  //是否显示刷新按钮
             showFullscreen: true,
@@ -338,6 +339,7 @@ window.operateEvents = {
 
 //得到查询的参数
 function queryParams(params) {
+    //这里是在ajax发送请求的时候设置一些参数 params有什么东西，自己看看源码就知道了
 	//这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
 	var temp = $("#searchForm").serializeJsonObject();
 	temp["pageSize"] = params.limit;                        //页面大小

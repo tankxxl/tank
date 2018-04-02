@@ -48,6 +48,8 @@ public class ProjectInvoiceItemController extends BaseController {
 	String prefix = "modules/project/invoice/";
 	String vList = "InvoiceItemList"; // 申请单列表
 	String vEdit = "InvoiceFormLayer"; // 申请单form
+
+	@Deprecated
 	String vItemForm = "InvoiceItemForm"; // 开票项form
 	String vViewAudit = "InvoiceView"; // 申请单view
 	/**
@@ -58,6 +60,7 @@ public class ProjectInvoiceItemController extends BaseController {
 	 * 3、新增申请单、新增开票项(版本号也增加)
 	 * 4、不能新增和删除开票项（这是跟编辑页面的区别）
 	 */
+	@Deprecated
 	String vResignForm = "InvoiceResignForm";
 
     /**
