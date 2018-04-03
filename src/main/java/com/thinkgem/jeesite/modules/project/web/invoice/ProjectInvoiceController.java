@@ -466,6 +466,9 @@ public class ProjectInvoiceController extends BaseController {
 
 
 	/**
+	 * 保存数据，使用ajax以json的形式上传，使用RequestBody接收
+	 * 返回RespEntity，包括：成功与否、跳转信息等，不返回业务数据
+	 *
 	 * ajax前端提交，要手动收集form、table中的数据，所以使用ajax提交
 	 */
 	@RequestMapping(value = "saveItemAjax")
@@ -531,7 +534,7 @@ public class ProjectInvoiceController extends BaseController {
 	}
 
 	/**
-	 * ajax，只返回数据
+	 * 查询请求，form提交，以便通过request接收前端的分页信息，ajax，只返回数据Page<entity>，以供bootstrap-table展示
 	 * @param projectInvoice
 	 * @param request
 	 * @param response

@@ -10,6 +10,8 @@ import java.sql.SQLException;
 
 /**
  * 本质是个bean，给ureport提供数据源，dataSource是由spring管理的
+ *
+ * 相当于给ureport配置了一个datasource、connection
  */
 
 @Component
