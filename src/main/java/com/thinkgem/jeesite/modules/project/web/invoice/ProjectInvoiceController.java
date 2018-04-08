@@ -33,6 +33,11 @@ import java.util.Map;
 
 /**
  * 项目开票Controller
+ *
+ *
+ * 提交表单类：使用json提交，返回json的Entity
+ * 查询类：使用form提交，返回json的page对象
+ *
  * @author jicdata
  * @version 2016-03-08
  */

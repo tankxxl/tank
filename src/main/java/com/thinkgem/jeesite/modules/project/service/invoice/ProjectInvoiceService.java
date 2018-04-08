@@ -348,4 +348,18 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
         return list;
     }
 
+    public List<ProjectInvoiceItem> loadAllInvoiceItem(String dsName, String datasetName, Map<String, Object> parameters) {
+        ProjectInvoiceItem item = new ProjectInvoiceItem();
+        // item.setId(itemId);
+
+        List<ProjectInvoiceItem> items = itemDao.findList(item);
+        if (items == null) {
+            return new ArrayList<>();
+        }
+        if (items.isEmpty()) {
+            return items;
+        }
+        return items;
+    }
+
 }
