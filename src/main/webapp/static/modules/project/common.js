@@ -10,19 +10,21 @@ $(function () {
     //自定义函数处理queryParams的批量增加 - 自动将form表单封装成json
     // 如：input控件的name='act.id'，此函数生成的json为:'act.id': '123'，不能满足ajax请求，RequestBody接收复杂对象的需求。
     $.fn.serializeJsonObject = function () {
-        var json = {};
-        var form = this.serializeArray();
-        $.each(form, function () {
-            if (json[this.name]) {
-                if (!json[this.name].push) {
-                    json[this.name] = [json[this.name]];
+        var serializeObj = {}; // 目标对象
+        var form = this.serializeArray(); // 转换数组格式
+        $.each(form, function () { // 遍历数组的每个元素{name: xx, value: xxx}
+            if(serializeObj[this.name]){ // 判断对象中是否已经存在 name，如果存在name
+                if($.isArray(serializeObj[this.name])){
+                    serializeObj[this.name].push(this.value); // 追加一个值 hobby : ['音乐','体育']
+                }else{
+                    // 将元素变为 数组 ，hobby : ['音乐','体育']
+                    serializeObj[this.name]=[serializeObj[this.name],this.value];
                 }
-                json[this.name].push();
-            } else {
-                json[this.name] = this.value || '';
+            }else{
+                serializeObj[this.name]=this.value; // 如果元素name不存在，添加一个属性 name:value
             }
         });
-        return json;
+        return serializeObj;
     }
     
 }); // init end
