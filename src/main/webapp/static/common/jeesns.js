@@ -199,7 +199,7 @@ var jeesns = {
             type: type,
             data: JSON.stringify(data),
             cache: false,
-            contentType: 'application/json;charset=UTF-8',
+            contentType: 'application/json;charset=UTF-8', // json格式提交，默认是form格式
             // contentType: "application/x-www-form-urlencoded; charset=UTF-8",
             dataType: 'json', // 表示返回值类型，非必须
             timeout: 20000,
@@ -230,7 +230,10 @@ var jeesns = {
                     },10);
                 } else if(res.code==3) {
                     parent.window.location.href = parent.window.location.href;
-                }else{
+                } else if (res.code == 4) { // 直接打开新窗口
+                    jeesnsDialog.successTips(res.message);
+                    window.open(res.url);
+                } else {
                     jeesnsDialog.tips(res.message);
                 }
                 // 最后把返回数据回调出去

@@ -86,11 +86,11 @@
 
 			<li><label>创建时间：</label>
 
-			<input id="queryBeginDate"  name="queryBeginDate"  type="text" readonly="readonly" maxlength="20" class="input-mini Wdate"
+			<input id="queryBeginDate"  name="queryBeginDate"  type="text" readonly="readonly" class="input-mini Wdate"
 				   value="<fmt:formatDate value="${projectContract.queryBeginDate}" pattern="yyyy-MM-dd"/>"
 				   onclick="WdatePicker({dateFmt:'yyyy-MM-dd'});"/>
 			　--　
-			<input id="queryEndDate" name="queryEndDate" type="text" readonly="readonly" maxlength="20" class="input-mini Wdate"
+			<input id="queryEndDate" name="queryEndDate" type="text" readonly="readonly" class="input-mini Wdate"
 				   value="<fmt:formatDate value="${projectContract.queryEndDate}" pattern="yyyy-MM-dd"/>"
 				   onclick="WdatePicker({dateFmt:'yyyy-MM-dd'});"/>
 			</li>

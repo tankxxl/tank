@@ -202,6 +202,8 @@ public class ProjectInvoiceController extends BaseController {
 			return null;
 		}
 		invoiceService.getItems(projectInvoice, itemIds);
+		// 这个请求是专门给重开功能用的，所以后台先知道要重开，所以再返回给前端的时候，要把这个resign带上，
+		// 前端在提交的时候，再把这个值传递给后台，这样后台就可以判断了。
 		projectInvoice.setFunc("resign"); // 告诉前端这是重开，重开、新开共用一个界面
 		// ModelAttribute注解已经把实体放入Model中了
 		model.addAttribute("projectInvoice", projectInvoice);

@@ -3,7 +3,7 @@
 <html>
 <head>
 	<title>开票管理</title>
-	<%-- 发票列表-用于重开 --%>
+	<%-- 查询form-发票列表-用于发票统计 --%>
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
         $(document).ready(function() {
@@ -42,12 +42,12 @@
 <%-- 发票列表 --%>
 <body>
 <ul class="nav nav-tabs">
-	<li class="active"><a href="${ctx}/project/invoiceItem/">开票列表</a></li>
+	<li class="active"><a href="${ctx}/project/invoiceItem/">发票统计</a></li>
 	<%--<shiro:hasPermission name="project:invoice:edit"><li><a href="${ctx}/project/invoice/form">开票添加</a></li></shiro:hasPermission>--%>
 </ul>
 <form:form id="searchForm"
 		   modelAttribute="projectInvoiceItem"
-		   action="${ctx}/project/invoiceItem/"
+		   action="${ctx}/project/invoiceStat/stat"
 		   method="post"
 		   htmlEscape="false"
 		   class="breadcrumb form-search">
@@ -75,7 +75,7 @@
 <sys:message content="${message}"/>
 
 <%-- 定义一系列工具栏 --%>
-<div id="toolbar" class="btn-group">
+<%-- <div id="toolbar" class="btn-group" style="display:none;">
 	<button id="btn_resign" type="button" class="btn btn-default">
 		<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>重开
 	</button>
@@ -84,13 +84,15 @@
 		<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改
 	</button>
 	</shiro:hasAnyRoles>
-	<%--<button id="btn_delete" type="button" class="btn btn-default">--%>
-		<%--<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除--%>
-	<%--</button>--%>
 </div>
-<table id="table" data-mobile-responsive="true" ></table>
+<table id="table" data-mobile-responsive="true"></table>--%>
 
 <script>
+
+function ajaxSubmit() {
+	var json = form2js($("#searchForm")[0]);
+	jeesns.jeesnsAjax('${ctx}/project/invoiceStat/stat', 'POST', json);
+}
 
 // 全局变量，用于给编辑框传递参数
 // 当前选中行
@@ -104,29 +106,12 @@ $(function () {
 	initTable();
 	//2.初始化btn的点击事件
 	$("#btnSubmit").click(function () {
-		initTable();
-//  	$("#table").bootstrapTable('refresh', oTable.queryParams);
+		ajaxSubmit();
 	});
 	$("#btn_resign").click(function () {
         var ids = getSelectedIds('table');
         <%--jeesns.jeesnsAjax('${ctx}/project/invoice/resignView', 'POST', ids);--%>
         post('${ctx}/project/invoice/resignView', {itemIds: ids});
-    });
-
-    $("#btn_edit").click(function () {
-        var indexes = getSelectedIndexes();
-        if (!isArraySingle(indexes)) {
-            jeesnsDialog.tips("只能选择一条数据");
-            return;
-        }
-        // 全局变量，用于给iframe的dialog传值，修改时用
-        row = getSelectedRows('table')[0];
-        rowIndex = indexes[0];
-        jeesnsDialog.openEdit('${ctx}/project/invoice/addItemView?id=' + row.id,
-            '修改开票项', '600px', '650px', function(data) {
-                jeesns.jeesnsAjax('${ctx}/project/invoice/saveItemAjax', 'POST', data);
-            });
-
     });
 });
 
@@ -134,11 +119,10 @@ $(function () {
     function initTable() { // 初始化Table
 // 先销毁表格
         $('#table').bootstrapTable('destroy').bootstrapTable({
-//	resizable: true,
             toolbar: '#toolbar',
             url: '${ctx }/project/invoiceItem/table',
             method: 'post',                      //请求方式（*）
-            contentType: "application/x-www-form-urlencoded",  // 查询表格时使用form方式提交
+            contentType: "application/x-www-form-urlencoded",
             selectItemName: 'selectItemName',  // radio or checkbox 的字段名
             queryParams : queryParams,  //传递参数（*）
             dataField : "list", //很重要，这是后端返回的实体数据！表示后端传递的对象数据，名字要与对象的名字相同。
@@ -155,7 +139,6 @@ $(function () {
             search: false,               //是否显示表格搜索，此搜索是客户端搜索，不会进服务端
             showColumns: true,                  //是否显示所有的列（选择显示的列）
             showRefresh: true,                  //是否显示刷新按钮
-            showFullscreen: true,
             uniqueId: "id",                     //每一行的唯一标识，一般为主键列
             idField: "id",
             showToggle: true,                   //是否显示详细视图和列表视图的切换按钮
@@ -200,44 +183,14 @@ $(function () {
                 }
             }, {
                 field: 'customerInvoice.customerName',
-				title: '开票客户名称',
-                events: operateEvents,
-                formatter: customerInvoiceFormatter
+				title: '开票客户名称'
 
 			}, {
                 field: 'invoiceNo',
-                title: '发票号',
-                events: operateEvents,
-                formatter: invoiceItemFormatter
+                title: '发票号'
             }, {
                 field: 'returnAmount',
-                title: '回款金额',
-                formatter: function (value, row, index) {
-                    if (isUndefined(value)) {
-                        return '';
-                    } else if (value) {
-                        return value;
-                    } else {
-                        return value;
-                    }
-                }
-                <shiro:hasAnyRoles name="usertask_finance_leader">
-                ,
-                editable: {
-                    type: 'text',
-                    title: '回款金额',
-                    emptytext: '点我填写',
-                    validate: function (value) {
-                        if ($.trim(value) == '') {
-                            return '回款金额不能为空!';
-                        }
-                        var n = Number(value);
-                        if (isNaN(n)) {
-                            return '请输入数字!';
-						}
-                    }
-                }
-                </shiro:hasAnyRoles>
+                title: '回款金额'
             }, {
                 field: 'returnDate',
                 title: '回款日期',
@@ -250,19 +203,6 @@ $(function () {
                         return value;
                     }
                 }
-                <shiro:hasAnyRoles name="usertask_finance_leader">
-                ,
-                editable: {
-                    type: 'date',
-                    title: '回款日期',
-                    format: 'yyyy-mm-dd',
-                    emptytext: '点我填写',
-                    viewformat: 'yyyy-mm-dd',
-                    datepicker: {
-                        weekStart: 1
-                    }
-                }
-                </shiro:hasAnyRoles>
             }, {
                 field: 'saler.name',
                 title: '销售人员'
@@ -272,70 +212,10 @@ $(function () {
                 formatter: function (value, row, index) {
                     return new Date(value).Format("yyyy-MM-dd");
                 }
-            }, {
-                field: 'procStatus',
-                title: '审批状态',
-				visible: false,
-                formatter: function (value, row, index) {
-                    return 'asdfas';
-                }
-            }, {
-                field: 'id',
-                title: '操作',
-				visible: false,
-                align: 'center'
-            } ],
-            onClickRow: function (row, $element) {
-//      window.location.href = "/qStock/qProInfo/" + row.ProductId;
-            },
-            onEditableSave: function (field, row, oldValue, $el) {
-                // field : 编辑的字段名称，如：returnDate、invoiceNo等
-                // ajax提交更新
-                // tips(row + oldValue + field);
-                // jeesnsDialog.tips(row.returnDate  + JSON.stringify($el));
-                $('#table').bootstrapTable("resetView");
-                // $('#table').bootstrapTable( {} );
-                // $('#table').bootstrapTable('updateRow', {index: row.rowId, row: row});
-                jeesns.jeesnsAjax('${ctx}/project/invoice/saveItemAjax', 'POST', row);
-            }
+            } ]
         }); // 定义table
 
     } // end func initTable()
-
-function customerInvoiceFormatter(value, row, index) {
-    // 也可以用shiro:hasPermission、hasRole来判断
-    return [
-        '<a class="customerInvoice" href="javascript:void(0)" title="customerInvoice">',
-		value,
-        '</a>',
-    ].join('');
-}
-
-function invoiceItemFormatter (value, row, index) {
-        if (!value) {
-            value = '暂无发票号';
-		}
-		// return value;
-    return [
-        '<a class="invoiceItem" href="javascript:void(0)" title="invoiceItem">',
-        value,
-        '</a>',
-    ].join('');
-}
-
-window.operateEvents = {
-    'click .customerInvoice': function (e, value, row, index) {
-        jeesnsDialog.openView('${ctx}/customer/invoice/view?id=' + row.customerInvoice.id,
-            '查看开票客户信息', '600px', '650px' );
-        return false;
-    },
-
-    'click .invoiceItem': function (e, value, row, index) {
-        jeesnsDialog.openView('${ctx}/project/invoice/addItemView?id=' + row.id,
-            '查看发票信息', '600px', '650px' );
-        return false;
-    },
-};
 
 //得到查询的参数
 function queryParams(params) {
