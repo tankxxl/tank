@@ -58,11 +58,24 @@
 		<li><label>项目编号：</label>
 			<form:input path="apply.projectCode" type="text" placeholder="项目编号" maxlength="64" class="input-medium"/>
 		</li>
+
 		<li><label>项目名称：</label>
 			<form:input path="apply.projectName" type="text" placeholder="项目名称" maxlength="64" class="input-medium"/>
 		</li>
+
 		<li><label>合同编号：</label>
 			<form:input path="contract.contractCode" type="text" placeholder="合同编号" maxlength="64" class="input-medium"/>
+		</li>
+
+		<li><label>开票日期：</label>
+
+			<input id="queryBeginDate"  name="queryBeginDate"  type="text" readonly="readonly" class="input-mini Wdate"
+				   value="<fmt:formatDate value="${projectInvoiceItem.queryBeginDate}" pattern="yyyy-MM-dd"/>"
+				   onclick="WdatePicker({dateFmt:'yyyy-MM-dd'});"/>
+			　--　
+			<input id="queryEndDate" name="queryEndDate" type="text" readonly="readonly" class="input-mini Wdate"
+				   value="<fmt:formatDate value="${projectInvoiceItem.queryEndDate}" pattern="yyyy-MM-dd"/>"
+				   onclick="WdatePicker({dateFmt:'yyyy-MM-dd'});"/>
 		</li>
 		<li class="btns">
 			<input id="btnSubmit" class="btn btn-primary" type="button" value="查询">

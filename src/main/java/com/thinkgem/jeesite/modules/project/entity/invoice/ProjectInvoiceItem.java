@@ -70,6 +70,10 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
      */
     private String func; // 用于前后端传递信息，不持久化
 
+    // 前端使用，查询条件
+    private Date queryBeginDate;
+    private Date queryEndDate;
+
 
 
     public ProjectInvoiceItem() {
@@ -338,5 +342,21 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
 
     public void setFunc(String func) {
         this.func = func;
+    }
+
+    public Date getQueryBeginDate() {
+        return queryBeginDate;
+    }
+
+    public void setQueryBeginDate(Date queryBeginDate) {
+        this.queryBeginDate = queryBeginDate;
+    }
+
+    public Date getQueryEndDate() {
+        return queryEndDate;
+    }
+
+    public void setQueryEndDate(Date queryEndDate) {
+        this.queryEndDate = queryEndDate;
     }
 }

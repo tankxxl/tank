@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.text.SimpleDateFormat;
 
 /**
  * 项目开票Controller
@@ -90,24 +91,33 @@ public class ProjectInvoiceStatController extends BaseController {
 
 	@RequestMapping(value = "stat")
 	@ResponseBody
-	public RespEntity stat(@RequestBody ProjectInvoice projectInvoice,
+	public RespEntity stat(@RequestBody ProjectInvoiceItem invoiceItem,
 						   HttpServletRequest request, HttpServletResponse response, Model model) {
 
 		String ctxPath = request.getContextPath();
 
 		String pCode = ""; // pCode projectCode 项目编号
-		if (projectInvoice != null && projectInvoice.getApply() != null) {
-			pCode = projectInvoice.getApply().getProjectCode();
+		if (invoiceItem != null && invoiceItem.getApply() != null) {
+			pCode = invoiceItem.getApply().getProjectCode();
 		}
 
 		String pName = ""; // pName projectName 项目名称
-		if (projectInvoice != null && projectInvoice.getApply() != null) {
-			pName = projectInvoice.getApply().getProjectName();
+		if (invoiceItem != null && invoiceItem.getApply() != null) {
+			pName = invoiceItem.getApply().getProjectName();
 		}
 
 		String contractCode = ""; // contractCode 合同编号
-		if (projectInvoice != null && projectInvoice.getContract() != null) {
-			contractCode = projectInvoice.getContract().getContractCode();
+		if (invoiceItem != null && invoiceItem.getContract() != null) {
+			contractCode = invoiceItem.getContract().getContractCode();
+		}
+		String queryBeginDate = "";
+		String queryEndDate = "";
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		if (invoiceItem != null && invoiceItem.getQueryBeginDate() != null) {
+			queryBeginDate = sdf.format(invoiceItem.getQueryBeginDate());
+		}
+		if (invoiceItem != null && invoiceItem.getQueryEndDate() != null) {
+			queryEndDate = sdf.format(invoiceItem.getQueryEndDate());
 		}
 
 		StringBuilder sbUrl = new StringBuilder();
@@ -116,6 +126,8 @@ public class ProjectInvoiceStatController extends BaseController {
 		sbUrl.append(pCode);
 		sbUrl.append("&pn=").append(pName);
 		sbUrl.append("&cc=").append(contractCode);
+		sbUrl.append("&qb=").append(queryBeginDate);
+		sbUrl.append("&qe=").append(queryEndDate);
 
 		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面
 		// 4 跳转新窗口
