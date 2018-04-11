@@ -61,7 +61,11 @@
 		c5.industry AS "customer.industry",
 		c6.contact_name AS "customerContact.contactName",
 		c6.phone AS "customerContact.phone",
-		c6.position AS "customerContact.position"
+		c6.position AS "customerContact.position",
+
+		a.line_id AS "line.id",
+		line.name AS "line.name",
+		line.code AS "line.code"
 	</sql>
 	
 	<sql id="projectApplyExternalJoins">
@@ -70,6 +74,8 @@
 		LEFT JOIN sys_office s5 on s5.id =u4.office_id
 		LEFT JOIN customer_contact c6 ON c6.id = a.customer_contact_id
 		LEFT JOIN sys_user pm ON pm.id = a.project_manager_id
+
+		LEFT JOIN project_line line ON line.id = a.line_id
 	</sql>
     
 	<select id="get" resultType="ProjectApplyExternal">
@@ -213,6 +219,7 @@
 	<insert id="insert">
 		INSERT INTO project_apply_external(
 			id,
+			line_id,
 			project_code,
 			project_name,
 			saler_id,
@@ -253,6 +260,7 @@
 			docPath
 		) VALUES (
 			#{id},
+			#{line.id},
 			#{projectCode},
 			#{projectName},
 			#{saler.id},
@@ -295,7 +303,8 @@
 	</insert>
 	
 	<update id="update">
-		UPDATE project_apply_external SET 	
+		UPDATE project_apply_external SET
+		    line_id = #{line.id},
 			project_code = #{projectCode},
 			project_name = #{projectName},
 			customer_id = #{customer.id},

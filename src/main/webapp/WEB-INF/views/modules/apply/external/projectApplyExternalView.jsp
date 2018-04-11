@@ -102,8 +102,12 @@
 
 		<tr>
 			<td colspan="1" class="tit" >项目名称</td>
-			<td colspan="3">
+			<td colspan="1">
 				${projectApplyExternal.projectName}
+			</td>
+			<td class="tit">业务条线</td>
+			<td>
+					${projectApplyExternal.line.name}
 			</td>
 		</tr>
 

@@ -4,7 +4,7 @@
 <head>
 	<title>立项申请管理</title>
 	<meta name="decorator" content="default"/>
-		
+		<%-- 使用中 --%>
 	<script type="text/javascript">
 	
 		$(document).ready(function() {
@@ -152,6 +152,16 @@
 			<td colspan="1" class="tit" >项目名称<span class="help-inline"><font color="red">*</font></span></td>
 			<td colspan="3">
 				<form:input path="projectName" style="width:90%" maxlength="200" class="required"/>
+			</td>
+
+		</tr>
+
+		<tr>
+			<td colspan="1" class="tit" >业务条线<span class="help-inline"><font color="red">*</font></span></td>
+			<td colspan="3">
+				<sys:treeselect id="line" name="line.id" value="${projectApplyExternal.line.id}"
+								labelName="line.name" labelValue="${projectApplyExternal.line.name}"
+					title="业务条线" url="/project/line/treeData" cssClass="required"/>
 			</td>
 
 		</tr>

@@ -37,6 +37,25 @@
             $("#searchForm").submit();
             return false;
         }
+
+        // demo data transfer into a query string:"a=1&b=2&c=3"
+        var params = {
+			a: 1,
+			b: 2,
+			c: 3
+		};
+     	// ES5
+		// var queryString = Object.keys(params).map(function(key) {
+		//     return key + '=' + params[key];
+		// }).join('&');
+		// using jQuery
+		var queryString1 = $.param(params);
+		// parameter encoding
+		// var queryString2 = Object.keys(params).map((key) => {
+		//     return encodeURIComponent(key) + '=' + encodeURIComponent(params[key])
+		// }).join('&');
+
+
 	</script>
 </head>
 <%-- 发票列表 --%>

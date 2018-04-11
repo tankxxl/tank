@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thinkgem.jeesite.common.persistence.ActEntity;
 import com.thinkgem.jeesite.modules.customer.entity.Customer;
 import com.thinkgem.jeesite.modules.customer.entity.CustomerContact;
+import com.thinkgem.jeesite.modules.project.entity.line.Line;
 import com.thinkgem.jeesite.modules.sys.entity.Office;
 import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
@@ -70,6 +71,8 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 	private String membersName; // 合成字段，用于前台展示，数据来源于数据库
 
 	private String endFlag; // 是否结项，结项流程结束，自动修改此状态
+
+	private Line line; // 所属业务条线
 
 
 
@@ -401,5 +404,13 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 
 	public void setEndFlag(String endFlag) {
 		this.endFlag = endFlag;
+	}
+
+	public Line getLine() {
+		return line;
+	}
+
+	public void setLine(Line line) {
+		this.line = line;
 	}
 }
