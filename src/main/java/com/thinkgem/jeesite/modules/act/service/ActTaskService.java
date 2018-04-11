@@ -11,9 +11,16 @@ import com.thinkgem.jeesite.common.service.BaseService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.dao.ActDao;
 import com.thinkgem.jeesite.modules.act.entity.Act;
+import com.thinkgem.jeesite.modules.act.service.cmd.CreateAndTakeTransitionCmd;
+import com.thinkgem.jeesite.modules.act.service.cmd.JumpTaskCmd;
+import com.thinkgem.jeesite.modules.act.service.creator.ChainedActivitiesCreator;
+import com.thinkgem.jeesite.modules.act.service.creator.MultiInstanceActivityCreator;
+import com.thinkgem.jeesite.modules.act.service.creator.RuntimeActivityDefinitionEntityIntepreter;
+import com.thinkgem.jeesite.modules.act.service.creator.SimpleRuntimeActivityDefinitionEntity;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.act.utils.ProcessCustomService;
 import com.thinkgem.jeesite.modules.act.utils.ProcessDefCache;
+import com.thinkgem.jeesite.modules.act.utils.ProcessDefUtils;
 import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import org.activiti.bpmn.model.BpmnModel;
@@ -24,9 +31,13 @@ import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.history.HistoricTaskInstanceQuery;
 import org.activiti.engine.impl.RepositoryServiceImpl;
+import org.activiti.engine.impl.RuntimeServiceImpl;
 import org.activiti.engine.impl.bpmn.behavior.UserTaskActivityBehavior;
 import org.activiti.engine.impl.context.Context;
+import org.activiti.engine.impl.identity.Authentication;
+import org.activiti.engine.impl.interceptor.CommandExecutor;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
+import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.impl.pvm.PvmTransition;
 import org.activiti.engine.impl.pvm.delegate.ActivityBehavior;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
@@ -45,6 +56,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.InputStream;
 import java.util.*;
@@ -63,9 +75,12 @@ public class ActTaskService extends BaseService {
 
     @Autowired
     ProcessCustomService processCustomService;  // rgz 驳回操作
-	
+
 	@Autowired
-	private ProcessEngineFactoryBean processEngine;
+	private ProcessEngineFactoryBean processEngineFactory;
+
+	@Autowired
+	private ProcessEngine processEngine;
 	@Autowired
 	private RuntimeService runtimeService;
 	@Autowired
@@ -371,6 +386,18 @@ public class ActTaskService extends BaseService {
 	}
 
 	/**
+	 * 获取历史流程实例对象
+	 * @param procInsId
+	 * @return
+	 */
+	@Transactional(readOnly = false)
+	public HistoricProcessInstance getHisProcIns(String procInsId) {
+		return   historyService.createHistoricProcessInstanceQuery() // 创建历史流程实例查询
+				.processInstanceId(procInsId) // 指定流程实例ID
+				.singleResult();
+	}
+
+	/**
 	 * 启动流程
 	 * @param procDefKey 流程定义KEY
 	 * @param businessTable 业务表表名
@@ -559,7 +586,172 @@ public class ActTaskService extends BaseService {
 //	public void backTask(String taskId){
 //		taskService.
 //	}
-	
+
+	/**
+	 * 添加任务意见
+	 */
+	public void addTaskComment(String taskId, String procInsId, String comment){
+		taskService.addComment(taskId, procInsId, comment);
+	}
+
+	//////////////////  回退、前进、跳转、前加签、后加签、分裂 移植  https://github.com/bluejoe2008/openwebflow  //////////////////////////////////////////////////
+
+	/**
+	 * 任务后退一步
+	 */
+	public void taskBack(String procInsId, Map<String, Object> variables) {
+		taskBack(getCurrentTask(procInsId), variables);
+	}
+
+	/**
+	 * 任务后退至指定活动
+	 */
+	public void taskBack(TaskEntity currentTaskEntity, Map<String, Object> variables) {
+		ActivityImpl activity = (ActivityImpl) ProcessDefUtils
+				.getActivity(processEngine, currentTaskEntity.getProcessDefinitionId(), currentTaskEntity.getTaskDefinitionKey())
+				.getIncomingTransitions().get(0).getSource();
+		jumpTask(currentTaskEntity, activity, variables);
+	}
+
+	/**
+	 * 任务前进一步
+	 */
+	public void taskForward(String procInsId, Map<String, Object> variables) {
+		taskForward(getCurrentTask(procInsId), variables);
+	}
+
+	/**
+	 * 任务前进至指定活动
+	 */
+	public void taskForward(TaskEntity currentTaskEntity, Map<String, Object> variables) {
+		ActivityImpl activity = (ActivityImpl) ProcessDefUtils
+				.getActivity(processEngine, currentTaskEntity.getProcessDefinitionId(), currentTaskEntity.getTaskDefinitionKey())
+				.getOutgoingTransitions().get(0).getDestination();
+
+		jumpTask(currentTaskEntity, activity, variables);
+	}
+
+	/**
+	 * 跳转（包括回退和向前）至指定活动节点
+	 */
+	public void jumpTask(String procInsId, String targetTaskDefinitionKey, Map<String, Object> variables) {
+		jumpTask(getCurrentTask(procInsId), targetTaskDefinitionKey, variables);
+	}
+
+	/**
+	 * 跳转（包括回退和向前）至指定活动节点
+	 */
+	public void jumpTask(String procInsId, String currentTaskId, String targetTaskDefinitionKey, Map<String, Object> variables) {
+		jumpTask(getTaskEntity(currentTaskId), targetTaskDefinitionKey, variables);
+	}
+
+	/**
+	 * 跳转（包括回退和向前）至指定活动节点
+	 * @param currentTaskEntity 当前任务节点
+	 * @param targetTaskDefinitionKey 目标任务节点（在模型定义里面的节点名称）
+	 * @throws Exception
+	 */
+	public void jumpTask(TaskEntity currentTaskEntity, String targetTaskDefinitionKey, Map<String, Object> variables) {
+		ActivityImpl activity = ProcessDefUtils.getActivity(processEngine, currentTaskEntity.getProcessDefinitionId(),
+				targetTaskDefinitionKey);
+		jumpTask(currentTaskEntity, activity, variables);
+	}
+
+	/**
+	 * 跳转（包括回退和向前）至指定活动节点
+	 * @param currentTaskEntity 当前任务节点
+	 * @param targetActivity 目标任务节点（在模型定义里面的节点名称）
+	 * @throws Exception
+	 */
+	private void jumpTask(TaskEntity currentTaskEntity, ActivityImpl targetActivity, Map<String, Object> variables) {
+		CommandExecutor commandExecutor = ((RuntimeServiceImpl) runtimeService).getCommandExecutor();
+		commandExecutor.execute(new JumpTaskCmd(currentTaskEntity, targetActivity, variables));
+	}
+
+	/**
+	 * 后加签
+	 */
+	@SuppressWarnings("unchecked")
+	public ActivityImpl[] insertTasksAfter(String procDefId, String procInsId, String targetTaskDefinitionKey, Map<String, Object> variables, String... assignees) {
+		List<String> assigneeList = new ArrayList<String>();
+		assigneeList.add(Authentication.getAuthenticatedUserId());
+		assigneeList.addAll(CollectionUtils.arrayToList(assignees));
+		String[] newAssignees = assigneeList.toArray(new String[0]);
+		ProcessDefinitionEntity processDefinition = (ProcessDefinitionEntity)repositoryService.getProcessDefinition(procDefId);
+		ActivityImpl prototypeActivity = ProcessDefUtils.getActivity(processEngine, processDefinition.getId(), targetTaskDefinitionKey);
+		return cloneAndMakeChain(processDefinition, procInsId, targetTaskDefinitionKey, prototypeActivity.getOutgoingTransitions().get(0).getDestination().getId(), variables, newAssignees);
+	}
+
+	/**
+	 * 前加签
+	 */
+	public ActivityImpl[] insertTasksBefore(String procDefId, String procInsId, String targetTaskDefinitionKey, Map<String, Object> variables, String... assignees) {
+		ProcessDefinitionEntity procDef = (ProcessDefinitionEntity)repositoryService.getProcessDefinition(procDefId);
+		return cloneAndMakeChain(procDef, procInsId, targetTaskDefinitionKey, targetTaskDefinitionKey, variables, assignees);
+	}
+
+	/**
+	 * 分裂某节点为多实例节点
+	 */
+	public ActivityImpl splitTask(String procDefId, String procInsId, String targetTaskDefinitionKey, Map<String, Object> variables, String... assignee) {
+		return splitTask(procDefId, procInsId, targetTaskDefinitionKey, variables, true, assignee);
+	}
+
+	/**
+	 * 分裂某节点为多实例节点
+	 */
+	@SuppressWarnings("unchecked")
+	public ActivityImpl splitTask(String procDefId, String procInsId, String targetTaskDefinitionKey, Map<String, Object> variables, boolean isSequential, String... assignees) {
+		SimpleRuntimeActivityDefinitionEntity info = new SimpleRuntimeActivityDefinitionEntity();
+		info.setProcessDefinitionId(procDefId);
+		info.setProcessInstanceId(procInsId);
+
+		RuntimeActivityDefinitionEntityIntepreter radei = new RuntimeActivityDefinitionEntityIntepreter(info);
+
+		radei.setPrototypeActivityId(targetTaskDefinitionKey);
+		radei.setAssignees(CollectionUtils.arrayToList(assignees));
+		radei.setSequential(isSequential);
+
+		ProcessDefinitionEntity processDefinition = (ProcessDefinitionEntity)repositoryService.getProcessDefinition(procDefId);
+		ActivityImpl clone = new MultiInstanceActivityCreator().createActivities(processEngine, processDefinition, info)[0];
+
+		TaskEntity currentTaskEntity = this.getCurrentTask(procInsId);
+
+		CommandExecutor commandExecutor = ((RuntimeServiceImpl) runtimeService).getCommandExecutor();
+		commandExecutor.execute(new CreateAndTakeTransitionCmd(currentTaskEntity, clone, variables));
+
+//		recordActivitiesCreation(info);
+		return clone;
+	}
+
+	public TaskEntity getCurrentTask(String procInsId) {
+		return (TaskEntity) taskService.createTaskQuery().processInstanceId(procInsId).active().singleResult();
+	}
+
+	private TaskEntity getTaskEntity(String taskId) {
+		return (TaskEntity) taskService.createTaskQuery().taskId(taskId).singleResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	private ActivityImpl[] cloneAndMakeChain(ProcessDefinitionEntity procDef, String procInsId, String prototypeActivityId, String nextActivityId, Map<String, Object> variables, String... assignees) {
+		SimpleRuntimeActivityDefinitionEntity info = new SimpleRuntimeActivityDefinitionEntity();
+		info.setProcessDefinitionId(procDef.getId());
+		info.setProcessInstanceId(procInsId);
+
+		RuntimeActivityDefinitionEntityIntepreter radei = new RuntimeActivityDefinitionEntityIntepreter(info);
+		radei.setPrototypeActivityId(prototypeActivityId);
+		radei.setAssignees(CollectionUtils.arrayToList(assignees));
+		radei.setNextActivityId(nextActivityId);
+
+		ActivityImpl[] activities = new ChainedActivitiesCreator().createActivities(processEngine, procDef, info);
+
+		jumpTask(procInsId, activities[0].getId(), variables);
+//		recordActivitiesCreation(info);
+
+		return activities;
+	}
+
+
 	////////////////////////////////////////////////////////////////////
 	
 	/**
@@ -586,7 +778,7 @@ public class ActTaskService extends BaseService {
 		// Context.setProcessEngineConfiguration(defaultProcessEngine.getProcessEngineConfiguration());
 
 		// 使用spring注入引擎请使用下面的这行代码
-		Context.setProcessEngineConfiguration(processEngine.getProcessEngineConfiguration());
+		Context.setProcessEngineConfiguration(processEngineFactory.getProcessEngineConfiguration());
 //		return ProcessDiagramGenerator.generateDiagram(bpmnModel, "png", activeActivityIds);
 		System.out.println("ActivityFontName=" + processEngine.getProcessEngineConfiguration().getActivityFontName());
 		System.out.println("LabelFontName=" + processEngine.getProcessEngineConfiguration().getLabelFontName());
@@ -1105,5 +1297,9 @@ public class ActTaskService extends BaseService {
         }
         return actList;
     }
+
+	public ProcessEngine getProcessEngine() {
+		return processEngine;
+	}
 	
 }

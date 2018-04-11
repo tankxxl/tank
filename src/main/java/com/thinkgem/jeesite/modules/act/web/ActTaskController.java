@@ -9,8 +9,9 @@ import com.thinkgem.jeesite.modules.act.entity.Act;
 import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
+import org.activiti.engine.history.HistoricProcessInstance;
+import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.executor.ReuseExecutor;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -122,7 +123,13 @@ public class ActTaskController extends BaseController {
 
 		// 获取流程实例对象
 		if (act.getProcInsId() != null){
-			act.setProcIns(actTaskService.getProcIns(act.getProcInsId()));
+			ProcessInstance procIns=actTaskService.getProcIns(act.getProcInsId());
+			if(procIns!=null){
+				act.setProcIns(procIns);
+			} else { // 从结束的流程中查找
+				HistoricProcessInstance hisProcIns=actTaskService.getHisProcIns(act.getProcInsId());
+				act.setHisProcIns(hisProcIns);
+			}
 		}
 		
 		return "redirect:" + ActUtils.getFormUrl(formKey, act);
