@@ -15,7 +15,6 @@ import com.thinkgem.jeesite.modules.apply.dao.external.ProjectApplyExternalDao;
 import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
 import com.thinkgem.jeesite.modules.mail.entity.Email;
 import com.thinkgem.jeesite.modules.mail.service.MailService;
-import com.thinkgem.jeesite.modules.project.entity.bidding.ProjectBidding;
 import com.thinkgem.jeesite.modules.project.utils.MyDictUtils;
 import com.thinkgem.jeesite.modules.sys.dao.RoleDao;
 import com.thinkgem.jeesite.modules.sys.entity.Role;
@@ -128,6 +127,19 @@ public class ProjectApplyExternalService extends CrudService<ProjectApplyExterna
 			// 设置流程变量
 			Map<String, Object> varMap = new HashMap<String, Object>();
 			varMap.put("apply", projectApplyExternal.getSaler().getLoginName());
+
+			// 是否是软件开发部 100000012
+			String salerDept = "";
+			if (projectApplyExternal != null && projectApplyExternal.getSaler()!= null && projectApplyExternal.getSaler().getOffice() != null) {
+				salerDept = projectApplyExternal.getSaler().getOffice().getName();
+			}
+			if ("软件开发部".equals(salerDept)) {
+				varMap.put(ActUtils.VAR_SOFTWARE_DEPT, 1);
+			} else {
+				varMap.put(ActUtils.VAR_SOFTWARE_DEPT, 0);
+			}
+
+
 			varMap.put("classType", key);
 			varMap.put("objId", projectApplyExternal.getId());
 			varMap.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());

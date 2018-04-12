@@ -86,6 +86,9 @@ public class ActUtils {
     // 发邮件时使用，用于生成邮件标题
     public static final String VAR_PROC_NAME = "procName";
 
+	// 软件开发部立项时，要多过两个节点，具体看立项流程图，为1表示软件部，0为其它部门
+	public static final String VAR_SOFTWARE_DEPT = "software_dept";
+
     // 1为skip
     public static final String VAR_SKIP_BOSS = "skip_boss";
     public static final String VAR_SKIP_HR = "skip_hr";

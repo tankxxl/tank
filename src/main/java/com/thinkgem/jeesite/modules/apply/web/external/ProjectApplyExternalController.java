@@ -163,7 +163,7 @@ public class ProjectApplyExternalController extends BaseController {
 			applyService.saveOnly(projectApplyExternal);
 		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
 			applyService.saveFinishProcess(projectApplyExternal);
-		} else if ("yes".equals(flag)) {
+		} else if ("yes".equals(flag)) { // service.save()：保存数据、启动流程
 			applyService.save(projectApplyExternal);
 		} else if ("no".equals(flag)) {
 			applyService.save(projectApplyExternal);

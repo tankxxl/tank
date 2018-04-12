@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp"%>
 <html>
 <head>
-	<title>外部立项申请管理</title>
+	<title>立项申请管理</title>
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
@@ -43,18 +43,20 @@
 </head>
 <body>
 	<ul class="nav nav-tabs">
-		<li class="active"><a href="${ctx}/apply/external/projectApplyExternal/">外部立项申请列表</a></li>
-		<shiro:hasPermission name="apply:external:projectApplyExternal:edit"><li><a href="${ctx}/apply/external/projectApplyExternal/form">外部立项申请添加</a></li></shiro:hasPermission>
+		<li class="active"><a href="${ctx}/apply/external/projectApplyExternal/">立项申请列表</a></li>
+		<shiro:hasPermission name="apply:external:projectApplyExternal:edit">
+			<li><a href="${ctx}/apply/external/projectApplyExternal/form">立项申请添加</a></li></shiro:hasPermission>
 	</ul>
-	<form:form id="searchForm" modelAttribute="projectApplyExternal" action="${ctx}/apply/external/projectApplyExternal/" method="post" class="breadcrumb form-search">
+	<form:form id="searchForm" modelAttribute="projectApplyExternal" htmlEscape="false"
+			   action="${ctx}/apply/external/projectApplyExternal/" method="post" class="breadcrumb form-search">
 		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
 		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 		<ul class="ul-form">
 			<li><label>项目编码：</label>
-				<form:input path="projectCode" htmlEscape="false" maxlength="64" class="input-medium"/>
+				<form:input path="projectCode" maxlength="64" class="input-medium"/>
 			</li>
 			<li><label>项目名称：</label>
-				<form:input path="projectName" htmlEscape="false" maxlength="64" class="input-medium"/>
+				<form:input path="projectName" maxlength="64" class="input-medium"/>
 			</li>
 			<li><label>销售人员：</label>
 				<sys:treeselect id="saler" name="saler.id" value="${projectApplyExternal.saler.id}" labelName="saler.name" labelValue="${projectApplyExternal.saler.name}"
@@ -101,14 +103,14 @@
 					${projectApplyExternal.projectCode}
 				</a></td>
 				<td>
-					<c:if test="${empty projectApplyExternal.projectCode}">
-						<a href="${ctx}/apply/external/projectApplyExternal/form?id=${projectApplyExternal.id}">
-							${projectApplyExternal.projectName}
-						</a>
-					</c:if>
-					<c:if test="${not empty projectApplyExternal.projectCode}">
+				<c:if test="${empty projectApplyExternal.projectCode}">
+					<a href="${ctx}/apply/external/projectApplyExternal/form?id=${projectApplyExternal.id}">
 						${projectApplyExternal.projectName}
-					</c:if>
+					</a>
+				</c:if>
+				<c:if test="${not empty projectApplyExternal.projectCode}">
+					${projectApplyExternal.projectName}
+				</c:if>
 				</td>
 				<td>
 					${projectApplyExternal.saler.name}
@@ -141,10 +143,10 @@
 				<shiro:hasPermission name="apply:external:projectApplyExternal:edit">
 					<a href="${ctx}/apply/external/projectApplyExternal/form?id=${projectApplyExternal.id}">详情</a>
 					<c:if test="${projectApplyExternal.processStatus != '2'}">
-						<a class="trace" target="_blank" procInsId="${projectApplyExternal.processInstanceId}" href="${ctx}/act/task/trace1?procInsId=${projectApplyExternal.processInstanceId}">跟踪</a>
+					<a class="trace" target="_blank" procInsId="${projectApplyExternal.processInstanceId}" href="${ctx}/act/task/trace1?procInsId=${projectApplyExternal.processInstanceId}">跟踪</a>
 					</c:if>
 					<c:if test="${projectApplyExternal.processStatus == '2'}">
-						<a href="${ctx}/apply/external/projectApplyExternal/delete?id=${projectApplyExternal.id}" onclick="return confirmx('确认要删除该外部立项申请吗？', this.href)">删除</a>
+						<a href="${ctx}/apply/external/projectApplyExternal/delete?id=${projectApplyExternal.id}" onclick="return confirmx('确认要删除该立项申请吗？', this.href)">删除</a>
 					</c:if>
 					<%-- <a class="trace" target="_blank" procInsId="${projectApplyExternal.processInstanceId}" href="${ctx}/act/task/trace2?procInsId=${projectApplyExternal.processInstanceId}">跟踪2</a> --%>
 				</shiro:hasPermission>
@@ -152,9 +154,7 @@
 				<shiro:hasPermission name="apply:external:projectApplyExternal:modify">
 					<a href="${ctx}/apply/external/projectApplyExternal/modify?id=${projectApplyExternal.id}">修改</a>
 				</shiro:hasPermission>
-
 				</td>
-				
 			</tr>
 		</c:forEach>
 		</tbody>

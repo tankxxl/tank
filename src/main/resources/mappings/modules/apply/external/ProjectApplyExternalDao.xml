@@ -42,6 +42,8 @@
 		u4.name AS "saler.name",
 		s5.id AS "saler.office.id",
 		s5.name AS "saler.office.name",
+		s5.code AS "saler.office.code",
+
 		c5.customer_name AS "customer.customerName",
 		c5.customer_category AS "customer.customerCategory",
 		c5.industry AS "customer.industry",

@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp"%>
 <html>
 <head>
-	<title>外部立项申请管理</title>
+	<title>立项申请管理</title>
 	<meta name="decorator" content="default"/>
 		
 	<script type="text/javascript">
@@ -148,14 +148,15 @@
 <body>
 	<ul class="nav nav-tabs">
 		<c:if test="${ empty projectApplyExternal.act.taskId}">
-			<li><a href="${ctx}/apply/external/projectApplyExternal/">外部立项申请列表</a></li>
+			<li><a href="${ctx}/apply/external/projectApplyExternal/">立项申请列表</a></li>
 		</c:if>
-		<li class="active"><a href="${ctx}/apply/external/projectApplyExternal/form?id=${projectApplyExternal.id}">外部立项申请<shiro:hasPermission name="apply:external:projectApplyExternal:edit">${not empty projectApplyExternal.id?'修改':'添加'}</shiro:hasPermission><shiro:lacksPermission name="apply:external:projectApplyExternal:edit">查看</shiro:lacksPermission></a></li>
+		<li class="active">
+			<a href="${ctx}/apply/external/projectApplyExternal/form?id=${projectApplyExternal.id}">立项申请
+				<shiro:hasPermission name="apply:external:projectApplyExternal:edit">${not empty projectApplyExternal.id?'修改':'添加'}</shiro:hasPermission><shiro:lacksPermission name="apply:external:projectApplyExternal:edit">查看</shiro:lacksPermission></a></li>
 	</ul><br/>
 
-
-
-	<form:form id="inputForm" modelAttribute="projectApplyExternal" action="${ctx}/apply/external/projectApplyExternal/save" method="post" class="form-horizontal">
+	<form:form id="inputForm" modelAttribute="projectApplyExternal" htmlEscape="false"
+			   action="${ctx}/apply/external/projectApplyExternal/save" method="post" class="form-horizontal">
 		<form:hidden path="id"/>
 		<form:hidden path="act.taskId"/>
 		<form:hidden path="act.taskName"/>
@@ -431,7 +432,8 @@
 		<div class="form-actions">
 			<shiro:hasPermission name="apply:external:projectApplyExternal:edit">
 			
-			<input id="btnSubmit" class="btn btn-primary" type="submit" value="提交申请" onclick="$('#flag').val('yes')"/>&nbsp;
+			<input id="btnSubmit" class="btn btn-primary" type="submit" value="提交申请" onclick="$('#flag').val('yes')"/>&nbsp;&nbsp;
+				<input id="btnSubmit" class="btn btn-primary" type="submit" value="暂存" onclick="$('#flag').val('saveOnly')"/>&nbsp;&nbsp;
 				<c:if test="${not empty projectApplyExternal.id}">
 					<input id="btnSubmit2" class="btn btn-inverse" type="submit" value="销毁申请" onclick="$('#flag').val('no')"/>&nbsp;
 				</c:if>
