@@ -55,6 +55,10 @@
 			<div class="controls">
 				<form:textarea path="content" htmlEscape="false" rows="6" maxlength="2000" class="input-xxlarge required"/>
 				<span class="help-inline"><font color="red">*</font> </span>
+				<c:if test="${oaNotify.status eq '1'}">
+					<a href="${ctx}/project/contract/projectContract/contract2resign?id=${oaNotify.remarks}">合同续签申请</a>
+				</c:if>
+
 			</div>
 		</div>
 		<c:if test="${oaNotify.status ne '1'}">

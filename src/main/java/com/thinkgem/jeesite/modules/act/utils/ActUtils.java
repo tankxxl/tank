@@ -32,16 +32,6 @@ import java.util.Map;
  */
 public class ActUtils {
 
-//	private static Logger logger = LoggerFactory.getLogger(ActUtils.class);
-	
-	/**
-	 * 定义流程定义KEY，必须以“PD_”开头
-	 * 组成结构：string[]{"流程标识","业务主表表名"}
-	 */
-//	public static final String[] PD_LEAVE = new String[]{"leave", "oa_leave"};
-//	public static final String[] PD_TEST_AUDIT = new String[]{"test_audit", "oa_test_audit"};
-
-
     /**
      * 实体名、流程定义名、业务表名相关。
      * 目前实体名和流程定义名相同。
@@ -61,47 +51,30 @@ public class ActUtils {
     public static final String[] PD_PROJECTFINISHAPPROVAL = new String[]{"ProjectFinishApproval", "project_finish_approval"};
     public static final String[] PD_TECHAPPLY = new String[]{"Techapply", "project_techapply"};
 
-    // 同意 or 驳回 申请单
-    public static final String VAR_PASS = "pass";
     // 流程节点标题
     public static final String VAR_TITLE = "title";
     // 项目类型，字典中key值，在后期审批节点中需要用项目类型来查找审批角色 *
     public static final String VAR_PRJ_TYPE = "prjType";
+	public static final String VAR_OFFICE_CODE = "officeCode";
+
+	// 根据项目类型来设置，软件类项目为2，其它类项目为1 *
+	public static final String VAR_TYPE = "type";
     // 申请单类名
     public static final String VAR_CLASS_TYPE = "classType";
     // 申请单id *
     public static final String VAR_OBJ_ID = "objId";
     // 项目id *
     public static final String VAR_PRJ_ID = "prjId";
+
+    // 流程定义key，用于启动流程
+	public static final String VAR_PROC_DEF_KEY = "proc_def_key";
+
     // 申请人loginName 在后期审批节点中需要用申请人来查找审批角色 *
     public static final String VAR_APPLY = "apply";
-    // 是否需要总经理审批
-    public static final String VAR_BOSS_AUDIT = "boss";
-    // 是否需要人力部负责人审批
-    public static final String VAR_HR_AUDIT = "hr";
-
-    // 项目专员的loginName
-    public static final String VAR_SPECIALIST = "specialist";
-
-    // 发邮件时使用，用于生成邮件标题
-    public static final String VAR_PROC_NAME = "procName";
-
-	// 软件开发部立项时，要多过两个节点，具体看立项流程图，为1表示软件部，0为其它部门
-	public static final String VAR_SOFTWARE_DEPT = "software_dept";
 
     // 1为skip
     public static final String VAR_SKIP_BOSS = "skip_boss";
     public static final String VAR_SKIP_HR = "skip_hr";
-	public static final String VAR_SKIP_inout = "skip_inout";
-
-    public static final String PROC_NAME_APPLY = "项目立项审批流程";
-    public static final String PROC_NAME_BIDDING = "项目投标审批流程";
-    public static final String PROC_NAME_CONTRACT = "项目合同审批流程";
-    public static final String PROC_NAME_execution = "合同执行审批流程";
-    public static final String PROC_NAME_purchase = "采购审批流程";
-    public static final String PROC_NAME_invoice = "开票审批流程";
-    public static final String PROC_NAME_FINISH = "项目结项审批流程";
-    public static final String PROC_NAME_TECH = "技术资源申请流程";
 
 	/**
 	 * 流程定义Map（自动初始化）

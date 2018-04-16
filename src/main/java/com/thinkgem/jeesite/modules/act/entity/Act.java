@@ -10,6 +10,7 @@ import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.utils.TimeUtils;
 import com.thinkgem.jeesite.modules.act.utils.Variable;
 import org.activiti.engine.history.HistoricActivityInstance;
+import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
@@ -146,7 +147,8 @@ public class Act extends BaseEntity<Act> {
 	public void setProcDef(ProcessDefinition procDef) {
 		this.procDef = procDef;
 	}
-	
+
+	@JsonIgnore
 	public String getProcDefName() {
 		return procDef.getName();
 	}
@@ -156,8 +158,17 @@ public class Act extends BaseEntity<Act> {
 		return procIns;
 	}
 
+	// 正在运行的流程
 	public void setProcIns(ProcessInstance procIns) {
 		this.procIns = procIns;
+		if (procIns != null && procIns.getBusinessKey() != null){
+			String[] ss = procIns.getBusinessKey().split(":");
+			setBusinessTable(ss[0]);
+			setBusinessId(ss[1]);
+		}
+	}
+	// 已经结束的流程
+	public void setHisProcIns(HistoricProcessInstance procIns) {
 		if (procIns != null && procIns.getBusinessKey() != null){
 			String[] ss = procIns.getBusinessKey().split(":");
 			setBusinessTable(ss[0]);
@@ -310,6 +321,7 @@ public class Act extends BaseEntity<Act> {
 		return vars;
 	}
 
+	@JsonIgnore
 	public void setVars(Variable vars) {
 		this.vars = vars;
 	}
@@ -318,6 +330,7 @@ public class Act extends BaseEntity<Act> {
 	 * 通过Map设置流程变量值
 	 * @param map
 	 */
+	@JsonIgnore
 	public void setVars(Map<String, Object> map) {
 		this.vars = new Variable(map);
 	}

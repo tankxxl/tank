@@ -3,9 +3,11 @@
  */
 package com.thinkgem.jeesite.modules.oa.web;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.thinkgem.jeesite.common.persistence.Page;
+import com.thinkgem.jeesite.common.utils.StringUtils;
+import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.oa.entity.OaNotify;
+import com.thinkgem.jeesite.modules.oa.service.OaNotifyService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,11 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.thinkgem.jeesite.common.persistence.Page;
-import com.thinkgem.jeesite.common.web.BaseController;
-import com.thinkgem.jeesite.common.utils.StringUtils;
-import com.thinkgem.jeesite.modules.oa.entity.OaNotify;
-import com.thinkgem.jeesite.modules.oa.service.OaNotifyService;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 通知通告Controller
@@ -58,6 +57,7 @@ public class OaNotifyController extends BaseController {
 	@RequestMapping(value = "form")
 	public String form(OaNotify oaNotify, Model model) {
 		if (StringUtils.isNotBlank(oaNotify.getId())){
+			// 没有在get方法中得到子表，在此加载子表数据
 			oaNotify = oaNotifyService.getRecordList(oaNotify);
 		}
 		model.addAttribute("oaNotify", oaNotify);
@@ -90,7 +90,17 @@ public class OaNotifyController extends BaseController {
 		addMessage(redirectAttributes, "删除通知成功");
 		return "redirect:" + adminPath + "/oa/oaNotify/?repage";
 	}
-	
+
+	@RequiresPermissions("oa:oaNotify:edit")
+	@RequestMapping(value = "send")
+	public String send(OaNotify oaNotify, RedirectAttributes redirectAttributes) {
+		oaNotify.setStatus("1");
+		oaNotifyService.sendNotifyEmail(oaNotify);
+		// oaNotifyService.delete(oaNotify);
+		addMessage(redirectAttributes, "发送通知成功");
+		return "redirect:" + adminPath + "/oa/oaNotify/?repage";
+	}
+
 	/**
 	 * 我的通知列表
 	 */

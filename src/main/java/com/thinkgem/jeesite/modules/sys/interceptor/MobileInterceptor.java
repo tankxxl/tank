@@ -3,15 +3,14 @@
  */
 package com.thinkgem.jeesite.modules.sys.interceptor;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
-
 import com.thinkgem.jeesite.common.service.BaseService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.utils.UserAgentUtils;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 手机端视图拦截器
@@ -33,6 +32,8 @@ public class MobileInterceptor extends BaseService implements HandlerInterceptor
 			// 如果是手机或平板访问的话，则跳转到手机视图页面。
 			if(UserAgentUtils.isMobileOrTablet(request) && !StringUtils.startsWithIgnoreCase(modelAndView.getViewName(), "redirect:")){
 				modelAndView.setViewName("mobile/" + modelAndView.getViewName());
+				// todo 移动端、pc端使用同一个jsp
+				// modelAndView.setViewName( modelAndView.getViewName());
 			}
 		}
 	}

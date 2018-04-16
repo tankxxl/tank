@@ -20,8 +20,8 @@
 		a.update_date AS "updateDate",
 		a.remarks AS "remarks",
 		a.del_flag AS "delFlag",
-		a.proc_ins_id AS "processInstanceId",
-		a.process_status AS "processStatus",
+		a.proc_ins_id AS "procInsId",
+		a.proc_status AS "procStatus",
 		a.profit_margin_file AS "profitMarginFile",
 		a.outsourcing AS "outsourcing",
 		pro_apply.project_code AS "apply.projectCode",
@@ -133,7 +133,7 @@
 			remarks,
 			del_flag,
 			proc_ins_id,
-			process_status,
+			proc_status,
 			profit_margin_file,
 			outsourcing
 		) VALUES (
@@ -154,8 +154,8 @@
 			#{updateDate},
 			#{remarks},
 			#{delFlag},
-			#{processInstanceId},
-			#{processStatus},
+			#{procInsId},
+			#{procStatus},
 			#{profitMarginFile},
 			#{outsourcing}
 		)
@@ -176,8 +176,8 @@
 			update_by = #{updateBy.id},
 			update_date = #{updateDate},
 			remarks = #{remarks},
-			proc_ins_id = #{processInstanceId},
-			process_status = #{processStatus},
+			proc_ins_id = #{procInsId},
+			proc_status = #{procStatus},
 			profit_margin_file = #{profitMarginFile},
 			outsourcing = #{outsourcing}
 		WHERE id = #{id}

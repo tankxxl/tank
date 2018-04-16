@@ -34,7 +34,7 @@ public class GenTableService extends BaseService {
 	private GenTableColumnDao genTableColumnDao;
 	@Autowired
 	private GenDataBaseDictDao genDataBaseDictDao;
-	
+
 	public GenTable get(String id) {
 		GenTable genTable = genTableDao.get(id);
 		GenTableColumn genTableColumn = new GenTableColumn();
@@ -42,7 +42,7 @@ public class GenTableService extends BaseService {
 		genTable.setColumnList(genTableColumnDao.findList(genTableColumn));
 		return genTable;
 	}
-	
+
 	public Page<GenTable> find(Page<GenTable> page, GenTable genTable) {
 		genTable.setPage(page);
 		page.setList(genTableDao.findList(genTable));
@@ -52,7 +52,7 @@ public class GenTableService extends BaseService {
 	public List<GenTable> findAll() {
 		return genTableDao.findAllList(new GenTable());
 	}
-	
+
 	/**
 	 * 获取物理数据表列表
 	 * @param genTable
@@ -61,7 +61,7 @@ public class GenTableService extends BaseService {
 	public List<GenTable> findTableListFormDb(GenTable genTable){
 		return genDataBaseDictDao.findTableList(genTable);
 	}
-	
+
 	/**
 	 * 验证表名是否可用，如果已存在，则返回false
 	 * @param genTable
@@ -76,7 +76,7 @@ public class GenTableService extends BaseService {
 		List<GenTable> list = genTableDao.findList(genTable);
 		return list.size() == 0;
 	}
-	
+
 	/**
 	 * 获取物理数据表列表
 	 * @param genTable
@@ -85,10 +85,10 @@ public class GenTableService extends BaseService {
 	public GenTable getTableFormDb(GenTable genTable){
 		// 如果有表名，则获取物理表
 		if (StringUtils.isNotBlank(genTable.getName())){
-			
+
 			List<GenTable> list = genDataBaseDictDao.findTableList(genTable);
 			if (list.size() > 0){
-				
+
 				// 如果是新增，初始化表属性
 				if (StringUtils.isBlank(genTable.getId())){
 					genTable = list.get(0);
@@ -98,7 +98,7 @@ public class GenTableService extends BaseService {
 					}
 					genTable.setClassName(StringUtils.toCapitalizeCamelCase(genTable.getName()));
 				}
-				
+
 				// 添加新列
 				List<GenTableColumn> columnList = genDataBaseDictDao.findTableColumnList(genTable);
 				for (GenTableColumn column : columnList){
@@ -112,7 +112,7 @@ public class GenTableService extends BaseService {
 						genTable.getColumnList().add(column);
 					}
 				}
-				
+
 				// 删除已删除的列
 				for (GenTableColumn e : genTable.getColumnList()){
 					boolean b = false;
@@ -125,18 +125,18 @@ public class GenTableService extends BaseService {
 						e.setDelFlag(GenTableColumn.DEL_FLAG_DELETE);
 					}
 				}
-				
+
 				// 获取主键
 				genTable.setPkList(genDataBaseDictDao.findTablePK(genTable));
-				
+
 				// 初始化列属性字段
 				GenUtils.initColumnField(genTable);
-				
+
 			}
 		}
 		return genTable;
 	}
-	
+
 	@Transactional(readOnly = false)
 	public void save(GenTable genTable) {
 		if (StringUtils.isBlank(genTable.getId())){
@@ -149,6 +149,24 @@ public class GenTableService extends BaseService {
 		// 保存列
 		for (GenTableColumn column : genTable.getColumnList()){
 			column.setGenTable(genTable);
+			if (StringUtils.isBlank(column.getIsPk())){
+				column.setIsPk("0");
+			}
+			if (StringUtils.isBlank(column.getIsNull())){
+				column.setIsNull("0");
+			}
+			if (StringUtils.isBlank(column.getIsInsert())){
+				column.setIsInsert("0");
+			}
+			if (StringUtils.isBlank(column.getIsEdit())){
+				column.setIsEdit("0");
+			}
+			if (StringUtils.isBlank(column.getIsList())){
+				column.setIsList("0");
+			}
+			if (StringUtils.isBlank(column.getIsQuery())){
+				column.setIsQuery("0");
+			}
 			if (StringUtils.isBlank(column.getId())){
 				column.preInsert();
 				genTableColumnDao.insert(column);
@@ -158,11 +176,11 @@ public class GenTableService extends BaseService {
 			}
 		}
 	}
-	
+
 	@Transactional(readOnly = false)
 	public void delete(GenTable genTable) {
 		genTableDao.delete(genTable);
 		genTableColumnDao.deleteByGenTableId(genTable.getId());
 	}
-	
+
 }

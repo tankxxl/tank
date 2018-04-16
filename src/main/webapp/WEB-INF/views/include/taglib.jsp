@@ -1,4 +1,8 @@
 <%@ taglib prefix="shiro" uri="/WEB-INF/tlds/shiros.tld" %>
+<%--<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags"%>
+我们使用shiro 前缀用以表明shiro 标签库命名空间，当然你可以指定任何你喜欢的名字。
+在shiro-web.jar里的META-INF/shiro.tld文件
+--%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>

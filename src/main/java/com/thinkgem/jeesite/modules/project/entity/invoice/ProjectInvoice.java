@@ -6,6 +6,7 @@ package com.thinkgem.jeesite.modules.project.entity.invoice;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.common.collect.Lists;
 import com.thinkgem.jeesite.common.persistence.ActEntity;
+import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContractItem;
@@ -44,6 +45,12 @@ public class ProjectInvoice extends ActEntity<ProjectInvoice> {
     private Date invoiceDate; // 开票日期
 
     private String attachment; // 文档附件
+
+    /**
+     * 功能，由于json传输时act对象不能使用，所以新建一个func用来接收前端传来的功能(如：save、update、delete等)
+     *
+     */
+    private String func;
 
 
 	public ProjectInvoice() {
@@ -200,5 +207,23 @@ public class ProjectInvoice extends ActEntity<ProjectInvoice> {
 
     public void setAttachment(String attachment) {
         this.attachment = attachment;
+    }
+
+    public String getFunc() {
+        return func;
+    }
+
+    public void setFunc(String func) {
+        this.func = func;
+    }
+
+
+    public boolean hasAct() {
+	    if (super.hasAct()) {
+	        if (StringUtils.isNotEmpty(this.getAct().getTaskId())) {
+	            return true;
+            }
+        }
+        return false;
     }
 }

@@ -3,13 +3,6 @@
  */
 package com.thinkgem.jeesite.common.persistence;
 
-import java.io.Serializable;
-import java.util.Map;
-
-import javax.xml.bind.annotation.XmlTransient;
-
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Maps;
 import com.thinkgem.jeesite.common.config.Global;
@@ -18,6 +11,11 @@ import com.thinkgem.jeesite.common.supcan.annotation.treelist.cols.SupCol;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+
+import javax.xml.bind.annotation.XmlTransient;
+import java.io.Serializable;
+import java.util.Map;
 
 /**
  * Entity支持类
@@ -36,6 +34,8 @@ public abstract class BaseEntity<T> implements Serializable {
 	
 	/**
 	 * 当前用户
+	 * 实体对象传到mybatis的xml中
+	 * 此字段用在mybatis的xml中，用来实现数据权限
 	 */
 	protected User currentUser;
 	
@@ -46,6 +46,7 @@ public abstract class BaseEntity<T> implements Serializable {
 	
 	/**
 	 * 自定义SQL（SQL标识，SQL内容）
+	 * 此字段用在mybatis的xml中，用来实现数据权限
 	 */
 	protected Map<String, String> sqlMap;
 	

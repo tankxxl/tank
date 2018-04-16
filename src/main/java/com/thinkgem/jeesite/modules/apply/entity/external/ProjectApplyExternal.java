@@ -41,8 +41,7 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 	private String estimatedGrossProfitMarginDescription; // 项目毛利率说明
 	private String riskAnalysis; // 项目风险分析
 	private String documentAttachmentPath; // 文档附件
-	private String processInstanceId; // 流程实例ID
-	private String processStatus; // 流程审批状态
+
 	private String ownership; // 项目归属：华科01，数据02
 
 	private String proMainStage;// 项目大阶段：立项，投标，合同等
@@ -203,24 +202,6 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 
 	public void setDocumentAttachmentPath(String documentAttachmentPath) {
 		this.documentAttachmentPath = documentAttachmentPath;
-	}
-
-	@Length(min = 0, max = 100, message = "流程实例ID长度必须介于 0 和 100 之间")
-	public String getProcessInstanceId() {
-		return processInstanceId;
-	}
-
-	public void setProcessInstanceId(String processInstanceId) {
-		this.processInstanceId = processInstanceId;
-	}
-
-	@Length(min = 0, max = 100, message = "流程审批状态长度必须介于 0 和 100 之间")
-	public String getProcessStatus() {
-		return processStatus;
-	}
-
-	public void setProcessStatus(String processStatus) {
-		this.processStatus = processStatus;
 	}
 
 	public Office getSaleOffice() {

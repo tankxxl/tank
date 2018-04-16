@@ -30,8 +30,7 @@ public class ProjectBidding extends ActEntity<ProjectBidding> {
     private String amount; // 投标金额(元)
     private String grossMargin; // 投标毛利(元)
 	private String profitMargin;		// 毛利率
-	private String processInstanceId;		// 流程实例ID
-	private String processStatus;		// 流程审批状态
+
 	private String profitMarginFile;		// 毛利说明文件
 	
 	private String outsourcing; // 是否有外包，0：没有；1：有
@@ -133,24 +132,6 @@ public class ProjectBidding extends ActEntity<ProjectBidding> {
 
 	public void setProfitMargin(String profitMargin) {
 		this.profitMargin = profitMargin;
-	}
-	
-	@Length(min=0, max=100, message="流程实例ID长度必须介于 0 和 100 之间")
-	public String getProcessInstanceId() {
-		return processInstanceId;
-	}
-
-	public void setProcessInstanceId(String processInstanceId) {
-		this.processInstanceId = processInstanceId;
-	}
-	
-	@Length(min=0, max=100, message="流程审批状态长度必须介于 0 和 100 之间")
-	public String getProcessStatus() {
-		return processStatus;
-	}
-
-	public void setProcessStatus(String processStatus) {
-		this.processStatus = processStatus;
 	}
 	
 	@Length(min=1, max=2000, message="毛利说明文件必须存在，长度必须介于 1 和 2000 之间")

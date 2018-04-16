@@ -7,6 +7,7 @@ import com.thinkgem.jeesite.modules.api.model.RespModel;
 import com.thinkgem.jeesite.modules.crm.client.entity.Client;
 import com.thinkgem.jeesite.modules.crm.client.entity.MyClient;
 import com.thinkgem.jeesite.modules.crm.client.service.ClientService;
+import com.thinkgem.jeesite.modules.sys.service.SystemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,9 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "${apiPath}/account")
 public class AccountRestController extends BaseController {
+
+    @Autowired
+    private SystemService systemService;
 
     public static final class Constants {
         // 根据客户Id得到账户列表

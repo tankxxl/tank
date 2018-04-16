@@ -15,7 +15,7 @@
 		a.remarks AS "remarks",
 		a.del_flag AS "delFlag",
 		a.proc_ins_id AS "procInsId",
-		a.process_status AS "processStatus",
+		a.proc_status AS "procStatus",
 		u5.name AS "projectManager.name",
 		u5.login_name AS "projectManager.loginName",
 		
@@ -129,7 +129,7 @@
 			remarks,
 			del_flag,
 			proc_ins_id,
-			process_status,
+			proc_status,
 			attachment
 		) VALUES (
 			#{apply.id},
@@ -143,7 +143,7 @@
 			#{remarks},
 			#{delFlag},
 			#{procInsId},
-			#{processStatus},
+			#{procStatus},
 			#{attachment}
 		)
 	</insert>
@@ -158,7 +158,7 @@
 			remarks = #{remarks},
 			attachment = #{attachment},
 			proc_ins_id = #{procInsId},
-			process_status = #{processStatus}
+			proc_status = #{procStatus}
 		WHERE id = #{id}
 	</update>
 	

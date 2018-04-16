@@ -141,6 +141,12 @@ public class ExportUtils3 {
             JxlsHelper.getInstance().processTemplate(is, os, context);
 
 
+			// begin
+			// Map<String, List<Report>> beanParams = new HashMap<String, List<Report>>();
+			// beanParams.put("reports", reports);
+			// XLSTransformer former = new XLSTransformer();
+			// former.transformXLS(tplPath, beanParams, destPath);
+			// end
 
 //            Transformer transformer = TransformerFactory.createTransformer(is, os);
 //            AreaBuilder areaBuilder = new XlsCommentAreaBuilder(transformer);

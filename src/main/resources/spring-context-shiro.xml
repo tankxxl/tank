@@ -10,7 +10,7 @@
     <!-- 加载配置属性文件 -->
 	<context:property-placeholder ignore-unresolvable="true" location="classpath:jeesite.properties" />
 	
-	<!-- Shiro权限过滤过滤器定义 -->
+	<!-- Shiro权限过滤过滤器定义，一个请求url(url可以使用通配符)对应一个过滤器名，内置过滤器 -->
 	<bean name="shiroFilterChainDefinitions" class="java.lang.String">
 		<constructor-arg>
 			<value>
@@ -26,7 +26,9 @@
 		</constructor-arg>
 	</bean>
 	
-	<!-- 安全认证过滤器 ，rgz对应于web.xml中配置的那个shiroFilter -->
+	<!-- 安全认证过滤器 ，rgz对应于web.xml中配置的那个shiroFilter
+	 Shiro内置了很多过滤器
+	 -->
 	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
         <!-- rgz Shiro的核心安全接口，这个属性是必须的 -->
 		<property name="securityManager" ref="securityManager" /><!-- 

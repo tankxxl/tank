@@ -73,7 +73,7 @@
 				</form:select>
 			</li>
 			<li><label>审批状态：</label>
-				<form:select path="processStatus" class="input-medium">
+				<form:select path="procStatus" class="input-medium">
 					<form:option value="" label=""/>
 					<form:options items="${fns:getDictList('AuditStatus')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
 				</form:select>
@@ -125,30 +125,30 @@
 					<fmt:formatDate value="${projectApplyExternal.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/>
 				</td>
 				<c:choose>
-					<c:when test="${projectApplyExternal.processStatus != '2'}">
+					<c:when test="${projectApplyExternal.procStatus != '2'}">
 						<td style="color:red;">
 					</c:when>
 					<c:otherwise>
 						<td>
 					</c:otherwise>
 				</c:choose>
-					${fns:getDictLabel(projectApplyExternal.processStatus, 'AuditStatus', '')}
+					${fns:getDictLabel(projectApplyExternal.procStatus, 'AuditStatus', '')}
 				</td>
 				
 				<td>
-				<c:if test="${projectApplyExternal.processStatus == '2'}">
+				<c:if test="${projectApplyExternal.procStatus == '2'}">
 					<input export="btnExport" class="btn btn-primary" type="button" proId="${projectApplyExternal.id}" value="导出"/>
 				</c:if>
 					
 				<shiro:hasPermission name="apply:external:projectApplyExternal:edit">
 					<a href="${ctx}/apply/external/projectApplyExternal/form?id=${projectApplyExternal.id}">详情</a>
-					<c:if test="${projectApplyExternal.processStatus != '2'}">
-					<a class="trace" target="_blank" procInsId="${projectApplyExternal.processInstanceId}" href="${ctx}/act/task/trace1?procInsId=${projectApplyExternal.processInstanceId}">跟踪</a>
+					<c:if test="${projectApplyExternal.procStatus != '2'}">
+					<a class="trace" target="_blank" procInsId="${projectApplyExternal.procInsId}" href="${ctx}/act/task/trace1?procInsId=${projectApplyExternal.procInsId}">跟踪</a>
 					</c:if>
-					<c:if test="${projectApplyExternal.processStatus == '2'}">
+					<c:if test="${projectApplyExternal.procStatus == '2'}">
 						<a href="${ctx}/apply/external/projectApplyExternal/delete?id=${projectApplyExternal.id}" onclick="return confirmx('确认要删除该立项申请吗？', this.href)">删除</a>
 					</c:if>
-					<%-- <a class="trace" target="_blank" procInsId="${projectApplyExternal.processInstanceId}" href="${ctx}/act/task/trace2?procInsId=${projectApplyExternal.processInstanceId}">跟踪2</a> --%>
+					<%-- <a class="trace" target="_blank" procInsId="${projectApplyExternal.procInsId}" href="${ctx}/act/task/trace2?procInsId=${projectApplyExternal.procInsId}">跟踪2</a> --%>
 				</shiro:hasPermission>
 
 				<shiro:hasPermission name="apply:external:projectApplyExternal:modify">

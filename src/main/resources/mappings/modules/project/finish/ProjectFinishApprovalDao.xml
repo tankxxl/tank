@@ -15,7 +15,7 @@
 		a.remarks AS "remarks",
 		a.del_flag AS "delFlag",
 		a.proc_ins_id AS "procInsId",
-		a.process_status AS "processStatus",
+		a.proc_status AS "procStatus",
 		a.project_accounting_file AS "projectAccountingFile",
 		
 		pro_apply.project_code AS "apply.projectCode",
@@ -39,7 +39,15 @@
 		<include refid="projectFinishApprovalJoins"/>
 		WHERE a.id = #{id}
 	</select>
-	
+
+	<select id="findByProcInsId" resultType="ProjectFinishApproval">
+		SELECT
+		<include refid="projectFinishApprovalColumns"/>
+		FROM project_finish_approval a
+		<include refid="projectFinishApprovalJoins"/>
+		WHERE a.proc_ins_id = #{procInsId}
+	</select>
+
 	<select id="findList" resultType="ProjectFinishApproval">
 		SELECT 
 			<include refid="projectFinishApprovalColumns"/>
@@ -107,7 +115,7 @@
 			remarks,
 			del_flag,
 			proc_ins_id,
-			process_status
+			proc_status
 		) VALUES (
 			#{apply.id},
 			#{category},
@@ -122,7 +130,7 @@
 			#{remarks},
 			#{delFlag},
 			#{procInsId},
-			#{processStatus}
+			#{procStatus}
 		)
 	</insert>
 	
@@ -137,7 +145,7 @@
 			update_date = #{updateDate},
 			remarks = #{remarks},
 			proc_ins_id = #{procInsId},
-			process_status = #{processStatus}
+			proc_status = #{procStatus}
 		WHERE id = #{id}
 	</update>
 	

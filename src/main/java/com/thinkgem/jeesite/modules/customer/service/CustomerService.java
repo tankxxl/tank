@@ -27,16 +27,19 @@ public class CustomerService extends CrudService<CustomerDao, Customer> {
 
 	@Autowired
 	private CustomerContactDao customerContactDao;
-	
-	
+
 	public CustomerContact getCustomerConcat(String customerConcatId){
 		return customerContactDao.get(customerConcatId);
 	}
-	
-	
+
 	@Override
 	public Customer get(String id) {
 		Customer customer = super.get(id);
+
+		// In case id is not customerId.
+		if (customer == null)
+			return customer;
+
 		customer.setCustomerContactList(customerContactDao.findList(new CustomerContact(customer)));
 		return customer;
 	}

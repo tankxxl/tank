@@ -36,9 +36,12 @@
 	</div>
 	<ul class="nav nav-tabs">
 		<li class="active"><a href="${ctx}/customer/customer/">客户列表</a></li>
-		<shiro:hasPermission name="customer:customer:edit"><li><a href="${ctx}/customer/customer/form">客户添加</a></li></shiro:hasPermission>
+		<shiro:hasPermission name="customer:customer:edit">
+			<li><a href="${ctx}/customer/customer/form">客户添加</a></li>
+		</shiro:hasPermission>
 	</ul>
-	<form:form id="searchForm" modelAttribute="customer" action="${ctx}/customer/customer/" method="post" class="breadcrumb form-search">
+	<form:form id="searchForm" modelAttribute="customer" htmlEscape="false"
+			   action="${ctx}/customer/customer/" method="post" class="breadcrumb form-search">
 		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
 		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 		<ul class="ul-form">
@@ -71,7 +74,9 @@
 				<th>负责人</th>
 				<th>创建者</th>
 				<th>创建时间</th>
-				<shiro:hasPermission name="customer:customer:edit,customer:contact:edit"><th>操作</th></shiro:hasPermission>
+				<shiro:hasPermission name="customer:customer:edit,customer:contact:edit">
+					<th>操作</th>
+				</shiro:hasPermission>
 			</tr>
 		</thead>
 		<tbody>
@@ -90,18 +95,10 @@
 				<td>
 					${fns:getDictLabel(customer.industry, 'customer_industry', '')}
 				</td>
-				<td>
-					${customer.address}
-				</td>
-				<td>
-					${customer.principal.name}
-				</td>
-				<td>
-					${customer.createBy.name}
-				</td>
-				<td>
-					<fmt:formatDate value="${customer.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/>
-				</td>
+				<td>${customer.address}</td>
+				<td>${customer.principal.name}</td>
+				<td>${customer.createBy.name}</td>
+				<td><fmt:formatDate value="${customer.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
 				<td>
 					<shiro:hasPermission name="customer:customer:edit">
 	    				<a href="${ctx}/customer/customer/form?id=${customer.id}">修改</a>

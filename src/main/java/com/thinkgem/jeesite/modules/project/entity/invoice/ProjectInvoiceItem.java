@@ -28,6 +28,7 @@ public class ProjectInvoiceItem extends ActEntity<ProjectInvoiceItem> {
     private String price; //
     private String amount; //
     private String costAmount; //
+    private String invoiceNo; //
 
     private String attachment;
 
@@ -152,4 +153,11 @@ public class ProjectInvoiceItem extends ActEntity<ProjectInvoiceItem> {
         this.procStatus = procStatus;
     }
 
+    public String getInvoiceNo() {
+        return invoiceNo;
+    }
+
+    public void setInvoiceNo(String invoiceNo) {
+        this.invoiceNo = invoiceNo;
+    }
 }

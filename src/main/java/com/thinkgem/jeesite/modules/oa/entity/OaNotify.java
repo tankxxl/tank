@@ -3,16 +3,15 @@
  */
 package com.thinkgem.jeesite.modules.oa.entity;
 
-import java.util.List;
-
-import org.hibernate.validator.constraints.Length;
-
 import com.google.common.collect.Lists;
 import com.thinkgem.jeesite.common.persistence.DataEntity;
 import com.thinkgem.jeesite.common.utils.Collections3;
 import com.thinkgem.jeesite.common.utils.IdGen;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.sys.entity.User;
+import org.hibernate.validator.constraints.Length;
+
+import java.util.List;
 
 /**
  * 通知通告Entity
@@ -22,11 +21,11 @@ import com.thinkgem.jeesite.modules.sys.entity.User;
 public class OaNotify extends DataEntity<OaNotify> {
 	
 	private static final long serialVersionUID = 1L;
-	private String type;		// 类型
-	private String title;		// 标题
-	private String content;		// 类型
-	private String files;		// 附件
-	private String status;		// 状态
+	private String type;		// 类型，db
+	private String title;		// 标题，db
+	private String content;		// 内容，db
+	private String files;		// 附件，db
+	private String status;		// 状态，db，发布、草稿
 
 	private String readNum;		// 已读
 	private String unReadNum;	// 未读

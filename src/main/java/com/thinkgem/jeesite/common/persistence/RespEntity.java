@@ -3,6 +3,9 @@ package com.thinkgem.jeesite.common.persistence;
 import java.io.Serializable;
 
 /**
+ * ajax请求时-返回对象
+ * 来源于jeesns
+ *
  * Created by zchuanzhao on 2016/10/16.
  */
 public class RespEntity<T> implements Serializable{
@@ -37,6 +40,12 @@ public class RespEntity<T> implements Serializable{
     public RespEntity(int code, String message) {
         this.code = code;
         this.message = message;
+    }
+
+    public RespEntity(int code, String message, T data) {
+        this.code = code;
+        this.message = message;
+        this.data = data;
     }
 
     public RespEntity(int code, String message, String url) {

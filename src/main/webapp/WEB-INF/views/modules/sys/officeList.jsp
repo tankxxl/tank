@@ -34,13 +34,22 @@
 	</ul>
 	<sys:message content="${message}"/>
 	<table id="treeTable" class="table table-striped table-bordered table-condensed">
-		<thead><tr><th>机构名称</th><th>归属区域</th><th>机构编码</th><th>机构类型</th><th>备注</th><shiro:hasPermission name="sys:office:edit"><th>操作</th></shiro:hasPermission></tr></thead>
+		<thead><tr>
+			<th>机构名称</th>
+			<%--<th>归属区域</th>--%>
+			<th>直接/分管领导</th>
+			<th>机构编码</th>
+			<th>机构类型</th>
+			<th>备注</th>
+			<shiro:hasPermission name="sys:office:edit"><th>操作</th></shiro:hasPermission>
+		</tr></thead>
 		<tbody id="treeTableList"></tbody>
 	</table>
 	<script type="text/template" id="treeTableTpl">
 		<tr id="{{row.id}}" pId="{{pid}}">
 			<td><a href="${ctx}/sys/office/form?id={{row.id}}">{{row.name}}</a></td>
-			<td>{{row.area.name}}</td>
+			<%--<td>{{row.area.name}}</td>--%>
+			<td>{{row.primaryPerson.name}}-{{row.deputyPerson.name}}</td>
 			<td>{{row.code}}</td>
 			<td>{{dict.type}}</td>
 			<td>{{row.remarks}}</td>

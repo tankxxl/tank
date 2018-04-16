@@ -58,10 +58,18 @@
 </head>
 <body>
 	<ul class="nav nav-tabs">
-		<li><a href="${ctx}/customer/customer/">客户联系人列表</a></li>
-		<li class="active"><a href="${ctx}/customer/customer/form?id=${customer.id}">客户联系人<shiro:hasPermission name="customer:customer:edit">${not empty customer.id?'修改':'添加'}</shiro:hasPermission><shiro:lacksPermission name="customer:customer:edit">查看</shiro:lacksPermission></a></li>
+		<li><a href="${ctx}/customer/customer/">客户列表</a></li>
+		<li class="active">
+			<a href="${ctx}/customer/customer/form?id=${customer.id}">客户联系人
+				<shiro:hasPermission name="customer:customer:edit">
+					${not empty customer.id?'修改':'添加'}
+				</shiro:hasPermission>
+				<shiro:lacksPermission name="customer:customer:edit">查看</shiro:lacksPermission>
+			</a>
+		</li>
 	</ul><br/>
-	<form:form id="inputForm" modelAttribute="customer" action="${ctx}/customer/customer/save" method="post" class="form-horizontal">
+	<form:form id="inputForm" modelAttribute="customer" htmlEscape="false"
+			   action="${ctx}/customer/customer/save" method="post" class="form-horizontal">
 		<form:hidden path="id"/>
 		<input id="oldName" name="oldName" type="hidden" value="${customer.customerName}">
 		<sys:message content="${message}"/>		
@@ -78,14 +86,21 @@
 								<th>电话</th>
 								<th>手机</th>
 								<th>备注信息</th>
-								<shiro:hasPermission name="customer:contact:edit"><th width="10">&nbsp;</th></shiro:hasPermission>
+								<shiro:hasPermission name="customer:contact:edit">
+									<th width="10">&nbsp;</th>
+								</shiro:hasPermission>
 							</tr>
 						</thead>
 						<tbody id="customerContactList">
 						</tbody>
-						<shiro:hasPermission name="customer:contact:edit"><tfoot>
-							<tr><td colspan="7"><a href="javascript:" onclick="addRow('#customerContactList', customerContactRowIdx, customerContactTpl);customerContactRowIdx = customerContactRowIdx + 1;" class="btn">新增</a></td></tr>
-						</tfoot></shiro:hasPermission>
+						<shiro:hasPermission name="customer:contact:edit">
+							<tfoot>
+							<tr><td colspan="7">
+								<a href="javascript:"
+								   onclick="addRow('#customerContactList', customerContactRowIdx, customerContactTpl); customerContactRowIdx = customerContactRowIdx + 1;" class="btn">新增</a>
+							</td></tr>
+						</tfoot>
+						</shiro:hasPermission>
 					</table>
 					<script type="text/template" id="customerContactTpl">//<!--
 						<tr id="customerContactList{{idx}}">
@@ -97,12 +112,12 @@
 								<input id="customerContactList{{idx}}_contactName" name="customerContactList[{{idx}}].contactName" type="text" value="{{row.contactName}}" maxlength="64" class="input-small "/>
 							</td>
 							<td>
-								<select id="customerContactList{{idx}}_sex" name="customerContactList[{{idx}}].sex" data-value="{{row.sex}}" class="input-small ">
-									<option value=""></option>
-									<c:forEach items="${fns:getDictList('sex')}" var="dict">
-										<option value="${dict.value}">${dict.label}</option>
-									</c:forEach>
-								</select>
+                            <select id="customerContactList{{idx}}_sex" name="customerContactList[{{idx}}].sex" data-value="{{row.sex}}" class="input-small ">
+                                <option value=""></option>
+                                <c:forEach items="${fns:getDictList('sex')}" var="dict">
+                                    <option value="${dict.value}">${dict.label}</option>
+                                </c:forEach>
+                            </select>
 							</td>
 							<td>
 								<input id="customerContactList{{idx}}_position" name="customerContactList[{{idx}}].position" type="text" value="{{row.position}}" maxlength="64" class="input-small "/>
@@ -116,7 +131,8 @@
 							<td>
 								<textarea id="customerContactList{{idx}}_remarks" name="customerContactList[{{idx}}].remarks" rows="2" maxlength="255" class="input-small ">{{row.remarks}}</textarea>
 							</td>
-							<shiro:hasPermission name="customer:contact:edit"><td class="text-center" width="10">
+							<shiro:hasPermission name="customer:contact:edit">
+							<td class="text-center" width="10">
 								{{#delBtn}}<span class="close" onclick="delRow(this, '#customerContactList{{idx}}')" title="删除">&times;</span>{{/delBtn}}
 							</td></shiro:hasPermission>
 						</tr>//-->
@@ -134,7 +150,9 @@
 				<%--</div>--%>
 			</div>
 		<div class="form-actions">
-			<shiro:hasPermission name="customer:contact:edit"><input id="btnSubmit" class="btn btn-primary" type="submit" value="保 存"/>&nbsp;</shiro:hasPermission>
+			<shiro:hasPermission name="customer:contact:edit">
+				<input id="btnSubmit" class="btn btn-primary" type="submit" value="保 存"/>&nbsp;
+			</shiro:hasPermission>
 			<input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.go(-1)"/>
 		</div>
 	</form:form>

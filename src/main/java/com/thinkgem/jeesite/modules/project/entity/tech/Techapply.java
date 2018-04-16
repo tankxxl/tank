@@ -38,7 +38,7 @@ public class Techapply extends ActEntity<Techapply> {
 	private Date applyDate;		// 申请时间
 	private Date beginApplyDate;		// 开始 申请时间
 	private Date endApplyDate;		// 结束 申请时间
-	private String processStatus;		// 流程审批状态
+
 	private String assignFlag;	//派工标记。0表示没派工，1表示已经派工
 	private List<Need> needList = Lists.newArrayList();		// 人员需求列表
 
@@ -127,14 +127,6 @@ public class Techapply extends ActEntity<Techapply> {
 
 	public void setEndApplyDate(Date endApplyDate) {
 		this.endApplyDate = endApplyDate;
-	}
-	
-	public String getProcessStatus() {
-		return processStatus;
-	}
-
-	public void setProcessStatus(String processStatus) {
-		this.processStatus = processStatus;
 	}
 	
 	public String getAssignFlag() {

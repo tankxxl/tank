@@ -4,9 +4,12 @@ import com.thinkgem.jeesite.common.annotation.Loggable;
 import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.persistence.ActEntity;
 import com.thinkgem.jeesite.common.service.BaseService;
+import com.thinkgem.jeesite.common.utils.Collections3;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
 import com.thinkgem.jeesite.modules.mail.entity.Email;
+import com.thinkgem.jeesite.modules.oa.entity.OaNotify;
+import com.thinkgem.jeesite.modules.oa.entity.OaNotifyRecord;
 import com.thinkgem.jeesite.modules.sys.dao.RoleDao;
 import com.thinkgem.jeesite.modules.sys.entity.Role;
 import com.thinkgem.jeesite.modules.sys.entity.User;
@@ -124,6 +127,7 @@ public class MailService extends BaseService {
 	}
 
 
+    // 发送流程提醒邮件
     public void sendEmail(String subject, ProjectApplyExternal apply, ActEntity actEntity, List<String> groupNames, List<String> loginNames) {
 
         MimeMessagePreparator preparator = getMessagePreparator(subject, apply, actEntity, groupNames, loginNames);
@@ -134,6 +138,58 @@ public class MailService extends BaseService {
         } catch (MailException e) {
             System.err.println(e.getMessage());
         }
+    }
+
+    // 发送合同到期提醒邮件
+    public void sendNotifyEmail(OaNotify oaNotify, List<User> userList) {
+
+        if (!Global.isSendEmail()) {
+            return;
+        }
+
+        MimeMessagePreparator preparator = getNotifyMessagePreparator(oaNotify, userList);
+
+
+        taskExecutor.execute(new Runnable() {
+
+            @Override
+            public void run() {
+
+                try {
+                    mailSender.send(preparator);
+                    System.out.println("Notify Message has been sent.......");
+                } catch (MailException e) {
+                    System.err.println(e.getMessage());
+                }
+
+            }
+        });
+
+    }
+
+    // 发送合同到期提醒邮件
+    public void sendNotifyEmail(OaNotify oaNotify) {
+
+	    if (oaNotify == null) {
+	        return;
+        }
+
+        if (oaNotify.getOaNotifyRecordList() == null || oaNotify.getOaNotifyRecordList().isEmpty()) {
+	        return;
+        }
+
+        List<OaNotifyRecord> notifyRecordList = oaNotify.getOaNotifyRecordList();
+        List<User> userList = new ArrayList<>();
+	    for (OaNotifyRecord record : notifyRecordList) {
+	        userList.add(record.getUser());
+        }
+        userList = Collections3.removeDuplicate(userList);
+
+	    if (userList == null || userList.isEmpty()) {
+	        return;
+        }
+
+        sendNotifyEmail(oaNotify, userList);
     }
 
 
@@ -165,6 +221,48 @@ public class MailService extends BaseService {
 
                 // Additionally, let's add a resource as an attachment as well.
                 helper.addAttachment("cutie.png", new ClassPathResource("linux-icon.png"));
+            }
+        };
+
+        return preparator;
+    }
+
+    // notify发邮件
+    private MimeMessagePreparator getNotifyMessagePreparator(final OaNotify oaNotify,
+                                                       final List<User> userList) {
+        MimeMessagePreparator preparator = new MimeMessagePreparator() {
+            @Override
+            public void prepare(MimeMessage mimeMessage) throws Exception {
+                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+
+                // helper.setSubject(oaNotify.getTitle());
+                helper.setSubject("合同到期提醒");
+                helper.setFrom(Global.getFromEmail());
+                String to = getEmailByUserList(userList);
+                // todo test
+                // to = "rgz03407@163.com";
+                helper.setTo(to);
+                // helper.setTo( getEmailByUserList(userList) );
+
+                // Map<String, Object> model = new HashMap<String, Object>();
+                // model.put("entity", entity);
+                // model.put("apply", apply);
+                // String text = getFreeMarkerTemplateContent(model); // Use Freemarker or Velocity
+                // System.out.println("Template content : " + text);
+
+                // use the true flag to indicate you need a multipart message
+                // helper.setText(text, true);
+
+                // 最后添加文件
+                // helper.addInline("identifier1234", new ClassPathResource("linux-icon.png"));
+                // Additionally, let's add a resource as an attachment as well.
+                // helper.addAttachment("cutie.png", new ClassPathResource("linux-icon.png"));
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("你好：\n");
+                sb.append(oaNotify.getContent());
+                sb.append("\n请及时沟通洽谈续签事宜，特此提醒!");
+                helper.setText(sb.toString());
             }
         };
 
@@ -204,6 +302,21 @@ public class MailService extends BaseService {
         return StringUtils.join(getEmailListByLoginName(loginNames), ";");
     }
 
+    private String getEmailByUserList(List<User> userList) {
+        if (userList == null || userList.isEmpty())
+            return "";
+
+        List<String> emails = new ArrayList<String>();
+        for (User user: userList) {
+            if (user == null ||
+                    "thinkgem".equals(user.getLoginName()) ||
+                    StringUtils.isEmpty(user.getEmail()))
+                continue;
+            emails.add(user.getEmail());
+        } // end users
+        return StringUtils.join(emails, ";");
+    }
+
     private String getEmailByList(List<String> groupNames, List<String> loginNames) {
         List<String> list = new ArrayList<String>();
         if (groupNames != null && groupNames.size() != 0) {
@@ -215,6 +328,7 @@ public class MailService extends BaseService {
         return StringUtils.join(list, ";");
     }
 
+    // 根据角色(组名)列表得到email列表
     private List<String> getEmailListByGroupName(List<String> groupNames) {
         List<String> emails = new ArrayList<String>();
         Role role = new Role();
@@ -240,6 +354,7 @@ public class MailService extends BaseService {
         return emails;
     }
 
+    // 根据登录名列表得以email列表
     private List<String> getEmailListByLoginName(List<String> loginNames) {
         List<String> emails = new ArrayList<String>();
         User user;
@@ -371,9 +486,9 @@ public class MailService extends BaseService {
      */
     @Async
     public void doBusiness() throws InterruptedException {
-        logger.info("start to do business.");
-        TimeUnit.SECONDS.sleep(10);
-        logger.info("end to do business.");
+        logger.info("rgz start to do business.");
+        TimeUnit.SECONDS.sleep(1000 * 5);
+        logger.info("rgz end to do business.");
     }
 
 }

@@ -50,10 +50,7 @@ public class ProjectFinishApprovalController extends BaseController {
 	
 	@RequiresPermissions("project:finish:projectFinishApproval:view")
 	@RequestMapping(value = {"list", ""})
-	public String list(ProjectFinishApproval projectFinishApproval,
-					   HttpServletRequest request,
-					   HttpServletResponse response,
-					   Model model) {
+	public String list(ProjectFinishApproval projectFinishApproval, HttpServletRequest request, HttpServletResponse response, Model model) {
 		projectFinishApproval.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
 		Page<ProjectFinishApproval> page = projectFinishApprovalService.findPage(new Page<ProjectFinishApproval>(request, response), projectFinishApproval); 
 		model.addAttribute("page", page);
@@ -65,19 +62,27 @@ public class ProjectFinishApprovalController extends BaseController {
 	public String form(ProjectFinishApproval projectFinishApproval, Model model) {
 		String prefix = "modules/project/finish/";
 		String view = "projectFinishApprovalForm";
+
 		model.addAttribute("projectFinishApproval", projectFinishApproval);
 
+		// 待办、已办入口界面传的act是一样的，只是act中的status不一样。
+
 		if (projectFinishApproval.getIsNewRecord()) {
+			// 入口1：新建表单，直接返回空实体
 			if (projectFinishApproval.hasAct()) {
-				view = "projectFinishApprovalView";
+				// 入口2：从已办任务界面来的请求，1、实体是新建的，2、act是activi框架填充的。
+				// 此时实体应该由流程id来查询。
+				view = "ExecutionView";
 				projectFinishApproval = projectFinishApprovalService.findByProcInsId(projectFinishApproval);
 				if (projectFinishApproval == null) {
 					projectFinishApproval = new ProjectFinishApproval();
 				}
+				model.addAttribute("projectFinishApproval", projectFinishApproval);
 			}
 			return prefix + view;
 		}
 
+		// 入口3：在流程图中配置，从待办任务界面来的请求，entity和act都已加载。
 		// 环节编号
 		String taskDefKey = projectFinishApproval.getAct().getTaskDefKey();
 
@@ -89,10 +94,6 @@ public class ProjectFinishApprovalController extends BaseController {
 		else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ){
 			view = "projectFinishApprovalForm";
 		}
-		// 商务部专员-要填写供应商的联系人信息
-		// else if (UserTaskType.UT_COMMERCE_SPECIALIST.equals(taskDefKey)) {
-		// 	view = "ExecutionView4Commerce";
-		// }
 		// 某审批环节
 		else if ("apply_end".equals(taskDefKey)){
 			view = "projectFinishApprovalView";  // replace ExecutionAudit
@@ -104,9 +105,7 @@ public class ProjectFinishApprovalController extends BaseController {
 
 	@RequiresPermissions("project:finish:projectFinishApproval:edit")
 	@RequestMapping(value = "save")
-	public String save(ProjectFinishApproval projectFinishApproval,
-					   Model model,
-					   RedirectAttributes redirectAttributes) {
+	public String save(ProjectFinishApproval projectFinishApproval, Model model, RedirectAttributes redirectAttributes) {
 		if (!beanValidator(model, projectFinishApproval)){
 			return form(projectFinishApproval, model);
 		}
@@ -120,7 +119,6 @@ public class ProjectFinishApprovalController extends BaseController {
 		} else {
 			projectFinishApprovalService.saveLaunch(projectFinishApproval);
 		}
-//		projectFinishApprovalService.save(projectFinishApproval);
 		addMessage(redirectAttributes, "保存结项审批成功");
 		
 		String usertask_owner = projectFinishApproval.getAct().getTaskDefKey();
@@ -148,7 +146,7 @@ public class ProjectFinishApprovalController extends BaseController {
 			return form(projectFinishApproval, model);
 		}
 		
-		projectFinishApprovalService.auditSave(projectFinishApproval);
+		projectFinishApprovalService.saveAudit(projectFinishApproval);
 		return "redirect:" + adminPath + "/act/task/todo/";
 	}
 	

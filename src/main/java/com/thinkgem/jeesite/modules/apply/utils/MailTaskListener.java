@@ -41,6 +41,7 @@ public class MailTaskListener implements TaskListener {
 		// 节点开始时，assignment事件比create先执行
 		// 节点结束时，complete事件比delete事件先执行
 		String eventName = delegateTask.getEventName();
+		System.out.println("origin-eventName=" + eventName);
 		logger.info("notify=========" + eventName);
 		if ("create".endsWith(eventName)) {
 			System.out.println("create=========");

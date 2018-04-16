@@ -11,9 +11,16 @@ import com.thinkgem.jeesite.common.service.BaseService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.dao.ActDao;
 import com.thinkgem.jeesite.modules.act.entity.Act;
+import com.thinkgem.jeesite.modules.act.service.cmd.CreateAndTakeTransitionCmd;
+import com.thinkgem.jeesite.modules.act.service.cmd.JumpTaskCmd;
+import com.thinkgem.jeesite.modules.act.service.creator.ChainedActivitiesCreator;
+import com.thinkgem.jeesite.modules.act.service.creator.MultiInstanceActivityCreator;
+import com.thinkgem.jeesite.modules.act.service.creator.RuntimeActivityDefinitionEntityIntepreter;
+import com.thinkgem.jeesite.modules.act.service.creator.SimpleRuntimeActivityDefinitionEntity;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.act.utils.ProcessCustomService;
 import com.thinkgem.jeesite.modules.act.utils.ProcessDefCache;
+import com.thinkgem.jeesite.modules.act.utils.ProcessDefUtils;
 import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import org.activiti.bpmn.model.BpmnModel;
@@ -24,9 +31,13 @@ import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.history.HistoricTaskInstanceQuery;
 import org.activiti.engine.impl.RepositoryServiceImpl;
+import org.activiti.engine.impl.RuntimeServiceImpl;
 import org.activiti.engine.impl.bpmn.behavior.UserTaskActivityBehavior;
 import org.activiti.engine.impl.context.Context;
+import org.activiti.engine.impl.identity.Authentication;
+import org.activiti.engine.impl.interceptor.CommandExecutor;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
+import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.impl.pvm.PvmTransition;
 import org.activiti.engine.impl.pvm.delegate.ActivityBehavior;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
@@ -45,6 +56,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.InputStream;
 import java.util.*;
@@ -63,9 +75,12 @@ public class ActTaskService extends BaseService {
 
     @Autowired
     ProcessCustomService processCustomService;  // rgz 驳回操作
-	
+
 	@Autowired
-	private ProcessEngineFactoryBean processEngine;
+	private ProcessEngineFactoryBean processEngineFactory;
+
+	@Autowired
+	private ProcessEngine processEngine;
 	@Autowired
 	private RuntimeService runtimeService;
 	@Autowired
@@ -81,7 +96,23 @@ public class ActTaskService extends BaseService {
 	
 	/**
 	 * 获取待办列表
-	 * @param procDefKey 流程定义标识
+	 *
+	 * 一、taskService.createTaskQuery().taskCandidateOrAssigned(userId);
+	 * 当使用taskCandidateOrAssigned作查询条件时，Activiti会按照以下规则查找Task：
+	 * 1、Assignee匹配
+	 * 2、或者*.bpmn中定义的Candidate Users 匹配
+	 * 3、或者Candidate Group匹配
+	 * 二、taskService.createTaskQuery().taskAssignee(userId);
+	 * Assignee匹配
+	 * 三、taskService.createTaskQuery().taskCandidateGroup(userId);
+	 * *.bpmn中定义的Candidate Groups匹配
+	 * 四、taskService.createTaskQuery().taskCandidateUser(userId);
+	 * 五、taskService.createTaskQuery().taskCandidateGroupIn(groups);
+	 * 六、taskService.createTaskQuery().taskOwner(userId);
+	 * *.bpmn中定义的owner匹配
+	 *
+	 *
+	 // * @param procDefKey 流程定义标识
 	 * @return
 	 */
 	public List<Act> todoList(Act act){
@@ -116,6 +147,7 @@ public class ActTaskService extends BaseService {
 //			e.setProcIns(runtimeService.createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult());
 //			e.setProcExecUrl(ActUtils.getProcExeUrl(task.getProcessDefinitionId()));
 			e.setStatus("todo");
+			System.out.println(task.getAssignee());
 			result.add(e);
 		}
 		
@@ -154,7 +186,7 @@ public class ActTaskService extends BaseService {
 	/**
 	 * 获取已办任务
 	 * @param page
-	 * @param procDefKey 流程定义标识
+	 // * @param procDefKey 流程定义标识
 	 * @return
 	 */
 	public Page<Act> historicList(Page<Act> page, Act act){
@@ -354,6 +386,18 @@ public class ActTaskService extends BaseService {
 	}
 
 	/**
+	 * 获取历史流程实例对象
+	 * @param procInsId
+	 * @return
+	 */
+	@Transactional(readOnly = false)
+	public HistoricProcessInstance getHisProcIns(String procInsId) {
+		return   historyService.createHistoricProcessInstanceQuery() // 创建历史流程实例查询
+				.processInstanceId(procInsId) // 指定流程实例ID
+				.singleResult();
+	}
+
+	/**
 	 * 启动流程
 	 * @param procDefKey 流程定义KEY
 	 * @param businessTable 业务表表名
@@ -406,7 +450,10 @@ public class ActTaskService extends BaseService {
 		}
 
         vars.put(ActUtils.VAR_APPLY, UserUtils.getUser().getLoginName());
-		
+
+		vars.put("_ACTIVITI_SKIP_EXPRESSION_ENABLED", true);
+		vars.put(ActUtils.VAR_OBJ_ID, businessId);
+
 		// 启动流程(processDefinitionKey、businessKey、variables)
 		ProcessInstance procIns = runtimeService.startProcessInstanceByKey(procDefKey, businessTable+":"+businessId, vars);
 		
@@ -539,18 +586,188 @@ public class ActTaskService extends BaseService {
 //	public void backTask(String taskId){
 //		taskService.
 //	}
-	
+
+	/**
+	 * 添加任务意见
+	 */
+	public void addTaskComment(String taskId, String procInsId, String comment){
+		taskService.addComment(taskId, procInsId, comment);
+	}
+
+	//////////////////  回退、前进、跳转、前加签、后加签、分裂 移植  https://github.com/bluejoe2008/openwebflow  //////////////////////////////////////////////////
+
+	/**
+	 * 任务后退一步
+	 */
+	public void taskBack(String procInsId, Map<String, Object> variables) {
+		taskBack(getCurrentTask(procInsId), variables);
+	}
+
+	/**
+	 * 任务后退至指定活动
+	 */
+	public void taskBack(TaskEntity currentTaskEntity, Map<String, Object> variables) {
+		ActivityImpl activity = (ActivityImpl) ProcessDefUtils
+				.getActivity(processEngine, currentTaskEntity.getProcessDefinitionId(), currentTaskEntity.getTaskDefinitionKey())
+				.getIncomingTransitions().get(0).getSource();
+		jumpTask(currentTaskEntity, activity, variables);
+	}
+
+	/**
+	 * 任务前进一步
+	 */
+	public void taskForward(String procInsId, Map<String, Object> variables) {
+		taskForward(getCurrentTask(procInsId), variables);
+	}
+
+	/**
+	 * 任务前进至指定活动
+	 */
+	public void taskForward(TaskEntity currentTaskEntity, Map<String, Object> variables) {
+		ActivityImpl activity = (ActivityImpl) ProcessDefUtils
+				.getActivity(processEngine, currentTaskEntity.getProcessDefinitionId(), currentTaskEntity.getTaskDefinitionKey())
+				.getOutgoingTransitions().get(0).getDestination();
+
+		jumpTask(currentTaskEntity, activity, variables);
+	}
+
+	/**
+	 * 跳转（包括回退和向前）至指定活动节点
+	 */
+	public void jumpTask(String procInsId, String targetTaskDefinitionKey, Map<String, Object> variables) {
+		jumpTask(getCurrentTask(procInsId), targetTaskDefinitionKey, variables);
+	}
+
+	/**
+	 * 跳转（包括回退和向前）至指定活动节点
+	 */
+	public void jumpTask(String procInsId, String currentTaskId, String targetTaskDefinitionKey, Map<String, Object> variables) {
+		jumpTask(getTaskEntity(currentTaskId), targetTaskDefinitionKey, variables);
+	}
+
+	/**
+	 * 跳转（包括回退和向前）至指定活动节点
+	 * @param currentTaskEntity 当前任务节点
+	 * @param targetTaskDefinitionKey 目标任务节点（在模型定义里面的节点名称）
+	 * @throws Exception
+	 */
+	public void jumpTask(TaskEntity currentTaskEntity, String targetTaskDefinitionKey, Map<String, Object> variables) {
+		ActivityImpl activity = ProcessDefUtils.getActivity(processEngine, currentTaskEntity.getProcessDefinitionId(),
+				targetTaskDefinitionKey);
+		jumpTask(currentTaskEntity, activity, variables);
+	}
+
+	/**
+	 * 跳转（包括回退和向前）至指定活动节点
+	 * @param currentTaskEntity 当前任务节点
+	 * @param targetActivity 目标任务节点（在模型定义里面的节点名称）
+	 * @throws Exception
+	 */
+	private void jumpTask(TaskEntity currentTaskEntity, ActivityImpl targetActivity, Map<String, Object> variables) {
+		CommandExecutor commandExecutor = ((RuntimeServiceImpl) runtimeService).getCommandExecutor();
+		commandExecutor.execute(new JumpTaskCmd(currentTaskEntity, targetActivity, variables));
+	}
+
+	/**
+	 * 后加签
+	 */
+	@SuppressWarnings("unchecked")
+	public ActivityImpl[] insertTasksAfter(String procDefId, String procInsId, String targetTaskDefinitionKey, Map<String, Object> variables, String... assignees) {
+		List<String> assigneeList = new ArrayList<String>();
+		assigneeList.add(Authentication.getAuthenticatedUserId());
+		assigneeList.addAll(CollectionUtils.arrayToList(assignees));
+		String[] newAssignees = assigneeList.toArray(new String[0]);
+		ProcessDefinitionEntity processDefinition = (ProcessDefinitionEntity)repositoryService.getProcessDefinition(procDefId);
+		ActivityImpl prototypeActivity = ProcessDefUtils.getActivity(processEngine, processDefinition.getId(), targetTaskDefinitionKey);
+		return cloneAndMakeChain(processDefinition, procInsId, targetTaskDefinitionKey, prototypeActivity.getOutgoingTransitions().get(0).getDestination().getId(), variables, newAssignees);
+	}
+
+	/**
+	 * 前加签
+	 */
+	public ActivityImpl[] insertTasksBefore(String procDefId, String procInsId, String targetTaskDefinitionKey, Map<String, Object> variables, String... assignees) {
+		ProcessDefinitionEntity procDef = (ProcessDefinitionEntity)repositoryService.getProcessDefinition(procDefId);
+		return cloneAndMakeChain(procDef, procInsId, targetTaskDefinitionKey, targetTaskDefinitionKey, variables, assignees);
+	}
+
+	/**
+	 * 分裂某节点为多实例节点
+	 */
+	public ActivityImpl splitTask(String procDefId, String procInsId, String targetTaskDefinitionKey, Map<String, Object> variables, String... assignee) {
+		return splitTask(procDefId, procInsId, targetTaskDefinitionKey, variables, true, assignee);
+	}
+
+	/**
+	 * 分裂某节点为多实例节点
+	 */
+	@SuppressWarnings("unchecked")
+	public ActivityImpl splitTask(String procDefId, String procInsId, String targetTaskDefinitionKey, Map<String, Object> variables, boolean isSequential, String... assignees) {
+		SimpleRuntimeActivityDefinitionEntity info = new SimpleRuntimeActivityDefinitionEntity();
+		info.setProcessDefinitionId(procDefId);
+		info.setProcessInstanceId(procInsId);
+
+		RuntimeActivityDefinitionEntityIntepreter radei = new RuntimeActivityDefinitionEntityIntepreter(info);
+
+		radei.setPrototypeActivityId(targetTaskDefinitionKey);
+		radei.setAssignees(CollectionUtils.arrayToList(assignees));
+		radei.setSequential(isSequential);
+
+		ProcessDefinitionEntity processDefinition = (ProcessDefinitionEntity)repositoryService.getProcessDefinition(procDefId);
+		ActivityImpl clone = new MultiInstanceActivityCreator().createActivities(processEngine, processDefinition, info)[0];
+
+		TaskEntity currentTaskEntity = this.getCurrentTask(procInsId);
+
+		CommandExecutor commandExecutor = ((RuntimeServiceImpl) runtimeService).getCommandExecutor();
+		commandExecutor.execute(new CreateAndTakeTransitionCmd(currentTaskEntity, clone, variables));
+
+//		recordActivitiesCreation(info);
+		return clone;
+	}
+
+	public TaskEntity getCurrentTask(String procInsId) {
+		return (TaskEntity) taskService.createTaskQuery().processInstanceId(procInsId).active().singleResult();
+	}
+
+	private TaskEntity getTaskEntity(String taskId) {
+		return (TaskEntity) taskService.createTaskQuery().taskId(taskId).singleResult();
+	}
+
+	@SuppressWarnings("unchecked")
+	private ActivityImpl[] cloneAndMakeChain(ProcessDefinitionEntity procDef, String procInsId, String prototypeActivityId, String nextActivityId, Map<String, Object> variables, String... assignees) {
+		SimpleRuntimeActivityDefinitionEntity info = new SimpleRuntimeActivityDefinitionEntity();
+		info.setProcessDefinitionId(procDef.getId());
+		info.setProcessInstanceId(procInsId);
+
+		RuntimeActivityDefinitionEntityIntepreter radei = new RuntimeActivityDefinitionEntityIntepreter(info);
+		radei.setPrototypeActivityId(prototypeActivityId);
+		radei.setAssignees(CollectionUtils.arrayToList(assignees));
+		radei.setNextActivityId(nextActivityId);
+
+		ActivityImpl[] activities = new ChainedActivitiesCreator().createActivities(processEngine, procDef, info);
+
+		jumpTask(procInsId, activities[0].getId(), variables);
+//		recordActivitiesCreation(info);
+
+		return activities;
+	}
+
+
 	////////////////////////////////////////////////////////////////////
 	
 	/**
 	 * 读取带跟踪的图片
 	 * @param executionId	环节ID
-	 * @return	封装了各种节点信息
+	 * @return	png输入流，封装了各种节点信息
 	 */
 	public InputStream tracePhoto(String procDefId, String executionId) {
+		if (StringUtils.isBlank(procDefId) || StringUtils.isBlank(executionId))
+			return null;
+
 //		ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(executionId).singleResult();
+		// 流程定义
 		BpmnModel bpmnModel = repositoryService.getBpmnModel(procDefId);
-		
+
+		// 正在活动节点
 		List<String> activeActivityIds = Lists.newArrayList();
 		if (runtimeService.createExecutionQuery().executionId(executionId).count() > 0){
 			activeActivityIds = runtimeService.getActiveActivityIds(executionId);
@@ -561,12 +778,11 @@ public class ActTaskService extends BaseService {
 		// Context.setProcessEngineConfiguration(defaultProcessEngine.getProcessEngineConfiguration());
 
 		// 使用spring注入引擎请使用下面的这行代码
-		Context.setProcessEngineConfiguration(processEngine.getProcessEngineConfiguration());
+		Context.setProcessEngineConfiguration(processEngineFactory.getProcessEngineConfiguration());
 //		return ProcessDiagramGenerator.generateDiagram(bpmnModel, "png", activeActivityIds);
-
-		// return processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator()
-		// 		.generateDiagram(bpmnModel, "png", activeActivityIds);
-
+		System.out.println("ActivityFontName=" + processEngine.getProcessEngineConfiguration().getActivityFontName());
+		System.out.println("LabelFontName=" + processEngine.getProcessEngineConfiguration().getLabelFontName());
+		System.out.println("AnnotationFontName=" + processEngine.getProcessEngineConfiguration().getAnnotationFontName());
 		return processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator()
 				.generateDiagram(
 						bpmnModel,
@@ -581,7 +797,53 @@ public class ActTaskService extends BaseService {
 						1.0
 				);
 	}
-	
+
+
+	// public InputStream tracePhoto1(String processDefinitionId, String executionId) {
+	// 	List<String> activeActivityIds = Lists.newArrayList(), highLightedFlows = new ArrayList<String>();
+	// 	if (runtimeService.createExecutionQuery().executionId(executionId).count() > 0) {
+	// 		activeActivityIds = runtimeService.getActiveActivityIds(executionId);
+	// 	}
+	// 	/**
+	// 	 * 获得当前活动的节点
+	// 	 */
+	// 	if (this.isFinished(executionId)) {// 如果流程已经结束，则得到结束节点
+	// 		activeActivityIds.add(historyService.createHistoricActivityInstanceQuery().executionId(executionId)
+	// 				.activityType("endEvent").singleResult().getActivityId());
+	// 	} else {// 如果流程没有结束，则取当前活动节点
+	// 		// 根据流程实例ID获得当前处于活动状态的ActivityId合集
+	// 		activeActivityIds = runtimeService.getActiveActivityIds(executionId);
+	// 	}
+	// 	// 获得历史活动记录实体（通过启动时间正序排序，不然有的线可以绘制不出来）
+	// 	List<HistoricActivityInstance> historicActivityInstances = historyService.createHistoricActivityInstanceQuery()
+	// 			.executionId(executionId).orderByHistoricActivityInstanceStartTime().asc().list();
+	// 	// 计算活动线
+	// 	highLightedFlows = this
+	// 			.getHighLightedFlows((ProcessDefinitionEntity) ((RepositoryServiceImpl) repositoryService)
+	// 					.getDeployedProcessDefinition(processDefinitionId), historicActivityInstances);
+	// 	/**
+	// 	 * 绘制图形
+	// 	 */
+	// 	InputStream imageStream = null;
+	// 	if (null != activeActivityIds) {
+	// 		try {
+	// 			// 获得流程引擎配置
+	// 			ProcessEngineConfiguration processEngineConfiguration = processEngine.getProcessEngineConfiguration();
+	// 			// 根据流程定义ID获得BpmnModel
+	// 			BpmnModel bpmnModel = repositoryService.getBpmnModel(processDefinitionId);
+	// 			// 输出资源内容到相应对象
+	// 			imageStream = new DefaultProcessDiagramGenerator().generateDiagram(bpmnModel, "png", activeActivityIds,
+	// 					highLightedFlows, processEngineConfiguration.getActivityFontName(),
+	// 					processEngineConfiguration.getLabelFontName(), processEngineConfiguration.getClassLoader(),
+	// 					1.0);
+	// 			return imageStream;
+	// 		} catch (Exception e) {
+	// 			e.printStackTrace();
+	// 		}
+	// 	}
+	// 	return null;
+	// }
+
 	/**
 	 * 流程跟踪图信息
 	 * @param procInsId		流程实例ID
@@ -791,11 +1053,17 @@ public class ActTaskService extends BaseService {
      * @return
      */
     public String getProcDefIdByProcInsId(String procInsId) {
+    	if (StringUtils.isEmpty(procInsId)) {
+    		return "";
+		}
         ProcessInstance processInstance =
                 runtimeService.createProcessInstanceQuery()
                         .processInstanceId(procInsId)
                         .singleResult();
 
+    	if (processInstance == null ) {
+    		return "";
+		}
         String procDefId = processInstance.getProcessDefinitionId();
         return procDefId;
     }
@@ -807,6 +1075,9 @@ public class ActTaskService extends BaseService {
      * @return
      */
     public String getExecutionIdByProcInsId(String procInsId) {
+    	if (StringUtils.isBlank(procInsId))
+    		return "";
+
         ProcessInstance processInstance =
                 runtimeService.createProcessInstanceQuery()
                         .processInstanceId(procInsId)
@@ -814,6 +1085,9 @@ public class ActTaskService extends BaseService {
 
         Task task = getCurrentTaskInfo(processInstance);
 
+        if (task == null ) {
+        	return "";
+		}
         String executionId = task.getExecutionId();
         return executionId;
     }
@@ -849,17 +1123,31 @@ public class ActTaskService extends BaseService {
     }
 
     /**
-     * rgz
+     * rgz 审批时可以有多种状态
      * @param act
      * @param vars
      */
     @Transactional(readOnly = false)
     public void complateByAct(Act act, Map<String, Object> vars) {
-        if (act.getFlagBoolean()) {
-            complete(act.getTaskId(), act.getProcInsId(), act.getComment(), null, vars);
-        } else {
-            processCustomService.jumpToOwner(act, vars);
-        }
+    	// 审批时可以有多种状态
+    	if ("yes_end".equals(act.getFlag())) {
+			try {
+				processCustomService.jumpTo(act, "endevent1", vars);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else if ("yes".equals(act.getFlag())) {
+			complete(act.getTaskId(), act.getProcInsId(), act.getComment(), null, vars);
+		} else {
+			processCustomService.jumpToOwner(act, vars);
+		}
+
+
+        // if (act.getFlagBoolean()) {
+        //     complete(act.getTaskId(), act.getProcInsId(), act.getComment(), null, vars);
+        // } else {
+        //     processCustomService.jumpToOwner(act, vars);
+        // }
     }
 
 
@@ -882,13 +1170,22 @@ public class ActTaskService extends BaseService {
     @Transactional(readOnly = false)
     public String startProcEatFirstTask(ActEntity actEntity, String title, Map<String, Object> vars) {
 
-    	// 实体名称=流程标识，所以在画流程图的时候定义的名称要和java类里的实体名称一致
-        String procDefKey = actEntity.getClass().getSimpleName();
+    	// 实体名称=流程定义标识KEY，所以在画流程图的时候定义的流程名称要和java类里的实体名称一致
+
+        String procDefKey = (String) vars.get(ActUtils.VAR_PROC_DEF_KEY);
+
+        if (StringUtils.isEmpty(procDefKey)) {
+			procDefKey = actEntity.getClass().getSimpleName();
+		}
+
         String businessTable = ActUtils.getBusinessTableByClassName(procDefKey);
         String businessId = actEntity.getId();
         if (StringUtils.isEmpty(procDefKey) || StringUtils.isEmpty(businessTable) || StringUtils.isEmpty(businessId)) {
             return "";
         }
+        // 设置id
+		vars.put(ActUtils.VAR_OBJ_ID, actEntity.getId());
+
         String procInsId = startProcess(procDefKey, businessTable, businessId, title, vars);
         completeFirstTask(procInsId);
         return procInsId;
@@ -1000,5 +1297,9 @@ public class ActTaskService extends BaseService {
         }
         return actList;
     }
-	
+
+	public ProcessEngine getProcessEngine() {
+		return processEngine;
+	}
+
 }

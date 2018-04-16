@@ -5,7 +5,12 @@ import com.thinkgem.jeesite.common.utils.SpringContextHolder;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.apply.service.external.ProjectApplyExternalService;
+import com.thinkgem.jeesite.modules.project.service.bidding.ProjectBiddingService;
+import com.thinkgem.jeesite.modules.project.service.contract.ProjectContractService;
 import com.thinkgem.jeesite.modules.project.service.execution.ProjectExecutionService;
+import com.thinkgem.jeesite.modules.project.service.finish.ProjectFinishApprovalService;
+import com.thinkgem.jeesite.modules.project.service.invoice.ProjectInvoiceService;
+import com.thinkgem.jeesite.modules.project.service.purchase.ProjectPurchaseService;
 import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import org.activiti.engine.EngineServices;
 import org.activiti.engine.delegate.DelegateExecution;
@@ -15,6 +20,10 @@ import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 
 /**
  * 全局监听器，监听流程实例启动、结束
+ *
+ * 不用每个流程都定义一个监听器了，统一定义一个监听器类来监听所有的流程，判断流程定义KEY即可分辩各个流程。
+ * 在流程图上定义start、end事件的监听器，而不是在usertask节点上设置。
+ *
  * 在流程开始时，自动修改表单状态
  * 1、主表修改为：xxx审批中
  * 2、子表修改为：审批中
@@ -65,8 +74,8 @@ public class AuditStartListener implements ExecutionListener{
 //      businessKey = project_apply_external:11e6bec955d34b3a8f05b1aaf72b7c94
 //      processInstanceId = 0373e076ce6e479fbe188cb412a9aba9
 
-        String id = (String) execution.getVariable("objId");
-        String prjId = (String) execution.getVariable("prjId");
+        String id = (String) execution.getVariable(ActUtils.VAR_OBJ_ID);
+        String prjId = (String) execution.getVariable(ActUtils.VAR_PRJ_ID);
 
         ExecutionEntity executionEntity = (ExecutionEntity) execution;
         String defKey = executionEntity.getProcessDefinitionKey();
@@ -75,22 +84,42 @@ public class AuditStartListener implements ExecutionListener{
         JicActService jicActService = null;
         String stageValue = null;
 
-        // 根据各个流程定义KEY，得到根各个流程相关的数据
         if (ActUtils.PD_PROJECTAPPLYEXTERNAL[0].equalsIgnoreCase(defKey)) {
+            // 得到业务Service
+            jicActService = SpringContextHolder.getBean(ProjectApplyExternalService.class);
+            // 立项时相等
+            prjId = id;
             stageValue = DictUtils.getDictValue("立项审批中", "jic_pro_main_stage", "0");
         } else if (ActUtils.PD_PROJECTBIDDING[0].equalsIgnoreCase(defKey)) {
+            // 得到业务Service
+            jicActService = SpringContextHolder.getBean(ProjectBiddingService.class);
+
             stageValue = DictUtils.getDictValue("投标审批中", "jic_pro_main_stage", "0");
+
         } else if (ActUtils.PD_PROJECTCONTRACT[0].equalsIgnoreCase(defKey)) {
+            // 得到业务Service
+            jicActService = SpringContextHolder.getBean(ProjectContractService.class);
+
             stageValue = DictUtils.getDictValue("合同审批中", "jic_pro_main_stage", "0");
         } else if (ActUtils.PD_execution[0].equalsIgnoreCase(defKey)) {
-
+            // 得到业务Service
             jicActService = SpringContextHolder.getBean(ProjectExecutionService.class);
+
             stageValue = DictUtils.getDictValue("执行审批中", "jic_pro_main_stage", "0");
         } else if (ActUtils.PD_purchase[0].equalsIgnoreCase(defKey)) {
+            // 得到业务Service
+            jicActService = SpringContextHolder.getBean(ProjectPurchaseService.class);
+
             stageValue = DictUtils.getDictValue("采购审批中", "jic_pro_main_stage", "0");
         } else if (ActUtils.PD_invoice[0].equalsIgnoreCase(defKey)) {
+            // 得到业务Service
+            jicActService = SpringContextHolder.getBean(ProjectInvoiceService.class);
+
             stageValue = DictUtils.getDictValue("开票审批中", "jic_pro_main_stage", "0");
         } else if (ActUtils.PD_PROJECTFINISHAPPROVAL[0].equalsIgnoreCase(defKey)) {
+            // 得到业务Service
+            jicActService = SpringContextHolder.getBean(ProjectFinishApprovalService.class);
+
             stageValue = DictUtils.getDictValue("结项审批中", "jic_pro_main_stage", "0");
         } else if (ActUtils.PD_TECHAPPLY[0].equalsIgnoreCase(defKey)) {
 

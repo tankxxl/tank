@@ -38,9 +38,6 @@ public class ProjectPurchaseItem extends ActEntity<ProjectPurchaseItem> {
     private String paymentTerm;
     private String attachment;
 
-    private String procInsId;		// 流程实例ID
-    private String processStatus;		// 流程审批状态
-
     public ProjectPurchaseItem() {
         super();
     }
@@ -164,24 +161,6 @@ public class ProjectPurchaseItem extends ActEntity<ProjectPurchaseItem> {
 
     public void setAttachment(String attachment) {
         this.attachment = attachment;
-    }
-
-    @Override
-    public String getProcInsId() {
-        return procInsId;
-    }
-
-    @Override
-    public void setProcInsId(String procInsId) {
-        this.procInsId = procInsId;
-    }
-
-    public String getProcessStatus() {
-        return processStatus;
-    }
-
-    public void setProcessStatus(String processStatus) {
-        this.processStatus = processStatus;
     }
 
 }

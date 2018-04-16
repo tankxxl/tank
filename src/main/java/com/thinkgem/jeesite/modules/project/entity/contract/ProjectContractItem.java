@@ -30,8 +30,7 @@ public class ProjectContractItem extends DataEntity<ProjectContractItem> {
 	private Date contractEndTime;		// 合同起始时间
 	private String trainingOrOutsourcing;		// 培训、外包
 	private String other;		// 其他
-	private String procInsId;		// 流程实例ID
-	private String processStatus;		// 流程审批状态
+
 	
 	public ProjectContractItem() {
 		super();
@@ -132,24 +131,7 @@ public class ProjectContractItem extends DataEntity<ProjectContractItem> {
 	public void setOther(String other) {
 		this.other = other;
 	}
-	
-	@Length(min=0, max=100, message="流程实例ID长度必须介于 0 和 100 之间")
-	public String getProcInsId() {
-		return procInsId;
-	}
 
-	public void setProcInsId(String procInsId) {
-		this.procInsId = procInsId;
-	}
-	
-	@Length(min=0, max=100, message="流程审批状态长度必须介于 0 和 100 之间")
-	public String getProcessStatus() {
-		return processStatus;
-	}
-
-	public void setProcessStatus(String processStatus) {
-		this.processStatus = processStatus;
-	}
 
 	@Digits(integer = 2, fraction = 2, message = "毛利率必须小于100，且最多有2位小数。")
 	public Double getGrossProfitMargin() {

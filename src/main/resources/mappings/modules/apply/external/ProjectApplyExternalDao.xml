@@ -23,8 +23,8 @@
 		a.update_date AS "updateDate",
 		a.remarks AS "remarks",
 		a.del_flag AS "delFlag",
-		a.proc_ins_id AS "processInstanceId",
-		a.process_status AS "processStatus",
+		a.proc_ins_id AS "procInsId",
+		a.proc_status AS "procStatus",
 		a.ownership AS "ownership",
 		a.pro_main_stage AS	"proMainStage",
 		a.pro_stage	AS	"proStage",
@@ -106,13 +106,14 @@
 			<if test="category != null and category != ''">
 				AND a.category = #{category}
 			</if>
-			<if test="processStatus != null and processStatus != ''">
-				AND a.process_status = #{processStatus}
+			<if test="procStatus != null and procStatus != ''">
+				AND a.proc_status = #{procStatus}
 			</if>
 			<if test="proMainStage != null and proMainStage != ''">
 				AND a.pro_main_stage = #{proMainStage}
 			</if>
-			
+
+			<!-- 查找某几个阶段的 -->
 			<if test="queryStage != null">
 			    AND a.pro_main_stage in 
 			    <foreach item="item" index="index" collection="queryStage" open="(" separator="," close=")">
@@ -120,33 +121,16 @@
 			    </foreach>
 			    <!-- AND a.pro_main_stage in ( #{queryStage} ) -->
 			</if>
-			
+
+			<!-- 查找某个大阶段以上的 -->
+			<if test="proMainStage != null and proMainStage != ''">
+				AND a.pro_main_stage <![CDATA[ >= #{proMainStage} ]]>
+			</if>
+			<!-- 查找某个小阶段的 -->
 			<if test="proStage != null and proStage != ''">
 				AND a.pro_stage = #{proStage}
 			</if>
 				${sqlMap.dsf}
-		</where>
-		<choose>
-			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
-				ORDER BY ${page.orderBy}
-			</when>
-			<otherwise>
-				ORDER BY a.update_date DESC
-			</otherwise>
-		</choose>
-	</select>
-	
-	<select id="findList4LargerMainStage" resultType="ProjectApplyExternal">
-		SELECT 
-			<include refid="projectApplyExternalColumns"/>
-		FROM project_apply_external a
-		<include refid="projectApplyExternalJoins"/>
-		<where>
-			a.del_flag = #{DEL_FLAG_NORMAL}
-			<if test="proMainStage != null and proMainStage != ''">
-				AND a.pro_main_stage <![CDATA[ >= #{proMainStage} ]]>
-			</if>
-			${sqlMap.dsf}
 		</where>
 		<choose>
 			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
@@ -202,7 +186,7 @@
 			pro_main_stage,
 			pro_stage,
 			proc_ins_id,
-			process_status,
+			proc_status,
 			resource,
 
 			docPath
@@ -230,8 +214,8 @@
 			#{delFlag},
 			#{proMainStage},
 			#{proStage},
-			#{processInstanceId},
-			#{processStatus},
+			#{procInsId},
+			#{procStatus},
 			#{resource},
 
 			#{docPath}
@@ -258,10 +242,9 @@
 			ownership = #{ownership},
 			pro_main_stage =	#{proMainStage},
 			pro_stage	=	#{proStage},
-			proc_ins_id = #{processInstanceId},
-			process_status = #{processStatus},
-			
-			
+			proc_ins_id = #{procInsId},
+			proc_status = #{procStatus},
+
 			apply_flag = #{applyFlag},
 			bidding_flag = #{biddingFlag},
 			contract_flag = #{contractFlag},
@@ -271,8 +254,6 @@
 			resource = #{resource},
 
 			docPath = #{docPath}
-			
-			
 		WHERE id = #{id}
 	</update>
 	
@@ -281,16 +262,15 @@
 			del_flag = #{DEL_FLAG_DELETE}
 		WHERE id = #{id}
 	</update>
-	
-	
+
 	<!-- 下面 出来项目编码表 -->
 	<select id="getCurrentCode" resultType="string">
 		select current_code from project_code
 	</select>
+
 	<update id="updatePorCode" >
 		UPDATE project_code SET 	
 			current_code = #{code}
 	</update>
-	
-	
+
 </mapper>

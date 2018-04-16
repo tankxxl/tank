@@ -20,8 +20,6 @@ public class ProjectFinishApproval extends ActEntity<ProjectFinishApproval> {
 	private String riskAssessment;		// 风险评估
 	private String projectAccounting;		// 项目核算
 	private String projectAccountingFile;		// 项目核算附件
-	private String procInsId;		// 流程实例ID
-	private String processStatus;		// 流程审批状态
 	
 	public ProjectFinishApproval() {
 		super();
@@ -67,24 +65,7 @@ public class ProjectFinishApproval extends ActEntity<ProjectFinishApproval> {
 	public void setProjectAccounting(String projectAccounting) {
 		this.projectAccounting = projectAccounting;
 	}
-	
-	@Length(min=0, max=100, message="流程实例ID长度必须介于 0 和 100 之间")
-	public String getProcInsId() {
-		return procInsId;
-	}
 
-	public void setProcInsId(String procInsId) {
-		this.procInsId = procInsId;
-	}
-	
-	@Length(min=0, max=100, message="流程审批状态长度必须介于 0 和 100 之间")
-	public String getProcessStatus() {
-		return processStatus;
-	}
-
-	public void setProcessStatus(String processStatus) {
-		this.processStatus = processStatus;
-	}
 
 	public String getProjectAccountingFile() {
 		return projectAccountingFile;

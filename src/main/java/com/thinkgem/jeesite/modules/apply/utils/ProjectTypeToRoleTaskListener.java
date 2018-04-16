@@ -10,6 +10,7 @@ import org.activiti.engine.delegate.TaskListener;
  * @author rgz
  *
  */
+@Deprecated
 public class ProjectTypeToRoleTaskListener implements TaskListener {
 
 	@Override

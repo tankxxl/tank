@@ -1,7 +1,7 @@
 package com.thinkgem.jeesite.modules.sys.utils;
 
 import org.apache.poi.hssf.usermodel.*;
-import org.apache.poi.hssf.util.Region;
+// import org.apache.poi.hssf.util.Region;
 import org.apache.poi.ss.usermodel.Row;
 import org.junit.Test;
 
@@ -124,8 +124,8 @@ public class POIUtils {
     public static void copyRow(HSSFWorkbook wb,HSSFRow fromRow,HSSFRow toRow,boolean copyValueFlag){  
         for (Iterator cellIt = fromRow.cellIterator(); cellIt.hasNext();) {
             HSSFCell tmpCell = (HSSFCell) cellIt.next();  
-            HSSFCell newCell = toRow.createCell(tmpCell.getCellNum());  
-            copyCell(wb,tmpCell, newCell, copyValueFlag);  
+            // HSSFCell newCell = toRow.createCell(tmpCell.getCellNum());
+            // copyCell(wb,tmpCell, newCell, copyValueFlag);
         }
         //设置行的高度
         toRow.setHeight(fromRow.getHeight());
@@ -140,8 +140,8 @@ public class POIUtils {
     public static void mergerRegion(HSSFSheet fromSheet, HSSFSheet toSheet) {  
        int sheetMergerCount = fromSheet.getNumMergedRegions();  
        for (int i = 0; i < sheetMergerCount; i++) {  
-        Region mergedRegionAt = fromSheet.getMergedRegionAt(i);  
-        toSheet.addMergedRegion(mergedRegionAt);  
+        // Region mergedRegionAt = fromSheet.getMergedRegionAt(i);
+        // toSheet.addMergedRegion(mergedRegionAt);
        }  
     }  
     /** 

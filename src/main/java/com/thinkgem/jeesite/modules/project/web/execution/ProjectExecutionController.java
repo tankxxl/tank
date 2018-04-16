@@ -37,6 +37,14 @@ import java.util.Map;
 
 /**
  * 项目合同执行Controller
+ *
+ * springMVC对简单对象、Set、List、Map的数据绑定和常见问题
+ * 1、基本数据类型绑定，在Controller的方法中使用基本数据类型的包装类来接收html中传递过来的参数。
+ * 2、自定义对象类型，html中使用obj1.obj2.param1等方式，前后端要保持属性名称一致。
+ * 3、List需要绑定在对象上，而不能写在Controller方法的参数中。html使用users[0].firstName、users[1].firstName
+ * 4、Set和List类似，也需要绑定在对象上，而不能写在Controller方法的参数中。
+ * 但是，绑定Set数据时，必须先在Set对象中add相应数量的模型对象。users[0].firstName
+ *
  * @author jicdata
  * @version 2016-03-08
  */
@@ -94,7 +102,7 @@ public class ProjectExecutionController extends BaseController {
 		}
 		return entity;
 	}
-	
+
 	@RequiresPermissions("project:execution:view")
 	@RequestMapping(value = {"list", ""})
 	public String list(ProjectExecution projectExecution,
@@ -110,7 +118,13 @@ public class ProjectExecutionController extends BaseController {
 	}
 
 	/**
-	 * 查看审批表单，来源：审批单列表，待办任务列表
+	 * 查看表单
+	 * 1、查看表单，view
+	 * 2、审批表单，view + audit
+	 * 3、新增、修改表单 form，申请人使用此界面
+	 *
+	 * 请求来源：审批单列表(有实体无act)，待办、已办任务列表(可能有实体，有act)，
+	 * act对象只有从activi查出来后才有，而待办、已办来源于activi
      *
 	 * @param projectExecution
 	 * @param model
@@ -124,8 +138,13 @@ public class ProjectExecutionController extends BaseController {
 
         model.addAttribute("projectExecution", projectExecution);
 
+        // 待办、已办入口界面传的act是一样的，只是act中的status不一样。
+
 		if (projectExecution.getIsNewRecord()) {
+			// 入口1：新建表单，直接返回空实体
 			if (projectExecution.hasAct()) {
+				// 入口2：从已办任务界面来的请求，1、实体是新建的，2、act是activi框架填充的。
+				// 此时实体应该由流程id来查询。
 				view = "ExecutionView";
 				projectExecution = executionService.findByProcInsId(projectExecution);
 				if (projectExecution == null) {
@@ -135,6 +154,7 @@ public class ProjectExecutionController extends BaseController {
 		    return prefix + view;
         }
 
+        // 入口3：在流程图中配置，从待办任务界面来的请求，entity和act都已加载。
         // 环节编号
         String taskDefKey = projectExecution.getAct().getTaskDefKey();
 
@@ -176,12 +196,15 @@ public class ProjectExecutionController extends BaseController {
 	public String view(ProjectExecution projectExecution, Model model) {
 		model.addAttribute("projectExecution", projectExecution);
 //		return "modules/project/execution/ExecutionView2";
+		// 主要是返回的界面跟form不一样，新建一个view的入口主要是为了返回不一样的界面。
 		return "modules/project/execution/ExecutionViewDlg";
 	}
 
 	/**
 	 * 启动流程、保存申请单、销毁流程、删除申请单。
-     * 申请人使用
+	 *
+     * 申请人使用，在form界面中使用。
+	 *
 	 * @param projectExecution
 	 * @param model
 	 * @param redirectAttributes
@@ -194,7 +217,6 @@ public class ProjectExecutionController extends BaseController {
 			return form(projectExecution, model);
 		}
 		String flag = projectExecution.getAct().getFlag();
-
 
 //		flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
 		if ("saveOnly".equals(flag)) { // 只保存表单数据
@@ -225,6 +247,7 @@ public class ProjectExecutionController extends BaseController {
 	}
 
 	// 审批人使用
+	// audit页面使用，由activi引出act，再引出业务表单界面。
 	@RequestMapping(value = "saveAudit")
 	public String saveAudit(ProjectExecution projectExecution, Model model) {
 		if (StringUtils.isBlank(projectExecution.getAct().getFlag())
@@ -232,7 +255,7 @@ public class ProjectExecutionController extends BaseController {
 			addMessage(model, "请填写审核意见。");
 			return form(projectExecution, model);
 		}
-		executionService.auditSave(projectExecution);
+		executionService.saveAudit(projectExecution);
 		return "redirect:" + adminPath + "/act/task/todo/";
 	}
 

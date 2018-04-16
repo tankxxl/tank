@@ -14,7 +14,10 @@
 	<context:component-scan base-package="com.thinkgem.jeesite" use-default-filters="false"><!-- base-package 如果多个，用“,”分隔 -->
 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
 	</context:component-scan>
-    
+
+	<!-- 注册验证器 controller的方法参数中就可以用@Valid注解了 -->
+	<mvc:annotation-driven validator="validator" />
+
 	<!-- 默认的注解映射的支持，org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping -->
 	<mvc:annotation-driven content-negotiation-manager="contentNegotiationManager">
 		<mvc:message-converters register-defaults="true">
@@ -23,6 +26,7 @@
 		    	<constructor-arg value="UTF-8" />
 			</bean>
 			<!-- 将Jackson2HttpMessageConverter的默认格式化输出为false -->
+			<!-- 配置@ResponseBody注解后才将controller的出参转换为json -->
 			<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
                 <property name="supportedMediaTypes">
                 	<list><value>application/json;charset=UTF-8</value></list>
@@ -70,6 +74,9 @@
 	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix" value="${web.view.prefix}"/>
 		<property name="suffix" value="${web.view.suffix}"/>
+		<!--<property name="contentType" value="text/html;charset=UTF-8" />-->
+		<!--从小到大，越小的优先级越高-->
+		<!--<property name="order" value="2" />-->
 	</bean>
 	
 	<!-- 对静态资源文件的访问， 将无法mapping到Controller的path交给default servlet handler处理 -->
@@ -118,5 +125,94 @@
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">  
 		<property name="maxUploadSize" value="${web.maxUploadSize}" />  
 	</bean>
-	
+
+
+	<!--
+            视图解析器链
+           当定义多个视图解析器的时候，就会形成视图解析器链。当controller返回一个视图名称的时候，会在视图解析器链上按照排序顺序进行处理。
+           每个视图解析器都实现了ordered接口，数值越小就越靠前，默认都是最大值，order属性时Integer类型
+     注意：像InternalResourceViewResolver这种能解析所有的视图，即永远能返回一个非空View对象的ViewResolver一定要把它放在ViewResolver链的最后面
+    -->
+
+	<!-- 展示层使用freemarker-->
+	<!--<bean  id="freemarkerView" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">-->
+		<!--<property name="cache" value="false"/>-->
+		<!--&lt;!&ndash; 给方法名加前缀，一般没必要（注意这里不是路径）-->
+        <!--<property name="prefix" value="fm_"/>-->
+        <!--&ndash;&gt;-->
+		<!--&lt;!&ndash; 模板后缀，指定ftl页面为模板 &ndash;&gt;-->
+		<!--<property name="suffix" value=".ftl"/>-->
+		<!--&lt;!&ndash; 使用对应的freemarker模板类来解析视图 &ndash;&gt;-->
+		<!--<property name="viewClass" value="org.springframework.web.servlet.view.freemarker.FreeMarkerView"/>-->
+		<!--<property name="exposeSpringMacroHelpers" value="true"/>-->
+		<!--&lt;!&ndash; 允许访问请求属性，默认为false &ndash;&gt;-->
+		<!--<property name="exposeRequestAttributes" value="true"/>-->
+		<!--&lt;!&ndash; 允许访问会话属性，默认为false &ndash;&gt;-->
+		<!--<property name="exposeSessionAttributes" value="true"/>-->
+		<!--&lt;!&ndash; 页面上下文，类似于request.contextPath &ndash;&gt;-->
+		<!--<property name="requestContextAttribute" value="rc"/>-->
+		<!--&lt;!&ndash; 模板输出内容编码，此处应与defaultEncoding保持一致 &ndash;&gt;-->
+		<!--<property name="contentType" value="text/html;charset=UTF-8"/>-->
+		<!--&lt;!&ndash; 接卸顺序，数字越小，访问的时候先使用该解析器去解析 &ndash;&gt;-->
+		<!--<property name="order" value="0"/>-->
+	<!--</bean>-->
+	<!--<bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">-->
+		<!--&lt;!&ndash; 模板文件所在目录  templateLoaderPath配置单个， templateLoaderPaths配置多个 &ndash;&gt;-->
+		<!--<property name="templateLoaderPaths">-->
+			<!--<list>-->
+				<!--<value>/WEB-INF/common/</value>-->
+				<!--<value>/WEB-INF/pages/</value>-->
+			<!--</list>-->
+		<!--</property>-->
+		<!--&lt;!&ndash; FreeMarker属性配置 &ndash;&gt;-->
+		<!--<property name="freemarkerSettings">-->
+			<!--<props>-->
+				<!--&lt;!&ndash;-->
+                   <!--每隔多长时间检查模板是否更新，单位为秒-->
+                   <!--设置时间过长，会造成开发的时候修改.ftl后页面不刷新-->
+                   <!--建议生产系统设置时间长一些-->
+                   <!--如果不经常更新模板可将更新的延迟时间设定长一点-->
+               <!--&ndash;&gt;-->
+				<!--<prop key="template_update_delay">2</prop>-->
+				<!--<prop key="defaultEncoding">UTF-8</prop>-->
+				<!--<prop key="url_escaping_charset">UTF-8</prop>-->
+				<!--<prop key="locale">zh_CN</prop>-->
+				<!--<prop key="boolean_format">true,false</prop>-->
+				<!--<prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>-->
+				<!--&lt;!&ndash; <result column="birthday" property="birthday" jdbcType="DATE" />-->
+                     <!--date_format 映射的是jdbcType,不是bean中的类型-->
+                 <!--&ndash;&gt;-->
+				<!--<prop key="date_format">yyyy-MM-dd</prop>-->
+				<!--<prop key="time_format">HH:mm:ss</prop>-->
+				<!--<prop key="number_format">0.######</prop>-->
+				<!--<prop key="whitespace_stripping">true</prop>-->
+			<!--</props>-->
+		<!--</property>-->
+	<!--</bean>-->
+
+	<!--jsp视图解析器-->
+	<!--<bean id="viewResolverCommon" class="org.springframework.web.servlet.view.InternalResourceViewResolver">-->
+		<!--<property name="prefix" value="/WEB-INF/pages/"/>-->
+		<!--<property name="suffix" value=".jsp"/>&lt;!&ndash;可为空,方便实现自已的依据扩展名来选择视图解释类的逻辑 &ndash;&gt;-->
+		<!--<property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>-->
+		<!--<property name="order" value="1"/>-->
+	<!--</bean>-->
+
+	<!-- velocity视图解析器
+    <bean id="velocityViewResolver" class="org.springframework.web.servlet.view.velocity.VelocityViewResolver">
+        <property name="cache" value="true"/>
+        <property name="prefix" value="/WEB-INF/pages/"/>
+        <property name="suffix" value=".vm"/>
+        <property name="order" value="2"/>
+    </bean>
+     -->
+	<!-- velocity环境配置
+    <bean id="velocityConfig" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+        velocity配置文件路径
+        <property name="configLocation" value="/WEB-INF/velocity.properties"/>
+         velocity模板路径
+        <property name="resourceLoaderPath" value="/WEB-INF/velocity/"/>
+    </bean>
+   -->
+
 </beans>

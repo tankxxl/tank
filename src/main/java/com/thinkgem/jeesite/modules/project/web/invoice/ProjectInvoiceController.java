@@ -4,7 +4,9 @@
 package com.thinkgem.jeesite.modules.project.web.invoice;
 
 import com.thinkgem.jeesite.common.config.Global;
+import com.thinkgem.jeesite.common.mapper.JsonMapper;
 import com.thinkgem.jeesite.common.persistence.Page;
+import com.thinkgem.jeesite.common.persistence.RespEntity;
 import com.thinkgem.jeesite.common.service.BaseService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.web.BaseController;
@@ -12,6 +14,7 @@ import com.thinkgem.jeesite.modules.act.entity.Act;
 import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoice;
+import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoiceItem;
 import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoiceReturn;
 import com.thinkgem.jeesite.modules.project.service.invoice.ProjectInvoiceService;
 import com.thinkgem.jeesite.modules.sys.utils.ExportUtils;
@@ -20,19 +23,21 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 /**
  * 项目开票Controller
+ *
+ *
+ * 提交表单类：使用json提交，返回json的Entity
+ * 查询类：使用form提交，返回json的page对象
+ *
  * @author jicdata
  * @version 2016-03-08
  */
@@ -45,8 +50,27 @@ public class ProjectInvoiceController extends BaseController {
 	@Autowired
 	private ActTaskService actTaskService;
 
+	String prefix = "modules/project/invoice/";
+	String vList = "InvoiceList"; // 申请单列表
+	String vItemList = "InvoiceItemList"; // 发票列表
+	String vEdit = "InvoiceFormLayer"; // 申请单form
+	String vItemForm = "InvoiceItemForm"; // 开票项form
+	String vViewAudit = "InvoiceView"; // 申请单view
+	/**
+	 * 重开跟编辑页面相似，前后端通过func变量来区分新开或重开，故此页面作废
+	 * 重开页面的操作有：
+	 * 1、修改发票项
+	 * 2、选择发票项
+	 * 3、新增申请单、新增开票项(版本号也增加)
+	 * 4、不能新增和删除开票项（这是跟编辑页面的区别）
+	 */
+	@Deprecated
+	String vResignForm = "InvoiceResignForm";
+
     /**
      * 如果把@ModelAttribute放在方法的注解上时，代表的是：该Controller的所有方法在调用前，先执行此@ModelAttribute方法
+	 * 绑定键值对到Model中
+	 *
      * @param id
      * @return
      */
@@ -56,23 +80,39 @@ public class ProjectInvoiceController extends BaseController {
 		if (StringUtils.isNotBlank(id)){
 			entity = invoiceService.get(id);
 		}
-		if (entity == null){
+		if (entity == null) {
 			entity = new ProjectInvoice();
 		}
 		return entity;
 	}
-	
+
+	// 根据item id获取发票
+	@ModelAttribute
+	public ProjectInvoiceItem getItem(@RequestParam(required = false) String id) {
+		ProjectInvoiceItem item = null;
+		if (StringUtils.isNotBlank(id)){
+			item = invoiceService.getItem(id);
+		}
+		if (item == null) {
+			item = new ProjectInvoiceItem();
+		}
+		return item;
+	}
+
 	@RequiresPermissions("project:invoice:view")
 	@RequestMapping(value = {"list", ""})
 	public String list(ProjectInvoice projectInvoice, HttpServletRequest request, HttpServletResponse response, Model model) {
-		projectInvoice.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+		projectInvoice.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s6", "u6"));
 		Page<ProjectInvoice> page = invoiceService.findPage(new Page<ProjectInvoice>(request, response), projectInvoice);
 		model.addAttribute("page", page);
-		return "modules/project/invoice/InvoiceList";
+		// return "modules/project/invoice/InvoiceList";
+		return prefix + vList;
 	}
 
 	/**
-	 * 查看审批表单，来源：审批单列表，待办任务列表
+	 * 查看审批表单，根据来源不同显示查看、编辑
+	 * 来源：新建、审批单列表(查看详情)、待办任务列表(act.taskId查看详情)、已办任务列表(act.status查看详情)
+	 *
 	 * @param projectInvoice
 	 * @param model
 	 * @return
@@ -80,89 +120,113 @@ public class ProjectInvoiceController extends BaseController {
 	@RequiresPermissions("project:invoice:view")
 	@RequestMapping(value = "form")
 	public String form(ProjectInvoice projectInvoice, Model model) {
-        String prefix = "modules/project/invoice/";
-        String view = "InvoiceForm";
+		// String prefix = "modules/project/invoice/";
+		String view = "InvoiceForm";
 
-        model.addAttribute("projectInvoice", projectInvoice);
-		// 已开票信息，从开票申请单里找
-		List<ProjectInvoice> invoiceList;
+		// 使用layer弹框来新增子记录
+		view = "InvoiceFormLayer";
+		// form为编辑页面、view为查看、审批页面
 
-		// 已回款信息，从回款表中找
-		List<ProjectInvoiceReturn> returnList;
+		String jsonStr = JsonMapper.getInstance().toJson(projectInvoice);
+		// ProjectInvoice invoice = JsonMapper.getInstance().fromJson(jsonStr, ProjectInvoice.class);
+		System.out.println(jsonStr);
 
+		model.addAttribute("projectInvoice", projectInvoice);
 
-        if (projectInvoice.getIsNewRecord()) {
+		// 待办、已办入口界面传的act是一样的，只是act中的status不一样。
 
-			// 从已办任务入口过来，流程实例已结束，只有act对象
+		if (projectInvoice.getIsNewRecord()) {
+			// 入口1：新建表单，直接返回空实体
 			if (projectInvoice.hasAct()) {
-				// view = "InvoiceView";
-				view = "InvoiceViewReturnForm";
-				projectInvoice = invoiceService.findByProcInsId(projectInvoice);
+				// 入口2：从已办任务界面来的请求，1、实体是新建的，2、act是activi框架填充的。
+				// 此时实体应该由流程id来查询。
+				view = vViewAudit; // "projectBiddingView";
+				projectInvoice = invoiceService.findByProcInsId(projectInvoice); // 只是加载主表记录
 				if (projectInvoice == null) {
 					projectInvoice = new ProjectInvoice();
+					model.addAttribute("projectInvoice", projectInvoice);
+					return prefix + view;
 				}
-				invoiceList = invoiceService.findListByContractId(projectInvoice);
-				model.addAttribute("projectInvoiceList", invoiceList);
-				returnList = invoiceService.findReturnByContractId(projectInvoice);
-				model.addAttribute("returnList", returnList);
+				if (StringUtils.isNotEmpty(projectInvoice.getId())) {
+					projectInvoice = invoiceService.get(projectInvoice.getId());
+				}
+				model.addAttribute("projectInvoice", projectInvoice);
 			}
-
-            return prefix + view;
-        }
-
-		invoiceList = invoiceService.findListByContractId(projectInvoice);
-		model.addAttribute("projectInvoiceList", invoiceList);
-
-		Iterator<ProjectInvoice> it = invoiceList.iterator();
-		ProjectInvoice invoice = null;
-		while (it.hasNext()) {
-			invoice = it.next();
-			if (invoice.getInvoiceDate() == null) {
-				it.remove();
-			}
+			return prefix + view;
 		}
 
-		returnList = invoiceService.findReturnByContractId(projectInvoice);
-		model.addAttribute("returnList", returnList);
+		// 入口3：在流程图中配置，从待办任务界面来的请求，entity和act都已加载。
+		// 环节编号
+		String taskDefKey = projectInvoice.getAct().getTaskDefKey();
 
-        // 环节编号
-        String taskDefKey = projectInvoice.getAct().getTaskDefKey();
+		// 查看
+		if(projectInvoice.getAct().isFinishTask()){
+			view = vViewAudit; // "projectBiddingView";
+		}
+		// 修改环节
+		else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ){
+			view = vEdit; // "projectBiddingForm";
+		}
+		// 某审批环节
+		else if ("apply_end".equals(taskDefKey)){
+			view = vViewAudit; // "projectBiddingView";  // replace ExecutionAudit
+		} else {
+			view = vViewAudit; // "projectBiddingView";
+		}
+		return prefix + view;
+	}
 
-        // 查看
-        if(projectInvoice.getAct().isFinishTask()){
-            // view = "InvoiceView";
-			view = "InvoiceViewReturnForm";
-        }
-        // 修改环节
-        else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ){
-            view = "InvoiceForm";
-        }
-        // usertask_invoice -财务部专员8-开票-填写开票日期
-		else if ("usertask_invoice".equalsIgnoreCase(taskDefKey)) {
-			view = "InvoiceViewReturnForm";
+	@RequestMapping(value = "addItemView")
+	public String addItemView(ProjectInvoiceItem projectInvoiceItem, Model model) {
+		if (StringUtils.isEmpty(projectInvoiceItem.getId())) {
+			// projectInvoiceItem.setFunc("front"); // 如果数据库中查不到，则表明数据在前端
 		}
-        // usertask_return -财务部专员10-录入回款信息(回款金额、回款日期)
-		else if ("usertask_return".equalsIgnoreCase(taskDefKey)) {
-			view = "InvoiceViewReturnForm";
-		}
-		// usertask_inout -商务部专员2-提供商务信息，录入是否需要出入库
-		else if ("usertask_inout".equalsIgnoreCase(taskDefKey)) {
-			view = "InvoiceViewReturnForm";
-		}
+		model.addAttribute("projectInvoiceItem", projectInvoiceItem);
+		return prefix + vItemForm;
+	}
 
-		// test usertask1
-		// else if ("usertask1".equalsIgnoreCase(taskDefKey) || "usertask9".equalsIgnoreCase(taskDefKey)) {
-		// 	view = "InvoiceViewReturnForm";
-		// }
-        // 某审批环节
-        else if ("apply_end".equals(taskDefKey)){
-            // view = "InvoiceView";  // InvoiceAudit
-			view = "InvoiceViewReturnForm";
-        } else {
-            // view = "InvoiceView";
-			view = "InvoiceViewReturnForm";
-        }
-        return prefix + view;
+	// 后缀view，表示这是一个页面跳转
+	// 功能：准备数据，页面跳转
+    // 重开票、新开票两个动作的入口不一样。
+    // 新开：全是新的对象，但是没值
+    // 重开：item是从前端传入的
+	@RequestMapping(value = "resignView")
+	public String resignView(String[] itemIds,
+								 ProjectInvoice projectInvoice, Model model,
+								 RedirectAttributes redirectAttributes,
+								 HttpServletRequest request) {
+		if (itemIds == null) {
+			return null;
+		}
+		if (itemIds.length == 0) {
+			return null;
+		}
+		invoiceService.getItems(projectInvoice, itemIds);
+		// 这个请求是专门给重开功能用的，所以后台先知道要重开，所以再返回给前端的时候，要把这个resign带上，
+		// 前端在提交的时候，再把这个值传递给后台，这样后台就可以判断了。
+		projectInvoice.setFunc("resign"); // 告诉前端这是重开，重开、新开共用一个界面
+		// ModelAttribute注解已经把实体放入Model中了
+		model.addAttribute("projectInvoice", projectInvoice);
+
+		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面
+		// RespEntity respEntity = new RespEntity(2, "成功！");
+		// respEntity.setUrl(url);
+		// return respEntity;
+
+		// return prefix + vResignForm;
+		return prefix + vEdit;
+	}
+
+	@RequestMapping(value = "offsetView")
+	public String offsetView(ProjectInvoice projectInvoice, Model model) {
+		String view = "InvoiceAdd";
+
+		model.addAttribute("projectInvoice", projectInvoice);
+		return prefix + vItemForm;
+		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面
+		// RespEntity respEntity = new RespEntity(1, "对冲成功！");
+		// // respEntity.setUrl(url);
+		// return respEntity;
 	}
 
 	@RequiresPermissions("project:invoice:admin")
@@ -173,9 +237,10 @@ public class ProjectInvoiceController extends BaseController {
         model.addAttribute("projectInvoiceList", invoiceList);
 		List<ProjectInvoiceReturn> returnList = invoiceService.findReturnByContractId(projectInvoice);
 		model.addAttribute("returnList", returnList);
-		return "modules/project/invoice/InvoiceForm";
+		return prefix + vEdit;
 	}
 
+	// no used
 	@RequestMapping(value = "returnForm")
 	public String returnForm(ProjectInvoice projectInvoice, Model model) {
 		model.addAttribute("projectInvoice", projectInvoice);
@@ -185,6 +250,37 @@ public class ProjectInvoiceController extends BaseController {
 		model.addAttribute("returnList", returnList);
 
 		return "modules/project/invoice/InvoiceViewReturnForm";
+	}
+
+	/**
+	 * 验证合同号是否重复
+	 * 使用于前端的jQuery validate插件，服务端只能输出 "true" 或 "false"，不能有其它输出.
+	 * @param code
+	 * @return true、false
+	 */
+	@ResponseBody
+	// @RequiresPermissions(value={"pur:wzmcgl:add","pur:wzmcgl:edit"},logical= Logical.OR)
+	@RequestMapping(value = "hasCode")
+	public String hasCode(String oldCode, @RequestParam("contract.contractCode") String code) {
+		return "true";
+		// if (code!=null && code.equals(oldCode)) {
+		// 	return "true";
+		// } else if (code!=null && invoiceService.getItemByContractCode(code) == null) {
+		// 	return "true";
+		// }
+		// return "false";
+	}
+
+	/**
+	 * 按合同号查询所有的开票版本
+	 * @param itemId 合同号
+	 * @return
+	 */
+	@ResponseBody
+	// @RequiresPermissions(value={"pur:wzmcgl:add","pur:wzmcgl:edit"},logical= Logical.OR)
+	@RequestMapping(value = "findVerList")
+	public List<ProjectInvoiceItem> findVerList(String itemId) {
+		return invoiceService.findVerList(itemId);
 	}
 
 
@@ -197,11 +293,15 @@ public class ProjectInvoiceController extends BaseController {
 	 */
 	@RequiresPermissions("project:invoice:edit")
 	@RequestMapping(value = "save")
-	public String save(ProjectInvoice projectInvoice, Model model, RedirectAttributes redirectAttributes) {
+	// @ResponseBody
+	public String save(@RequestBody ProjectInvoice projectInvoice, Model model, RedirectAttributes redirectAttributes) {
 		if (!beanValidator(model, projectInvoice)){
 			return form(projectInvoice, model);
 		}
+		// form提交时，使用act.flag字段
 		String flag = projectInvoice.getAct().getFlag();
+		// ajax json传输时使用func字段
+		flag = projectInvoice.getFunc();
 
         // flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
 		if ("saveOnly".equals(flag)) { // 只保存表单数据
@@ -213,15 +313,101 @@ public class ProjectInvoiceController extends BaseController {
 		}
 
 		addMessage(redirectAttributes, "保存成功");
-		
+
 		String usertask_owner = projectInvoice.getAct().getTaskDefKey();
 		if (UserTaskType.UT_OWNER.equals(usertask_owner)) { // 待办任务页面
-			return "redirect:" + adminPath + "/act/task/todo/";
+			// return "redirect:" + adminPath + "/act/task/todo/";
+			return adminPath + "/act/task/todo/";
 		} else { // 列表页面
-			return "redirect:"+Global.getAdminPath() + "/project/invoice/?repage";
+			// return "redirect:"+Global.getAdminPath() + "/project/invoice/?repage";
+			return Global.getAdminPath() + "/project/invoice/?repage";
 		}
 	}
-	
+
+	/**
+	 * ajax前端提交，要手动收集form、table中的数据，所以使用ajax提交
+	 * @param projectInvoice
+	 * @param model
+	 * @param redirectAttributes
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequiresPermissions("project:invoice:edit")
+	@RequestMapping(value = "saveAjax")
+	@ResponseBody
+	public RespEntity saveAjax(@RequestBody ProjectInvoice projectInvoice,
+							   Model model, RedirectAttributes redirectAttributes,
+							   HttpServletRequest request, HttpServletResponse response) {
+
+		String path = request.getContextPath();
+		// form提交时，使用act.flag字段
+		String flag = projectInvoice.getAct().getFlag();
+		// ajax json传输时使用func字段
+		flag = projectInvoice.getFunc();
+		projectInvoice.getAct().setFlag(flag);
+
+		// flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
+		if ("saveOnly".equals(flag)) { // 只保存表单数据
+			invoiceService.save(projectInvoice);
+		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
+			invoiceService.saveFinishProcess(projectInvoice);
+		} else if ("resign".equals(flag)){ // 重开票，保存，发起流程
+			// projectInvoice.setId(""); // 把各个entity的id去掉，数据库就是新增记录了
+			// for (ProjectInvoiceItem item : projectInvoice.getInvoiceItemList()) {
+			// 	item.setId("");
+			// }
+			projectInvoice.getAct().setFlag("yes");
+			invoiceService.saveLaunch(projectInvoice);
+		} else {
+			invoiceService.saveLaunch(projectInvoice);
+		}
+
+		addMessage(redirectAttributes, "保存成功");
+
+		String usertask_owner = projectInvoice.getAct().getTaskDefKey();
+		String url = "";
+		if (UserTaskType.UT_OWNER.equals(usertask_owner)) { // 待办任务页面
+			// return "redirect:" + adminPath + "/act/task/todo/";
+			url =path + "/" + adminPath + "/act/task/todo/";
+		} else { // 列表页面
+			// return "redirect:"+Global.getAdminPath() + "/project/invoice/?repage";
+			url = path + "/" + Global.getAdminPath() + "/project/invoice/?repage";
+		}
+
+		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面
+		RespEntity respEntity = new RespEntity(2, "成功修改！");
+		respEntity.setUrl(url);
+		return respEntity;
+	}
+
+	@RequestMapping(value = "test2")
+	@ResponseBody
+	public String test2(@RequestBody String jsonStr) {
+		String flag = jsonStr;
+		ProjectInvoice invoice = JsonMapper.getInstance().fromJson(jsonStr, ProjectInvoice.class);
+		System.out.println(flag);
+		// System.out.println(invoice.getId());
+		return "test";
+	}
+
+	/**
+	 * ajax批量删除子表(开票项)
+	 * @param ids 前端传递的ids
+	 * @return
+	 */
+	@RequestMapping(value = "deleteItemByIds")
+	@ResponseBody
+	public RespEntity deleteItemByIds(@RequestBody String[] ids) {
+		invoiceService.deleteItemByIds(ids);
+
+		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面
+		RespEntity respEntity = new RespEntity(0, "删除成功！");
+		// respEntity.setUrl(url);
+		return respEntity;
+	}
+
+
 	@RequiresPermissions("project:invoice:edit")
 	@RequestMapping(value = "delete")
 	public String delete(ProjectInvoice projectInvoice, RedirectAttributes redirectAttributes) {
@@ -241,13 +427,76 @@ public class ProjectInvoiceController extends BaseController {
 		if ("save".equalsIgnoreCase(projectInvoice.getAct().getFlag())) {
 			invoiceService.save(projectInvoice);
 		} else {
-			invoiceService.auditSave(projectInvoice);
+			invoiceService.saveAudit(projectInvoice);
 		}
-
 		return "redirect:" + adminPath + "/act/task/todo/";
 	}
-	
-	
+
+	/**
+	 * ajax前端提交，要手动收集form、table中的数据，所以使用ajax提交
+	 * @param projectInvoice
+	 * @param model
+	 * @param redirectAttributes
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequiresPermissions("project:invoice:edit")
+	@RequestMapping(value = "auditAjax")
+	@ResponseBody
+	public RespEntity auditAjax(@RequestBody ProjectInvoice projectInvoice,
+							   Model model, RedirectAttributes redirectAttributes,
+							   HttpServletRequest request, HttpServletResponse response) {
+
+		String path = request.getContextPath();
+		// form提交时，使用act.flag字段
+		String flag = projectInvoice.getAct().getFlag();
+		// ajax json传输时使用func字段
+		flag = projectInvoice.getFunc();
+		projectInvoice.getAct().setFlag(flag);
+
+		// flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
+
+		if ("save".equalsIgnoreCase(projectInvoice.getAct().getFlag())) {
+			invoiceService.save(projectInvoice);
+		} else {
+			invoiceService.saveAudit(projectInvoice);
+		}
+
+		String url = path + "/" + adminPath + "/act/task/todo/";
+
+		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面
+		RespEntity respEntity = new RespEntity(2, "审批成功！");
+		respEntity.setUrl(url);
+		return respEntity;
+	}
+
+
+	/**
+	 * 保存数据，使用ajax以json的形式上传，使用RequestBody接收
+	 * 返回RespEntity，包括：成功与否、跳转信息等，不返回业务数据
+	 *
+	 * ajax前端提交，要手动收集form、table中的数据，所以使用ajax提交
+	 */
+	@RequestMapping(value = "saveItemAjax")
+	@ResponseBody
+	public RespEntity saveItemAjax(@RequestBody ProjectInvoiceItem invoiceItem,
+								Model model, RedirectAttributes redirectAttributes,
+								HttpServletRequest request, HttpServletResponse response) {
+
+		// if (invoiceItem.getFunc() != null && "offset".equals(invoiceItem.getFunc())) {
+		// 	invoiceItem.setpId(invoiceItem.getId()); // 设置关联
+		// 	invoiceItem.setInvalid("1"); // 作废
+		// 	invoiceItem.setId(""); // insert
+		// }
+		invoiceService.saveItem(invoiceItem);
+
+		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面
+		RespEntity respEntity = new RespEntity(1, "修改成功！");
+		// respEntity.setUrl(url);
+		return respEntity;
+	}
+
 	/**
 	 * 使用的导出
 	 */
@@ -257,8 +506,53 @@ public class ProjectInvoiceController extends BaseController {
         ProjectInvoice projectInvoice=(ProjectInvoice) map.get("projectInvoice");
 
 		List<Act> actList =actTaskService.histoicFlowListPass(projectInvoice.getProcInsId(),null, null);
-		String  fileReturnName=projectInvoice.getApply().getProjectName()+"_合同执行审批表";
+		String  fileReturnName=projectInvoice.getRemarks() + "_开票审批表";
 		String workBookFileRealPathName =request.getSession().getServletContext().getRealPath("/")+"WEB-INF/excel/project/ProjectBidding.xls";
 		ExportUtils.export(response, projectInvoice, actList, workBookFileRealPathName, fileReturnName,"yyyy-MM-dd");
 	}
+
+//	ajax 请求
+	/**
+	 * Json形式返回开票申请信息
+	 *
+	 * @param id
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "getAsJson")
+	public ProjectInvoice getAsJson(@RequestParam(required=false) String id, Model model) {
+		model.addAttribute("prjId", id);
+		ProjectInvoice projectInvoice = get(id);
+		// 转换字典数据
+		// apply.setCategory(DictUtils.getDictLabel(apply.getCategory(), "pro_category", ""));
+		return projectInvoice;
+	}
+
+	// json形式返回开票item信息
+	@ResponseBody
+	@RequestMapping(value = "getItemAsJson")
+	public ProjectInvoiceItem getItemAsJson(@RequestParam(required = false) String id, Model model) {
+		model.addAttribute("itemId", id);
+		ProjectInvoiceItem item = getItem(id);
+		return item;
+	}
+
+	/**
+	 * 查询请求，form提交，以便通过request接收前端的分页信息，ajax，只返回数据Page<entity>，以供bootstrap-table展示
+	 * @param projectInvoice
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "table")
+	@ResponseBody
+	public Page<ProjectInvoice> table(ProjectInvoice projectInvoice, HttpServletRequest request, HttpServletResponse response, Model model) {
+		projectInvoice.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+		Page<ProjectInvoice> page = invoiceService.findPage(new Page<ProjectInvoice>(request, response), projectInvoice);
+		model.addAttribute("page", page);
+		// return "modules/apply/external/DemoList";
+		return page;
+	}
+
 }

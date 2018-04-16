@@ -104,7 +104,7 @@ public class CustomerController extends BaseController {
 		if (!beanValidator(model, customer)){
 			return form(customer, model);
 		}
-		if (!"true".equals(checkLoginName(customer.getOldName(), customer.getCustomerName()))){
+		if (!"true".equals(checkName(customer.getOldName(), customer.getCustomerName()))){
 			addMessage(model, "保存客户'" + customer.getCustomerName() + "'失败，客户名称已存在");
 			return form(customer, model);
 		}
@@ -127,12 +127,12 @@ public class CustomerController extends BaseController {
 	
 	/**
 	 * 获取客户JSON数据。
-	 * @param response
+	 * 给树控件提供数据，map格式
 	 * @return
 	 */
 	@ResponseBody
 	@RequestMapping(value = "treeData")
-	public List<Map<String, Object>> treeData(HttpServletResponse response) {
+	public List<Map<String, Object>> treeData() {
 		Customer customer = new Customer();
 		/**
 		 * 得到没有指定负责人部门的数据
@@ -154,14 +154,20 @@ public class CustomerController extends BaseController {
 	
 	/**
 	 * 获取客户联系人JSON数据。
-	 * @param response
+	 * 给树控件提供数据
+	 *
+	 * @param customerId
 	 * @return
 	 */
 	@ResponseBody
 	@RequestMapping(value = "treeData2")
-	public List<Map<String, Object>> treeData2(String customerId, HttpServletResponse response) {
+	public List<Map<String, Object>> treeData2(String customerId) {
 		List<Map<String, Object>> mapList = Lists.newArrayList();
-		
+
+		if (StringUtils.isEmpty(customerId)) {
+			return mapList;
+		}
+
 		Customer customer = new Customer(customerId);
 		List<CustomerContact> list = customerService.findContatList(customer);
 		for (int i=0; i<list.size(); i++){
@@ -177,9 +183,11 @@ public class CustomerController extends BaseController {
 	
 	/**
 	 * 为了projectExternalForm的ajax请求。
-	 * @param response
+	 * @deprecated 使用getAsJson代替
+	 * @param customer
 	 * @return 返回客户的 类型 与 行业
 	 */
+	@Deprecated
 	@ResponseBody
 	@RequestMapping(value = "customer4projectApplyExternal")
 	public  Customer getCustomer4ProjectApplyExternal(Customer customer) {
@@ -190,14 +198,47 @@ public class CustomerController extends BaseController {
 		
 		return customer2;
 	}
-	
-	
-	
+
+	/**
+	 * 获得Customer详情 json格式
+	 * 供前端ajax单独请求数据，而不是页面
+	 *
+	 * @param id
+	 * @param model
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "getAsJson")
+	public Customer getAsJson(@RequestParam(required = false) String id, Model model) {
+		model.addAttribute("customerId", id);
+
+		Customer customer = get(id);
+		// 转换字典数据
+		customer.setCustomerCategory(DictUtils.getDictLabel(customer.getCustomerCategory(), "customer_category", ""));
+		customer.setIndustry(DictUtils.getDictLabel(customer.getIndustry(), "customer_industry", ""));
+
+		return customer;
+	}
+
+	/**
+	 * 获得CustomerContact详情 json格式
+	 * 供前端ajax单独请求数据，而不是页面
+	 *
+	 * @param id
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "getContactAsJson")
+	public CustomerContact getCustomerContactAsJson(@RequestParam(required = false) String id) {
+		return customerService.getCustomerConcat(id);
+	}
+
 	/**
 	 * 
-	 * @param customerConcatId传过来的 客户联系人id
+	 * @param customerConcatId 传过来的客户联系人id
 	 * @return 返回 联系人的 电话 与 职位
 	 */
+	@Deprecated
 	@ResponseBody
 	@RequestMapping(value = "customerConcat4ProjectApplyExternal")
 	public CustomerContact getCustomerConcat4ProjectApplyExternal(String customerConcatId) {
@@ -209,8 +250,7 @@ public class CustomerController extends BaseController {
 		return returnCustomerConcat;
 		
 	}
-	
-//	
+
 	/**
 	 * 客户批量上传
 	 * @param file
@@ -229,7 +269,7 @@ public class CustomerController extends BaseController {
 //			customerService.saveList(customers);
 			for (Customer customer : customers) {
 				try {
-					if ("true".equals(checkLoginName("", customer.getCustomerName()))) {
+					if ("true".equals(checkName("", customer.getCustomerName()))) {
 						BeanValidators.validateWithException(validator, customer);
 						customerService.save(customer);
 						successNum++;
@@ -261,7 +301,7 @@ public class CustomerController extends BaseController {
 	
 	/**
 	 * 下载导入模板
-	 * @param salaryLevel
+	 *
 	 * @param request
 	 * @param response
 	 * @param redirectAttributes
@@ -281,9 +321,14 @@ public class CustomerController extends BaseController {
 		return "redirect:"+Global.getAdminPath()+"/customer/customer/?repage";
 	}
 	
-	
-	public String checkLoginName(String oldCustomerName, String customerName) {
-		if (customerName !=null && customerName.equals(oldCustomerName)) {
+	// true: 不重复，前端放行，可以添加
+	// false: 数据库已经有了
+	// 修改的时候，才有oldName
+	@ResponseBody
+	@RequiresPermissions("customer:customer:edit")
+	@RequestMapping(value = "checkName")
+	public String checkName(String oldName, String customerName) {
+		if (customerName !=null && customerName.equals(oldName)) {
 			return "true";
 		} else if (customerName !=null && customerService.getByName(customerName) == null) {
 			return "true";

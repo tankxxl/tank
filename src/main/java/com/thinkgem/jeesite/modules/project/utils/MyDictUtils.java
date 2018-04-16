@@ -15,6 +15,8 @@ public class MyDictUtils extends DictUtils {
 	}
 	
 	public static boolean isContractAmountHigh(Double contractAmount) {
+		if (contractAmount == null || Double.isNaN(contractAmount))
+			return true;
 		Double dict_amount = StringUtils.toDouble(DictUtils.getDictValue("项目金额", "jic_prj_money", "0"));
 		if (contractAmount > dict_amount) {
 			return true;
@@ -53,6 +55,9 @@ public class MyDictUtils extends DictUtils {
 	 * @return
 	 */
 	public static boolean isBossAudit(String amount, String gpm) {
+		if (StringUtils.isEmpty(amount) || StringUtils.isEmpty(gpm)) {
+			return true;
+		}
 		return isBossAudit(StringUtils.toDouble(amount), StringUtils.toDouble(gpm));
 	}
 	
