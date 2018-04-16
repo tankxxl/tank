@@ -172,7 +172,7 @@
 		<div class="control-group">
 			<label class="control-label">归属区域:</label>
 			<div class="controls">
-				<sys:treeselect id="area" name="area.id" value="${office.area.id}" labelName="area.name" labelValue="${office.area.name}"
+				<sys:treeselect id="area" name="area.id" value="${customerInvoice.area.id}" labelName="area.name" labelValue="${customerInvoice.area.name}"
 								title="区域" url="/sys/area/treeData" cssClass="required"/>
 			</div>
 		</div>

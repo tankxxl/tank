@@ -30,6 +30,9 @@
 		a.bank_name AS "bankName",
 		a.bank_no AS "bankNo",
 
+		ar.name AS "area.name",
+		ar.code AS "area.code",
+
 		u4.name AS "principal.name",
 		u5.name AS "createBy.name"
 	</sql>

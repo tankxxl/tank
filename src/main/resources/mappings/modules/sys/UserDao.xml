@@ -88,6 +88,7 @@
     	ca.parent_id AS "company.area.parent.id",
     	ca.parent_ids AS "company.area.parentIds",
     	o.name AS "office.name",
+		o.code AS "office.code",
     	o.parent_id AS "office.parent.id",
     	o.parent_ids AS "office.parentIds",
 		o.address AS "office.address",

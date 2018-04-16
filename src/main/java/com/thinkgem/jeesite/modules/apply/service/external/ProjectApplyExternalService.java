@@ -42,23 +42,6 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 	@Autowired
 	private RoleDao roleDao;
 
-	// @Override
-	// public ProjectApplyExternal get(String id) {
-	// 	return super.get(id);
-	// }
-
-	/**
-	 * 保存并结束流程
-	 * @param projectApplyExternal
-	 */
-	// @Transactional(readOnly = false)
-	// public void saveFinishProcess(ProjectApplyExternal projectApplyExternal) {
-	// 	// 开启流程
-	// 	String procInsId = saveLaunch(projectApplyExternal);
-	// 	// 结束流程
-	// 	endProcess(procInsId);
-	// }
-
 	@Override
 	public void setupVariable(ProjectApplyExternal projectApplyExternal, Map<String, Object> vars) {
 		projectApplyExternal.preInsert4ProInteralApply();
@@ -128,7 +111,9 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 	// 	}
 	// }
 
-
+	// 流程相关
+	// 流程审批过程中
+	@Override
 	public void processAudit(ProjectApplyExternal projectApplyExternal, Map<String, Object> vars) {
 		// 对不同环节的业务逻辑进行操作
 		String taskDefKey = projectApplyExternal.getAct().getTaskDefKey();
