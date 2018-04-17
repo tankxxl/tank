@@ -951,6 +951,27 @@
 	</build>
 	
 	<profiles>
+		<!-- 开发环境 -->
+		<profile>
+			<id>dev</id>
+			<!--<activation>-->
+				<!--<activeByDefault>true</activeByDefault>-->
+			<!--</activation>-->
+			<build>
+				<filters>
+					<filter>${project.basedir}/src/main/resources/config/dev/config.properties</filter>
+				</filters>
+			</build>
+		</profile>
+		<!-- 生产环境 -->
+		<profile>
+			<id>product</id>
+			<build>
+				<filters>
+					<filter>${project.basedir}/src/main/resources/config/product/config.properties</filter>
+				</filters>
+			</build>
+		</profile>
 		<!-- 初始化数据库 -->			
 		<profile>
 			<id>init-db</id>
