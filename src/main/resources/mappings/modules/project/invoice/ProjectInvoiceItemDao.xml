@@ -28,6 +28,9 @@
         a.num AS "num",
         a.price AS "price",
         a.amount AS "amount",
+        a.tax_rate AS "taxRate",
+        a.amount_no_tax AS "amountNoTax",
+        a.tax AS "tax",
         a.cost_amount AS "costAmount",
 
         a.attachment AS "attachment",
@@ -89,6 +92,9 @@
         a.num AS "num",
         a.price AS "price",
         a.amount AS "amount",
+        a.tax_rate AS "taxRate",
+        a.amount_no_tax AS "amountNoTax",
+        a.tax AS "tax",
         a.cost_amount AS "costAmount",
 
         a.attachment AS "attachment",
@@ -292,6 +298,9 @@
         num,
         price,
         amount,
+        tax_rate,
+        amount_no_tax,
+        tax,
         cost_amount,
 
         attachment,
@@ -337,6 +346,9 @@
         #{num},
         #{price},
         #{amount},
+        #{taxRate},
+        #{amountNoTax},
+        #{tax},
         #{costAmount},
 
         #{attachment},
@@ -386,6 +398,9 @@
             <if test="num!=null">num  = #{num},</if>
             <if test="price!=null">price = #{price},</if>
             <if test="amount!=null">amount = #{amount},</if>
+            <if test="taxRate!=null">tax_rate = #{taxRate},</if>
+            <if test="amountNoTax!=null">amount_no_tax = #{amountNoTax},</if>
+            <if test="tax!=null">tax = #{tax},</if>
             <if test="costAmount!=null">cost_amount = #{costAmount},</if>
             <if test="attachment!=null">attachment = #{attachment},</if>
             <if test="returnDate!=null">return_date = #{returnDate},</if>

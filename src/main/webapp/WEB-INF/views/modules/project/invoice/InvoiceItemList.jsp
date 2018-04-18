@@ -76,17 +76,21 @@
 
 <%-- 定义一系列工具栏 --%>
 <div id="toolbar" class="btn-group">
-	<button id="btn_resign" type="button" class="btn btn-default">
+	<button id="btn_resign" type="button" class="btn btn-default" disabled>
 		<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>重开
 	</button>
 	<shiro:hasAnyRoles name="usertask_finance_leader">
-	<button id="btn_edit" type="button" class="btn btn-default">
+	<button id="btn_add" type="button" class="btn btn-default">
+		<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+	</button>
+	<button id="btn_edit" type="button" class="btn btn-default" disabled>
 		<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改
 	</button>
+	<button id="btn_delete" type="button" class="btn btn-default" disabled>
+		<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
+	</button>
 	</shiro:hasAnyRoles>
-	<%--<button id="btn_delete" type="button" class="btn btn-default">--%>
-		<%--<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除--%>
-	<%--</button>--%>
+
 </div>
 <table id="table" data-mobile-responsive="true" ></table>
 
@@ -107,10 +111,36 @@ $(function () {
 		initTable();
 //  	$("#table").bootstrapTable('refresh', oTable.queryParams);
 	});
+
+    // 监听table的事件，设置btn的状态
+    $("#table").on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function() {
+        $("#btn_resign").prop('disabled', !$("#table").bootstrapTable('getSelections').length);
+        $("#btn_edit").prop('disabled', !$("#table").bootstrapTable('getSelections').length);
+        $("#btn_delete").prop('disabled', !$("#table").bootstrapTable('getSelections').length);
+    });
+
 	$("#btn_resign").click(function () {
         var ids = getSelectedIds('table');
+        if (ids.length == 0) {
+            jeesnsDialog.tips("请选择发票。");
+            return;
+		}
         <%--jeesns.jeesnsAjax('${ctx}/project/invoice/resignView', 'POST', ids);--%>
         post('${ctx}/project/invoice/resignView', {itemIds: ids});
+    });
+
+    $("#btn_add").click(function () {
+        row = null;
+        rowIndex = null;
+        jeesnsDialog.openEdit('${ctx}/project/invoice/addItemView',
+            '增加开票项', '600px', '650px', function(data) {
+                jeesns.jeesnsAjax('${ctx}/project/invoice/saveItemAjax', 'POST', data, function (res) {
+					if (res.code == 0) {
+                        // 本地
+                        $('#table').bootstrapTable('append', data);
+					}
+                }); // jeesnsAjax()
+        }); // openEdit()
     });
 
     $("#btn_edit").click(function () {
@@ -124,10 +154,32 @@ $(function () {
         rowIndex = indexes[0];
         jeesnsDialog.openEdit('${ctx}/project/invoice/addItemView?id=' + row.id,
             '修改开票项', '600px', '650px', function(data) {
+                // 后台保存成功后界面重新从后台生成，所以此处不需要界面更新
                 jeesns.jeesnsAjax('${ctx}/project/invoice/saveItemAjax', 'POST', data);
             });
 
     });
+
+    $("#btn_delete").click(function () {
+        // 后台删除
+        confirmx('确定要删除选中的记录？', function(){
+            var ids = getSelectedIds('table');
+            var rowIds = $.map( getSelectedRows('table'), function (row) {
+                return row.id;
+            });
+            jeesns.jeesnsAjax('${ctx}/project/invoice/deleteItemByIds', 'POST', ids, function(resp) {
+                // 前台删除
+                $('#table').bootstrapTable('remove', {
+                    field: 'id',
+                    values: ids
+                });
+                // 设置btn_del的状态
+                $("#btn_delete").prop('disabled', true);
+                $("#btn_edit").prop('disabled', true);
+                $("#btn_resign").prop('disabled', true);
+            });
+        }); // end confirm
+    }); // end click
 });
 
     // 定义部分

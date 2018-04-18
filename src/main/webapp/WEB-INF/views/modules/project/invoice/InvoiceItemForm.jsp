@@ -48,11 +48,37 @@
             // 必填项提示，后面加星提示
             $('.required').after('<span style="color:red">&nbsp;*</span>');
 
-            $("#contractName").change(function(){
-                $("#inputForm").validate().element($("#contractName"));
-            });
+            // 当合同变化时校验
+            // $("#contractName").change(function(){
+            //     $("#inputForm").validate().element($("#contractName"));
+            // });
 
             fillForm();
+
+
+            $("#taxRate").on("change.select2", function(e) {
+                // console.log("change.select2 "+JSON.stringify({val:e.val, added:e.added, removed:e.removed}));
+                var amount = $("#amount").val();
+                var taxRate = e.val;
+
+                amount = amount || 0;
+
+                var amountNoTaxData = {"amount": amount, "taxRate": taxRate};
+                var amountNoTaxExpression = Mustache.render("round({{amount}}/(1 + {{taxRate}}), 2)", amountNoTaxData);
+                var amountNoTax = math.eval(amountNoTaxExpression);
+
+                // var amountNoTax = math.eval('round(' + amount + '/(1+0.06),2)');
+                var tax = math.eval('round(' + amount + '-' + amountNoTax + ',2)');
+
+                $("#amountNoTax").val(amountNoTax);
+                $("#tax").val(tax);
+            });
+
+            $("#amount").on("change", function(e) {
+
+            });
+
+
 		});  // end init
 
         // 回调函数，收集子dlg中的表单数据，父页面调用，用来收集dialog中的值
@@ -63,7 +89,7 @@
             }
 
             var json = form2js($('#inputForm')[0], '.', false);
-            console.log("dialog=" + JSON.stringify(json));
+            // console.log("dialog=" + JSON.stringify(json));
             return json;
         }
         
@@ -73,7 +99,7 @@
                 js2form(document.getElementById('inputForm'), parent.row);
 
                 var ddd = $("#invoiceType").select2();    //获取selectid
-                ddd.val(parent.row.invoiceType).trigger("change");    //设置 value 为four的 option 为选中状态
+                ddd.val(parent.row.invoiceType).trigger("change");
             }
             </c:if>
         }
@@ -102,6 +128,8 @@
         }
 
 	</script>
+
+    <script src="${ctxStatic}/mathjs-4.1.1/math.js" type="text/javascript"></script>
 </head>
 <body>
 <br/>
@@ -128,6 +156,7 @@
     <div class="control-group">
         <label class="control-label">合同号:</label>
         <div class="controls">
+            <%-- no used --%>
             <input id="oldContractCode" name="oldContractCode" type="hidden" value="${projectInvoiceItem.contract.contractCode}" />
             <sys:treeselect
                     id="contract"
@@ -210,9 +239,33 @@
     </div>
 
     <div class="control-group">
-        <label class="control-label">金额:</label>
+        <label class="control-label">含税金额:</label>
         <div class="controls">
             <form:input path="amount"/>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label">税率:</label>
+        <div class="controls">
+            <form:select path="taxRate" style="width:80%;">
+                <form:option value="" label=""/>
+                <form:options items="${fns:getDictList('jic_tax_rate')}" itemLabel="label" itemValue="value"/>
+            </form:select>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label">不含税金额:</label>
+        <div class="controls">
+            <form:input path="amountNoTax"/>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label">税额:</label>
+        <div class="controls">
+            <form:input path="tax"/>
         </div>
     </div>
 
@@ -228,6 +281,16 @@
         <label class="control-label">发票编号:</label>
         <div class="controls">
             <form:input path="invoiceNo" class="required"/>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label">是否作废:</label>
+        <div class="controls">
+            <form:select path="invalid" class="" style="width:80%;">
+                <form:option value="" label=""/>
+                <form:options items="${fns:getDictList('yes_no')}" itemLabel="label" itemValue="value"/>
+            </form:select>
         </div>
     </div>
     </shiro:hasAnyRoles>

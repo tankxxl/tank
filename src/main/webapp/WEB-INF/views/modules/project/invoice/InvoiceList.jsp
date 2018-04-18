@@ -130,6 +130,7 @@
 
                     <shiro:hasPermission name="project:invoice:admin">
                         <a href="${ctx}/project/invoice/modify?id=${invoice.id}">修改</a>
+						<a href="${ctx}/project/invoice/delete?id=${invoice.id}" onclick="return confirmx('确认要删除吗？', this.href)">删除</a>
                     </shiro:hasPermission>
 					<%--<a href="${ctx}/project/invoice/returnForm?id=${invoice.id}">回款</a>--%>
 

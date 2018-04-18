@@ -205,6 +205,10 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
     @Override
     @Transactional(readOnly = false)
     public void delete(ProjectInvoice projectInvoice) {
+        String procStatus = projectInvoice.getProcStatus();
+        if ("1".equals(procStatus)) {
+            endProcess(projectInvoice.getProcInsId());
+        }
         super.delete(projectInvoice);
         itemDao.delete(new ProjectInvoiceItem(projectInvoice));
     }

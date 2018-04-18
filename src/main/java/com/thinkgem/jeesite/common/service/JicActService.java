@@ -121,7 +121,8 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
         if (t == null) {
             return;
         }
-        processAuditEnd(t);
+
+        processAuditEnd(t); // todo 此方法有问题
         t.setProcStatus(audit); // 设置业务申请表的流程状态
         save(t);
     }
@@ -155,13 +156,21 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
 
 
     /**
-     * 只启动流程，不保存业务数据
+     * 只启动流程，根据entity设置流程变量，不保存业务数据
      *
      * @param entity
      * @param vars
      * @return
      */
     protected String launch(T entity, Map<String, Object> vars) {
+        setupVariable(entity, vars);
+        return actTaskService.startProcEatFirstTask( entity,
+                null, vars );
+    }
+
+    protected String launch(T entity) {
+        Map<String, Object> vars = new HashMap<>();
+        setupVariable(entity, vars);
         return actTaskService.startProcEatFirstTask( entity,
                 null, vars );
     }
@@ -254,8 +263,8 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
     @Transactional(readOnly = false)
     public String saveLaunch(T entity) {
         if (entity.getIsNewRecord()) {
-            Map<String, Object> varMap = new HashMap<String, Object>();
-            setupVariable(entity, varMap);
+            Map<String, Object> varMap = new HashMap<>();
+            // setupVariable(entity, varMap); 不在此处设置流程变量，在launch方法中设置
             // 先保存业务数据
             save(entity);
             return launch(entity, varMap);

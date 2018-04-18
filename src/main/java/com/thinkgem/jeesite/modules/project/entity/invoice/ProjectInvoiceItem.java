@@ -64,6 +64,10 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
 
     private String invalid; // 作废标志0有效1作废
 
+    private String taxRate; // 税率
+    private String amountNoTax; // 不含税金额
+    private String tax; //税额
+
     /**
      * 1、offset：对冲，前端赋值，用于告诉后端，此记录是做对冲处理
      * 2、front: 后端赋值，用于告诉前端，此记录不在数据库中，要用前端的数据去填充，用在还没有保存子table，要弹框修改记录时
@@ -358,5 +362,29 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
 
     public void setQueryEndDate(Date queryEndDate) {
         this.queryEndDate = queryEndDate;
+    }
+
+    public String getTaxRate() {
+        return taxRate;
+    }
+
+    public void setTaxRate(String taxRate) {
+        this.taxRate = taxRate;
+    }
+
+    public String getAmountNoTax() {
+        return amountNoTax;
+    }
+
+    public void setAmountNoTax(String amountNoTax) {
+        this.amountNoTax = amountNoTax;
+    }
+
+    public String getTax() {
+        return tax;
+    }
+
+    public void setTax(String tax) {
+        this.tax = tax;
     }
 }
