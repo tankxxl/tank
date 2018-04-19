@@ -37,6 +37,14 @@
             $("#searchForm").submit();
             return false;
         }
+
+        function changeProject(id, idx) {
+            $.post('${ctx}/sys/area/getAsJson',
+                {id: id},
+                function (area) {
+                    $("#parentIds").val(area.parentIds);
+                });
+        }
 	</script>
 </head>
 <%-- 发票列表 --%>
@@ -45,14 +53,12 @@
 	<li class="active"><a href="${ctx}/project/invoiceItem/">开票列表</a></li>
 	<%--<shiro:hasPermission name="project:invoice:edit"><li><a href="${ctx}/project/invoice/form">开票添加</a></li></shiro:hasPermission>--%>
 </ul>
-<form:form id="searchForm"
-		   modelAttribute="projectInvoiceItem"
+<form:form id="searchForm" modelAttribute="projectInvoiceItem"
 		   action="${ctx}/project/invoiceItem/"
-		   method="post"
-		   htmlEscape="false"
-		   class="breadcrumb form-search">
+		   method="post" htmlEscape="false" class="breadcrumb form-search">
 	<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
 	<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+	<form:hidden id="parentIds" path="customerInvoice.area.parentIds"/>
 
 	<ul class="ul-form">
 		<li><label>项目编号：</label>
@@ -64,9 +70,25 @@
 		<li><label>合同编号：</label>
 			<form:input path="contract.contractCode" type="text" placeholder="合同编号" maxlength="64" class="input-medium"/>
 		</li>
+		<li><label>发票金额：</label>
+			<form:input path="amount" type="text" placeholder="发票金额" maxlength="64" class="input-medium"/>
+		</li>
+		<li><label>开票名称：</label>
+			<form:input path="customerInvoice.customerName" type="text" placeholder="开票名称" maxlength="64" class="input-medium"/>
+		</li>
+		<li><label>开票内容：</label>
+			<form:input path="content" type="text" placeholder="开票内容" maxlength="64" class="input-medium"/>
+		</li>
+		<li><label>开票区域：</label>
+			<sys:treeselect id="customerInvoice"
+				name="customerInvoice.area.id" value="${projectInvoiceItem.customerInvoice.area.id}"
+				labelName="customerInvoice.area.name" labelValue="${projectInvoiceItem.customerInvoice.area.name}"
+				title="区域" url="/sys/area/treeData" cssClass="input-small" allowClear="true" notAllowSelectParent="false"
+							customClick="changeProject"/>
+		</li>
 		<li class="btns">
 			<input id="btnSubmit" class="btn btn-primary" type="button" value="查询">
-			<i class="icon-search"></i>
+			<input id="btnReset" class="btn" type="reset" value="重置">
 			</input>
 		</li>
 		<li class="clearfix"></li>
@@ -262,6 +284,16 @@ $(function () {
                 events: operateEvents,
                 formatter: invoiceItemFormatter
             }, {
+                field: 'amount',
+                title: '开票金额',
+                events: operateEvents,
+                formatter: invoiceItemFormatter
+            }, {
+                field: 'content',
+                title: '开票内容',
+                events: operateEvents,
+                formatter: invoiceItemFormatter
+            }, {
                 field: 'returnAmount',
                 title: '回款金额',
                 formatter: function (value, row, index) {
@@ -319,10 +351,12 @@ $(function () {
                 field: 'saler.name',
                 title: '销售人员'
             }, {
-                field: 'updateDate',
-                title: '更新时间',
+                field: 'invoiceDate',
+                title: '开票日期',
                 formatter: function (value, row, index) {
-                    return new Date(value).Format("yyyy-MM-dd");
+                    if (value) {
+                        return new Date(value).Format("yyyy-MM-dd");
+					}
                 }
             }, {
                 field: 'procStatus',

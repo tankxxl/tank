@@ -55,7 +55,6 @@
 
             fillForm();
 
-
             $("#taxRate").on("change.select2", function(e) {
                 // console.log("change.select2 "+JSON.stringify({val:e.val, added:e.added, removed:e.removed}));
                 var amount = $("#amount").val();
@@ -98,7 +97,7 @@
             if (parent.row) {
                 js2form(document.getElementById('inputForm'), parent.row);
 
-                var ddd = $("#invoiceType").select2();    //获取selectid
+                var ddd = $("#invoiceType").select2();
                 ddd.val(parent.row.invoiceType).trigger("change");
             }
             </c:if>
@@ -139,6 +138,7 @@
     <form:hidden path="id"/>
     <form:hidden path="invoice.id"/>
     <sys:message content="${message}"/>
+    <c:set var="func" value="${projectInvoiceItem.func}"/>
 
     <div class="control-group">
         <label class="control-label">项目:</label>
@@ -245,6 +245,7 @@
         </div>
     </div>
 
+    <shiro:hasAnyRoles name="usertask_finance_leader">
     <div class="control-group">
         <label class="control-label">税率:</label>
         <div class="controls">
@@ -270,14 +271,6 @@
     </div>
 
     <div class="control-group">
-        <label class="control-label">利润点:</label>
-        <div class="controls">
-            <form:input path="profit"/>
-        </div>
-    </div>
-
-    <shiro:hasAnyRoles name="usertask_finance_leader">
-    <div class="control-group">
         <label class="control-label">发票编号:</label>
         <div class="controls">
             <form:input path="invoiceNo" class="required"/>
@@ -294,6 +287,13 @@
         </div>
     </div>
     </shiro:hasAnyRoles>
+
+    <div class="control-group">
+        <label class="control-label">利润点:</label>
+        <div class="controls">
+            <form:input path="profit"/>
+        </div>
+    </div>
     <div class="control-group">
         <label class="control-label">结算周期:</label>
         <div class="controls">

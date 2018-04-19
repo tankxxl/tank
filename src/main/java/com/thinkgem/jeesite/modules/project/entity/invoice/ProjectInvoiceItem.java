@@ -68,6 +68,8 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
     private String amountNoTax; // 不含税金额
     private String tax; //税额
 
+    private Date invoiceDate; // 开票日期，财务审批通过的日期
+
     /**
      * 1、offset：对冲，前端赋值，用于告诉后端，此记录是做对冲处理
      * 2、front: 后端赋值，用于告诉前端，此记录不在数据库中，要用前端的数据去填充，用在还没有保存子table，要弹框修改记录时
@@ -386,5 +388,13 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
 
     public void setTax(String tax) {
         this.tax = tax;
+    }
+
+    public Date getInvoiceDate() {
+        return invoiceDate;
+    }
+
+    public void setInvoiceDate(Date invoiceDate) {
+        this.invoiceDate = invoiceDate;
     }
 }

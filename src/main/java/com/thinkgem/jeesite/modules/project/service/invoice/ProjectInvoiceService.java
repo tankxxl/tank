@@ -23,10 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 项目开票Service
@@ -168,8 +165,10 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
         // 对不同环节的业务逻辑进行操作
         String taskDefKey = projectInvoice.getAct().getTaskDefKey();
         if ( UserTaskType.UT_SPECIALIST.equals(taskDefKey) ) {
-            // 保存合同编号
             // save(projectInvoice);
+        } else if (UserTaskType.UT_FINANCE_LEADER.equals(taskDefKey)) { // 财务部审批后更新开票时间字段
+            projectInvoice.setInvoiceDate(new Date());
+            save(projectInvoice);
         }
     }
 
@@ -230,7 +229,7 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
         ProjectContract contract = new ProjectContract();
         item.setContract(contract);
         contract.setContractCode(contractCode);
-
+        System.out.println();
         return itemDao.findByContractCode(item);
     }
 
@@ -246,7 +245,7 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
             // if (item.getId() == null){
             //     continue;
             // }
-
+            System.out.println();
             if (ProjectInvoiceItem.DEL_FLAG_NORMAL.equals(item.getDelFlag())) {
                 if (StringUtils.isBlank(item.getId())) {
                     item.setInvoice(projectInvoice);
@@ -320,6 +319,7 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
     public void saveItem(ProjectInvoiceItem invoiceItem) {
 
         if (invoiceItem.getIsNewRecord()){
+            invoiceItem.setInvoiceDate(new Date());
             invoiceItem.preInsert();
             itemDao.insert(invoiceItem);
         }else{

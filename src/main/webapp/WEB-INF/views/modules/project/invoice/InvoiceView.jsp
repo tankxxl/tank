@@ -416,7 +416,6 @@ window.operateEvents = {
         jeesnsDialog.openEdit('${ctx}/project/invoice/offsetView?id=' + row.id,
             '增加负数对冲开票', '600px', '650px', function(data) {
                 data['func'] = 'offset';
-                console.log(JSON.stringify(data));
                 jeesns.jeesnsAjax('${ctx}/project/invoice/saveItemAjax', 'POST', data);
             });
         return false;

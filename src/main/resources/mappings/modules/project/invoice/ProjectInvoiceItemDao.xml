@@ -47,6 +47,7 @@
         a.unit AS "unit",
         a.profit AS "profit",
         a.invoice_no AS "invoiceNo",
+        a.invoice_date AS "invoiceDate",
 
         a.ver AS "ver",
         a.p_id AS "pId",
@@ -108,6 +109,7 @@
         a.unit AS "unit",
         a.profit AS "profit",
         a.invoice_no AS "invoiceNo",
+        a.invoice_date AS "invoiceDate",
 
         a.ver AS "ver",
         a.p_id AS "pId",
@@ -132,6 +134,7 @@
         LEFT JOIN project_apply_external apply ON apply.id = a.project_id
         LEFT JOIN project_contract contract ON contract.id = a.contract_id
         LEFT JOIN customer_invoice ci ON ci.id = a.customer_invoice_id
+        LEFT JOIN sys_area ar ON ar.id = ci.area_id
 
         LEFT JOIN sys_user u4 ON u4.id = apply.saler_id
 		LEFT JOIN sys_office s5 on s5.id =u4.office_id
@@ -143,6 +146,7 @@
         LEFT JOIN project_apply_external apply ON apply.id = a.project_id
         LEFT JOIN project_contract contract ON contract.id = a.contract_id
         LEFT JOIN customer_invoice ci ON ci.id = a.customer_invoice_id
+        LEFT JOIN sys_area ar ON ar.id = ci.area_id
 
         LEFT JOIN sys_user u4 ON u4.id = apply.saler_id
 		LEFT JOIN sys_office s5 on s5.id =u4.office_id
@@ -187,6 +191,34 @@
                 <if test="dbName == 'mssql'">'%'+#{contract.contractCodeapply.projectName}+'%'</if>
                 <if test="dbName == 'mysql'">concat('%',#{contract.contractCode},'%')</if>
             </if>
+
+            <if test="customerInvoice!=null and customerInvoice.customerName != null and customerInvoice.customerName != ''">
+                AND ci.customer_name LIKE
+                <if test="dbName == 'oracle'">'%'||#{customerInvoice.customerName}||'%'</if>
+                <if test="dbName == 'mssql'">'%'+#{customerInvoice.customerName}+'%'</if>
+                <if test="dbName == 'mysql'">concat('%',#{customerInvoice.customerName},'%')</if>
+            </if>
+
+            <if test="content != null and content != ''">
+                AND a.content LIKE
+                <if test="dbName == 'oracle'">'%'||#{content}||'%'</if>
+                <if test="dbName == 'mssql'">'%'+#{content}+'%'</if>
+                <if test="dbName == 'mysql'">concat('%',#{content},'%')</if>
+            </if>
+
+            <if test="amount != null and amount != ''">
+                AND a.amount = #{amount}
+            </if>
+
+            <if test="customerInvoice!=null and customerInvoice.area != null and customerInvoice.area.parentIds != null and customerInvoice.area.parentIds != ''">
+                AND (
+                ar.id = #{customerInvoice.area.id}
+                or ar.parent_ids LIKE
+                <if test="dbName == 'oracle'">'%'||#{customerInvoice.customerName}||'%'</if>
+                <if test="dbName == 'mssql'">'%'+#{customerInvoice.customerName}+'%'</if>
+                <if test="dbName == 'mysql'">concat(#{customerInvoice.area.parentIds},#{customerInvoice.area.id},',%')</if> )
+            </if>
+
 
             ${sqlMap.dsf}
         </where>
@@ -317,6 +349,7 @@
         unit,
         profit,
         invoice_no,
+        invoice_date,
 
         ver,
         p_id,
@@ -365,6 +398,7 @@
         #{unit},
         #{profit},
         #{invoiceNo},
+        #{invoiceDate},
 
         #{ver},
         #{pId},
@@ -414,6 +448,7 @@
             <if test="unit!=null">unit = #{unit},</if>
             <if test="profit!=null">profit = #{profit},</if>
             <if test="invoiceNo!=null">invoice_no = #{invoiceNo},</if>
+            <if test="invoiceDate!=null">invoice_date = #{invoiceDate},</if>
             <if test="ver!=null">ver = #{ver},</if>
             <if test="pId!=null">p_id = #{pId},</if>
             <if test="reason!=null">reason = #{reason},</if>
