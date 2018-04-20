@@ -120,6 +120,41 @@ public class ProjectInvoiceStatController extends BaseController {
 			queryEndDate = sdf.format(invoiceItem.getQueryEndDate());
 		}
 
+		String amount = "";
+		if (!StringUtils.isBlank(invoiceItem.getAmount())) {
+			amount = invoiceItem.getAmount();
+		}
+
+		String customerInvoiceName = "";
+		if ( invoiceItem.getCustomerInvoice() != null && !StringUtils.isBlank(invoiceItem.getCustomerInvoice().getCustomerName())) {
+			customerInvoiceName = invoiceItem.getCustomerInvoice().getCustomerName();
+		}
+
+		String taxRate = "";
+		if ( !StringUtils.isBlank(invoiceItem.getTaxRate())) {
+			taxRate = invoiceItem.getTaxRate();
+		}
+
+		String officeId = "";
+		if (invoiceItem.getApply() != null &&
+				invoiceItem.getApply().getSaler() != null &&
+				invoiceItem.getApply().getSaler().getOffice() != null &&
+				!StringUtils.isBlank(invoiceItem.getApply().getSaler().getOffice().getId())) {
+			officeId = invoiceItem.getApply().getSaler().getOffice().getId();
+		}
+
+		String invoiceDate = "";
+		if (invoiceItem.getInvoiceDate() != null) {
+			invoiceDate = sdf.format(invoiceItem.getInvoiceDate());
+		}
+
+		String lineId = "";
+		if (invoiceItem.getApply() != null &&
+				invoiceItem.getApply().getLine() != null &&
+				!StringUtils.isBlank(invoiceItem.getApply().getLine().getId())) {
+			lineId = invoiceItem.getApply().getLine().getId();
+		}
+
 		StringBuilder sbUrl = new StringBuilder();
 		sbUrl.append(ctxPath);
 		sbUrl.append("/ureport/preview?_u=file:invoiceItem.ureport.xml&pc=");
@@ -128,6 +163,12 @@ public class ProjectInvoiceStatController extends BaseController {
 		sbUrl.append("&cc=").append(contractCode);
 		sbUrl.append("&qb=").append(queryBeginDate);
 		sbUrl.append("&qe=").append(queryEndDate);
+		sbUrl.append("&am=").append(amount);
+		sbUrl.append("&cin=").append(customerInvoiceName);
+		sbUrl.append("&tr=").append(taxRate);
+		sbUrl.append("&oi=").append(officeId);
+		sbUrl.append("&ida=").append(invoiceDate);
+		sbUrl.append("&lid=").append(lineId);
 
 		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面
 		// 4 跳转新窗口

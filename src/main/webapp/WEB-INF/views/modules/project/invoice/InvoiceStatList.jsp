@@ -85,7 +85,34 @@
 		<li><label>合同编号：</label>
 			<form:input path="contract.contractCode" type="text" placeholder="合同编号" maxlength="64" class="input-medium"/>
 		</li>
-
+		<li><label>发票金额：</label>
+			<form:input path="amount" type="text" placeholder="发票金额" maxlength="64" class="input-medium"/>
+		</li>
+		<li><label>开票名称：</label>
+			<form:input path="customerInvoice.customerName" type="text" placeholder="开票名称" maxlength="64" class="input-medium"/>
+		</li>
+		<li><label>税率：</label>
+			<form:select id="taxRate" path="taxRate" class="input-medium">
+				<form:option value="" label=""/>
+				<form:options items="${fns:getDictList('jic_tax_rate')}" itemLabel="label" itemValue="value" />
+			</form:select>
+		</li>
+		<li><label>部门：</label>
+			<sys:treeselect id="office" name="apply.saler.office.id" value="${projectInvoiceItem.apply.saler.office.id}"
+				labelName="apply.saler.office.name" labelValue="${projectInvoiceItem.apply.saler.office.name}"
+				title="部门" url="/sys/office/treeData?type=2"
+				cssClass="input-medium" allowClear="true" notAllowSelectParent="true"/>
+		</li>
+		<li><label>回款日期：</label>
+			<input id="invoiceDate"  name="invoiceDate"  type="text" readonly="readonly" class="input-mini Wdate"
+				   value="<fmt:formatDate value="${projectInvoiceItem.invoiceDate}" pattern="yyyy-MM-dd"/>"
+				   onclick="WdatePicker({dateFmt:'yyyy-MM-dd'});"/>
+		</li>
+		<li><label>业务条线：</label>
+			<sys:treeselect id="line" name="apply.line.id" value="${projectInvoiceItem.apply.line.id}"
+				labelName="apply.line.name" labelValue="${projectInvoiceItem.apply.line.name}"
+				title="业务条线" url="/project/line/treeData" cssClass="input-medium" />
+		</li>
 		<li><label>开票日期：</label>
 
 			<input id="queryBeginDate"  name="queryBeginDate"  type="text" readonly="readonly" class="input-mini Wdate"
