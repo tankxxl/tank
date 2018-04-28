@@ -109,11 +109,7 @@
 			<if test="procStatus != null and procStatus != ''">
 				AND a.proc_status = #{procStatus}
 			</if>
-			<if test="proMainStage != null and proMainStage != ''">
-				AND a.pro_main_stage = #{proMainStage}
-			</if>
 
-			<!-- 查找某几个阶段的 -->
 			<if test="queryStage != null">
 			    AND a.pro_main_stage in 
 			    <foreach item="item" index="index" collection="queryStage" open="(" separator="," close=")">
@@ -122,11 +118,10 @@
 			    <!-- AND a.pro_main_stage in ( #{queryStage} ) -->
 			</if>
 
-			<!-- 查找某个大阶段以上的 -->
 			<if test="proMainStage != null and proMainStage != ''">
 				AND a.pro_main_stage <![CDATA[ >= #{proMainStage} ]]>
 			</if>
-			<!-- 查找某个小阶段的 -->
+
 			<if test="proStage != null and proStage != ''">
 				AND a.pro_stage = #{proStage}
 			</if>

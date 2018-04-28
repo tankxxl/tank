@@ -24,9 +24,7 @@
 			});
 		});
 
-        // 选择项目后触发事件
         function changeProject(projectId, idx) {
-            // 向后台获取项目信息，并将相关信息回显
             $.post('${ctx}/apply/external/projectApplyExternal/getAsJson',
                 {id: projectId},
                 function (apply) {
@@ -75,7 +73,7 @@
 									labelName="apply.projectName"
 									labelValue="${projectFinishApproval.apply.projectName}"
 									title="项目"
-									url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11"
+									url="/apply/external/projectApplyExternal/treeData?proMainStage=11"
 									cssClass="required"
 									cssStyle="width: 90%;"
 									dataMsgRequired="项目必选"
@@ -85,7 +83,6 @@
 							<span class="help-inline"><font color="red">*</font> </span>
 					</div>
 				</td>
-				
 				<td class="tit">项目编码</td>
 				<td class="tit_content"><label id="project_code" >${projectFinishApproval.apply.projectCode }</label></td>
 			</tr>
@@ -135,10 +132,11 @@
 		<div class="form-actions">
 			<shiro:hasPermission name="project:finish:projectFinishApproval:edit">
 			
-			<input id="btnSubmit" class="btn btn-primary" type="submit" value="提交申请" onclick="$('#flag').val('yes')"/>&nbsp;
-				<c:if test="${not empty projectFinishApproval.id}">
-					<input id="btnSubmit2" class="btn btn-inverse" type="submit" value="销毁申请" onclick="$('#flag').val('no')"/>&nbsp;
-				</c:if>
+			<input id="btnSubmit" class="btn btn-primary" type="submit" value="提交申请" onclick="$('#flag').val('yes')"/>&nbsp;&nbsp;
+			<input id="btnSubmit" class="btn btn-primary cancel" type="submit" value="暂存" onclick="$('#flag').val('saveOnly')"/>&nbsp;&nbsp;
+			<c:if test="${not empty projectFinishApproval.id}">
+				<input id="btnSubmit2" class="btn btn-inverse" type="submit" value="销毁申请" onclick="$('#flag').val('no')"/>&nbsp;
+			</c:if>
 			</shiro:hasPermission>
 
 			<shiro:hasPermission name="apply:external:projectApplyExternal:onlySave">

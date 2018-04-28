@@ -38,21 +38,15 @@ public class ProjectFinishApprovalController extends BaseController {
 	
 	@ModelAttribute
 	public ProjectFinishApproval get(@RequestParam(required=false) String id) {
-		ProjectFinishApproval entity = null;
-		if (StringUtils.isNotBlank(id)){
-			entity = projectFinishApprovalService.get(id);
-		}
-		if (entity == null){
-			entity = new ProjectFinishApproval();
-		}
-		return entity;
+		ProjectFinishApproval entity = projectFinishApprovalService.get(id);
+		return entity == null ? new ProjectFinishApproval() : entity;
 	}
 	
 	@RequiresPermissions("project:finish:projectFinishApproval:view")
 	@RequestMapping(value = {"list", ""})
 	public String list(ProjectFinishApproval projectFinishApproval, HttpServletRequest request, HttpServletResponse response, Model model) {
 		projectFinishApproval.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
-		Page<ProjectFinishApproval> page = projectFinishApprovalService.findPage(new Page<ProjectFinishApproval>(request, response), projectFinishApproval); 
+		Page<ProjectFinishApproval> page = projectFinishApprovalService.findPage(new Page<>(request, response), projectFinishApproval);
 		model.addAttribute("page", page);
 		return "modules/project/finish/projectFinishApprovalList";
 	}
@@ -72,7 +66,7 @@ public class ProjectFinishApprovalController extends BaseController {
 			if (projectFinishApproval.hasAct()) {
 				// 入口2：从已办任务界面来的请求，1、实体是新建的，2、act是activi框架填充的。
 				// 此时实体应该由流程id来查询。
-				view = "ExecutionView";
+				view = "projectFinishApprovalView";
 				projectFinishApproval = projectFinishApprovalService.findByProcInsId(projectFinishApproval);
 				if (projectFinishApproval == null) {
 					projectFinishApproval = new ProjectFinishApproval();
@@ -106,15 +100,16 @@ public class ProjectFinishApprovalController extends BaseController {
 	@RequiresPermissions("project:finish:projectFinishApproval:edit")
 	@RequestMapping(value = "save")
 	public String save(ProjectFinishApproval projectFinishApproval, Model model, RedirectAttributes redirectAttributes) {
-		if (!beanValidator(model, projectFinishApproval)){
-			return form(projectFinishApproval, model);
+		String flag = projectFinishApproval.getAct().getFlag();
+		if (!"saveOnly".equals(flag)) {
+			if (!beanValidator(model, projectFinishApproval)){
+				return form(projectFinishApproval, model);
+			}
 		}
 
-		String flag = projectFinishApproval.getAct().getFlag();
-//		flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
-		if ("saveOnly".equals(flag)) { // 只保存表单数据
+		if ("saveOnly".equals(flag)) {
 			projectFinishApprovalService.save(projectFinishApproval);
-		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
+		} else if ("saveFinishProcess".equals(flag)) {
 			projectFinishApprovalService.saveFinishProcess(projectFinishApproval);
 		} else {
 			projectFinishApprovalService.saveLaunch(projectFinishApproval);
@@ -122,9 +117,9 @@ public class ProjectFinishApprovalController extends BaseController {
 		addMessage(redirectAttributes, "保存结项审批成功");
 		
 		String usertask_owner = projectFinishApproval.getAct().getTaskDefKey();
-		if (UserTaskType.UT_OWNER.equals(usertask_owner)) { // 待办任务页面
+		if (UserTaskType.UT_OWNER.equals(usertask_owner)) {
 			return "redirect:" + adminPath + "/act/task/todo/";
-		} else { // 列表页面
+		} else {
 			return "redirect:"+Global.getAdminPath()+"/project/finish/projectFinishApproval/?repage";
 		}
 		
@@ -145,11 +140,8 @@ public class ProjectFinishApprovalController extends BaseController {
 			addMessage(model, "请填写审核意见。");
 			return form(projectFinishApproval, model);
 		}
-		
 		projectFinishApprovalService.saveAudit(projectFinishApproval);
 		return "redirect:" + adminPath + "/act/task/todo/";
 	}
-	
-	
 
 }

@@ -6,6 +6,17 @@
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
+
+            $("#btnExportList").click(function(){
+                top.$.jBox.confirm("确认要导出立项数据吗？","系统提示",function(v,h,f){
+                    if(v=="ok"){
+                        $("#searchForm").attr("action","${ctx}/apply/external/projectApplyExternal/exportList");
+                        $("#searchForm").submit();
+                    }
+                },{buttonsFocus:1});
+                top.$('.jbox-body .jbox-icon').css('top','55px');
+            });
+
 			$("#contentTable").find("input[export]").each(function(){
 				$(this).click(function(){
 					var proId =$(this).attr("proId");
@@ -28,9 +39,6 @@
 					}
 				});
 			});
-			
-			
-			
 			
 		});
 		function page(n,s){
@@ -78,7 +86,10 @@
 					<form:options items="${fns:getDictList('AuditStatus')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
 				</form:select>
 			</li>
-			<li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/></li>
+			<li class="btns">
+				<input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/>
+				<input id="btnExportList" type="button" class="btn btn-primary" value="导出"/>
+			</li>
 			<li class="clearfix"></li>
 		</ul>
 	</form:form>
@@ -132,7 +143,7 @@
 						<td>
 					</c:otherwise>
 				</c:choose>
-					${fns:getDictLabel(projectApplyExternal.procStatus, 'AuditStatus', '')}
+					${fns:getDictLabel(projectApplyExternal.procStatus, 'AuditStatus', '无启动流程')}
 				</td>
 				
 				<td>
@@ -141,6 +152,16 @@
 				</c:if>
 					
 				<shiro:hasPermission name="apply:external:projectApplyExternal:edit">
+
+					<c:choose>
+					<c:when test="${projectApplyExternal.procStatus == null}">
+						<a href="${ctx}/apply/external/projectApplyExternal/modify?id=${projectApplyExternal.id}">修改</a>
+					</c:when>
+					<c:otherwise>
+
+					</c:otherwise>
+					</c:choose>
+
 					<a href="${ctx}/apply/external/projectApplyExternal/form?id=${projectApplyExternal.id}">详情</a>
 					<c:if test="${projectApplyExternal.procStatus != '2'}">
 					<a class="trace" target="_blank" procInsId="${projectApplyExternal.procInsId}" href="${ctx}/act/task/trace1?procInsId=${projectApplyExternal.procInsId}">跟踪</a>

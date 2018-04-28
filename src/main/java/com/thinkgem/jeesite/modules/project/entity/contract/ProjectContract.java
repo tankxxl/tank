@@ -22,7 +22,7 @@ import java.util.List;
 public class ProjectContract extends ActEntity<ProjectContract> {
 	
 	private static final long serialVersionUID = 1L;
-	private ProjectApplyExternal apply;//项目立项bean
+	private ProjectApplyExternal apply;
 	private User projectManager;//项目经理
 	private String stage;		// 项目步骤
 

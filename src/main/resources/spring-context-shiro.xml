@@ -25,20 +25,12 @@
 			</value>
 		</constructor-arg>
 	</bean>
-	
-	<!-- 安全认证过滤器 ，rgz对应于web.xml中配置的那个shiroFilter
-	 Shiro内置了很多过滤器
-	 -->
+
 	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
-        <!-- rgz Shiro的核心安全接口，这个属性是必须的 -->
 		<property name="securityManager" ref="securityManager" /><!-- 
 		<property name="loginUrl" value="${cas.server.url}?service=${cas.project.url}${adminPath}/cas" /> -->
-        <!-- rgz 需要登录时的链接(登录页面地址)，非必须的属性，默认会自动寻找web工程根目录下的"/login.jsp"页面 -->
 		<property name="loginUrl" value="${adminPath}/login" />
-        <!-- rgz 登录成功后要跳转的连接（本例中此属性用不到，因为登录成功后的处理逻辑在LoginController里硬编码）-->
 		<property name="successUrl" value="${adminPath}?login" />
-        <!-- rgz 用户访问未对其授权的资源时，所显示的连接 -->
-        <!--<property name="unauthorizedUrl" value="/error/unauthorized" />-->
 		<property name="filters">
             <map>
                 <entry key="cas" value-ref="casFilter"/>

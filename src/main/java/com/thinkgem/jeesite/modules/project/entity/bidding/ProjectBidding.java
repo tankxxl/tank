@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.thinkgem.jeesite.common.persistence.ActEntity;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
+import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import org.hibernate.validator.constraints.Length;
 
@@ -36,6 +37,8 @@ public class ProjectBidding extends ActEntity<ProjectBidding> {
 	private String outsourcing; // 是否有外包，0：没有；1：有
 
     private String result; // 投标结果
+
+	private User projectManager; // 技术负责人
 
 	public ProjectBidding() {
 		super();
@@ -204,5 +207,13 @@ public class ProjectBidding extends ActEntity<ProjectBidding> {
 		}else{
 			return DictUtils.getDictLabels(printingPaste, "tender_printing_paste", "");
 		}
+	}
+
+	public User getProjectManager() {
+		return projectManager;
+	}
+
+	public void setProjectManager(User projectManager) {
+		this.projectManager = projectManager;
 	}
 }

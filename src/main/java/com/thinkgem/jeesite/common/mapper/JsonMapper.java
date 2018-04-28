@@ -24,8 +24,6 @@ import java.util.Map;
 import java.util.TimeZone;
 
 /**
- * 简单封装Jackson，实现JSON String<->Java Object的Mapper.
- * 封装不同的输出风格, 使用不同的builder函数创建实例.
  *
  * 更改默认的Json序列化方案
  * 项目中有时候会有自己独特的Json序列化方案，例如比较常用的使用0/1替代false/true，或是通过""代替null。
@@ -43,8 +41,6 @@ public class JsonMapper extends ObjectMapper {
 
 	public JsonMapper() {
 		this(Include.NON_EMPTY);
-		// rgz 使用bootstrap-table时由于后端把null、空的字段都过滤掉了，导致前端得不到数据为undefined
-		// this(Include.ALWAYS);
 	}
 
 	public JsonMapper(Include include) {

@@ -24,9 +24,7 @@
 			});
 		});
 
-        // 选择项目后触发事件
         function changeProject(projectId, idx) {
-            // 向后台获取项目信息，并将相关信息回显
             $.post('${ctx}/apply/external/projectApplyExternal/getAsJson',
                 {id: projectId},
                 function (apply) {

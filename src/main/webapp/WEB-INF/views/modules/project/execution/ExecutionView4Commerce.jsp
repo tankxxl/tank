@@ -6,7 +6,6 @@
 <meta name="decorator" content="default" />
 <script type="text/javascript">
     $(document).ready(function() {
-        // 初始化全局变量，修改表单使用
         treeGetParam = "?prjId=${projectExecution.apply.id}";
 
         //$("#name").focus();
@@ -71,7 +70,6 @@
 <form:hidden path="act.procInsId"/>
 <form:hidden path="act.procDefId"/>
 <form:hidden id="flag" path="act.flag"/>
-    <%--设置id，前端设置值，传回后端--%>
 <form:hidden id="contractId" path="contract.id" />
 <sys:message content="${message}"/>
 		<table class="table table-striped table-bordered table-condensed">
@@ -177,8 +175,6 @@
 		<br />
 
         <table id="contentTable" class="table table-striped table-bordered table-condensed table-hover">
-            <%--<thead>--%>
-            <%--<tr><td class="tit">产品配置清单</td> <tr>--%>
                 <caption>产品配置清单</caption>
             <thead>
             <tr>
@@ -247,7 +243,7 @@
                     addRow('#itemList', itemRowIdx, itemTpl, data[i]);
                     itemRowIdx = itemRowIdx + 1;
                 }
-            }); // end ready
+            });
         </script>
 
 

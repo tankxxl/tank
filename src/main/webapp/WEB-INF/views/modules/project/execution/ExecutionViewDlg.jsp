@@ -176,7 +176,7 @@
             addRow('#itemList', itemRowIdx, itemTpl, data[i]);
             itemRowIdx = itemRowIdx + 1;
         }
-    }); // end ready
+    });
 </script>
 <br/>
 

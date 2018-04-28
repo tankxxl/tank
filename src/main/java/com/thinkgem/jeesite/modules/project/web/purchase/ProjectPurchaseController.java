@@ -54,7 +54,6 @@ public class ProjectPurchaseController extends BaseController {
 	private ActTaskService actTaskService;
 
     /**
-     * 如果把@ModelAttribute放在方法的注解上时，代表的是：该Controller的所有方法在调用前，先执行此@ModelAttribute方法
      * @param id
      * @return
      */
@@ -158,7 +157,6 @@ public class ProjectPurchaseController extends BaseController {
 	@RequiresPermissions("project:purchase:admin")
 	@RequestMapping(value = "modify")
 	public String modify(ProjectPurchase projectPurchase, Model model) {
-		model.addAttribute("projectPurchase", projectPurchase);
 		return "modules/project/purchase/PurchaseForm";
 	}
 
@@ -177,7 +175,6 @@ public class ProjectPurchaseController extends BaseController {
 		}
 		String flag = projectPurchase.getAct().getFlag();
 
-        // flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
         if ("saveOnly".equals(flag)) { // 只保存表单数据
             purchaseService.save(projectPurchase);
         } else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程

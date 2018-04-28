@@ -75,15 +75,14 @@ public class JxlsExcelView extends AbstractView {
             e.printStackTrace();
         }
 
-        // 最简单方式1
+        // simple
         // JxlsHelper.getInstance().processTemplate(is, os, context);
 
-        // 可以传递自定义函数方式2
         JxlsHelper jxlsHelper = JxlsHelper.getInstance();
         Transformer transformer = jxlsHelper.createTransformer(is, os);
         JexlExpressionEvaluator evaluator = (JexlExpressionEvaluator) transformer.getTransformationConfig().getExpressionEvaluator();
         Map<String, Object> funcs = new HashMap<>();
-        funcs.put("utils", new DictUtils()); // 添加自定义功能
+        funcs.put("utils", new DictUtils());
         evaluator.getJexlEngine().setFunctions(funcs);
         jxlsHelper.processTemplate(context, transformer);
 

@@ -15,6 +15,7 @@ import com.thinkgem.jeesite.modules.apply.dao.external.ProjectApplyExternalDao;
 import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
 import com.thinkgem.jeesite.modules.mail.entity.Email;
 import com.thinkgem.jeesite.modules.mail.service.MailService;
+import com.thinkgem.jeesite.modules.project.entity.bidding.ProjectBidding;
 import com.thinkgem.jeesite.modules.project.utils.MyDictUtils;
 import com.thinkgem.jeesite.modules.sys.dao.RoleDao;
 import com.thinkgem.jeesite.modules.sys.entity.Role;
@@ -30,9 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * 外部立项申请Service
- *
- * 给Service注入相应的dao、entity
+ * 立项申请Service
  *
  * @author jicdata
  * @version 2016-02-23
@@ -48,9 +47,16 @@ public class ProjectApplyExternalService extends
 	@Autowired
 	private RoleDao roleDao;
 
-	// 流程相关
-	// 流程开始前，设置流程变量
-	@Override
+    @Override
+    public ProjectApplyExternal get(String id) {
+        ProjectApplyExternal apply = super.get(id);
+        if (apply == null) {
+            apply = new ProjectApplyExternal();
+        }
+        return apply;
+    }
+
+    @Override
 	public void setupVariable(ProjectApplyExternal projectApplyExternal, Map<String, Object> vars) {
 		
 		projectApplyExternal.preInsert4ProInteralApply();
@@ -58,29 +64,22 @@ public class ProjectApplyExternalService extends
 		vars.put(ActUtils.VAR_PRJ_ID, projectApplyExternal.getId());
 		vars.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
 
-
-		vars.put("software_dept", 0); // temp
 		vars.put(ActUtils.VAR_OFFICE_CODE, projectApplyExternal.getSaler().getOffice().getCode());
 
 		boolean isBossAudit = MyDictUtils.isBossAudit(projectApplyExternal.getEstimatedContractAmount(), projectApplyExternal.getEstimatedGrossProfitMargin());
-		if (isBossAudit) { // 需要总经理审批
+		if (isBossAudit) {
 			vars.put(ActUtils.VAR_SKIP_BOSS, "0");
 		} else {
 			vars.put(ActUtils.VAR_SKIP_BOSS, "1");
 		}
 	}
 
-	// 流程相关
-	// 审批过程中，处理各节点需要保存的业务数据
 	@Override
 	public void processAudit(ProjectApplyExternal projectApplyExternal, Map<String, Object> vars) {
-		// 对不同环节的业务逻辑进行操作
 		String taskDefKey = projectApplyExternal.getAct().getTaskDefKey();
 		if (UserTaskType.UT_SPECIALIST.equals(taskDefKey)) {
-			// 审批通过才保存项目信息、项目编号
 			if (projectApplyExternal.getAct().getFlagBoolean()) {
-				String proCodeStr = projectApplyExternal.getProjectCode();//包含类别、年份、归属的信息+标识位
-				// 审批通过才更新流水号，这样保证流水号不浪费
+				String proCodeStr = projectApplyExternal.getProjectCode();
 				if (StringUtils.isNotEmpty(proCodeStr) && proCodeStr.length() > 3) {
 					String suffix = proCodeStr.substring(proCodeStr.length()-3);
 					if (StringUtils.isNumeric(suffix)) {
@@ -91,11 +90,19 @@ public class ProjectApplyExternalService extends
 				}
 				save(projectApplyExternal);
 			}
-		} else if (UserTaskType.UT_OWNER.equals(taskDefKey)) {
 		}
 	}
 
-	// 流程过程中，发送邮件
+    @Override
+    @Transactional(readOnly = false)
+    public void save(ProjectApplyExternal entity) {
+        if (entity.getIsNewRecord()){
+            entity.preInsert4ProInteralApply();
+        }
+        super.save(entity);
+    }
+
+    // 流程过程中，发送邮件
 	public void sendMail(DelegateTask task, String assignee, String userId, String groupId) {
 		StringBuilder sbMailTo = new StringBuilder();
 		User user;
@@ -133,22 +140,22 @@ public class ProjectApplyExternalService extends
 			if (users == null)
 				continue;
 
-			// for (int j = 0; j < users.size(); j++) {
-			// 	user = users.get(j);
-			// 	if (user == null)
-			// 		continue;
-			// 	if ("thinkgem".equals(user.getLoginName()))
-			// 		continue;
-			// 	if (StringUtils.isBlank(user.getEmail()))
-			// 		continue;
-			// 	sbMailTo.append(user.getEmail() + ";");
-			// } // end for UserList
+			for (int j = 0; j < users.size(); j++) {
+				user = users.get(j);
+				if (user == null)
+					continue;
+				if ("thinkgem".equals(user.getLoginName()))
+					continue;
+				if (StringUtils.isBlank(user.getEmail()))
+					continue;
+				sbMailTo.append(user.getEmail() + ";");
+			} // end for UserList
 		//	replaced by java8
-			users.stream()
-					.filter(userItem -> userItem != null)
-					.filter(userItem -> !"thinkgem".equals(userItem.getLoginName()))
-					.filter(userItem -> StringUtils.isNotEmpty(userItem.getEmail()))
-					.forEach(userItem -> sbMailTo.append(userItem.getEmail() + ";"));
+		// 	users.stream()
+		// 			.filter(userItem -> userItem != null)
+		// 			.filter(userItem -> !"thinkgem".equals(userItem.getLoginName()))
+		// 			.filter(userItem -> StringUtils.isNotEmpty(userItem.getEmail()))
+		// 			.forEach(userItem -> sbMailTo.append(userItem.getEmail() + ";"));
 		} // end for groups
 		
 		String mailTo = sbMailTo.toString();
@@ -171,9 +178,6 @@ public class ProjectApplyExternalService extends
 
 	/**
 	 * 修改项目大状态
-	 * 业务状态、项目的业务状态、立项审批中、立项完成、招标审批中、招标完成、合同、结项等。
-	 * 在各个流程引擎开始和结束时修改项目主表中的字段。
-	 * 在流程监听器中调用
 	 *
 	 * @param id
 	 * @param stageValue
@@ -218,18 +222,14 @@ public class ProjectApplyExternalService extends
 		return returnMap;
 	}
 
-	// 根据项目大阶段查询项目
 	public List<Map<String, Object>> findList4tree(String proMainStage, boolean strict) {
-		// Boolean isAll
+
 		ProjectApplyExternal applyExternal = new ProjectApplyExternal();
-		/**
-		 * 设置待查询的项目阶段（如 01，02，03等）
-		 */
 
 		proMainStage = StringUtils.substringBefore(proMainStage, "?");
-		if (strict) { // 严格模式使用queryStage，使用in
+		if (strict) {
 			applyExternal.setQueryStage(Arrays.asList(proMainStage.split(",")));
-		} else { // 宽松模式使用proMainStage，sql中使用大于号
+		} else {
 			applyExternal.setProMainStage(proMainStage);
 		}
 

@@ -24,6 +24,11 @@
 		a.proc_status AS "procStatus",
 		a.profit_margin_file AS "profitMarginFile",
 		a.outsourcing AS "outsourcing",
+
+		a.project_manager_id AS "projectManager.id",
+		pm.name AS "projectManager.name",
+		pm.login_name AS "projectManager.loginName",
+
 		pro_apply.project_code AS "apply.projectCode",
 		pro_apply.project_name AS "apply.projectName",
 		pro_apply.category AS "apply.category",
@@ -38,7 +43,9 @@
 		LEFT JOIN project_apply_external pro_apply ON pro_apply.id = a.apply_id
 		LEFT JOIN customer c5 ON c5.id = pro_apply.customer_id
 		LEFT JOIN sys_user u4 ON u4.id = pro_apply.saler_id
-		LEFT JOIN sys_office s5 on s5.id =u4.office_id
+		LEFT JOIN sys_office s5 ON s5.id =u4.office_id
+
+		LEFT JOIN sys_user pm ON pm.id = a.project_manager_id
 	</sql>
     
 	<select id="get" resultType="ProjectBidding">
@@ -135,7 +142,8 @@
 			proc_ins_id,
 			proc_status,
 			profit_margin_file,
-			outsourcing
+			outsourcing,
+			project_manager_id
 		) VALUES (
 			#{apply.id},
 			#{tenderer},
@@ -157,7 +165,8 @@
 			#{procInsId},
 			#{procStatus},
 			#{profitMarginFile},
-			#{outsourcing}
+			#{outsourcing},
+			#{projectManager.id}
 		)
 	</insert>
 	
@@ -179,7 +188,8 @@
 			proc_ins_id = #{procInsId},
 			proc_status = #{procStatus},
 			profit_margin_file = #{profitMarginFile},
-			outsourcing = #{outsourcing}
+			outsourcing = #{outsourcing},
+			project_manager_id = #{projectManager.id}
 		WHERE id = #{id}
 	</update>
 	

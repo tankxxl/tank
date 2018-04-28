@@ -60,10 +60,5 @@
 	-->
 
 	<bean id="contentTypeResolver" class="org.activiti.rest.common.application.DefaultContentTypeResolver" />
-	
-	<!-- 使用Annotation自动注册加载Listener实现类,只扫描@Component -->
-	<context:component-scan base-package="edu.sdpt.web.activiti.listener" use-default-filters="false"><!-- base-package 如果多个，用“,”分隔 -->
-		<context:include-filter type="annotation" expression="org.springframework.stereotype.Component" />
-	</context:component-scan>
 
 </beans>

@@ -2,11 +2,26 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp"%>
 <html>
 <head>
-	<title>外部立项申请管理</title>
+	<title>立项申请管理</title>
 	<meta name="decorator" content="default"/>
 		
 	<script type="text/javascript">
 		$(document).ready(function() {
+            $("#inputForm").validate({
+                submitHandler: function(form){
+                    loading('正在提交，请稍等...');
+                    form.submit();
+                },
+                errorContainer: "#messageBox",
+                errorPlacement: function(error, element) {
+                    $("#messageBox").text("输入有误，请先更正。");
+                    if (element.is(":checkbox")||element.is(":radio")||element.parent().is(".input-append")){
+                        error.appendTo(element.parent().parent());
+                    } else {
+                        error.insertAfter(element);
+                    }
+                }
+            });
 		});
 	</script>
 	
@@ -19,18 +34,25 @@
 <body>
 	<ul class="nav nav-tabs">
 		<c:if test="${ empty projectApplyExternal.act.taskId}">
-			<li><a href="${ctx}/apply/external/projectApplyExternal/">外部立项申请列表</a></li>
+			<li><a href="${ctx}/apply/external/projectApplyExternal/">立项申请列表</a></li>
 		</c:if>
-		<%-- <li class="active"><a href="${ctx}/apply/external/projectApplyExternal/form?id=${projectApplyExternal.id}">外部立项申请<shiro:hasPermission name="apply:external:projectApplyExternal:edit">${not empty projectApplyExternal.id?'修改':'添加'}</shiro:hasPermission><shiro:lacksPermission name="apply:external:projectApplyExternal:edit">查看</shiro:lacksPermission></a></li> --%>
-		
-		<li class="active"><a>外部立项申请</a></li>
+		<li class="active"><a href="${ctx}/apply/external/projectApplyExternal/form?id=${projectApplyExternal.id}">立项
+			<shiro:hasPermission name="apply:external:projectApplyExternal:edit">
+				${not empty projectApplyExternal.act.taskId?'审批':'查看'}
+			</shiro:hasPermission>
+			<shiro:lacksPermission name="apply:external:projectApplyExternal:edit">查看</shiro:lacksPermission></a></li>
 	</ul><br/>
 	
 	
-	<form:form id="inputForm" modelAttribute="projectApplyExternal" action="${ctx}/apply/external/projectApplyExternal/save" method="post" class="form-horizontal">
-		
+	<form:form id="inputForm" modelAttribute="projectApplyExternal" action="${ctx}/apply/external/projectApplyExternal/saveAudit" htmlEscape="false" method="post" class="form-horizontal">
 		<form:hidden path="id"/>
-		<sys:message content="${message}"/>		
+		<form:hidden path="act.taskId"/>
+		<form:hidden path="act.taskName"/>
+		<form:hidden path="act.taskDefKey"/>
+		<form:hidden path="act.procInsId"/>
+		<form:hidden path="act.procDefId"/>
+		<form:hidden id="flag" path="act.flag"/>
+		<sys:message content="${message}"/>
 		<table class="table-form">
 			<tr>
 				<td colspan="2" class="tit">项目编号</td>
@@ -53,8 +75,7 @@
 					</td>
 					<td  class="tit">部&nbsp;&nbsp;门</td>
 					<td   class="tit_content" colspan="2">
-						<%--${projectApplyExternal.saleOffice.name  }--%>
-								${projectApplyExternal.saler.office.name  }
+						${projectApplyExternal.saler.office.name  }
 					</td>
 				</tr>
 			</c:if>
@@ -137,23 +158,27 @@
 				</td>
 			</tr>
 			<tr>
-				<td  class="tit" rowspan="2">项目风险分析</td>
-				<td  colspan="6"><label class="small_label">（立项人对项目风险进行识别、评估）</label></td>
+				<td class="tit" rowspan="2">项目风险分析</td>
+				<td colspan="6"><label class="small_label">（立项人对项目风险进行识别、评估）</label></td>
 			</tr>
 			<tr>
-				<td   colspan="6">
+				<td colspan="6">
 					${projectApplyExternal.riskAnalysis}
 				</td>
 			</tr>
 			<tr>
 				<td class="tit">资源需求</td>
-				<td colspan="6">${projectApplyExternal.resource}</td>
+				<td colspan="6">
+					${projectApplyExternal.resource}
+							<%--<form:hidden id="resource" path="resource" maxlength="20000"  />--%>
+							<%--<sys:ckfinder input="resource" type="files" uploadPath="/apply/resource" selectMultiple="true" readonly="true"/>--%>
+				</td>
 			</tr>
 			
 			<tr>
 				<td class="tit" >文件附件</td>
 				<td   colspan="6">
-					<form:hidden id="documentAttachmentPath" path="documentAttachmentPath" htmlEscape="false" maxlength="20000"  />
+					<form:hidden id="documentAttachmentPath" path="documentAttachmentPath" maxlength="20000"  />
 					<sys:ckfinder input="documentAttachmentPath" type="files" uploadPath="/apply/external/projectApplyExternal" selectMultiple="true" readonly="true"/>
 				</td>
 				<script type="text/javascript">
@@ -162,23 +187,30 @@
 					});
 				</script>
 			</tr>
-			<tr>
-				<td  class="tit" colspan="7">填表说明</td>
-			</tr>
-			<tr>
-				<td colspan="7">
-				<div >
-					预计项目毛利率原则上不得低于公司规定的毛利率标准，如预计项目毛利率低于公司要求时，须对预计毛利率进行特殊说明；<br> 
-					1、项目立项后，本表原件由项目管理部存档；<br>
-					2、如对项目信息有更详细的说明，可附页说明，其他文档作为附件提交；<br>
-					3、销售收入以人民币为单位，当以其他货币为单位时，应注明货币单位。
-				</div>
-				</td>
-			</tr>
+
+			<c:if test="${not empty projectApplyExternal.act.taskId && projectApplyExternal.act.status != 'finish'}">
+				<tr>
+					<td class="tit">您的意见</td>
+					<td colspan="6">
+						<form:textarea path="act.comment" class="required" rows="5" maxlength="4000" style="width:95%"/>
+						<span class="help-inline" style="color: red;">*</span>
+					</td>
+				</tr>
+			</c:if>
+
 		</table>
 		
-		<act:histoicFlow procInsId="${projectApplyExternal.processInstanceId}" />
+		<act:histoicFlow procInsId="${projectApplyExternal.procInsId}" />
 		<div class="form-actions">
+
+			<shiro:hasPermission name="apply:external:projectApplyExternal:edit">
+				<c:if test="${not empty projectApplyExternal.act.taskId && projectApplyExternal.act.status != 'finish'}">
+					<input id="btnSubmit" class="btn btn-primary" type="submit" value="同 意" onclick="$('#flag').val('yes')"/>&nbsp;&nbsp;
+					<input id="btnSubmit" class="btn btn-inverse" type="submit" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;&nbsp;
+				</c:if>
+			</shiro:hasPermission>
+
+
 			<input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.go(-1)"/>
 		</div>
 	</form:form>

@@ -60,40 +60,24 @@
 			});
 		});
 
-        // 选择项目后触发事件
         function changeProject(projectId, idx) {
-            // 向后台获取项目信息，并将相关信息回显
             $.post('${ctx}/apply/external/projectApplyExternal/getAsJson',
                 {id: projectId},
                 function (apply) {
-
                     $("#project_code").text(apply.projectCode);
-//                    $("#customer_industry").text(apply.customerIndustry);
                     $("#project_saler").text(apply.saler.name);
                     $("#customer_name").text(apply.customer.customerName);
                     $("#apply_profit_margin").val(apply.estimatedGrossProfitMargin);
-
-                    changeFun();//目的是触发判断 毛利偏差值
-
-
-//                    resultMap.put("projectCode",projectApplyExternal.getProjectCode() );
-                    // 	 resultMap.put("customerName", projectApplyExternal.getCustomer().getCustomerName());
-                    // 	 resultMap.put("customerIndustry", DictUtils.getDictLabel(projectApplyExternal.getCustomer().getIndustry(), "customer_industry", ""));
-                    // 	 resultMap.put("projectSaler", projectApplyExternal.getSaler().getName());
-                    // 	 resultMap.put("applyProfitMargin", projectApplyExternal.getEstimatedGrossProfitMargin().toString());
-
+                    changeFun();
                 });
         }
 
-
 	</script>
-	
 	<style type="text/css">
 		.tit_content{
 			text-align:center
 		}
 	</style>
-	
 </head>
 <body>
 	<ul class="nav nav-tabs">
@@ -106,12 +90,8 @@
    				<li class="active"><a>项目投标<shiro:hasPermission name="project:bidding:projectBidding:edit">${not empty projectBidding.id?'修改':'添加'}</shiro:hasPermission><shiro:lacksPermission name="project:bidding:projectBidding:edit">查看</shiro:lacksPermission></a></li>
    			</c:otherwise>
   		</c:choose>
-		<%-- <c:if test="${ empty projectBidding.act.taskId}">
-			<li><a href="${ctx}/project/bidding/projectBidding/">项目投标列表</a></li>
-		</c:if>
-		<li class="active"><a href="${ctx}/project/bidding/projectBidding/form?id=${projectBidding.id}">项目投标<shiro:hasPermission name="project:bidding:projectBidding:edit">${not empty projectBidding.id?'修改':'添加'}</shiro:hasPermission><shiro:lacksPermission name="project:bidding:projectBidding:edit">查看</shiro:lacksPermission></a></li> --%>
 	</ul><br/>
-	<form:form id="inputForm" modelAttribute="projectBidding" action="${ctx}/project/bidding/projectBidding/save" method="post" class="form-horizontal">
+	<form:form id="inputForm" modelAttribute="projectBidding" action="${ctx}/project/bidding/projectBidding/save" method="post" htmlEscape="false" class="form-horizontal">
 		<form:hidden path="id"/>
 		<form:hidden path="act.taskId"/>
 		<form:hidden path="act.taskName"/>
@@ -134,7 +114,7 @@
 								labelName="apply.projectName"
 								labelValue="${projectBidding.apply.projectName}"
 								title="项目"
-								url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=10"
+								url="/apply/external/projectApplyExternal/treeData?proMainStage=10"
 								cssClass="required"
 								cssStyle="width: 250px;"
 								dataMsgRequired="项目必选"
@@ -168,7 +148,7 @@
 			<tr>
 				<td colspan="1" class="tit">招标方(若无第三方可不填)</td>
 				<td class="" colspan="3">
-					<form:input path="tenderer" htmlEscape="false" maxlength="500" class="input-xlarge "/>
+					<form:input path="tenderer" maxlength="500" class="input-xlarge "/>
 				</td>
 
 				<td colspan="1" class="tit">是否有外包</td>
@@ -190,6 +170,11 @@
 					<form:input path="price" style="width:122px" htmlEscape="false" maxlength="64" class="input-xlarge number"/>
 				</td>
 
+				<td colspan="1" class="tit">用印内容</td>
+				<td class="" colspan="1">
+					<form:checkboxes path="printingPasteList" items="${fns:getDictList('tender_printing_paste')}" itemLabel="label" itemValue="value" htmlEscape="false" />
+				</td>
+
 				<%--<td colspan="1" class="tit">投标结果</td>--%>
 				<%--<td colspan="1" class="">--%>
 					<%--<form:select path="outsourcing">--%>
@@ -200,9 +185,13 @@
 
 			</tr>
 			<tr>
-				<td colspan="1" class="tit">用印内容</td>
+				<td colspan="1" class="tit">技术负责人</td>
 				<td class="" colspan="5">
-					<form:checkboxes path="printingPasteList" items="${fns:getDictList('tender_printing_paste')}" itemLabel="label" itemValue="value" htmlEscape="false" />
+					<sys:treeselect id="projectManager" name="projectManager.id"
+						value="${projectBidding.projectManager.id}"
+						labelName="projectManager.name" labelValue="${projectBidding.projectManager.name}"
+						title="技术负责人" url="/sys/office/treeData?type=3&isAll=true"
+						cssClass="required"  allowClear="true" notAllowSelectParent="true" />
 				</td>
 			</tr>
 
@@ -229,15 +218,15 @@
 				<td colspan="1" class="tit">投标内容与立项内容<br/>偏差说明</td>
 				<td class="" colspan="5">
 					<div style="white-space:nowrap;">
-						<form:textarea path="content" style="width:98%" htmlEscape="false" rows="4" maxlength="2000" class="input-xxlarge "/>
+						<form:textarea path="content" style="width:98%" rows="4" maxlength="2000" class="input-xxlarge "/>
 					</div>
 				</td>
 			</tr>
 			<tr>
 				<td colspan="1" class="tit">毛利分析表附件</td>
 				<td class="" colspan="5">
-					<form:hidden id="profitMarginFile" path="profitMarginFile" htmlEscape="false" maxlength="2000" class="input-xlarge required"/>
-					<sys:ckfinder input="profitMarginFile" type="files" uploadPath="/project/bidding/projectBidding" selectMultiple="true"/>
+					<form:hidden id="profitMarginFile" path="profitMarginFile" maxlength="2000" class="input-xlarge required"/>
+					<sys:ckfinder input="profitMarginFile" type="files" uploadPath="/project/bidding/projectBidding" selectMultiple="true" />
 					<span class="help-inline"><font color="red">*</font> </span>
 				</td>
 			</tr>
@@ -263,22 +252,23 @@
 		<div class="form-actions">
 			<shiro:hasPermission name="project:bidding:projectBidding:edit">
 			
-			<input id="btnSubmit" class="btn btn-primary" type="submit" value="提交申请" onclick="$('#flag').val('yes')"/>&nbsp;
+			<input id="btnSubmit" class="btn btn-primary" type="submit" value="提交申请" onclick="$('#flag').val('yes')"/>&nbsp;&nbsp;
+				<input id="btnSubmit" class="btn btn-primary cancel" type="submit" value="暂存" onclick="$('#flag').val('saveOnly')"/>&nbsp;&nbsp;
 				<c:if test="${not empty projectBidding.id}">
-					<input id="btnSubmit2" class="btn btn-inverse" type="submit" value="销毁申请" onclick="$('#flag').val('no')"/>&nbsp;
+					<input id="btnSubmit2" class="btn btn-inverse" type="submit" value="销毁申请" onclick="$('#flag').val('no')"/>&nbsp;&nbsp;
 				</c:if>
 			</shiro:hasPermission>
 
 			<shiro:hasPermission name="apply:external:projectApplyExternal:super">
-				<input id="btnSubmit" class="btn btn-primary" type="submit" value="保存并结束流程" onclick="$('#flag').val('saveFinishProcess')"/>&nbsp;
-				<input id="btnSubmit" class="btn btn-primary" type="submit" value="只保存表单数据" onclick="$('#flag').val('saveOnly')"/>&nbsp;
+				<input id="btnSubmit" class="btn btn-primary" type="submit" value="保存并结束流程" onclick="$('#flag').val('saveFinishProcess')"/>&nbsp;&nbsp;
+				<input id="btnSubmit" class="btn btn-primary" type="submit" value="只保存表单数据" onclick="$('#flag').val('saveOnly')"/>&nbsp;&nbsp;
 			</shiro:hasPermission>
 
 			<input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.back()"/>
 		</div>
 		
 		<c:if test="${not empty projectBidding.id}">
-			<act:histoicFlow procInsId="${projectBidding.processInstanceId}" />
+			<act:histoicFlow procInsId="${projectBidding.procInsId}" />
 		</c:if>
 		
 	</form:form>

@@ -6,6 +6,7 @@ package com.thinkgem.jeesite.modules.apply.web.external;
 import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.service.BaseService;
+import com.thinkgem.jeesite.common.utils.DateUtils;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.web.BaseController;
 import com.thinkgem.jeesite.common.web.JxlsExcelView;
@@ -14,6 +15,8 @@ import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
 import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
 import com.thinkgem.jeesite.modules.apply.service.external.ProjectApplyExternalService;
+import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
+import com.thinkgem.jeesite.modules.project.entity.execution.ProjectExecution;
 import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import com.thinkgem.jeesite.modules.sys.utils.ExportUtils3;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
@@ -61,27 +64,14 @@ public class ProjectApplyExternalController extends BaseController {
 	
 	@ModelAttribute
 	public ProjectApplyExternal get(@RequestParam(required=false) String id) {
-		ProjectApplyExternal entity = null;
-		if (StringUtils.isNotBlank(id)){
-			entity = applyService.get(id);
-		}
-		if (entity == null){
-			entity = new ProjectApplyExternal();
-		}
-		return entity;
+		return applyService.get(id);
 	}
 
-	/**
-	 * Json形式返回项目信息
-	 * @param id 项目表id
-	 * @return
-	 */
 	@ResponseBody
 	@RequestMapping(value = "getAsJson")
 	public ProjectApplyExternal getAsJson(@RequestParam(required=false) String id, Model model) {
 		model.addAttribute("id", id);
 		ProjectApplyExternal apply = get(id);
-		// 后台进行字典数据转换，也可以前端转换
 		apply.setCategory(DictUtils.getDictLabel(apply.getCategory(), "pro_category", ""));
 		return apply;
 	}
@@ -93,17 +83,11 @@ public class ProjectApplyExternalController extends BaseController {
 		projectApplyExternal
 				.getSqlMap()
 				.put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
-		// 根据request、response中的分页参数生成Page对象
 		Page<ProjectApplyExternal> page = applyService.findPage(new Page<>(request, response), projectApplyExternal);
 		model.addAttribute("page", page);
 		return prefix + vList;
 	}
 
-	// 入口有：
-	// 1. 待办，有act
-	// 2. 已办，有act
-	// 3. 新增，无act
-	// 4. 查看，无act，有id
 	@RequiresPermissions("apply:external:projectApplyExternal:view")
 	@RequestMapping(value = "form")
 	public String form(ProjectApplyExternal projectApplyExternal, Model model) {
@@ -116,7 +100,7 @@ public class ProjectApplyExternalController extends BaseController {
 		if (projectApplyExternal.getIsNewRecord()) {
 			// 入口1：新建表单，直接返回空实体
 			if (projectApplyExternal.hasAct()) {
-				// 入口2：从已办任务界面来的请求，1、实体是新建的，2、act是activi框架填充的。
+				// 入口2：从已办任务界面来的请求，1、实体是新建的，
 				// 此时实体应该由流程id来查询。
 				view = "projectApplyExternalView";
 				projectApplyExternal = applyService.findByProcInsId(projectApplyExternal);
@@ -149,31 +133,26 @@ public class ProjectApplyExternalController extends BaseController {
 		return prefix + view;
 	}
 
-	@RequiresPermissions("apply:external:projectApplyExternal:modify")
+	@RequiresPermissions("apply:external:projectApplyExternal:edit")
 	@RequestMapping(value = "modify")
 	public String modify(ProjectApplyExternal projectApplyExternal) {
 		return prefix + vForm;
 	}
 
-	/**
-	 * 申请单保存/修改，申请人操作，只有申请人使用此方法
-	 * @param projectApplyExternal
-	 * @param model
-	 * @param redirectAttributes
-	 * @return
-	 */
 	@RequiresPermissions("apply:external:projectApplyExternal:edit")
 	@RequestMapping(value = "save")
 	public String save(@Valid ProjectApplyExternal projectApplyExternal, Model model, RedirectAttributes redirectAttributes) {
-		if (!beanValidator(model, projectApplyExternal)){
-			return form(projectApplyExternal, model);
-		}
 		String flag = projectApplyExternal.getAct().getFlag();
 
-//		flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
-		if ("saveOnly".equals(flag) ) { // 只保存表单数据
+		if (!"saveOnly".equals(flag)) {
+			if (!beanValidator(model, projectApplyExternal)){
+				return form(projectApplyExternal, model);
+			}
+		}
+
+		if ("saveOnly".equals(flag) ) {
 			applyService.save(projectApplyExternal);
-		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
+		} else if ("saveFinishProcess".equals(flag)) {
 			applyService.saveFinishProcess(projectApplyExternal);
 		} else if ("end".equalsIgnoreCase(flag)) {
 
@@ -184,10 +163,10 @@ public class ProjectApplyExternalController extends BaseController {
 		addMessage(redirectAttributes, "保存成功！");
 		
 		String usertask_owner = projectApplyExternal.getAct().getTaskDefKey();
-		if (UserTaskType.UT_OWNER.equals(usertask_owner)) { // 待办任务页面
+		if (UserTaskType.UT_OWNER.equals(usertask_owner)) {
 			// return "redirect:" + adminPath + "/act/task/todo/";
 			return vTodo;
-		} else { // 列表页面
+		} else {
 			return vRedirect;
 			// return "redirect:"+Global.getAdminPath()+"/apply/external/projectApplyExternal/?repage";
 		}
@@ -201,13 +180,7 @@ public class ProjectApplyExternalController extends BaseController {
 		// return "redirect:"+Global.getAdminPath()+"/apply/external/projectApplyExternal/?repage";
 		return vRedirect;
 	}
-	
-	/**
-	 * 工单执行（完成任务），审批人操作
-	 * @param projectApplyExternal
-	 * @param model
-	 * @return
-	 */
+
 	@RequestMapping(value = "saveAudit")
 	public String saveAudit(ProjectApplyExternal projectApplyExternal, Model model) {
 		if (StringUtils.isBlank(projectApplyExternal.getAct().getFlag())
@@ -281,123 +254,59 @@ public class ProjectApplyExternalController extends BaseController {
 				fileReturnName);
 	}
 
-
-	/**
-	 * 获取外部申请列表（已通过的审批的立项）
-	 * 单独使用一个实体属性来传递多个项目阶段给sql
-	 *
-	 * eg: treeData?proMainStage=11,21,30,31
-	 *
-	 * @param proMainStage 项目阶段
-	 * @return
-	 */
 	@ResponseBody
 	@RequestMapping(value = "treeData")
 	public List<Map<String, Object>> treeData(String proMainStage, Boolean strict) {
-		if (strict == null) {
-			strict = false;
-		}
-		return applyService.findList4tree(proMainStage, strict);
+		return applyService.findList4tree(proMainStage, strict == null? false:strict);
 	}
-	/**
-	 * 获取 mainstage为更大的值的项目 如（proMainStage 为11 则查询 20，21，30，31等）
-	 * @param proMainStage 项目阶段
-	 * @return
-	 */
-	// @ResponseBody
-	// @RequestMapping(value = "treeData4LargerMainStage")
-	// public List<Map<String, Object>> treeData4LargerMainStage(
-	// 		@RequestParam(required=false) String proMainStage,
-	// 		@RequestParam(required=false) Boolean isAll) {
-	// 	ProjectApplyExternal applyExternal = new ProjectApplyExternal();
-    //
-	// 	proMainStage = StringUtils.substringBefore(proMainStage, "?");
-	// 	applyExternal.setProMainStage(proMainStage);
-    //
-	// 	List<ProjectApplyExternal> list = null;
-	// 	if (isAll != null && isAll) {
-	// 		list = applyService.findAllList(applyExternal);
-	// 	} else {
-	// 		applyExternal.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
-	// 		list = applyService.findList4LargerMainStage(applyExternal);
-	// 	}
-	// 	return toMapList(list);
-	// }
-
-	/**
-	 * 使用getAsJson代替
-	 * 获取立项 的项目编码、销售名称、客户行业
-	 * 用于 投标时候获取立项基本信息
-	 * @param projectApplyExternal
-	 * @return
-	 */
-	// @Deprecated
-	// @ResponseBody
-	// @RequestMapping(value = "proApply4bidding")
-	// public Map<String,String> proApply4bidding(ProjectApplyExternal projectApplyExternal) {
-	// 	 Map<String,String> resultMap = new HashMap<String, String>();
-	//
-	// 	 resultMap.put("projectCode",projectApplyExternal.getProjectCode() );
-	// 	 resultMap.put("customerName", projectApplyExternal.getCustomer().getCustomerName());
-	// 	 resultMap.put("customerIndustry", DictUtils.getDictLabel(projectApplyExternal.getCustomer().getIndustry(), "customer_industry", ""));
-	// 	 resultMap.put("projectSaler", projectApplyExternal.getSaler().getName());
-	// 	 resultMap.put("applyProfitMargin", projectApplyExternal.getEstimatedGrossProfitMargin().toString());
-	// 	 return resultMap;
-	//
-	// }
-	
-	/**
-	 * 使用getAsJson代替
-	 * 获取 客户名称、客户联系人名称、客户电话、项目编号
-	 * 用于 合同签约时候获取立项基本信息
-	 * @param projectApplyExternal
-	 * @return
-	 */
-	// @Deprecated
-	// @ResponseBody
-	// @RequestMapping(value = "proApply4contract")
-	// public Map<String,String> proApply4contract(ProjectApplyExternal projectApplyExternal) {
-	// 	 Map<String,String> resultMap = new HashMap<String, String>();
-	//
-	// 	 resultMap.put("projectCode",projectApplyExternal.getProjectCode() );
-	// 	 resultMap.put("customerName",projectApplyExternal.getCustomer().getCustomerName());
-	// 	 resultMap.put("customerContactName", projectApplyExternal.getCustomerContact().getContactName());
-	// 	 resultMap.put("customerPhone", projectApplyExternal.getCustomer().getPhone());
-	// 	 resultMap.put("projectCategory", DictUtils.getDictLabel(projectApplyExternal.getCategory(), "pro_category", ""));
-	// 	 return resultMap;
-	//
-	// }
-	
-	/**
-	 * 使用getAsJson代替
-	 * 获取 客户名称、客户联系人名称、客户电话、项目编号
-	 * 用于 结项时候获取立项基本信息
-	 * @param projectApplyExternal
-	 * @return
-	 */
-	// @Deprecated
-	// @ResponseBody
-	// @RequestMapping(value = "proApply4finish")
-	// public Map<String,String> proApply4finish(ProjectApplyExternal projectApplyExternal) {
-	// 	Map<String,String> resultMap = new HashMap<String, String>();
-	// 	resultMap.put("projectCode",projectApplyExternal.getProjectCode() );
-	// 	resultMap.put("salerName",projectApplyExternal.getSaler().getName() );
-	// 	resultMap.put("salerOfficeName",projectApplyExternal.getSaler().getOffice().getName());
-	// 	resultMap.put("customerName",projectApplyExternal.getCustomer().getCustomerName());
-	// 	return resultMap;
-	// }
 
 	@RequestMapping(value = "/test")
 	public ModelAndView export() {
         Map<String, Object> model = new HashMap();
         model.put("report_year", 2015);
         model.put("report_month", 8);
-        //queryUser()为数据获取的方法
-//        List<User> userList = queryUser();
 //        model.put("users", userList);
         return new ModelAndView(new JxlsExcelView("template.xls","output"), model);
-
     }
+
+	@RequestMapping(value = "/exportList")
+	public ModelAndView exportList(ProjectApplyExternal projectApplyExternal, HttpServletRequest request, HttpServletResponse response, Map map) {
+
+		projectApplyExternal
+				.getSqlMap()
+				.put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+		Page<ProjectApplyExternal> page = applyService.findPage(new Page<>(request, response, -1), projectApplyExternal);
+		Map<String, Object> model = new HashMap();
+
+		map.put("applyList", page.getList());
+
+		String  exportFileName = "导出立项列表" + DateUtils.getDate("yyyyMMddHHmmss")+".xls";
+
+		return new ModelAndView(
+				new JxlsExcelView("ApplyList.xls", exportFileName),
+				model);
+
+
+		// ProjectExecution execution = (ProjectExecution) map.get("projectExecution");
+		// List<Act> actList =actTaskService.histoicFlowListPass(execution.getProcInsId(),null, null);
+        //
+		// execution.setActs(actList);
+		// String temp = DictUtils.getDictLabel(execution.getApply().getCustomer().getCustomerCategory(), "customer_category", "");
+		// model.put("customerCategory", temp);
+		// temp = DictUtils.getDictLabel(execution.getApply().getCustomer().getIndustry(), "customer_industry", "");
+		// model.put("customerIndustry", temp);
+		// temp = DictUtils.getDictLabel(execution.getApply().getCategory(), "pro_category", "");
+		// model.put("projectCategory", temp);
+        //
+		// model.put("execution", execution);
+
+		// String  exportFileName = execution.getApply().getProjectName()+"_立项表";
+
+		// return new ModelAndView(
+		// 		new JxlsExcelView("applyList.xls", exportFileName),
+		// 		model);
+
+	}
 
 
 

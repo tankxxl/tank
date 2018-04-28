@@ -84,27 +84,38 @@
 				</td>
 				
 				<c:choose>
-					<c:when test="${projectContract.processStatus != '2'}">
+					<c:when test="${projectContract.procStatus != '2'}">
 						<td style="color:red;">
 					</c:when>
 					<c:otherwise>
 						<td>
 					</c:otherwise>
 				</c:choose>
-					${fns:getDictLabel(projectContract.processStatus, 'AuditStatus', '')}
+					${fns:getDictLabel(projectContract.procStatus, 'AuditStatus', '无启动流程')}
 				</td>
 				
 				<shiro:hasPermission name="project:contract:projectContract:edit">
 				<td>
-					<c:if test="${projectContract.processStatus == '2'}">
+
+					<c:choose>
+						<c:when test="${projectContract.procStatus == null}">
+							<a href="${ctx}/project/contract/projectContract/modify?id=${projectContract.id}">修改</a>
+						</c:when>
+						<c:otherwise>
+
+						</c:otherwise>
+					</c:choose>
+
+					<c:if test="${projectContract.procStatus == '2'}">
 					<input export="btnExport" class="btn btn-primary" type="button" proId="${projectContract.id}" value="导出"/>
 					</c:if>
     				<a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}">详情</a>
+
     				
-    				<c:if test="${projectContract.processStatus != '2'}">
+    				<c:if test="${projectContract.procStatus != '2'}">
 						<a class="trace" target="_blank" procInsId="${projectContract.procInsId}" href="${ctx}/act/task/trace1?procInsId=${projectContract.procInsId}">跟踪</a>
 					</c:if>
-					<c:if test="${projectContract.processStatus == '2'}">
+					<c:if test="${projectContract.procStatus == '2'}">
 						<a href="${ctx}/project/contract/projectContract/delete?id=${projectContract.id}" onclick="return confirmx('确认要删除该合同吗？', this.href)">删除</a>
 					</c:if>
 

@@ -26,8 +26,6 @@
 			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
 		    	<constructor-arg value="UTF-8" />
 			</bean>
-			<!-- 将Jackson2HttpMessageConverter的默认格式化输出为false -->
-			<!-- 配置@ResponseBody注解后才将controller的出参转换为json -->
 			<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
                 <property name="supportedMediaTypes">
                 	<list><value>application/json;charset=UTF-8</value></list>

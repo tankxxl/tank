@@ -68,19 +68,19 @@
 		<c:if test="${ empty projectContract.act.taskId}">
 			<li><a href="${ctx}/project/contract/projectContract/">合同列表</a></li>
 		</c:if>
-		<%-- <li class="active"><a
+		<li class="active"><a
 			href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}">
 				合同 <shiro:hasPermission name="project:contract:projectContract:edit">
-			${not empty projectContract.id?'修改':'添加'}
+			${not empty projectContract.act.taskId?'审批':'查看'}
 		</shiro:hasPermission> <shiro:lacksPermission name="project:contract:projectContract:edit">查看
 		</shiro:lacksPermission>
-		</a></li> --%>
+		</a></li>
 		
-		<li class="active"><a>项目合同查看</a></li>
+		<%--<li class="active"><a>项目合同查看</a></li>--%>
 	</ul>
 	<br />
 	<form:form id="inputForm" modelAttribute="projectContract"
-		action="${ctx}/project/contract/projectContract/save" method="post"
+		action="${ctx}/project/contract/projectContract/saveAudit" method="post"
 		class="form-horizontal">
 		<form:hidden path="id" />
 		<form:hidden path="act.taskId" />
@@ -135,6 +135,16 @@
 					<sys:ckfinder input="attachment" type="files" uploadPath="/project/contract/projectContract" selectMultiple="true" readonly="true"/>
 				</td>
 			</tr>
+
+			<c:if test="${not empty projectContract.act.taskId && projectContract.act.status != 'finish'}">
+				<tr>
+					<td class="tit">您的意见</td>
+					<td colspan="5">
+						<form:textarea path="act.comment" class="required" rows="5" maxlength="4000" value="同意" cssStyle="width:95%" />
+						<span class="help-inline"><font color="red">*</font></span>
+					</td>
+				</tr>
+			</c:if>
 			
 		</table>
 		<br />
@@ -177,7 +187,14 @@
 								<input id="projectContractItemList{{idx}}_id" name="projectContractItemList[{{idx}}].id" type="hidden" value="{{row.id}}"/>
 								<input id="projectContractItemList{{idx}}_delFlag" name="projectContractItemList[{{idx}}].delFlag" type="hidden" value="0"/>
 							<td>
-								{{row.contractCode}}
+								<c:choose>
+			<c:when test="${projectContract.act.taskDefKey eq 'usertask_commerce_leader'}">
+				<input id="projectContractItemList{{idx}}_contractCode" name="projectContractItemList[{{idx}}].contractCode" type="text" value="{{row.contractCode}}" maxlength="64" class="input-small required"/>
+   			</c:when>
+   			<c:otherwise>
+   				{{row.contractCode}}
+   			</c:otherwise>
+  		</c:choose>
 							</td>
 							<td>
 								{{row.contractAmount}}
@@ -225,6 +242,14 @@
 
 		<act:histoicFlow procInsId="${projectContract.procInsId}" />
 		<div class="form-actions">
+
+			<shiro:hasPermission name="project:contract:projectContract:edit">
+				<c:if test="${not empty projectContract.act.taskId && projectContract.act.status != 'finish'}">
+					<input id="btnSubmit" class="btn btn-primary" type="submit" value="同 意" onclick="$('#flag').val('yes')"/>&nbsp;&nbsp;
+					<input id="btnSubmit" class="btn btn-inverse" type="submit" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;&nbsp;
+				</c:if>
+			</shiro:hasPermission>
+
 			<input id="btnCancel" class="btn" type="button" value="返 回"
 				onclick="history.go(-1)" />
 		</div>

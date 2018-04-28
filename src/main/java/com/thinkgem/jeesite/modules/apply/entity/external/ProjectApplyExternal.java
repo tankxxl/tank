@@ -29,7 +29,7 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 	private String projectCode; // 项目编码
 	private String projectName; // 项目名称
 	private User saler; // 销售人员
-	private Office saleOffice;// 销售部门
+	private Office saleOffice;// 销售部门 depress
 	private Customer customer; // 客户
 	private CustomerContact customerContact; // 客户联系人
 

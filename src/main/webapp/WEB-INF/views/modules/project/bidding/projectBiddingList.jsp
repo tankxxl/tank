@@ -104,7 +104,7 @@
 						<td>
 					</c:otherwise>
 				</c:choose>
-					${fns:getDictLabel(projectBidding.procStatus, 'AuditStatus', '')}
+					${fns:getDictLabel(projectBidding.procStatus, 'AuditStatus', '无启动流程')}
 				</td>
 				
 				<%--<td>--%>
@@ -113,6 +113,15 @@
 
 				<td>
 				<shiro:hasPermission name="project:bidding:projectBidding:edit">
+
+					<c:choose>
+						<c:when test="${projectBidding.procStatus == null}">
+							<a href="${ctx}/project/bidding/projectBidding/modify?id=${projectBidding.id}">修改</a>
+						</c:when>
+						<c:otherwise>
+
+						</c:otherwise>
+					</c:choose>
 
 					<c:if test="${projectBidding.procStatus == '2'}">
 					<input export="btnExport" class="btn btn-primary" type="button" proId="${projectBidding.id}" value="导出"/>

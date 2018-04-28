@@ -8,13 +8,12 @@ import com.google.common.collect.Maps;
 import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.service.BaseService;
-import com.thinkgem.jeesite.common.utils.DateUtils;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.web.BaseController;
-import com.thinkgem.jeesite.common.web.JxlsExcelView;
 import com.thinkgem.jeesite.modules.act.entity.Act;
 import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
+import com.thinkgem.jeesite.modules.project.entity.bidding.ProjectBidding;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContractItem;
 import com.thinkgem.jeesite.modules.project.service.contract.ProjectContractService;
@@ -31,14 +30,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -60,14 +57,7 @@ public class ProjectContractController extends BaseController {
 
 	@ModelAttribute
 	public ProjectContract get(@RequestParam(required = false) String id) {
-		ProjectContract entity = null;
-		if (StringUtils.isNotBlank(id)) {
-			entity = contractService.get(id);
-		}
-		if (entity == null) {
-			entity = new ProjectContract();
-		}
-		return entity;
+		return contractService.get(id);
 	}
 
 	@RequiresPermissions("project:contract:projectContract:view")
@@ -76,51 +66,10 @@ public class ProjectContractController extends BaseController {
 					   HttpServletRequest request,
 					   HttpServletResponse response,
 					   Model model) {
-		// 此dataScopeFilter中的s5、u4从xml的sql语句可以看出来，是根据立项人来过滤数据的。
-		// projectContract.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
-		// 现在我们要根据自己业务表(contract)中的createBy来过滤自己的数据。
-		projectContract.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s6", "u6"));
-		Page<ProjectContract> page = contractService.findPage(new Page<>(request, response),
-				projectContract);
+		projectContract.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+		Page<ProjectContract> page = contractService.findPage(new Page<>(request, response), projectContract);
 		model.addAttribute("page", page);
 		return "modules/project/contract/projectContractList";
-	}
-
-	@RequiresPermissions("project:contract:projectContract:edit")
-	@RequestMapping(value = "exportList")
-	public String exportList(ProjectContract projectContract,
-					   HttpServletRequest request,
-					   HttpServletResponse response,
-					   Model model) {
-		// 此dataScopeFilter中的s5、u4从xml的sql语句可以看出来，是根据立项人来过滤数据的。
-		// projectContract.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
-		// 现在我们要根据自己业务表(contract)中的createBy来过滤自己的数据。
-		projectContract.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s6", "u6"));
-		Page<ProjectContract> page = contractService.findPage(new Page<ProjectContract>(request, response, -1),
-				projectContract);
-
-		String fileName = "合同统计"+ DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
-		// Page<User> page = systemService.findUser(new Page<User>(request, response, -1), user);
-		// new ExportExcel("用户数据", User.class).setDataList(page.getList()).write(response, fileName).dispose();
-
-		// return "modules/project/contract/projectContractList";
-		return "redirect:" + adminPath + "/project/contract/projectContract/list?repage";
-	}
-
-	@RequestMapping(value = "/export1")
-	public ModelAndView export1(ProjectContract projectContract,
-								HttpServletRequest request,
-								HttpServletResponse response,
-								Model model) {
-		// 查询数据
-		projectContract.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s6", "u6"));
-		Page<ProjectContract> page = contractService.findPage(new Page<>(request, response, -1),
-				projectContract);
-
-		String fileName = "合同统计"+ DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
-		Map<String, Object> map = new HashMap();
-		map.put("contracts", page.getList());
-		return new ModelAndView(new JxlsExcelView("contract_list_template.xlsx",fileName), map);
 	}
 
 	@RequiresPermissions("project:contract:projectContract:view")
@@ -129,12 +78,10 @@ public class ProjectContractController extends BaseController {
 
 		String prefix = "modules/project/contract/";
 		String view = "projectContractForm";
-		// view = projectContract.getForm();
 
 		model.addAttribute("projectContract", projectContract);
 
 		// 待办、已办入口界面传的act是一样的，只是act中的status不一样。
-
 		if (projectContract.getIsNewRecord()) {
 			// 入口1：新建表单，直接返回空实体
 			if (projectContract.hasAct()) {
@@ -158,78 +105,51 @@ public class ProjectContractController extends BaseController {
 		// 查看
 		if(projectContract.getAct().isFinishTask()){
 			view = "projectContractView";
-			// view = projectContract.getView();
 		}
 		// 修改环节
 		else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ){
 			view = "projectContractForm";
-			// view = projectContract.getForm();
-		}
-		// 下面是技术部门设置 项目经理
-		else if ("usertask_software_development_leader".equals(taskDefKey)||"usertask_service_delivery_leader".equals(taskDefKey)) {
-			view = "projectContractView";
-			// view = projectContract.getView();
 		}
 		// 某审批环节
 		else if ("apply_end".equals(taskDefKey)){
 			view = "projectContractView";  // replace ExecutionAudit
-			// view = projectContract.getView();
 		} else {
 			view = "projectContractView";
-			// view = projectContract.getView();
 		}
 		return prefix + view;
 	}
 
-	// contract2resign
-	@RequiresPermissions("project:contract:projectContract:edit")
-	@RequestMapping(value = "contract2resign")
-	public String contract2resign(ProjectContract projectContract, Model model) {
-		String prefix = "modules/project/contract/";
-		// projectContract.setOriginCode(projectContract.getContractCode());
-		// projectContract.setContractCode("");
-		// projectContract.setId("");
-		// projectContract.setAmount("");
-		// projectContract.setAmountDetail("");
-		// projectContract.setBeginDate(null);
-		// projectContract.setEndDate(null);
-		// projectContract.setValidInfo("");
-		// projectContract.setContentSummary("");
-		// projectContract.setCreateBy(null);
-
-		model.addAttribute("projectContract", projectContract);
-
-		// return prefix + projectContract.getForm();
-		return null;
-	}
+    @RequiresPermissions("project:bidding:projectBidding:edit")
+    @RequestMapping(value = "modify")
+    public String modify(ProjectContract projectContract, Model model) {
+        return "modules/project/contract/projectContractForm";
+    }
 
 	@RequiresPermissions("project:contract:projectContract:edit")
 	@RequestMapping(value = "save")
 	public String save(ProjectContract projectContract, Model model, RedirectAttributes redirectAttributes) {
-		if (!beanValidator(model, projectContract)) {
-			return form(projectContract, model);
-		}
+        String flag = projectContract.getAct().getFlag();
+        if (!"saveOnly".equals(flag)) {
+            if (!beanValidator(model, projectContract)) {
+                return form(projectContract, model);
+            }
+        }
 
-		String flag = projectContract.getAct().getFlag();
-//		flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
-		if ("saveOnly".equals(flag)) { // 只保存表单数据
-			System.out.println("");
+		if ("saveOnly".equals(flag)) {
+			System.out.println();
 			contractService.save(projectContract);
-		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
+		} else if ("saveFinishProcess".equals(flag)) {
 			contractService.saveFinishProcess(projectContract);
 		} else {
 			contractService.saveLaunch(projectContract);
 		}
-
 		addMessage(redirectAttributes, "保存合同成功");
-		
 		String usertask = projectContract.getAct().getTaskDefKey();
-		if (UserTaskType.UT_OWNER.equals(usertask)) { // 待办任务页面
+		if (UserTaskType.UT_OWNER.equals(usertask)) {
 			return "redirect:" + adminPath + "/act/task/todo/";
-		} else { // 列表页面
+		} else {
 			return "redirect:" + Global.getAdminPath() + "/project/contract/projectContract/?repage";
 		}
-		
 	}
 
 	@RequiresPermissions("project:contract:projectContract:edit")
@@ -242,46 +162,32 @@ public class ProjectContractController extends BaseController {
 
 	@RequestMapping(value = "saveAudit")
 	public String saveAudit(ProjectContract projectContract, Model model) {
-		// if (StringUtils.isBlank(projectContract.getAct().getFlag())
-		// 		|| StringUtils.isBlank(projectContract.getAct().getComment())) {
-		if (StringUtils.isBlank(projectContract.getAct().getFlag()) ) {
+		if (StringUtils.isBlank(projectContract.getAct().getFlag())
+				|| StringUtils.isBlank(projectContract.getAct().getComment())) {
 			addMessage(model, "请填写审核意见。");
 			return form(projectContract, model);
 		}
 
-		String usertask = projectContract.getAct().getTaskDefKey();
-		if (UserTaskType.UT_SPECIALIST.equals(usertask)) {
-			// if (!"true".equals(checkContractCode(projectContract.getOldContractCode(), projectContract.getContractCode())) ) {
-			// 	addMessage(model, "保存合同'" + projectContract.getContractCode() + "'失败，合同编号已存在");
-			// 	return form(projectContract, model);
-			// }
-		}
-
-
-		if (StringUtils.isEmpty(projectContract.getAct().getComment())) {
-			projectContract.getAct().setComment("同意");
-		}
 		contractService.saveAudit(projectContract);
 		return "redirect:" + adminPath + "/act/task/todo/";
 	}
 
-	/**
-	 * 验证合同编号是否有效，必须唯一
-	 * @param oldContractCode
-	 * @param contractCode
-	 * @return
-	 */
-	@ResponseBody
-	@RequestMapping(value = "checkContractCode")
-	public String checkContractCode(String oldContractCode, String contractCode) {
-		if (contractCode !=null && contractCode.equals(oldContractCode)) {
-			return "true";
-		} else if (contractCode !=null && contractService.getByCode(contractCode) == null) {
-			return "true";
-		}
-		return "false";
-	}
-
+	// /**
+	//  * 验证合同编号是否有效，必须唯一
+	//  * @param oldContractCode
+	//  * @param contractCode
+	//  * @return
+	//  */
+	// @ResponseBody
+	// @RequestMapping(value = "checkContractCode")
+	// public String checkContractCode(String oldContractCode, String contractCode) {
+	// 	if (contractCode !=null && contractCode.equals(oldContractCode)) {
+	// 		return "true";
+	// 	} else if (contractCode !=null && contractService.getByCode(contractCode) == null) {
+	// 		return "true";
+	// 	}
+	// 	return "false";
+	// }
 
     /**
      * 根据项目id获取 合同项(item)列表
@@ -302,39 +208,11 @@ public class ProjectContractController extends BaseController {
             map.put("name", e.getContractCode());
             mapList.add(map);
         }
-
         return mapList;
 		// or return list;
     }
 
-
-	/**
-	 * 根据项目id获取合同列表， 一次只能申请一个合同，所以不用contract_item表。
-	 * 根据项目id获取 合同项(item)列表
-	 * @param prjId 项目id
-	 * @return
-	 */
-	@ResponseBody
-	@RequestMapping(value = "treeContractList")
-	public List<Map<String, Object>> treeContractList(@RequestParam(required=false) String prjId) {
-		ProjectContract contract = new ProjectContract();
-		contract.getApply().setId(prjId);
-		List<Map<String, Object>> mapList = Lists.newArrayList();
-		List<ProjectContract> list = contractService.findList(contract);
-		for (int i=0; i<list.size(); i++){
-			ProjectContract e = list.get(i);
-			Map<String, Object> map = Maps.newHashMap();
-			map.put("id", e.getId());
-			// map.put("name", e.getContractCode());
-			mapList.add(map);
-		}
-
-		return mapList;
-		// or return list;
-	}
-
     /**
-     * Json形式返回合同item信息
      * @param id 合同Item id
      * @return
      */
@@ -345,7 +223,6 @@ public class ProjectContractController extends BaseController {
     }
 
 	/**
-	 * Json形式返回合同item信息
 	 * @param id 合同Item id
 	 * @return
 	 */
@@ -354,40 +231,6 @@ public class ProjectContractController extends BaseController {
 	public ProjectContract getAsJson(@RequestParam(required=false) String id) {
 		return contractService.get(id);
 	}
-
-	/**
-	 * 获取我的通知数目(快到期的合同数量)
-	 */
-	@RequestMapping(value = "count")
-	@ResponseBody
-	public String count(ProjectContract contract, Model model) {
-		// contract.setReadFlag("0");
-		return String.valueOf(contractService.findPreEndCount(contract));
-	}
-
-	/**
-	 * 快到期合同列表
-	 */
-	@RequestMapping(value = "preEndList")
-	public String preEndList(ProjectContract contract,
-							 HttpServletRequest request, HttpServletResponse response,
-							 Model model) {
-		// contract.setSelf(true);
-		// Page对象由前端的request、response对象初始化
-		Page<ProjectContract> page = contractService.findPreEndPage(new Page<>(request, response),
-				contract);
-		model.addAttribute("page", page);
-		return "modules/project/contract/projectContractList";
-	}
-
-	// test 入口
-	@RequestMapping(value = "addToNotify")
-	public String addToNotify( HttpServletRequest request, HttpServletResponse response,
-							 Model model) {
-		// contractService.findContractToNotify();
-		return null;
-	}
-
 
 	@RequiresPermissions("project:contract:projectContract:view")
 	@RequestMapping(value = "export")

@@ -22,7 +22,6 @@
 <%@ attribute name="hideBtn" type="java.lang.Boolean" required="false" description="是否显示按钮"%>
 <%@ attribute name="disabled" type="java.lang.String" required="false" description="是否限制选择，如果限制，设置为disabled"%>
 <%@ attribute name="dataMsgRequired" type="java.lang.String" required="false" description=""%>
-<%-- rgz 参数传入，自定义点击事件--%>
 <%@ attribute name="customClick" type="java.lang.String" required="false" description="自定义点击事件" %>
 <%@ attribute name="idx" type="java.lang.String" required="false" description="自定义点击事件额外参数" %>
 <%@ attribute name="dependBy" type="java.lang.String" required="false" description="依赖某个treeselect控件" %>

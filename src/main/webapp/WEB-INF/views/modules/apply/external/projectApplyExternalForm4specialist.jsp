@@ -176,7 +176,7 @@
 				</td>
 			</tr>
 			<tr>
-				<td class="tit" >主要供应商</label></td>
+				<td class="tit" >主要供应商</td>
 				<td colspan="6">
 
 				</td>
@@ -217,7 +217,7 @@
 			</tr>
 
 			<tr>
-				<td  class="tit"rowspan="2" >项目毛利率说明</label></td>
+				<td  class="tit"rowspan="2" >项目毛利率说明</td>
 				<td  colspan="6"><label class="small_label">（当预计毛利率低于公司要求时，须加以说明）</label></td>
 			</tr>
 			<tr>

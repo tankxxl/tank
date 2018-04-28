@@ -19,11 +19,6 @@ import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 
 /**
  * 在流程结束时，自动修改表单状态
- *
- * 不用每个流程都定义一个监听器了，统一定义一个监听器类来监听所有的流程，判断流程定义KEY即可分辩各个流程。
- *
- * 在流程图上定义start、end事件的监听器，而不是在usertask节点上设置。
- *
  * @author rgz
  *
  */

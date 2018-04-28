@@ -57,6 +57,9 @@ public class ActUtils {
     public static final String VAR_PRJ_TYPE = "prjType";
 	public static final String VAR_OFFICE_CODE = "officeCode";
 
+	// sd bidding 技术负责人
+	public static final String VAR_PM = "pm";
+
 	// 根据项目类型来设置，软件类项目为2，其它类项目为1 *
 	public static final String VAR_TYPE = "type";
     // 申请单类名

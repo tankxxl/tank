@@ -6,10 +6,7 @@
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
-            // 初始化全局变量，修改表单使用
 		    treeGetParam = "?prjId=${projectExecution.apply.id}";
-
-			//$("#name").focus();
 			$("#inputForm").validate({
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
@@ -63,12 +60,8 @@
 			}
 		}
 
-        // 选择项目后触发事件
         function changeProject(projectId, idx) {
-
-            // JavaScript全局变量，用于传递参数，新建表单使用。
 		    treeGetParam = "?prjId=" + projectId;
-            // 向后台获取项目信息，并将相关信息回显
             $.post('${ctx}/apply/external/projectApplyExternal/getAsJson',
                 {id: projectId},
                 function (apply) {
@@ -77,26 +70,18 @@
                 $("#customer_name").text(apply.customer.customerName);
                 $("#customer_contact_name").text(apply.customerContact.contactName);
                 $("#customer_contact_phone").text(apply.customerContact.phone);
-
-//                treeUrl = apply.id;
-                <%--var ss = ${fns:getDictLabel(apply.category , 'pro_category', apply.category)};--%>
-//                console.log(ss);
-                    <%--var temp = eval(${fns:getDictList("pro_category")});--%>
-//                    console.log(temp);
-                <!--$("#project_category").text("");-->
             });
 
-            //清除合同相关的值
+
             $("#contract_amount").text("");
             $("#contract_gross_margin").text("");
-            // 另一个select控件中的值
+
             $("#contractItemId").val("");
             $("#contractItemName").val("");
 
             $("#contractId").val("");
         }
 
-        // 选择合同后触发事件
         function changedContract(itemId, idx) {
             $.post('${ctx}/project/contract/projectContract/getItemAsJson',
                 {id: itemId}, function (item) {
@@ -104,15 +89,11 @@
                 if (item) {
                     $('#contract_amount').text(item.contractAmount);
                     $('#contract_gross_margin').text(item.grossProfitMargin);
-                    // 合同item-id改变后，要同步修改合同申请单id
+                    // 合同item-id改变后，同步修改合同申请单id
                     $('#contractId').val(item.contract.id);
 
                     $('#amount').val(item.contractAmount);
                     $('#grossMargin').val(item.grossProfitMargin);
-
-//                    $('input').attr("disabled",true)//将input元素设置为disabled 　
-//                    $("#role_id").removeAttr("hidden");
-//                    $('#amount').attr("hidden",true);
                     $('#executionAmount').hide();
                     $('#grossMargin').attr("disabled",true);
                 } else {
@@ -139,30 +120,23 @@
         <shiro:hasPermission name="project:execution:edit">${not empty projectExecution.id?'修改':'添加'}</shiro:hasPermission>
         <shiro:lacksPermission name="project:execution:edit">查看</shiro:lacksPermission></a></li>
 </ul><br/>
-<%--可以通过modelAttribute属性指定绑定的模型属性，若没有指定该属性，
-则默认从request域对象中读取名称为command的表单bean，如果该属性值也不存在，则会发生错误。--%>
+
 <form:form id="inputForm" modelAttribute="projectExecution"
            action="${ctx}/project/execution/save" method="post" class="form-horizontal">
     <form:hidden path="id"/>
-    <%-- path：表单字段，对应html元素的name属性，支持级联属性 --%>
     <form:hidden path="act.taskId"/>
     <form:hidden path="act.taskName"/>
     <form:hidden path="act.taskDefKey"/>
     <form:hidden path="act.procInsId"/>
     <form:hidden path="act.procDefId"/>
     <form:hidden id="flag" path="act.flag"/>
-    <%--设置id，前端设置值，传回后端--%>
     <form:hidden id="contractId" path="contract.id" />
     <sys:message content="${message}"/>
     <table class="table-form">
-        <%--<tr>--%>
-            <%--<th colspan="6" class="tit">项目信息</th>--%>
-        <%--</tr>--%>
             <caption>项目信息</caption>
         <tr>
             <td class="tit">项目名称</td>
             <td colspan="1" >
-                <%--<div style="white-space:nowrap;" >--%>
                     <sys:treeselect
                        id="apply"
                        name="apply.id"
@@ -178,7 +152,6 @@
                        notAllowSelectParent="true"
                        customClick="changeProject"/>
                     <span class="help-inline"><font color="red">*</font> </span>
-                <%--</div>--%>
             </td>
 
             <td class="tit">项目编码</td>
@@ -199,7 +172,6 @@
         <tr>
             <td class="tit">合同号</td>
             <td class="">
-                <%--<div style="white-space:nowrap;" >--%>
                     <sys:treeselect
                         id="contractItem"
                         name="contractItem.id"
@@ -214,7 +186,6 @@
                         dependMsg="请先选择项目！"
                         notAllowSelectParent="true"
                         customClick="changedContract"/>
-                <%--</div>--%>
             </td>
 
             <td class="tit">合同金额</td>
@@ -300,8 +271,6 @@
 
     <div class="">
         <table id="contentTable" class="table table-striped table-bordered table-condensed">
-            <%--<thead>--%>
-                <%--<tr><td class="tit">产品配置清单</td> <tr>--%>
                 <caption>产品配置清单</caption>
                 <thead>
                 <tr>
@@ -389,11 +358,7 @@
         </tr>//-->
         </script>
         <script type="text/javascript">
-
-            <%--初始化全局变量--%>
-            <%--treeGetParam = "?prjId=" + ${projectExecution.apply.id};--%>
             var itemRowIdx = 0, itemTpl = $("#itemTpl").html().replace(/(\/\/\<!\-\-)|(\/\/\-\->)/g,"");
-//            console.log(itemTpl);
             $(document).ready(function() {
                 var data = ${fns:toJson(projectExecution.executionItemList)};
                 for (var i=0; i<data.length; i++){
@@ -430,10 +395,6 @@
             <input id="btnSubmit2" class="btn btn-inverse" type="submit" value="销毁申请" onclick="$('#flag').val('no')"/>&nbsp;
         </c:if>
         </shiro:hasPermission>
-
-        <%--<shiro:hasPermission name="apply:external:projectApplyExternal:onlySave">--%>
-            <%--<input id="btnSubmit" class="btn btn-primary" type="submit" onclick="$('#flag').val('saveOnly')" value="保存"/>&nbsp;--%>
-        <%--</shiro:hasPermission>--%>
 
         <shiro:hasPermission name="apply:external:projectApplyExternal:super">
             <input id="btnSubmit" class="btn btn-primary" type="submit" value="保存并结束流程" onclick="$('#flag').val('saveFinishProcess')" data-toggle="tooltip" title="小心操作！"/>&nbsp;

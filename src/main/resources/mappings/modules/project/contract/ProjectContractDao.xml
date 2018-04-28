@@ -87,6 +87,7 @@
 					<if test="dbName == 'mysql'">concat('%',#{apply.projectName},'%')</if>
 			</if>
 			${sqlMap.dsf}
+			OR pro_apply.saler_id is null
 		</where>
 		<choose>
 			<when test="page !=null and page.orderBy != null and page.orderBy != ''">

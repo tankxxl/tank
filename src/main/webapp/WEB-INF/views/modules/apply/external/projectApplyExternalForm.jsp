@@ -17,7 +17,10 @@
 				    },
 					ownership: {
 				      required: true
-				    }
+				    },
+                    documentAttachmentPath: {
+					    required: true
+                    }
 				  },
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
@@ -173,20 +176,17 @@
 			<tr>
 				<td colspan="2" class="tit">项目编号</td>
 				<td class="tit_content" colspan="3">
-
 					<shiro:hasPermission name="apply:external:projectApplyExternal:onlySave">
-						<form:input path="projectCode" htmlEscape="false" maxlength="64" class=" required"/>
+						<form:input path="projectCode" maxlength="64" class=" required"/>
 						<span class="help-inline"><font color="red">*</font></span>
 					</shiro:hasPermission>
 					<shiro:lacksPermission name="apply:external:projectApplyExternal:onlySave">
 						${projectApplyExternal.projectCode  }
 					</shiro:lacksPermission>
 
-
 				</td>
 				<td class="tit">项目归属</td>
 				<td colspan="2">
-				
 					<form:select path="ownership" class="" style="width:89%;">
 						<form:option value="" label=""/>
 						<form:options items="${fns:getDictList('pro_ownership')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
@@ -197,19 +197,19 @@
 			<tr>
 				<td  class="tit" colspan="2">项目名称</td>
 				<td colspan="5">
-					<form:input path="projectName" htmlEscape="false" maxlength="64" class=" required"/>
+					<form:input path="projectName" maxlength="64" class="required"/>
 					<span class="help-inline"><font color="red">*</font> </span>
 				</td>
 			</tr>
 			<c:if test="${not empty projectApplyExternal.saler.name}">
 				<tr>
-					<td  class="tit" colspan="2">销售人员</td>
+					<td class="tit" colspan="2">销售人员</td>
 						
-					<td   class="tit" colspan="2">
+					<td class="tit" colspan="2">
 						<label>${projectApplyExternal.saler.name }</label>
 					</td>
 					<td  class="tit">部&nbsp;&nbsp;门</td>
-					<td   class="tit" colspan="2">
+					<td class="tit" colspan="2">
 						<%--${projectApplyExternal.saleOffice.name  }--%>
 						${projectApplyExternal.saler.office.name  }
 					</td>
@@ -217,7 +217,7 @@
 			</c:if>
 			
 			<tr>
-				<td  class="tit" colspan="2">客户全称</td>
+				<td class="tit" colspan="2">客户全称</td>
 				<td>
 					<div style="white-space:nowrap;">
 						<sys:treeselect id="customer" name="customer.id" value="${projectApplyExternal.customer.id}" labelName="customer.customerName" labelValue="${projectApplyExternal.customer.customerName}"
@@ -286,8 +286,7 @@
 									            //alert("Data Saved: " + contact.phone+"--"+contact.position);
 									            $("#customerContact_phone_label").text(contact.phone);
 									            $("#customerContact_position_label").text(contact.position);
-									            
-									            
+
 									            //验证validate
 									            $("#inputForm").validate().element($("#customerContactName"));
 									        }  
@@ -400,18 +399,24 @@
 				<td class="tit">资源需求</td>
 				<td colspan="6">
 					<div style="white-space:nowrap;">
-						<form:textarea path="resource" style="width:98%"  htmlEscape="false" maxlength="255"/>
+						<form:textarea path="resource" style="width:98%" maxlength="255"/>
+						<%--<form:hidden id="resource" path="resource" maxlength="20000" class="required" />--%>
+						<%--<sys:ckfinder input="resource" type="files"--%>
+									  <%--uploadPath="/apply/resource"--%>
+									  <%--selectMultiple="true" />--%>
+							<%--<span class="help-inline"><font color="red">*</font> </span>--%>
 					</div>
 				</td>
 			</tr>
 			
 			<tr>
 				<td class="tit" >文件附件</td>
-				<td   colspan="6">
-					<form:hidden id="documentAttachmentPath" path="documentAttachmentPath" htmlEscape="false" maxlength="20000"  />
+				<td colspan="6">
+					<form:hidden id="documentAttachmentPath" path="documentAttachmentPath" maxlength="20000" cssClass="required" />
 					<sys:ckfinder input="documentAttachmentPath" type="files"
                                   uploadPath="/apply"
                                   selectMultiple="true" />
+                    <span class="help-inline"><font color="red">*</font> </span>
 				</td>
 			</tr>
 			<tr>
@@ -422,8 +427,7 @@
 				<div >
                     1、项目预计合同金额默认以人民币为单位，以其他货币为单位时，应注明货币单位；<br>
                     2、项目的预计毛利率原则上不得低于公司规定的毛利率标准，若预计毛利率低于公司要求标准时，须对预计毛利率不达标的原因进行说明；<br>
-                    3、如对项目信息有更详细的说明或者其他相关文档的，可使用文件附件的形式提交；<br>
-                    4、超过分管领导授权的项目需公司总经理进行审批；
+                    3、如对项目信息有更详细的说明或者其他相关文档的，可使用文件附件的形式提交；
 				</div>
 				</td>
 			</tr>
@@ -433,7 +437,7 @@
 			<shiro:hasPermission name="apply:external:projectApplyExternal:edit">
 			
 			<input id="btnSubmit" class="btn btn-primary" type="submit" value="提交申请" onclick="$('#flag').val('yes')"/>&nbsp;&nbsp;
-				<input id="btnSubmit" class="btn btn-primary" type="submit" value="暂存" onclick="$('#flag').val('saveOnly')"/>&nbsp;&nbsp;
+				<input id="btnSubmit" class="btn btn-primary cancel" type="submit" value="暂存" formnovalidate onclick="$('#flag').val('saveOnly')"/>&nbsp;&nbsp;
 				<c:if test="${not empty projectApplyExternal.id}">
 					<input id="btnSubmit2" class="btn btn-inverse" type="submit" value="销毁申请" onclick="$('#flag').val('no')"/>&nbsp;
 				</c:if>
@@ -448,7 +452,7 @@
 		</div>
 		
 		<c:if test="${not empty projectApplyExternal.id}">
-			<act:histoicFlow procInsId="${projectApplyExternal.processInstanceId}" />
+			<act:histoicFlow procInsId="${projectApplyExternal.procInsId}" />
 		</c:if>
 	</form:form>
 </body>

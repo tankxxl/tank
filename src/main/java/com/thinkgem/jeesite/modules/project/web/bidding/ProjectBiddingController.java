@@ -43,33 +43,16 @@ public class ProjectBiddingController extends BaseController {
 	@Autowired
 	private ActTaskService actTaskService;
 
-    /**
-     * 如果把@ModelAttribute放在方法的注解上时，代表的是：该Controller的所有方法在调用前，先执行此@ModelAttribute方法
-     * @param id
-     * @return
-     */
 	@ModelAttribute
 	public ProjectBidding get(@RequestParam(required=false) String id) {
-		ProjectBidding entity = null;
-		if (StringUtils.isNotBlank(id)){
-			entity = projectBiddingService.get(id);
-		}
-		if (entity == null){
-			entity = new ProjectBidding();
-		}
-		return entity;
+		return  projectBiddingService.get(id);
 	}
 	
 	@RequiresPermissions("project:bidding:projectBidding:view")
 	@RequestMapping(value = {"list", ""})
 	public String list(ProjectBidding projectBidding, HttpServletRequest request, HttpServletResponse response, Model model) {
-
-		// 此dataScopeFilter中的s5、u4从xml的sql语句可以看出来，是根据立项人来过滤数据的。
-		// projectBidding.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
-		// 现在我们要根据自己业务表(bidding)中的createBy来过滤自己的数据。
-		projectBidding.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s6", "u6"));
-
-		Page<ProjectBidding> page = projectBiddingService.findPage(new Page<ProjectBidding>(request, response), projectBidding); 
+		projectBidding.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+		Page<ProjectBidding> page = projectBiddingService.findPage(new Page<>(request, response), projectBidding);
 		model.addAttribute("page", page);
 		return "modules/project/bidding/projectBiddingList";
 	}
@@ -117,10 +100,6 @@ public class ProjectBiddingController extends BaseController {
 		else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ){
 			view = "projectBiddingForm";
 		}
-		// 商务部专员-要填写供应商的联系人信息
-		// else if (UserTaskType.UT_COMMERCE_SPECIALIST.equals(taskDefKey)) {
-		// 	view = "ExecutionView4Commerce";
-		// }
 		// 某审批环节
 		else if ("apply_end".equals(taskDefKey)){
 			view = "projectBiddingView";  // replace ExecutionAudit
@@ -130,15 +109,13 @@ public class ProjectBiddingController extends BaseController {
 		return prefix + view;
 	}
 
-	@RequiresPermissions("project:bidding:projectBidding:modify")
+	@RequiresPermissions("project:bidding:projectBidding:edit")
 	@RequestMapping(value = "modify")
 	public String modify(ProjectBidding projectBidding, Model model) {
-		model.addAttribute("projectBidding", projectBidding);
 		return "modules/project/bidding/projectBiddingForm";
 	}
 
 	/**
-	 * 启动流程、保存申请单、销毁流程、删除申请单。
 	 * @param projectBidding
 	 * @param model
 	 * @param redirectAttributes
@@ -147,12 +124,13 @@ public class ProjectBiddingController extends BaseController {
 	@RequiresPermissions("project:bidding:projectBidding:edit")
 	@RequestMapping(value = "save")
 	public String save(ProjectBidding projectBidding, Model model, RedirectAttributes redirectAttributes) {
-		if (!beanValidator(model, projectBidding)){
-			return form(projectBidding, model);
-		}
 		String flag = projectBidding.getAct().getFlag();
+		if (!"saveOnly".equals(flag)) {
+			if (!beanValidator(model, projectBidding)){
+				return form(projectBidding, model);
+			}
+		}
 
-//		flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
 		if ("saveOnly".equals(flag)) { // 只保存表单数据
 			projectBiddingService.save(projectBidding);
 		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
@@ -164,9 +142,9 @@ public class ProjectBiddingController extends BaseController {
 		addMessage(redirectAttributes, "保存项目投标成功");
 		
 		String usertask_owner = projectBidding.getAct().getTaskDefKey();
-		if (UserTaskType.UT_OWNER.equals(usertask_owner)) { // 待办任务页面
+		if (UserTaskType.UT_OWNER.equals(usertask_owner)) {
 			return "redirect:" + adminPath + "/act/task/todo/";
-		} else { // 列表页面
+		} else {
 			return "redirect:"+Global.getAdminPath()+"/project/bidding/projectBidding/?repage";
 		}
 	}
@@ -189,8 +167,7 @@ public class ProjectBiddingController extends BaseController {
 		projectBiddingService.saveAudit(projectBidding);
 		return "redirect:" + adminPath + "/act/task/todo/";
 	}
-	
-	
+
 	/**
 	 * 使用的导出
 	 * @param request

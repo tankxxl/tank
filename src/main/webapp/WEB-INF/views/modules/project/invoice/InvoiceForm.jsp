@@ -13,7 +13,6 @@
                 return this.optional(element) || (decimal.test(value));
             }, $.validator.format("小数位数不能超过两位!"));
 
-            // 初始化全局变量，修改表单使用
 		    treeGetParam = "?prjId=${projectInvoice.apply.id}";
 
 			//$("#name").focus();
@@ -37,8 +36,6 @@
                 if(isNaN(this.value) ){
                     return false;
                 }
-//                alert(this.value);
-
                 removeRequired("#bankName");
                 removeRequired("#customerName");
                 removeRequired("#taxNo");
@@ -64,7 +61,6 @@
                 } else if (invoiceType == 3) { // 增值税普通发票6%
                     addRequired("#bankName");
                 } else if (invoiceType == 4) { // 增值税普通发票17%
-//                    alert("four");
                 }
             });
 		});
@@ -105,13 +101,8 @@
 			}
 		}
 
-        // 选择项目后触发事件
         function changeProject(projectId, idx) {
-
-            // JavaScript全局变量，用于传递参数，新建表单使用。
 		    treeGetParam = "?prjId=" + projectId;
-
-            // 向后台获取项目信息，并将相关信息回显
             $.post('${ctx}/apply/external/projectApplyExternal/getAsJson',
                 {id: projectId},
                 function (apply) {
@@ -121,12 +112,6 @@
                 $("#customer_contact_name").text(apply.customerContact.contactName);
                 $("#customer_contact_phone").text(apply.customerContact.phone);
 
-//                treeUrl = apply.id;
-                <%--var ss = ${fns:getDictLabel(apply.category , 'pro_category', apply.category)};--%>
-//                console.log(ss);
-//                $("#project_category").text(ss);
-
-                //清除合同相关的值
                 $("#contract_amount").text("");
                 $("#contract_gross_margin").text("");
                 $("#contractItemId").val("");
@@ -136,11 +121,9 @@
             });
         }
 
-        // 选择合同后触发事件
         function changedContract(itemId, idx) {
             $.post('${ctx}/project/contract/projectContract/getItemAsJson',
                 {id: itemId}, function (item) {
-
                 if (item) {
                     $('#contract_amount').text(item.contractAmount);
                     $('#contract_gross_margin').text(item.grossProfitMargin);
@@ -166,7 +149,6 @@
         <shiro:lacksPermission name="project:invoice:edit">查看</shiro:lacksPermission></a></li>
 </ul><br/>
 
-<%--<spring:htmlEscape defaultHtmlEscape="false" />--%>
 <form:form id="inputForm" modelAttribute="projectInvoice" htmlEscape="false"
            action="${ctx}/project/invoice/save" method="post" class="form-horizontal">
     <form:hidden path="id"/>
@@ -176,7 +158,6 @@
     <form:hidden path="act.procInsId"/>
     <form:hidden path="act.procDefId"/>
     <form:hidden id="flag" path="act.flag"/>
-    <%--设置id，前端设置值，传回后端--%>
     <form:hidden id="contractId" path="contract.id" />
     <sys:message content="${message}"/>
     <table class="table-form">
@@ -447,9 +428,6 @@
         </tr>//-->
         </script>
         <script type="text/javascript">
-
-            <%--初始化全局变量--%>
-            <%--treeGetParam = "?prjId=" + ${projectExecution.apply.id};--%>
             var itemRowIdx = 0, itemTpl = $("#itemTpl").html().replace(/(\/\/\<!\-\-)|(\/\/\-\->)/g,"");
             // another table
             var rowIdx = 0, entityTpl = $("#entityTpl").html().replace(/(\/\/\<!\-\-)|(\/\/\-\->)/g,"");

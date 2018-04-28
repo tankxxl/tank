@@ -79,7 +79,6 @@
         <shiro:lacksPermission name="project:invoice:edit">查看</shiro:lacksPermission></a></li>
 </ul><br/>
 
-<%--<spring:htmlEscape defaultHtmlEscape="false" />--%>
 <form:form id="inputForm" modelAttribute="projectInvoice" htmlEscape="false"
            action="${ctx}/project/invoice/save" method="post" class="form-horizontal">
     <form:hidden path="id"/>
@@ -89,7 +88,6 @@
     <form:hidden path="act.procInsId"/>
     <form:hidden path="act.procDefId"/>
     <form:hidden id="flag" path="act.flag"/>
-    <%--设置id，前端设置值，传回后端--%>
     <form:hidden id="contractId" path="contract.id" />
     <sys:message content="${message}"/>
     <table class="table-form">
@@ -365,9 +363,6 @@
         </tr>//-->
         </script>
         <script type="text/javascript">
-
-            <%--初始化全局变量--%>
-            <%--treeGetParam = "?prjId=" + ${projectExecution.apply.id};--%>
             var itemRowIdx = 0, itemTpl = $("#itemTpl").html().replace(/(\/\/\<!\-\-)|(\/\/\-\->)/g,"");
             // another table
             var rowIdx = 0, entityTpl = $("#entityTpl").html().replace(/(\/\/\<!\-\-)|(\/\/\-\->)/g,"");
