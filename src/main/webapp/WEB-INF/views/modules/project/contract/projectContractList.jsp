@@ -28,6 +28,11 @@
 					}
 				});
 			});
+
+            $("#btnImport").click(function(){
+                $.jBox($("#importBox").html(), {title:"导入数据", buttons:{"关闭":true},
+                    bottomText:"导入文件不能超过5M，仅允许导入“xls”或“xlsx”格式文件！"});
+            });
 		});
 		
 		function page(n,s){
@@ -39,6 +44,14 @@
 	</script>
 </head>
 <body>
+<div id="importBox" class="hide">
+	<form id="importForm" action="${ctx}/project/contract/projectContract/import" method="post" enctype="multipart/form-data"
+		  class="form-search" style="padding-left:20px;text-align:center;" onsubmit="loading('正在导入，请稍等...');"><br/>
+		<input id="uploadFile" name="file" type="file" style="width:330px"/><br/><br/>　　
+		<input id="btnImportSubmit" class="btn btn-primary" type="submit" value="   导    入   "/>
+		<a href="${ctx}/project/contract/projectContract/import/template">下载模板</a>
+	</form>
+</div>
 <ul class="nav nav-tabs">
 	<li class="active"><a href="${ctx}/project/contract/projectContract/">合同列表</a></li>
 	<shiro:hasPermission name="project:contract:projectContract:edit"><li><a href="${ctx}/project/contract/projectContract/form">合同添加</a></li></shiro:hasPermission>
