@@ -42,6 +42,7 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 	@Autowired
 	private RoleDao roleDao;
 
+	// act相关
 	@Override
 	public void setupVariable(ProjectApplyExternal projectApplyExternal, Map<String, Object> vars) {
 		projectApplyExternal.preInsert4ProInteralApply();
@@ -62,54 +63,6 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 			vars.put(ActUtils.VAR_SKIP_BOSS, "1");
 		}
 	}
-
-	/**
-	 * 保存表单数据，并启动流程
-	 *
-	 * 申请人发起流程，申请人重新发起流程入口
-	 * 在form界面
-	 *
-	 * @param projectApplyExternal
-	 */
-	// @Transactional(readOnly = false)
-	// public String saveLaunch(ProjectApplyExternal projectApplyExternal) {
-	// 	if (projectApplyExternal.getIsNewRecord()) {
-	// 		projectApplyExternal.preInsert4ProInteralApply();//判断是否是插入还是修改，若是插入那么添加当前用户为销售
-	// 		// 启动流程的时候，把业务数据放到流程变量里
-	// 		Map<String, Object> varMap = new HashMap<String, Object>();
-	// 		varMap.put(ActUtils.VAR_PRJ_ID, projectApplyExternal.getId());
-    //
-	// 		varMap.put(ActUtils.VAR_PRJ_TYPE, projectApplyExternal.getCategory());
-    //
-	// 		varMap.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
-    //
-	// 		if ("03".equals(projectApplyExternal.getCategory()) ) {
-	// 			varMap.put(ActUtils.VAR_TYPE, "2");
-	// 		} else {
-	// 			varMap.put(ActUtils.VAR_TYPE, "1");
-	// 		}
-    //
-	// 		if ("1".equals(projectApplyExternal.getSelfDev()) ) {
-	// 			varMap.put(ActUtils.VAR_SKIP_DEV, "0");
-	// 		} else {
-	// 			varMap.put(ActUtils.VAR_SKIP_DEV, "1");
-	// 		}
-    //
-    //
-	// 		boolean isBossAudit = MyDictUtils.isBossAudit(projectApplyExternal.getEstimatedContractAmount(), projectApplyExternal.getEstimatedGrossProfitMargin());
-	// 		if (isBossAudit) { // 需要总经理审批
-	// 			varMap.put(ActUtils.VAR_SKIP_BOSS, "0");
-	// 		} else {
-	// 			varMap.put(ActUtils.VAR_SKIP_BOSS, "1");
-	// 		}
-    //
-	// 		return launch(projectApplyExternal, varMap);
-	// 	} else { // 把驳回到申请人(重新修改业务表单，重新发起流程、销毁流程)也当成一个特殊的审批节点
-	// 		// 只要不是启动流程，其它任意节点的跳转都当成节点审批
-	// 		saveAudit(projectApplyExternal);
-	// 		return null;
-	// 	}
-	// }
 
 	// 流程相关
 	// 流程审批过程中
@@ -145,10 +98,8 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 	 * @return
 	 */
 	public String getCurrentCode(){
-		
 		return dao.getCurrentCode();
 	}
-
 
 	public void sendMail(DelegateTask task, String assignee, String userId, String groupId) {
 		StringBuilder sbMailTo = new StringBuilder();
@@ -314,5 +265,16 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 		// d 代表参数为正数型
 		result = String.format("%0" + num + "d", Integer.parseInt(code) + 1);
 		return result;
+	}
+
+	public ProjectApplyExternal getByName(String name) {
+		ProjectApplyExternal external = new ProjectApplyExternal();
+		external.setProjectName(name);
+		List<ProjectApplyExternal> list = dao.findList(external);
+		if (list == null || list.isEmpty()) {
+			return null;
+		} else {
+			return list.get(0);
+		}
 	}
 }

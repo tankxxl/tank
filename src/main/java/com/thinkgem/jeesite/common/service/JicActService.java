@@ -49,9 +49,13 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
 //	 * @param id
 //	 * @return
 //	 */
-//	public T get(String id) {
-//		return dao.get(id);
-//	}
+    @Override
+	public T get(String id) {
+	    if (StringUtils.isBlank(id)) {
+	        return null;
+        }
+		return dao.get(id);
+	}
 //
 //	/**
 //	 * 获取单条数据
@@ -262,15 +266,13 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
      */
     @Transactional(readOnly = false)
     public String saveLaunch(T entity) {
-        if (entity.getIsNewRecord()) {
-            Map<String, Object> varMap = new HashMap<>();
-            // setupVariable(entity, varMap); 不在此处设置流程变量，在launch方法中设置
-            // 先保存业务数据
+        if (entity.getIsNewRecord() || StringUtils.isBlank(entity.getProcInsId()) ) {
+            Map<String, Object> varMap = new HashMap<String, Object>();
             save(entity);
             return launch(entity, varMap);
         } else {
             saveAudit(entity);
-            return null;
+            return entity.getProcInsId();
         }
     }
 
