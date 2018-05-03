@@ -8,12 +8,28 @@
 	<script type="text/javascript">
 	
 		$(document).ready(function() {
+
+            //自定义validate验证输入的数字小数点位数不能大于两位
+            jQuery.validator.addMethod("minNumber",function(value, element){
+                var returnVal = true;
+                inputZ = value;
+                var ArrMen= inputZ.split(".");    //截取字符串
+                if(ArrMen.length==2){
+                    if(ArrMen[1].length>2){    //判断小数点后面的字符串长度
+                        returnVal = false;
+                        return false;
+                    }
+                }
+                return returnVal;
+            },"小数点后最多为两位");         //验证错误信息
+
 			//$("#name").focus();
 			$("#inputForm").validate({
 				rules: {
 					estimatedGrossProfitMargin: {
 				      required: true,
-				      range: [0,100]
+					  number:true,
+                      minNumber: $("#estimatedGrossProfitMargin").val()    //调用自定义验证
 				    },
 					ownership: {
 				      required: true
@@ -22,6 +38,12 @@
 					    required: true
                     }
 				  },
+                messages: {
+                    estimatedGrossProfitMargin: {
+                        required: "请填写毛利率",
+                        number: "请正确输入数字"
+                    }
+                },
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
 					form.submit();
@@ -329,7 +351,7 @@
 				<td class="tit">预计合同金额￥万元</td>
 				<td>
 					<div style="white-space:nowrap;">
-						<form:input path="estimatedContractAmount" htmlEscape="false" style="width:140px;"   class="checkNum number contract_amount required"  maxlength="10"/>
+						<form:input path="estimatedContractAmount" style="width:140px;" class="checkNum number contract_amount required"  maxlength="10"/>
 						<span class="help-inline"><font color="red">*</font> </span>
 					</div>
 				</td>
@@ -337,7 +359,8 @@
 
 				<td>
 					<div style="white-space:nowrap;">
-						<form:input path="estimatedGrossProfitMargin" style="width:100px"  maxlength="5" class="checkNum"  number="true" type="text" /><span class="help-inline"><font color="red">*</font> </span>
+						<form:input path="estimatedGrossProfitMargin" style="width:100px" number="true" type="text" />
+						<span class="help-inline"><font color="red">*</font> </span>
 					</div>
 				</td>
 				
@@ -390,8 +413,8 @@
 			<tr>
 				<td  class="tit" colspan="6">
 					<div style="white-space:nowrap;">
-						<form:textarea path="riskAnalysis" class="required" style="width:98%"  htmlEscape="false" maxlength="255"/>
-						<span class="help-inline"><font color="red">*</font> </span>
+						<form:textarea path="riskAnalysis" class="required" style="width:98%" maxlength="255"/>
+						<span class="help-inlinemana"><font color="red">*</font> </span>
 					</div>
 				</td>
 			</tr>
@@ -399,7 +422,8 @@
 				<td class="tit">资源需求</td>
 				<td colspan="6">
 					<div style="white-space:nowrap;">
-						<form:textarea path="resource" style="width:98%" maxlength="255"/>
+						<form:textarea path="resource" class="required" style="width:98%" maxlength="255"/>
+						<span class="help-inline"><font color="red">*</font> </span>
 						<%--<form:hidden id="resource" path="resource" maxlength="20000" class="required" />--%>
 						<%--<sys:ckfinder input="resource" type="files"--%>
 									  <%--uploadPath="/apply/resource"--%>
