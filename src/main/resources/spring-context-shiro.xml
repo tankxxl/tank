@@ -26,9 +26,7 @@
 		</constructor-arg>
 	</bean>
 	
-	<!-- 安全认证过滤器 ，rgz对应于web.xml中配置的那个shiroFilter
-	 Shiro内置了很多过滤器
-	 -->
+	<!-- 安全认证过滤器，Shiro内置了很多过滤器 -->
 	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
         <!-- rgz Shiro的核心安全接口，这个属性是必须的 -->
 		<property name="securityManager" ref="securityManager" /><!-- 
