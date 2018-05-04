@@ -72,7 +72,6 @@
 			});
 			
 			$("#category").change(function(){
-// 				$("#inputForm").valid().element($("#category"));
 				$("#inputForm").validate().element($("#category"));
 			});
 			$("#ownership").change(function(){
@@ -110,11 +109,8 @@
 				auto 代表打开输入法 (默认)
 				disable 代表关闭输入法 */
 			});
-			
-			
 		});
-		
-		
+
 		function changeCustomer(customerId){
 			var url ="${ctx }/customer/customer/customer4projectApplyExternal?id="+customerId;
 		    $.ajax( {  
@@ -124,7 +120,6 @@
 		        success : function(customer) {
 		            $("#customer_industry_label").text(customer.industry);
 		            $("#customer_category_label").text(customer.customerCategory);
-		            
 		            //验证validate
 		            $("#inputForm").validate().element($("#customerName"));
 		        }  
@@ -162,8 +157,7 @@
 // 		    });  
 // 		}
 	</script>
-	
-	
+
 	<style type="text/css">
 		.tit_content{
 			text-align:center
@@ -193,7 +187,6 @@
 		<sys:message content="${message}"/>
 
         <c:set var="rand" value="id"/>
-        <%--<c:if test="${}"--%>
 		<table class="table-form">
 			<tr>
 				<td colspan="2" class="tit">项目编号</td>
@@ -211,7 +204,7 @@
 				<td colspan="2">
 					<form:select path="ownership" class="" style="width:89%;">
 						<form:option value="" label=""/>
-						<form:options items="${fns:getDictList('pro_ownership')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+						<form:options items="${fns:getDictList('pro_ownership')}" itemLabel="label" itemValue="value" />
 					</form:select>
 					<span class="help-inline"><font color="red">*</font> </span>
 				</td>
@@ -232,7 +225,6 @@
 					</td>
 					<td  class="tit">部&nbsp;&nbsp;门</td>
 					<td class="tit" colspan="2">
-						<%--${projectApplyExternal.saleOffice.name  }--%>
 						${projectApplyExternal.saler.office.name  }
 					</td>
 				</tr>
@@ -255,7 +247,6 @@
 				<td   class="tit_content">
 					<label id="customer_industry_label"></label>
 				</td>
-				
 			</tr>
 			<tr>
 				<td  class="tit"  colspan="2">客户联系人</td>

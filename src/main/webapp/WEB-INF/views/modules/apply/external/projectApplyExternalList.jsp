@@ -10,25 +10,27 @@
             $("#btnExportList").click(function(){
                 top.$.jBox.confirm("确认要导出立项数据吗？","系统提示",function(v,h,f){
                     if(v=="ok"){
+                        var url = $("#searchForm").attr("action");
                         $("#searchForm").attr("action","${ctx}/apply/external/projectApplyExternal/exportList");
                         $("#searchForm").submit();
+                        $("#searchForm").attr("action", url);
                     }
                 },{buttonsFocus:1});
                 top.$('.jbox-body .jbox-icon').css('top','55px');
             });
 
-			$("#contentTable").find("input[export]").each(function(){
-				$(this).click(function(){
-					var proId =$(this).attr("proId");
-					top.$.jBox.confirm("确认要导出用户数据吗？","系统提示",function(v,h,f){
-						if(v=="ok"){
-							$("#searchForm").attr("action","${ctx}/apply/external/projectApplyExternal/export?id="+proId);
-							$("#searchForm").submit();
-						}
-					},{buttonsFocus:1});
-					top.$('.jbox-body .jbox-icon').css('top','55px');
-				});
-			});
+			<%--$("#contentTable").find("input[export]").each(function(){--%>
+				<%--$(this).click(function(){--%>
+					<%--var proId =$(this).attr("proId");--%>
+					<%--top.$.jBox.confirm("确认要导出用户数据吗？","系统提示",function(v,h,f){--%>
+						<%--if(v=="ok"){--%>
+							<%--$("#searchForm").attr("action","${ctx}/apply/external/projectApplyExternal/export?id="+proId);--%>
+							<%--$("#searchForm").submit();--%>
+						<%--}--%>
+					<%--},{buttonsFocus:1});--%>
+					<%--top.$('.jbox-body .jbox-icon').css('top','55px');--%>
+				<%--});--%>
+			<%--});--%>
 			
 			// 
 			$(".trace").each(function() {
@@ -77,13 +79,13 @@
 			<li><label>项目类别：</label>
 				<form:select path="category" class="input-medium">
 					<form:option value="" label=""/>
-					<form:options items="${fns:getDictList('pro_category')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+					<form:options items="${fns:getDictList('pro_category')}" itemLabel="label" itemValue="value" />
 				</form:select>
 			</li>
 			<li><label>审批状态：</label>
 				<form:select path="procStatus" class="input-medium">
 					<form:option value="" label=""/>
-					<form:options items="${fns:getDictList('AuditStatus')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+					<form:options items="${fns:getDictList('AuditStatus')}" itemLabel="label" itemValue="value" />
 				</form:select>
 			</li>
 			<li class="btns">
