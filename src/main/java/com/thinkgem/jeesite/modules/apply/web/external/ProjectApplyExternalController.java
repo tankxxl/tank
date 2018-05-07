@@ -154,8 +154,8 @@ public class ProjectApplyExternalController extends BaseController {
 			applyService.save(projectApplyExternal);
 		} else if ("saveFinishProcess".equals(flag)) {
 			applyService.saveFinishProcess(projectApplyExternal);
-		} else if ("end".equalsIgnoreCase(flag)) {
-
+		} else if ("no".equalsIgnoreCase(flag)) {
+			applyService.delete(projectApplyExternal);
 		} else {
 			applyService.saveLaunch(projectApplyExternal);
 		}

@@ -21,6 +21,7 @@ import com.thinkgem.jeesite.modules.sys.dao.RoleDao;
 import com.thinkgem.jeesite.modules.sys.entity.Role;
 import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
+import org.activiti.engine.ActivitiObjectNotFoundException;
 import org.activiti.engine.delegate.DelegateTask;
 import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,18 @@ public class ProjectApplyExternalService extends
             apply = new ProjectApplyExternal();
         }
         return apply;
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void delete(ProjectApplyExternal entity) {
+        // 流程审批状态,字典数据AuditStatus，0初始录入，1审批中，2审批结束
+		String status = entity.getProcStatus();
+		if ("1".equals(status)) {
+			endProcess(entity.getProcInsId());
+		}
+        super.delete(entity);
+
     }
 
     @Override
