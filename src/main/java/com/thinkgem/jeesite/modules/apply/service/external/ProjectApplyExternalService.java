@@ -270,6 +270,7 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 	public ProjectApplyExternal getByName(String name) {
 		ProjectApplyExternal external = new ProjectApplyExternal();
 		external.setProjectName(name);
+		external.setStrict(true);
 		List<ProjectApplyExternal> list = dao.findList(external);
 		if (list == null || list.isEmpty()) {
 			return null;

@@ -105,10 +105,24 @@
 				AND a.project_code = #{projectCode}
 			</if>
 			<if test="projectName != null and projectName != ''">
-				AND a.project_name LIKE 
+				<choose>
+				<when test="strict != null and strict == true">
+					AND a.project_name = #{projectName}
+				</when>
+
+				<when test="strict != null and strict == false">
+
+				</when>
+
+				<otherwise>
+					AND a.project_name LIKE
 					<if test="dbName == 'oracle'">'%'||#{projectName}||'%'</if>
 					<if test="dbName == 'mssql'">'%'+#{projectName}+'%'</if>
 					<if test="dbName == 'mysql'">concat('%',#{projectName},'%')</if>
+				</otherwise>
+				</choose>
+
+
 			</if>
 			<if test="saler != null and saler.id != null and saler.id != ''">
 				AND a.saler_id LIKE 

@@ -74,6 +74,8 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 
 	private Line line; // 所属业务条线
 
+	private boolean strict;
+
 
 
     public String getDocPath() {
@@ -412,5 +414,13 @@ public class ProjectApplyExternal extends ActEntity<ProjectApplyExternal> {
 
 	public void setLine(Line line) {
 		this.line = line;
+	}
+
+	public boolean isStrict() {
+		return strict;
+	}
+
+	public void setStrict(boolean strict) {
+		this.strict = strict;
 	}
 }
