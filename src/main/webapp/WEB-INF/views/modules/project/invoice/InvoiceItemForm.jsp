@@ -147,7 +147,7 @@
                             labelName="apply.projectName" labelValue="${projectInvoiceItem.apply.projectName}"
                             title="项目名称"
                             cssStyle="width: 85%"
-                            url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11"
+                            url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11&isAll=true"
                             cssClass="required"  allowClear="true" notAllowSelectParent="true"
                             customClick="changeProject"/>
         </div>
