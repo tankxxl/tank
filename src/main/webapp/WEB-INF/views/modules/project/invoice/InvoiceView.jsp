@@ -94,14 +94,14 @@
 
 <%-- 定义一系列工具栏 --%>
 <div id="toolbar" class="btn-group">
-    <%--<c:if test="${projectInvoice.act.taskDefKey eq 'usertask_finance_leader'}">--%>
-    <%--<button id="btn_add" @click="myAddClick()" type="button" class="btn btn-default">--%>
-        <%--<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增--%>
-    <%--</button>--%>
-    <%--<button id="btn_edit" @click="update()" type="button" class="btn btn-default" disabled>--%>
-        <%--<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改--%>
-    <%--</button>--%>
-    <%--</c:if>--%>
+    <c:if test="${projectInvoice.act.taskDefKey eq 'usertask_finance_leader'}">
+    <button id="btn_add" @click="myAddClick()" type="button" class="btn btn-default">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+    </button>
+    <button id="btn_edit" @click="update()" type="button" class="btn btn-default" disabled>
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改
+    </button>
+    </c:if>
 </div>
 <table id="table" data-mobile-responsive="true"></table>
 
@@ -265,7 +265,7 @@ function initTable () {
         cardView: false,                    //是否显示详细视图
         detailView: true,                  //是否显示父子表
         columns: [
-            <c:if test="${projectInvoice.act.taskDefKey eq 'usertask_finance_leadertemp'}">
+            <c:if test="${projectInvoice.act.taskDefKey eq 'usertask_finance_leader'}">
             {
             checkbox: true,
             visible: true                  //是否显示复选框

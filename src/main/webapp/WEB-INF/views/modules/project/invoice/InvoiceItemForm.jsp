@@ -197,7 +197,7 @@
                 labelName="customerInvoice.customerName" labelValue="${projectInvoiceItem.customerInvoice.customerName}"
                 title="选择开票客户"
                 cssStyle="width: 85%"
-                url="/customer/invoice/treeData"
+                url="/customer/invoice/treeData?placehoder=b"
                 cssClass="required"  allowClear="true" notAllowSelectParent="true" />
         </div>
     </div>

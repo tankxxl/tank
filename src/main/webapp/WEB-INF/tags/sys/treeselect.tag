@@ -64,7 +64,8 @@
             }
         </c:if>
 
-		// 正常打开	
+		// 正常打开
+        <%--${fn:indexOf(url,'?')==-1?'?':'&'}--%>
 		top.$.jBox.open("iframe:${ctx}/tag/treeselect?url="+encodeURIComponent("${url}" + treeGetParam)+"&module=${module}&checked=${checked}&extId=${extId}&isAll=${isAll}", "选择${title}", 400, 450, {
 			ajaxData:{selectIds: $("#${id}Id").val()},
             buttons:{"确定":"ok", ${allowClear?"\"清除\":\"clear\", ":""}"关闭":true},
