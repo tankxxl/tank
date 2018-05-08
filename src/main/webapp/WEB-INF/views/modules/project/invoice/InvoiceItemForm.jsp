@@ -11,7 +11,7 @@
             <%-- jsp中的js代码错误一定要处理 --%>
             mOldCode = null;
             if (parent.row) {
-                treeGetParam = "?prjId=" + parent.row.apply.id;
+                treeGetParam = "&prjId=" + parent.row.apply.id;
                 mOldCode = parent.row.contract.contractCode;
             }
 			$("#inputForm").validate({
@@ -86,9 +86,7 @@
                 jeesnsDialog.tips("输入有误。");
                 return;
             }
-
             var json = form2js($('#inputForm')[0], '.', false);
-            // console.log("dialog=" + JSON.stringify(json));
             return json;
         }
         
@@ -106,7 +104,7 @@
         // 选择项目后触发事件
         function changeProject(projectId, idx) {
             // JavaScript全局变量，用于传递参数，新建表单使用。
-            treeGetParam = "?prjId=" + projectId;
+            treeGetParam = "&prjId=" + projectId;
             // 向后台获取项目信息，并将相关信息回显
             $.post('${ctx}/apply/external/projectApplyExternal/getAsJson',
                 { id: projectId },
@@ -147,7 +145,8 @@
                             labelName="apply.projectName" labelValue="${projectInvoiceItem.apply.projectName}"
                             title="项目名称"
                             cssStyle="width: 85%"
-                            url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11&isAll=true"
+                            isAll="true"
+                            url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11"
                             cssClass="required"  allowClear="true" notAllowSelectParent="true"
                             customClick="changeProject"/>
         </div>
@@ -165,7 +164,7 @@
                     labelName="contract.contractCode"
                     labelValue="${projectInvoiceItem.contract.contractCode}"
                     title="合同"
-                    url="/project/contract/projectContract/treeContractList"
+                    url="/project/contract/projectContract/treeContractList?placehoder=b"
                     cssStyle="width: 85%"
                     allowClear="true"
                     dependBy="apply"
