@@ -348,8 +348,8 @@ var jeesnsDialog = {
 
                 //当点击‘确定’按钮的时候，获取弹出层返回的值
                 // var res = window["layui-layer-iframe" + index].callbackdata();
-                console.log(data);
-                console.log(!data);
+                // console.log(data);
+                // console.log(!data);
                 // 如果form验证不通过，返回data为空，此处data为空时对话框不关闭
                 if (!data) {
                     return;

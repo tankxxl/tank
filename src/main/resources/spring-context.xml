@@ -51,13 +51,15 @@
 	
 	<!-- 基于注解的事务配置方式 配置 事务的Annotation 驱动，扫描@Transactional注解的类定义事务 -->
     <!-- 一看前缀是tx:就知道这是跟事务相关的注解，enable transaction annotation support -->
+    <!-- proxy-target-class属性值决定是基于接口的还是基于类的代理被创建，
+     为true则是基于类的代理将起作用（需要cglib库），为false或者省略这个属性，则标准的JDK 基于接口的代理将起作用。
+     -->
 	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
     <!-- 事务还有一种传统声明式的配置方式，用到了<tx:advice>和<aop:config>等，要定义好多属性，并且指定应用事务的方法名 -->
     <!-- MyBatis end -->
     
 	<!-- 配置 JSR303 Bean Validator 定义 -->
 	<bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
-
 	<!-- 缓存配置 -->
 	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
 		<property name="configLocation" value="classpath:${ehcache.configFile}" />

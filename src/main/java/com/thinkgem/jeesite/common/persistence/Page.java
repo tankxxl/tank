@@ -18,6 +18,7 @@ import com.thinkgem.jeesite.common.utils.CookieUtils;
 
 /**
  * 分页类
+ * 该类描述了分页记录集 中的关于页的信息
  * @author ThinkGem
  * @version 2013-7-2
  * @param <T>
@@ -56,6 +57,7 @@ public class Page<T> {
 	
 	/**
 	 * 构造方法
+	 * 使用request、response来初始化pageNo、pageSize、orderBy等参数
 	 * @param request 传递 repage 参数，来记住页码
 	 * @param response 用于设置 Cookie，记住页码
 	 */
@@ -65,6 +67,7 @@ public class Page<T> {
 
 	/**
 	 * 构造方法
+	 * 使用request、response来初始化pageNo、pageSize、orderBy等参数
 	 * @param request 传递 repage 参数，来记住页码
 	 * @param response 用于设置 Cookie，记住页码
 	 * @param defaultPageSize 默认分页大小，如果传递 -1 则为不分页，返回所有数据

@@ -19,10 +19,14 @@ import java.lang.reflect.Field;
  * which means you can NOT use logger in the constructor of the bean. Because at that time,
  * the logger field has not be defined, you'll get NullPointerException Error.
  *
+ * 可以针对每个Bean的生成前后做一些逻辑操作
+ *
  * Created by rgz on 14/12/2016.
  */
 @Service
 public class LoggableInjector implements BeanPostProcessor {
+
+    // 在初始化Bean之前
     @Override
     public Object postProcessBeforeInitialization(final Object bean, String beanName)
             throws BeansException {
@@ -40,6 +44,7 @@ public class LoggableInjector implements BeanPostProcessor {
         return bean;
     }
 
+    // 在初始化Bean之后
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName)
             throws BeansException {

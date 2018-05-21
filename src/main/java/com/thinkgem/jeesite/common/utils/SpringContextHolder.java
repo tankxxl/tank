@@ -38,7 +38,7 @@ import org.springframework.stereotype.Service;
 @Lazy(false)
 public class SpringContextHolder implements ApplicationContextAware, DisposableBean {
 
-	// 将BeanFactory容器以成员变量保存
+	// 将BeanFactory容器以成员变量保存，这里使用变量引用如此重的一个对象，所以一定要在destroy时释放此对象。
 	private static ApplicationContext applicationContext = null;
 
 	private static Logger logger = LoggerFactory.getLogger(SpringContextHolder.class);

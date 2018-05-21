@@ -510,8 +510,8 @@ var vm = new Vue({
             }
             row = getSelectedRows('table')[0];
             rowIndex = indexes[0];
-            console.log(row);
-            console.log(rowIndex);
+            // console.log(row);
+            // console.log(rowIndex);
             jeesnsDialog.openEdit('${ctx}/project/invoice/addItemView?id=' + row.id,
                 '修改开票项', '600px', '650px', function(data) {
                     $('#table').bootstrapTable('updateRow', {index: rowIndex, row: data});

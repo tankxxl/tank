@@ -103,6 +103,7 @@ public class ProjectFinishApprovalController extends BaseController {
 		return prefix + view;
 	}
 
+	// RedirectAttributes实现参数传递
 	@RequiresPermissions("project:finish:projectFinishApproval:edit")
 	@RequestMapping(value = "save")
 	public String save(ProjectFinishApproval projectFinishApproval, Model model, RedirectAttributes redirectAttributes) {

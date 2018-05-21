@@ -99,6 +99,7 @@
 	<servlet-mapping>
 		<servlet-name>springServlet</servlet-name>
 		<url-pattern>/</url-pattern>
+		<!--如果只配置拦截类似于*.do格式的url，则对静态资源的访问是没有问题的，但如果配置拦截了所有的请求（如“/”），就会造成js文件、css文件、图片文件等静态资源无法访问-->
 	</servlet-mapping>
 
 	<!-- Activiti diagram-view callback filter-->

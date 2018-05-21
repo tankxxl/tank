@@ -22,6 +22,10 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * 生成随机验证码
+ *
+ * servlet是单例的，而tomcat则是在多个线程中调用servlet的处理方法。
+ * 因此如果servlet存在实例对象，那么就会引出线程安全的问题。
+ *
  * @author ThinkGem
  * @version 2014-7-27
  */
