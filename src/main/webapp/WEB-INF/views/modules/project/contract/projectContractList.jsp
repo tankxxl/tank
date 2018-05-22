@@ -7,13 +7,20 @@
 	<script type="text/javascript">
 		$(document).ready(function() {
 
+            function ajaxSubmit() {
+                var json = form2js($("#searchForm")[0]);
+                jeesns.jeesnsAjax('${ctx}/project/contract/projectContract/stat', 'POST', json);
+            }
+
             $("#btnExportList").click(function(){
                 top.$.jBox.confirm("确认要导出数据吗？","系统提示",function(v,h,f){
                     if(v=="ok"){
-                        var url = $("#searchForm").attr("action");
-                        $("#searchForm").attr("action","${ctx}/project/contract/projectContract/exportList");
-                        $("#searchForm").submit();
-                        $("#searchForm").attr("action", url);
+                        <%--var url = $("#searchForm").attr("action");--%>
+                        <%--$("#searchForm").attr("action","${ctx}/project/contract/projectContract/exportList");--%>
+                        <%--$("#searchForm").submit();--%>
+                        <%--$("#searchForm").attr("action", url);--%>
+
+						ajaxSubmit();
                     }
                 },{buttonsFocus:1});
                 top.$('.jbox-body .jbox-icon').css('top','55px');
@@ -54,6 +61,8 @@
         	return false;
         }
 	</script>
+
+
 </head>
 <body>
 <div id="importBox" class="hide">

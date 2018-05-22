@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import com.thinkgem.jeesite.common.beanvalidator.BeanValidators;
 import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.persistence.Page;
+import com.thinkgem.jeesite.common.persistence.RespEntity;
 import com.thinkgem.jeesite.common.service.BaseService;
 import com.thinkgem.jeesite.common.utils.DateUtils;
 import com.thinkgem.jeesite.common.utils.StringUtils;
@@ -21,6 +22,7 @@ import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
 import com.thinkgem.jeesite.modules.project.entity.bidding.ProjectBidding;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContractItem;
+import com.thinkgem.jeesite.modules.project.entity.invoice.ProjectInvoiceItem;
 import com.thinkgem.jeesite.modules.project.service.contract.ProjectContractService;
 import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.service.SystemService;
@@ -43,6 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolationException;
 import java.io.FileInputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -420,6 +423,94 @@ public class ProjectContractController extends BaseController {
 		return new ModelAndView(
 				new JxlsExcelView("ContractList.xls", exportFileName),
 				model);
+	}
+
+	@RequestMapping(value = "stat")
+	@ResponseBody
+	public RespEntity stat(@RequestBody ProjectContract projectContract,
+						   HttpServletRequest request, HttpServletResponse response, Model model) {
+
+		String ctxPath = request.getContextPath();
+
+		String pCode = ""; // pCode projectCode 项目编号
+		if (projectContract != null && projectContract.getApply() != null) {
+			pCode = projectContract.getApply().getProjectCode();
+		}
+
+		String pName = ""; // pName projectName 项目名称
+		if (projectContract != null && projectContract.getApply() != null) {
+			pName = projectContract.getApply().getProjectName();
+		}
+
+		String contractCode = ""; // contractCode 合同编号
+		// if (invoiceItem != null && invoiceItem.getContract() != null) {
+		// 	contractCode = invoiceItem.getContract().getContractCode();
+		// }
+		String queryBeginDate = "";
+		String queryEndDate = "";
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		// if (invoiceItem != null && invoiceItem.getQueryBeginDate() != null) {
+		// 	queryBeginDate = sdf.format(invoiceItem.getQueryBeginDate());
+		// }
+		// if (invoiceItem != null && invoiceItem.getQueryEndDate() != null) {
+		// 	queryEndDate = sdf.format(invoiceItem.getQueryEndDate());
+		// }
+
+		String amount = "";
+		// if (!StringUtils.isBlank(invoiceItem.getAmount())) {
+		// 	amount = invoiceItem.getAmount();
+		// }
+
+		String customerInvoiceName = "";
+		// if ( invoiceItem.getCustomerInvoice() != null && !StringUtils.isBlank(invoiceItem.getCustomerInvoice().getCustomerName())) {
+		// 	customerInvoiceName = invoiceItem.getCustomerInvoice().getCustomerName();
+		// }
+
+		String taxRate = "";
+		// if ( !StringUtils.isBlank(invoiceItem.getTaxRate())) {
+		// 	taxRate = invoiceItem.getTaxRate();
+		// }
+
+		String officeId = "";
+		// if (invoiceItem.getApply() != null &&
+		// 		invoiceItem.getApply().getSaler() != null &&
+		// 		invoiceItem.getApply().getSaler().getOffice() != null &&
+		// 		!StringUtils.isBlank(invoiceItem.getApply().getSaler().getOffice().getId())) {
+		// 	officeId = invoiceItem.getApply().getSaler().getOffice().getId();
+		// }
+
+		String invoiceDate = "";
+		// if (invoiceItem.getInvoiceDate() != null) {
+		// 	invoiceDate = sdf.format(invoiceItem.getInvoiceDate());
+		// }
+
+		String lineId = "";
+		// if (invoiceItem.getApply() != null &&
+		// 		invoiceItem.getApply().getLine() != null &&
+		// 		!StringUtils.isBlank(invoiceItem.getApply().getLine().getId())) {
+		// 	lineId = invoiceItem.getApply().getLine().getId();
+		// }
+
+		StringBuilder sbUrl = new StringBuilder();
+		sbUrl.append(ctxPath);
+		sbUrl.append("/ureport/preview?_u=file:contractList.ureport.xml");
+		sbUrl.append("&pc=").append(pCode);
+		sbUrl.append("&pn=").append(pName);
+		sbUrl.append("&cc=").append(contractCode);
+		sbUrl.append("&qb=").append(queryBeginDate);
+		sbUrl.append("&qe=").append(queryEndDate);
+		sbUrl.append("&am=").append(amount);
+		sbUrl.append("&cin=").append(customerInvoiceName);
+		sbUrl.append("&tr=").append(taxRate);
+		sbUrl.append("&oi=").append(officeId);
+		sbUrl.append("&ida=").append(invoiceDate);
+		sbUrl.append("&lid=").append(lineId);
+
+		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面
+		// 4 跳转新窗口
+		RespEntity respEntity = new RespEntity(4, "查询成功！");
+		respEntity.setUrl(sbUrl.toString());
+		return respEntity;
 	}
 
 

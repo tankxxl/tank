@@ -222,6 +222,18 @@
 		<servlet-name>ValidateCodeServlet</servlet-name>
 		<url-pattern>/servlet/validateCodeServlet</url-pattern>
 	</servlet-mapping>
+
+
+	<!-- ureport2 -->
+	<servlet>
+		<servlet-name>ureportServlet</servlet-name>
+		<servlet-class>com.bstek.ureport.console.UReportServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ureportServlet</servlet-name>
+		<!-- 此值一定不能变 -->
+		<url-pattern>/ureport/*</url-pattern>
+	</servlet-mapping>
 	
 	<!-- FineReport 
 	<servlet>

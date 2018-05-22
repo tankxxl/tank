@@ -30,6 +30,9 @@
 <script src="${ctxStatic}/layer/layer.js" type="text/javascript"></script>
 <script src="${ctxStatic}/common/jeesns.js" type="text/javascript"></script>
 
+<script src="${ctxStatic}/form2js-master/src/form2js.js" type="text/javascript"></script>
+<script src="${ctxStatic}/form2js-master/src/js2form.js" type="text/javascript"></script>
+
 <script src="${ctxStatic}/bootstrap-table/dist/bootstrap-table.js"></script>
 <link href="${ctxStatic}/bootstrap-table/dist/bootstrap-table.css" rel="stylesheet" />
 <script src="${ctxStatic}/bootstrap-table/dist/locale/bootstrap-table-zh-CN.js"></script>
