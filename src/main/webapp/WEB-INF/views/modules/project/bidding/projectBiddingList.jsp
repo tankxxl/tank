@@ -6,6 +6,18 @@
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
+
+            $("#btnExportList").click(function(){
+                top.$.jBox.confirm("确认要导出数据吗？","系统提示",function(v,h,f){
+                    if(v=="ok"){
+                        var url = $("#searchForm").attr("action");
+                        $("#searchForm").attr("action","${ctx}/project/bidding/projectBidding/exportList");
+                        $("#searchForm").submit();
+                        $("#searchForm").attr("action", url);
+                    }
+                },{buttonsFocus:1});
+                top.$('.jbox-body .jbox-icon').css('top','55px');
+            });
 			
 			$("#contentTable").find("input[export]").each(function(){
 				$(this).click(function(){
@@ -59,7 +71,10 @@
 			<%--<li><label>用印内容：</label>--%>
 				<%--<form:checkboxes path="printingPaste" items="${fns:getDictList('tender_printing_paste')}" itemLabel="label" itemValue="value" htmlEscape="false"/>--%>
 			<%--</li>--%>
-			<li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/></li>
+			<li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/>
+				<input id="btnExportList" type="button" class="btn btn-primary" value="导出"/>
+			</li>
+
 			<li class="clearfix"></li>
 		</ul>
 	</form:form>

@@ -9,10 +9,12 @@ import com.thinkgem.jeesite.common.beanvalidator.BeanValidators;
 import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.service.BaseService;
+import com.thinkgem.jeesite.common.utils.DateUtils;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.utils.excel.ExportExcel;
 import com.thinkgem.jeesite.common.utils.excel.ImportExcel;
 import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.common.web.JxlsExcelView;
 import com.thinkgem.jeesite.modules.act.entity.Act;
 import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
@@ -33,6 +35,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,6 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolationException;
 import java.io.FileInputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -396,6 +400,26 @@ public class ProjectContractController extends BaseController {
 		// 	return "true";
 		// }
 		return "false";
+	}
+
+	@RequestMapping(value = "/exportList")
+	public ModelAndView exportList(ProjectContract projectContract,
+								   HttpServletRequest request, HttpServletResponse response, Map map) {
+
+		projectContract.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+
+		// 不用分页
+		List<ProjectContract> list = contractService.findList(projectContract);
+		Map<String, Object> model = new HashMap();
+
+		map.put("list", list);
+
+
+		String  exportFileName = "导出签约列表" + DateUtils.getDate("yyyyMMddHHmmss")+".xls";
+
+		return new ModelAndView(
+				new JxlsExcelView("ContractList.xls", exportFileName),
+				model);
 	}
 
 

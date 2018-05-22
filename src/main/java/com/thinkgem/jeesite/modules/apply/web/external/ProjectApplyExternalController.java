@@ -275,10 +275,15 @@ public class ProjectApplyExternalController extends BaseController {
 		projectApplyExternal
 				.getSqlMap()
 				.put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
-		Page<ProjectApplyExternal> page = applyService.findPage(new Page<>(request, response, -1), projectApplyExternal);
+
+		// 不用分页
+		List<ProjectApplyExternal> applyList = applyService.findList(projectApplyExternal);
+		// Page<ProjectApplyExternal> page = applyService.findPage(new Page<>(request, response, -1), projectApplyExternal);
 		Map<String, Object> model = new HashMap();
 
-		map.put("applyList", page.getList());
+		// map.put("applyList", page.getList());
+		map.put("applyList", applyList);
+
 
 		String  exportFileName = "导出立项列表" + DateUtils.getDate("yyyyMMddHHmmss")+".xls";
 
@@ -305,7 +310,6 @@ public class ProjectApplyExternalController extends BaseController {
 		// return new ModelAndView(
 		// 		new JxlsExcelView("applyList.xls", exportFileName),
 		// 		model);
-
 	}
 
 
