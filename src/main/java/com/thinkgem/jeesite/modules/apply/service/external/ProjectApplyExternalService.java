@@ -3,7 +3,10 @@
  */
 package com.thinkgem.jeesite.modules.apply.service.external;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.thinkgem.jeesite.common.config.Global;
+import com.thinkgem.jeesite.common.service.BaseService;
 import com.thinkgem.jeesite.common.service.JicActService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
@@ -23,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +38,8 @@ import java.util.Map;
  */
 @Service
 @Transactional(readOnly = true)
-public class ProjectApplyExternalService extends JicActService<ProjectApplyExternalDao, ProjectApplyExternal> {
+public class ProjectApplyExternalService
+		extends JicActService<ProjectApplyExternalDao, ProjectApplyExternal> {
 	
 	@Autowired
 	MailService mailService;
@@ -42,10 +47,34 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 	@Autowired
 	private RoleDao roleDao;
 
-	// @Override
-	// public ProjectApplyExternal get(String id) {
-	// 	return super.get(id);
-	// }
+	@Override
+	public ProjectApplyExternal get(String id) {
+		ProjectApplyExternal apply = super.get(id);
+		if (apply == null) {
+			apply = new ProjectApplyExternal();
+		}
+		return apply;
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public void delete(ProjectApplyExternal entity) {
+		// 流程审批状态,字典数据AuditStatus，0初始录入，1审批中，2审批结束
+		String status = entity.getProcStatus();
+		if ("1".equals(status)) {
+			endProcess(entity.getProcInsId());
+		}
+		super.delete(entity);
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public void save(ProjectApplyExternal entity) {
+		if (entity.getIsNewRecord()){
+			entity.preInsert4ProInteralApply();
+		}
+		super.save(entity);
+	}
 
 	@Override
 	public void setupVariable(ProjectApplyExternal projectApplyExternal, Map<String, Object> vars) {
@@ -54,7 +83,8 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 		vars.put(ActUtils.VAR_PRJ_ID, projectApplyExternal.getId());
 		vars.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
 		vars.put(ActUtils.VAR_PRJ_TYPE, projectApplyExternal.getCategory());
-		vars.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
+		vars.put(ActUtils.VAR_OFFICE_CODE, projectApplyExternal.getSaler().getOffice().getCode());
+		// vars.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
 
 		if ("03".equals(projectApplyExternal.getCategory()) ) {
 			vars.put(ActUtils.VAR_TYPE, "2");
@@ -234,25 +264,10 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 		email.setSubject(subject); // xxx审批流程
 		email.setContent((String) task.getVariable(ActUtils.VAR_TITLE)); // 项目名称
 		if (Global.isSendEmail()) {
-			mailService.sendMailByAsynchronousMode(email);
+			mailService.sendMailByAsyncMode(email);
 		}
 		System.out.println("MailTo=" + sbMailTo.toString());
 	}
-	
-	/**
-	 * 维护自己的流程状态	
-	 * @param id
-	 * @param audit
-	 */
-	// @Transactional(readOnly = false)
-	// public void auditTo(String id, String audit) {
-	// 	ProjectApplyExternal projectApplyExternal = get(id);
-	// 	if (projectApplyExternal == null) {
-	// 		return ;
-	// 	}
-	// 	projectApplyExternal.setProcessStatus(audit);
-	// 	dao.update(projectApplyExternal);
-	// }
 	
 	/**
 	 * 业务状态、项目的业务状态、立项审批中、立项完成、招标审批中、招标完成、合同、结项等。
@@ -271,12 +286,46 @@ public class ProjectApplyExternalService extends JicActService<ProjectApplyExter
 		dao.update(projectApplyExternal);
 	}
 
+	@Deprecated
 	public List<ProjectApplyExternal> findList4LargerMainStage(ProjectApplyExternal projectApplyExternal){
 		return dao.findList4LargerMainStage(projectApplyExternal);
 	}
 
+	@Deprecated
 	public List<ProjectApplyExternal> findAllList4LargerMainStage(ProjectApplyExternal projectApplyExternal){
 		return dao.findAllList4LargerMainStage(projectApplyExternal);
+	}
+
+	//
+	public List<Map<String, Object>> findList4tree(String proMainStage, boolean strict) {
+
+		ProjectApplyExternal applyExternal = new ProjectApplyExternal();
+
+		proMainStage = StringUtils.substringBefore(proMainStage, "?");
+		if (strict) {
+			applyExternal.setQueryStage(Arrays.asList(proMainStage.split(",")));
+		} else {
+			applyExternal.setProMainStage(proMainStage);
+		}
+
+		applyExternal.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+		List<ProjectApplyExternal> list = findList(applyExternal);
+		return toMapList(list);
+	}
+
+	private List<Map<String, Object>> toMapList(List<ProjectApplyExternal> list) {
+		List<Map<String, Object>> mapList = Lists.newArrayList();
+		if (list == null || list.isEmpty())
+			return mapList;
+
+		for (int i=0; i<list.size(); i++) {
+			ProjectApplyExternal e = list.get(i);
+			Map<String, Object> map = Maps.newHashMap();
+			map.put("id", e.getId());
+			map.put("name", e.getProjectName());
+			mapList.add(map);
+		}
+		return mapList;
 	}
 	
 }

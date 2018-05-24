@@ -350,7 +350,7 @@ public class ProjectContractController extends BaseController {
 
 		String  exportFileName = projectContract.getApply().getProjectName() + "_销售合同（签约）审批表";
 
-		return new ModelAndView(new JxlsExcelView("ProjectContract2.xls",exportFileName, false), model);
+		return new ModelAndView(new JxlsExcelView("ProjectContract2.xls",exportFileName), model);
 
 
 

@@ -31,7 +31,6 @@ import java.util.Map;
 public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
         extends CrudService<D, T> {
 
-
     @Autowired
     ActTaskService actTaskService;
 
@@ -49,9 +48,13 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
 //	 * @param id
 //	 * @return
 //	 */
-//	public T get(String id) {
-//		return dao.get(id);
-//	}
+    @Override
+	public T get(String id) {
+	    if (StringUtils.isBlank(id)) {
+	        return null;
+        }
+		return dao.get(id);
+	}
 //
 //	/**
 //	 * 获取单条数据
@@ -152,72 +155,25 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
         return entity;
     }
 
-
-
     /**
-     * 只启动流程，不保存业务数据
+     * 只启动流程
      *
      * @param entity
      * @param vars
      * @return
      */
     protected String launch(T entity, Map<String, Object> vars) {
+        setupVariable(entity, vars);
         return actTaskService.startProcEatFirstTask( entity,
                 null, vars );
     }
 
-    // 重新启动流程
-    // 算一次特殊的审批，可以修改业务数据(不是主要的)，还可以销毁流程(跟审批的主要区别)
-    // 可以把申请人的重新提交跟审批人的审批合并。
-    // protected String reLaunch(T entity, Map<String, Object> vars) {
-    //     // 先保存业务数据
-    //     save(entity);
-    //     // 格式化审批意见
-    //     entity.getAct().setComment(
-    //             (entity.getAct().getFlagBoolean()?"[重申] ":"[销毁] ")
-    //                     + entity.getAct().getComment()
-    //     );
-    //     // 前端传过来的值
-    //     if (entity.getAct().getFlagBoolean()) { // 重新提交申请单
-    //         // 完成流程任务
-    //         actTaskService.complateByAct(entity.getAct(), vars);
-    //     } else {
-    //         delete((T) entity);
-    //         actTaskService.deleteProcIns(entity.getProcInsId(), "");
-    //     }
-    //     return entity.getProcInsId();
-    // }
-
-    // public String launchWorkflowBase(ActEntity actEntity,
-    //                boolean isNewRecord,
-    //                String title,
-    //                Map<String, Object> vars) {
-    //
-    //     if (isNewRecord) {  // 新建申请单
-    //         return actTaskService.startProcEatFirstTask(
-    //                 actEntity,
-    //                 title,
-    //                 vars
-    //         );
-    //
-    //     } else {  // 修改申请单
-    //         actEntity.getAct().setComment(
-    //                 (actEntity.getAct().getFlagBoolean()?"[重申] ":"[销毁] ")
-    //                         + actEntity.getAct().getComment()
-    //         );
-    //         // 前端传过来的值
-    //         if (actEntity.getAct().getFlagBoolean()) { // 重新提交申请单
-    //             // 完成流程任务
-    //             vars.put(ActUtils.VAR_PASS, actEntity.getAct().getFlagNumber());
-    //             actTaskService.complateByAct(actEntity.getAct(), vars);
-    //         } else {
-    //             delete((T) actEntity);
-    //             actTaskService.deleteProcIns(actEntity.getProcInsId(), "");
-    //         }
-    //
-    //         return actEntity.getProcInsId();
-    //     }
-    // }
+    protected String launch(T entity) {
+        Map<String, Object> vars = new HashMap<String, Object>();
+        setupVariable(entity, vars);
+        return actTaskService.startProcEatFirstTask( entity,
+                null, vars );
+    }
 
     /**
      * 结束整个流程
@@ -253,15 +209,13 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
      */
     @Transactional(readOnly = false)
     public String saveLaunch(T entity) {
-        if (entity.getIsNewRecord()) {
+        if (entity.getIsNewRecord() || StringUtils.isBlank(entity.getProcInsId()) ) {
             Map<String, Object> varMap = new HashMap<String, Object>();
-            setupVariable(entity, varMap);
-            // 先保存业务数据
             save(entity);
             return launch(entity, varMap);
         } else {
             saveAudit(entity);
-            return null;
+            return entity.getProcInsId();
         }
     }
 

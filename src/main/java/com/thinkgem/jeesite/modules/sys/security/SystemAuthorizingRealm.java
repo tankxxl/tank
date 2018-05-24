@@ -3,29 +3,6 @@
  */
 package com.thinkgem.jeesite.modules.sys.security;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.SimpleAuthenticationInfo;
-import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
-import org.apache.shiro.authz.AuthorizationInfo;
-import org.apache.shiro.authz.Permission;
-import org.apache.shiro.authz.SimpleAuthorizationInfo;
-import org.apache.shiro.realm.AuthorizingRealm;
-import org.apache.shiro.session.Session;
-import org.apache.shiro.subject.PrincipalCollection;
-import org.apache.shiro.util.ByteSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.servlet.ValidateCodeServlet;
 import com.thinkgem.jeesite.common.utils.Encodes;
@@ -38,9 +15,30 @@ import com.thinkgem.jeesite.modules.sys.service.SystemService;
 import com.thinkgem.jeesite.modules.sys.utils.LogUtils;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import com.thinkgem.jeesite.modules.sys.web.LoginController;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authc.*;
+import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
+import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.Permission;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.util.ByteSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * 系统安全认证实现类
+ *
+ * 自定义realm类，AuthorizingRealm类也是一步步继承自Realm类的
+ *
  * @author ThinkGem
  * @version 2014-7-5
  */
@@ -53,6 +51,10 @@ public class SystemAuthorizingRealm extends AuthorizingRealm {
 	private SystemService systemService;
 
 	/**
+	 * 用来验证当前登录的用户，获取认证信息
+	 * 1、认证
+	 * 前端Controller中在调用subject.login(token)后，来到realm的这个回调方法中去认证。
+	 *
 	 * 认证回调函数, 登录时调用
 	 */
 	@Override
@@ -73,21 +75,32 @@ public class SystemAuthorizingRealm extends AuthorizingRealm {
 			}
 		}
 		
-		// 校验用户名密码
+		// 校验用户名，从token中取出username，去业务层验证是否有此用户，不涉及到密码
 		User user = getSystemService().getUserByLoginName(token.getUsername());
 		if (user != null) {
 			if (Global.NO.equals(user.getLoginFlag())){
-				throw new AuthenticationException("msg:该帐号已禁止登录.");
+				// throw new AuthenticationException("msg:该已帐号禁止登录.");
+				throw new LockedAccountException("msg:该已帐号禁止登录.");
 			}
 			byte[] salt = Encodes.decodeHex(user.getPassword().substring(0,16));
-			return new SimpleAuthenticationInfo(new Principal(user, token.isMobileLogin()), 
-					user.getPassword().substring(16), ByteSource.Util.bytes(salt), getName());
+
+			// 交给AuthenticatingRealm使用CredentialsMatcher进行密码匹配
+			return new SimpleAuthenticationInfo(
+					new Principal(user, token.isMobileLogin()),
+					user.getPassword().substring(16),
+					ByteSource.Util.bytes(salt),
+					getName() // realm name
+			);
 		} else {
-			return null;
+			// return null;
+			throw new UnknownAccountException("msg:账号找不到.");
 		}
 	}
 
 	/**
+	 * 用来为当前登录成功的用户授予权限和角色（已经登录成功了）
+	 * 2、授权
+	 *
 	 * 授权查询回调函数, 进行鉴权但缓存中无用户的授权信息时调用
 	 */
 	@Override
@@ -118,6 +131,7 @@ public class SystemAuthorizingRealm extends AuthorizingRealm {
 				if (StringUtils.isNotBlank(menu.getPermission())){
 					// 添加基于Permission的权限信息
 					for (String permission : StringUtils.split(menu.getPermission(),",")){
+						// 把数据库中的权限放入Shiro的数据结构中，以便Shiro来判断权限
 						info.addStringPermission(permission);
 					}
 				}
@@ -126,6 +140,7 @@ public class SystemAuthorizingRealm extends AuthorizingRealm {
 			info.addStringPermission("user");
 			// 添加用户角色信息
 			for (Role role : user.getRoleList()){
+				// 把数据库中的角色放入Shiro的数据结构中，以便Shiro来判断角色
 				info.addRole(role.getEnname());
 			}
 			// 更新登录IP和时间
@@ -179,6 +194,8 @@ public class SystemAuthorizingRealm extends AuthorizingRealm {
 	}
 	
 	/**
+	 * Bean的初始化和销毁
+	 * Spring对Bean生命周期的操作提供了支持。
 	 * 设定密码校验的Hash算法与迭代次数
 	 */
 	@PostConstruct

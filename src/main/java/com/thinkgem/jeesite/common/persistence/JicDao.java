@@ -9,6 +9,8 @@ import java.util.List;
 
 /**
  * DAO支持类实现
+ * 封装大家都需要的dao方法，如根据procInsId得到业务实体对象
+ *
  * @author ThinkGem
  * @version 2014-05-16
  * @param <T>

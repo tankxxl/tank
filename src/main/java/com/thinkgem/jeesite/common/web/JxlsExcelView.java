@@ -1,6 +1,9 @@
 package com.thinkgem.jeesite.common.web;
 
+import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import org.jxls.common.Context;
+import org.jxls.expression.JexlExpressionEvaluator;
+import org.jxls.transform.Transformer;
 import org.jxls.util.JxlsHelper;
 import org.springframework.web.servlet.view.AbstractView;
 
@@ -10,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -20,16 +24,14 @@ public class JxlsExcelView extends AbstractView {
 
     private String templatePath;
     private String exportFileName;
-    private boolean useFastFormulaProcessor = true;
 
+    /**
+     *
+     * @param templatePath 模版相对于当前classpath路径
+     * @param exportFileName 导出文件名
+     */
     public JxlsExcelView(String templatePath, String exportFileName) {
-        this(templatePath, exportFileName, true);
-    }
-
-    public JxlsExcelView(String templatePath, String exportFileName, boolean useFastFormulaProcessor) {
         this.templatePath = templatePath;
-        this.useFastFormulaProcessor = useFastFormulaProcessor;
-
         if (exportFileName != null) {
             try {
                 exportFileName = URLEncoder.encode(exportFileName, "UTF-8");
@@ -49,9 +51,11 @@ public class JxlsExcelView extends AbstractView {
 
         Context context = new Context(model);
 
+        // 设定文件输出类型
         response.setContentType(getContentType());
         response.setHeader("content-disposition",
-                "attachment;filename=" + exportFileName + ".xls");
+                "attachment;filename=" + exportFileName);
+
         ServletOutputStream os = response.getOutputStream();
 
         InputStream is = null;
@@ -61,21 +65,24 @@ public class JxlsExcelView extends AbstractView {
 //                    .getResourceAsStream("WEB-INF/excel/project/" + templatePath);
 
             is = getClass().getClassLoader().getResourceAsStream(templatePath);
-            System.out.print(is);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        if (useFastFormulaProcessor) {
-            JxlsHelper.getInstance().processTemplate(is, os, context);
-        } else {
-            JxlsHelper.getInstance()
-                    .setUseFastFormulaProcessor(false)
-                    .processTemplate(is, os, context);
-        }
+        // simple
+        // JxlsHelper.getInstance().processTemplate(is, os, context);
+
+        JxlsHelper jxlsHelper = JxlsHelper.getInstance();
+        Transformer transformer = jxlsHelper.createTransformer(is, os);
+        JexlExpressionEvaluator evaluator = (JexlExpressionEvaluator) transformer.getTransformationConfig().getExpressionEvaluator();
+        Map<String, Object> funcs = new HashMap<>();
+        funcs.put("utils", new DictUtils());
+        evaluator.getJexlEngine().setFunctions(funcs);
+        jxlsHelper.processTemplate(context, transformer);
 
 
         os.flush();
         is.close();
+        os.close();
     }
 }

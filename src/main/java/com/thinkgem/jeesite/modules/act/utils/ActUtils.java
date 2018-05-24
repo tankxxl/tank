@@ -69,6 +69,8 @@ public class ActUtils {
     // 项目类型，字典中key值，在后期审批节点中需要用项目类型来查找审批角色 *
     public static final String VAR_PRJ_TYPE = "prjType";
 
+	public static final String VAR_OFFICE_CODE = "officeCode";
+
 	// 根据项目类型来设置，软件类项目为2，其它类项目为1 *
 	public static final String VAR_TYPE = "type";
     // 申请单类名

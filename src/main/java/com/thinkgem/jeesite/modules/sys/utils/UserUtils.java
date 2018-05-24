@@ -43,6 +43,10 @@ public class UserUtils {
 	
 	/**
 	 * 根据ID获取用户
+	 *
+	 * 先cache中去找
+	 * 再数据库加载，同时用户角色一起加载
+	 *
 	 * @param id
 	 * @return 取不到返回null
 	 */
@@ -62,6 +66,10 @@ public class UserUtils {
 	
 	/**
 	 * 根据登录名获取用户
+	 *
+	 * 先cache中去找
+	 * 再数据库中加载，同时用户角色一起加载
+	 *
 	 * @param loginName
 	 * @return 取不到返回null
 	 */

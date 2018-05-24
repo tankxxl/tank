@@ -41,6 +41,8 @@
 		saler.name AS "saler.name",
 		s5.id AS "saler.office.id",
 		s5.name AS "saler.office.name",
+		s5.code AS "saler.office.code",
+
 		c5.customer_name AS "customer.customerName",
 		c5.customer_category AS "customer.customerCategory",
 		c5.industry AS "customer.industry",
@@ -262,6 +264,7 @@
 		UPDATE project_apply_external SET 	
 			project_code = #{projectCode},
 			project_name = #{projectName},
+			saler_id = #{saler.id},
 			customer_id = #{customer.id},
 			customer_contact_id = #{customerContact.id},
 			estimated_contract_amount = #{estimatedContractAmount},

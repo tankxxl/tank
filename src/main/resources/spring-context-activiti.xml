@@ -16,19 +16,19 @@
 		<property name="transactionManager" ref="transactionManager" />
 		<property name="deploymentResources" value="classpath*:/act/deployments/**/*.bar"/>
 		<property name="databaseSchemaUpdate" value="true" />
-		<property name="jobExecutorActivate" value="true" /><!-- 该参数将启用定时相关的功能 -->
+		<property name="jobExecutorActivate" value="true" /><!-- 该参数将启用定时相关的功能,要使用定时器，必须打开job -->
 		<property name="history" value="full" />
 		<property name="processDefinitionCacheLimit" value="10"/>
 
 		<!-- UUID作为主键生成策略 -->
 		<property name="idGenerator" ref="idGen" />
 		
-		<!-- 生成流程图的字体 -->
+		<!-- 生成流程图的字体,解决部署之后的乱码 -->
 		<property name="activityFontName" value="${activiti.diagram.activityFontName}"/>
 		<property name="labelFontName" value="${activiti.diagram.labelFontName}"/>
 		<property name="annotationFontName" value="${activiti.diagram.annotationFontName}"/><!-- 5.21.0 新增参数 -->
 		
-		<!-- 自定义用户管理、权限，重写其关于用户与组的增删改查操作，必须重新实现用户和组的相应方法-->
+		<!-- 自定义用户、用户组管理、权限，重写其关于用户与组的增删改查操作，必须重新实现用户和组的相应方法-->
 		<property name="customSessionFactories"> 
 			<list>
 				<bean class="com.thinkgem.jeesite.modules.act.service.ext.ActUserEntityServiceFactory"/>

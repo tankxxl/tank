@@ -149,6 +149,24 @@ public class GenTableService extends BaseService {
 		// 保存列
 		for (GenTableColumn column : genTable.getColumnList()){
 			column.setGenTable(genTable);
+			if (StringUtils.isBlank(column.getIsPk())){
+				column.setIsPk("0");
+			}
+			if (StringUtils.isBlank(column.getIsNull())){
+				column.setIsNull("0");
+			}
+			if (StringUtils.isBlank(column.getIsInsert())){
+				column.setIsInsert("0");
+			}
+			if (StringUtils.isBlank(column.getIsEdit())){
+				column.setIsEdit("0");
+			}
+			if (StringUtils.isBlank(column.getIsList())){
+				column.setIsList("0");
+			}
+			if (StringUtils.isBlank(column.getIsQuery())){
+				column.setIsQuery("0");
+			}
 			if (StringUtils.isBlank(column.getId())){
 				column.preInsert();
 				genTableColumnDao.insert(column);

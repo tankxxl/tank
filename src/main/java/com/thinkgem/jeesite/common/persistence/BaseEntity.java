@@ -36,6 +36,8 @@ public abstract class BaseEntity<T> implements Serializable {
 	
 	/**
 	 * 当前用户
+	 * 实体对象传到mybatis的xml中
+	 * 此字段用在mybatis的xml中，用来实现数据权限
 	 */
 	protected User currentUser;
 	
@@ -46,6 +48,7 @@ public abstract class BaseEntity<T> implements Serializable {
 	
 	/**
 	 * 自定义SQL（SQL标识，SQL内容）
+	 * 此字段用在mybatis的xml中，用来实现数据权限
 	 */
 	protected Map<String, String> sqlMap;
 	
