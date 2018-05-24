@@ -102,8 +102,11 @@ public class MailService extends BaseService {
 				helper.setCc(cc); // 抄送
 			}
             // helper.setReplyTo("xx@163.com"); // 回复到
-			helper.setSubject(email.getSubject()); // 邮件主题
-			helper.setText(email.getContent(), true); // true表示设定html格式
+			helper.setSubject(email.getSubject() + "--" + email.getContent()); // 邮件主题
+			helper.setText(email.getContent()
+                    + "<br/>请您登录项目管理系统，在【待办任务】中进行办理。"
+                    + "<br/>网址：<br/>" +
+                    "<a href='http://118.190.133.175/pms'>http://118.190.133.175/pms</a>" , true); // true表示设定html格式
             // helper.addInline("log", new ClassPathResource("logo.gif"));
 			// 处理附件
 			for (MultipartFile file : email.getAttachment()) {

@@ -72,11 +72,12 @@ public class JxlsExcelView extends AbstractView {
         // simple
         // JxlsHelper.getInstance().processTemplate(is, os, context);
 
+        // 可以传递自定义函数方式2
         JxlsHelper jxlsHelper = JxlsHelper.getInstance();
         Transformer transformer = jxlsHelper.createTransformer(is, os);
         JexlExpressionEvaluator evaluator = (JexlExpressionEvaluator) transformer.getTransformationConfig().getExpressionEvaluator();
         Map<String, Object> funcs = new HashMap<>();
-        funcs.put("utils", new DictUtils());
+        funcs.put("utils", new DictUtils()); // 添加自定义功能
         evaluator.getJexlEngine().setFunctions(funcs);
         jxlsHelper.processTemplate(context, transformer);
 

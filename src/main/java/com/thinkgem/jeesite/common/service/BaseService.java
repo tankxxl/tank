@@ -45,8 +45,9 @@ public abstract class BaseService {
 		// 超级管理员，跳过权限过滤
 		if (!user.isAdmin()){
 			boolean isDataScopeAll = false;
-			for (Role r : user.getRoleList()){
+			for (Role r : user.getRoleList()){ // 数据权限在角色上设置，所以要过滤用户所在的角色列表
 				for (String oa : StringUtils.split(officeAlias, ",")){
+					// 最内层的for循环处理某一个具体角色的数据权限
 					if (!dataScope.contains(r.getDataScope()) && StringUtils.isNotBlank(oa)){
 						if (Role.DATA_SCOPE_ALL.equals(r.getDataScope())){
 							isDataScopeAll = true;
@@ -86,13 +87,13 @@ public abstract class BaseService {
 					for (String ua : StringUtils.split(userAlias, ",")){
 						sqlString.append(" OR " + ua + ".id = '" + user.getId() + "'");
 					}
-				}else {
+				} else {
 					for (String oa : StringUtils.split(officeAlias, ",")){
 						//sqlString.append(" OR " + oa + ".id  = " + user.getOffice().getId());
 						sqlString.append(" OR " + oa + ".id IS NULL");
 					}
 				}
-			}else{
+			} else {
 				// 如果包含全部权限，则去掉之前添加的所有条件，并跳出循环。
 				sqlString = new StringBuilder();
 			}

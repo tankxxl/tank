@@ -33,6 +33,8 @@ public class MobileInterceptor extends BaseService implements HandlerInterceptor
 			// 如果是手机或平板访问的话，则跳转到手机视图页面。
 			if(UserAgentUtils.isMobileOrTablet(request) && !StringUtils.startsWithIgnoreCase(modelAndView.getViewName(), "redirect:")){
 				modelAndView.setViewName("mobile/" + modelAndView.getViewName());
+				// todo 移动端、pc端使用同一个jsp
+				// modelAndView.setViewName( modelAndView.getViewName());
 			}
 		}
 	}

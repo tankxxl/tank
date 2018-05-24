@@ -23,6 +23,8 @@ import java.lang.reflect.Field;
  */
 @Service
 public class LoggableInjector implements BeanPostProcessor {
+
+    // 在初始化Bean之前
     @Override
     public Object postProcessBeforeInitialization(final Object bean, String beanName)
             throws BeansException {
@@ -40,6 +42,7 @@ public class LoggableInjector implements BeanPostProcessor {
         return bean;
     }
 
+    // 在初始化Bean之后
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName)
             throws BeansException {

@@ -26,7 +26,8 @@
 		</constructor-arg>
 	</bean>
 	
-	<!-- 安全认证过滤器 ，rgz对应于web.xml中配置的那个shiroFilter -->
+	<!-- 安全认证过滤器，Shiro内置了很多过滤器 -->
+	<!-- Shiro主过滤器本身功能十分强大,其强大之处就在于它支持任何基于URL路径表达式的、自定义的过滤器的执行 -->
 	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
         <!-- rgz Shiro的核心安全接口，这个属性是必须的 -->
 		<property name="securityManager" ref="securityManager" /><!-- 
@@ -103,6 +104,7 @@
 	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
 	
 	<!-- AOP式方法级权限检查  -->
+	<!-- Enable Shiro Annotations for Spring-configured beans. Only run after the lifecycleBeanProcessor has run -->
 	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor">
 		<property name="proxyTargetClass" value="true" />
 	</bean>

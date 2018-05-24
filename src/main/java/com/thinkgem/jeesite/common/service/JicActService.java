@@ -155,8 +155,10 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
         return entity;
     }
 
+
+
     /**
-     * 只启动流程
+     * 只启动流程，根据entity设置流程变量，不保存业务数据
      *
      * @param entity
      * @param vars

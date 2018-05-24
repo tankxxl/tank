@@ -35,6 +35,18 @@ import com.thinkgem.jeesite.common.utils.DateUtils;
 
 /**
  * 控制器支持类
+ *
+ *  servlet是单例的，而tomcat则是在多个线程中调用servlet的处理方法。
+ *  因此如果servlet存在实例对象，那么就会引出线程安全的问题。
+ * 	controller默认是单例的，是否会有线程安全问题。
+ *
+ * 在方法参数中写request是线程安全的，原因如下：
+ * 1. 在controller中注入的request是jdk动态代理对象,ObjectFactoryDelegatingInvocationHandler的实例.
+ * 	  当我们调用成员域request的方法的时候其实是调用了objectFactory的getObject()对象的相关方法.
+ * 	  这里的objectFactory是RequestObjectFactory.
+ * 2. RequestObjectFactory的getObject其实是从RequestContextHolder的threadlocal中去取值的.
+ * 3. 请求刚进入springmvc的dispatcherServlet的时候会把request相关对象设置到RequestContextHolder的threadlocal中去.
+ *
  * @author ThinkGem
  * @version 2013-3-23
  */
@@ -129,7 +141,7 @@ public abstract class BaseController {
 	
 	/**
 	 * 添加Flash消息
-	 * @param message
+	 *
 	 */
 	protected void addMessage(RedirectAttributes redirectAttributes, String... messages) {
 		StringBuilder sb = new StringBuilder();

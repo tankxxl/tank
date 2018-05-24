@@ -81,6 +81,22 @@ public class ActTaskService extends BaseService {
 	
 	/**
 	 * 获取待办列表
+	 *
+	 * 一、taskService.createTaskQuery().taskCandidateOrAssigned(userId);
+	 * 当使用taskCandidateOrAssigned作查询条件时，Activiti会按照以下规则查找Task：
+	 * 1、Assignee匹配
+	 * 2、或者*.bpmn中定义的Candidate Users 匹配
+	 * 3、或者Candidate Group匹配
+	 * 二、taskService.createTaskQuery().taskAssignee(userId);
+	 * Assignee匹配
+	 * 三、taskService.createTaskQuery().taskCandidateGroup(userId);
+	 * *.bpmn中定义的Candidate Groups匹配
+	 * 四、taskService.createTaskQuery().taskCandidateUser(userId);
+	 * 五、taskService.createTaskQuery().taskCandidateGroupIn(groups);
+	 * 六、taskService.createTaskQuery().taskOwner(userId);
+	 * *.bpmn中定义的owner匹配
+	 *
+	 *
 	 // * @param procDefKey 流程定义标识
 	 * @return
 	 */
@@ -816,6 +832,9 @@ public class ActTaskService extends BaseService {
                         .processInstanceId(procInsId)
                         .singleResult();
 
+    	if (processInstance == null ) {
+    		return "";
+		}
         String procDefId = processInstance.getProcessDefinitionId();
         return procDefId;
     }
@@ -837,6 +856,9 @@ public class ActTaskService extends BaseService {
 
         Task task = getCurrentTaskInfo(processInstance);
 
+        if (task == null ) {
+        	return "";
+		}
         String executionId = task.getExecutionId();
         return executionId;
     }
@@ -868,7 +890,12 @@ public class ActTaskService extends BaseService {
     public void deleteProcIns(String procInsId, String deleteReason) {
         if (StringUtils.isEmpty(procInsId))
             return;
-        runtimeService.deleteProcessInstance(procInsId, deleteReason);
+        try {
+			runtimeService.deleteProcessInstance(procInsId, deleteReason);
+		} catch (Exception e) {
+        	logger.error("No process instance", e);
+		}
+
     }
 
     /**

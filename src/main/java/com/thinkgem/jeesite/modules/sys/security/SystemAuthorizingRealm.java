@@ -37,6 +37,8 @@ import java.util.List;
 /**
  * 系统安全认证实现类
  *
+ * Realm充当Shiro与应用安全数据间的"桥梁"或者"连接器"，Realm实质上是一个安全相关的DAO
+ *
  * 自定义realm类，AuthorizingRealm类也是一步步继承自Realm类的
  *
  * @author ThinkGem

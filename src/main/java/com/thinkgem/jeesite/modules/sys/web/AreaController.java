@@ -128,4 +128,13 @@ public class AreaController extends BaseController {
 		}
 		return mapList;
 	}
+
+	/**
+	 * Json形式返回项目信息
+	 */
+	@ResponseBody
+	@RequestMapping(value = "getAsJson")
+	public Area getAsJson(@RequestParam(required=false) String id) {
+		return get(id);
+	}
 }

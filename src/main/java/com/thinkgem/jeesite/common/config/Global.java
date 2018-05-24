@@ -197,5 +197,5 @@ public class Global {
     public static String getFromEmail() {
         return getConfig("activiti.fromEmail");
     }
-	
+
 }

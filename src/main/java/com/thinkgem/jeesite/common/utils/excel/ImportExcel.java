@@ -142,26 +142,49 @@ public class ImportExcel {
 		log.debug("Initialize success.");
 	}
 
+    /**
+     * Parses an excel file into a list of beans.
+     *
+     * 使用jxls-reader
+     *
+     * @param <T> the type of the bean
+     * @param xlsFile the excel data file to parse
+     * @param jxlsConfigFile the jxls config file describing how to map rows to beans
+     * @return the list of beans or an empty list there are none
+     * @throws Exception if there is a problem parsing the file
+     */
+    public static <T> List<T> parseExcelFileToBeans(final File xlsFile,
+                                                    final File jxlsConfigFile)
+            throws Exception {
+        final XLSReader xlsReader = ReaderBuilder.buildFromXML(jxlsConfigFile);
+        final List<T> result = new ArrayList<>();
+        final Map<String, Object> beans = new HashMap<>();
+        beans.put("result", result);
+		// ConvertUtils.register(new DateConverter(), Date.class);  // 注册解析器
+        try (InputStream inputStream = new BufferedInputStream(new FileInputStream(xlsFile))) {
+            xlsReader.read(inputStream, beans);
+        }
+        return result;
+    }
 
-	/**
-	 * Parses an excel file into a list of beans.
-	 *
-	 * 使用jxls-reader
-	 *
-	 * @param <T> the type of the bean
-	 * @param xlsFile the excel data file to parse
-	 * @param jxlsConfigFile the jxls config file describing how to map rows to beans
-	 * @return the list of beans or an empty list there are none
-	 * @throws Exception if there is a problem parsing the file
-	 */
-	public static <T> List<T> parseExcelFileToBeans(final File xlsFile,
+    // used
+	public static <T> List<T> parseExcelFileToBeans(final MultipartFile multipartFile,
+													final String jxlsConfigFileString)
+			throws Exception {
+    	File jxlsConfigFile = new File(jxlsConfigFileString);
+    	InputStream xlsInputStream = multipartFile.getInputStream();
+    	return parseExcelFileToBeans(xlsInputStream, jxlsConfigFile);
+	}
+
+	public static <T> List<T> parseExcelFileToBeans(final InputStream xlsInputStream,
 													final File jxlsConfigFile)
 			throws Exception {
 		final XLSReader xlsReader = ReaderBuilder.buildFromXML(jxlsConfigFile);
 		final List<T> result = new ArrayList<>();
 		final Map<String, Object> beans = new HashMap<>();
 		beans.put("result", result);
-		try (InputStream inputStream = new BufferedInputStream(new FileInputStream(xlsFile))) {
+		// ConvertUtils.register(new DateConverter(), Date.class);  // 注册解析器
+		try (InputStream inputStream = new BufferedInputStream(xlsInputStream) ) {
 			xlsReader.read(inputStream, beans);
 		}
 		return result;
