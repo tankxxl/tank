@@ -436,16 +436,21 @@ public class ProjectContractController extends BaseController {
 		if (projectContract != null && projectContract.getApply() != null) {
 			pCode = projectContract.getApply().getProjectCode();
 		}
+		pCode = pCode == null ? "" : pCode;
 
 		String pName = ""; // pName projectName 项目名称
 		if (projectContract != null && projectContract.getApply() != null) {
 			pName = projectContract.getApply().getProjectName();
 		}
+		pName = pName == null ? "" : pName;
 
 		String contractCode = ""; // contractCode 合同编号
 		// if (invoiceItem != null && invoiceItem.getContract() != null) {
 		// 	contractCode = invoiceItem.getContract().getContractCode();
 		// }
+		contractCode = contractCode == null ? "" : contractCode;
+
+
 		String queryBeginDate = "";
 		String queryEndDate = "";
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -455,6 +460,9 @@ public class ProjectContractController extends BaseController {
 		// if (invoiceItem != null && invoiceItem.getQueryEndDate() != null) {
 		// 	queryEndDate = sdf.format(invoiceItem.getQueryEndDate());
 		// }
+		queryBeginDate = queryBeginDate == null ? "" : queryBeginDate;
+		queryEndDate = queryEndDate == null ? "" : queryEndDate;
+
 
 		String amount = "";
 		// if (!StringUtils.isBlank(invoiceItem.getAmount())) {

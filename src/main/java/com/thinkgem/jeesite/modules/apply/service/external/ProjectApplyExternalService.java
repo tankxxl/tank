@@ -184,9 +184,8 @@ public class ProjectApplyExternalService extends
 		email.setSubject(subject); // xxx审批流程
 		email.setContent((String) task.getVariable(ActUtils.VAR_TITLE)); // 项目名称
 		if (Global.isSendEmail()) {
-			mailService.sendMailByAsynchronousMode(email);
+		    mailService.sendMail(email);
 		}
-		System.out.println("MailTo=" + sbMailTo.toString());
 	}
 
 	/**

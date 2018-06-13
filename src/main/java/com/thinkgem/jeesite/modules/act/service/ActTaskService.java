@@ -1119,7 +1119,12 @@ public class ActTaskService extends BaseService {
     public void deleteProcIns(String procInsId, String deleteReason) {
         if (StringUtils.isEmpty(procInsId))
             return;
-        runtimeService.deleteProcessInstance(procInsId, deleteReason);
+        try {
+			runtimeService.deleteProcessInstance(procInsId, deleteReason);
+		} catch (Exception e) {
+        	logger.error("No process instance", e);
+		}
+
     }
 
     /**

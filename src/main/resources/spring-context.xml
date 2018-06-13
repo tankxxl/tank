@@ -158,32 +158,29 @@
 	</bean>-->
 
     <!-- rgz 发送方邮件服务器的配置 -->
-
     <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-        <!-- mail提供商 -->
-        <property name="host" value="mail.sohu.net" />
-        <!--<property name="port" value="587" />-->
+        <!-- smtp server -->
+        <property name="host" value="${activiti.emailHost}" />
+        <property name="port" value="994" />
         <property name="username" value="${activiti.fromEmail}" />
         <property name="password" value="${activiti.fromEmailPwd}" />
+        <property name="defaultEncoding" value="UTF-8" />
         <property name="javaMailProperties">
+            <!-- additional properties specific to JavaMail -->
             <props>
                 <!-- 用户认证 -->
                 <prop key="mail.transport.protocol">smtp</prop>
                 <prop key="mail.smtp.auth">true</prop>
+                <prop key="mail.smtp.port">994</prop>
+                <prop key="mail.smtp.socketFactory.port">994</prop>
+                <prop key="mail.smtp.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>
+                <!-- Some SMTP servers require a TLS connection -->
                 <prop key="mail.smtp.starttls.enable">true</prop>
+                <prop key="mail.smtp.starttls.required">true</prop>
                 <prop key="mail.debug">true</prop>
-                <prop key="mail.smtp.timeout">25000</prop>
+                <!--<prop key="mail.smtp.timeout">250000</prop>-->
             </props>
         </property>
-        <!-- 用户名 -->
-        <!--<property name="username">-->
-            <!-- 这个是你的邮箱 ，在程序发送一方需对应-->
-            <!--<value>${activiti.fromEmail}</value>-->
-        <!--</property>-->
-        <!-- 密码 -->
-        <!--<property name="password">-->
-            <!--<value>${activiti.fromEmailPwd}</value>-->
-        <!--</property>-->
     </bean>
 
     <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
@@ -191,7 +188,9 @@
         <property name="maxPoolSize" value="30"/>
     </bean>
 
+    <!-- freemarker configuration bean -->
     <bean id="freemarkerConfiguration" class="org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean">
+        <!-- template path -->
         <property name="templateLoaderPath" value="/fmtemplates/" />
         <!--/WEB-INF/ftl/-->
     </bean>

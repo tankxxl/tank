@@ -58,16 +58,16 @@ public class MailService extends BaseService {
 	@Loggable
     Logger logger;
 	
-	public void sendMail(Email email) throws MessagingException, IOException {
+	public void sendMail(Email email) {
 		if (email.getAddress() == null || email.getAddress().length == 0 ) {
 			logger.debug("没有收件人");
 			return;
 		}
-		if (email.getAddress().length > 5) {
-			sendMailByAsynchronousMode(email);
+		if (email.getAddress().length >= 1) {
+			sendMailByAsyncMode(email);
 			logger.debug("收件人过多，正在采用异步方式发送...<br/>");
 		} else {
-			sendMailBySynchronizationMode(email);
+			sendMailBySyncMode(email);
 			logger.debug("正在同步方式发送邮件...<br/>");
 		}
 	}
@@ -76,48 +76,49 @@ public class MailService extends BaseService {
 	 * 异步发送
 	 * @param email
 	 */
-	public void sendMailByAsynchronousMode(final Email email) {
+	public void sendMailByAsyncMode(final Email email) {
 		taskExecutor.execute(new Runnable() {
-			
 			@Override
 			public void run() {
 				try {
-					sendMailBySynchronizationMode(email);
+					sendMailBySyncMode(email);
 				} catch (Exception e) {
-					
+					logger.error("邮件发送失败", e);
 				}
-				
 			}
 		});
-		
 	}
 	
 	/**
-	 * 同步发送, 发送html格式的Email
+	 * 同步发送, 发送html格式的Email，邮件正文不使用模板
 	 * @param email
 	 */
-	public void sendMailBySynchronizationMode(final Email email) {
+	public void sendMailBySyncMode(final Email email) {
 		try {
 			MimeMessage mime = mailSender.createMimeMessage();
 			MimeMessageHelper helper = new MimeMessageHelper(mime, true, "utf-8");
 			helper.setFrom(Global.getFromEmail()); // 发件人必须跟配置文件里一样
 			helper.setTo(email.getAddress()); // 收件人
-//		helper.setBcc("xx@163.com"); // 暗送
+            // helper.setBcc("xx@163.com"); // 暗送
 			if (StringUtils.isNotBlank(email.getCc())) {
 				String cc[] = email.getCc().split(";");
 				helper.setCc(cc); // 抄送
 			}
-//		helper.setReplyTo("xx@163.com"); // 回复到
-			helper.setSubject(email.getSubject()); // 邮件主题
-			helper.setText(email.getContent(), true); // true表示设定html格式
-//		helper.addInline("log", new ClassPathResource("logo.gif"));
+            // helper.setReplyTo("xx@163.com"); // 回复到
+			helper.setSubject(email.getSubject() + "--" + email.getContent()); // 邮件主题
+			helper.setText(email.getContent()
+                    + "<br/>请您登录项目管理系统，在【待办任务】中进行办理。"
+                    + "<br/>网址：<br/>" +
+                    "<a href='http://118.190.133.175/pms'>http://118.190.133.175/pms</a>" , true); // true表示设定html格式
+            // helper.addInline("log", new ClassPathResource("logo.gif"));
 			// 处理附件
 			for (MultipartFile file : email.getAttachment()) {
 				if (file == null || file.isEmpty()) {
 					continue;
 				}
 				// 使用MimeUtility.encodeWord()来解决附件名称的中文问题			
-				helper.addAttachment(MimeUtility.encodeWord(file.getOriginalFilename()), 
+				helper.addAttachment(
+				        MimeUtility.encodeWord(file.getOriginalFilename()),
 						new ByteArrayResource(file.getBytes()));
 			}
 			mailSender.send(mime);
