@@ -94,7 +94,7 @@
 		<property name="cacheManager" ref="shiroCacheManager" />
 	</bean>
 	
-	<!-- 定义授权缓存管理器 -->
+	<!-- 定义授权缓存管理器 shiro使用ehcache缓存器 -->
 <!-- 	<bean id="shiroCacheManager" class="com.thinkgem.jeesite.common.security.shiro.cache.SessionCacheManager" /> -->
 	<bean id="shiroCacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
 		<property name="cacheManager" ref="cacheManager"/>

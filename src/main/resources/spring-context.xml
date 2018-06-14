@@ -33,8 +33,8 @@
         <property name="dataSource" ref="dataSource"/>
         <property name="typeAliasesPackage" value="com.thinkgem.jeesite"/>
         <property name="typeAliasesSuperType" value="com.thinkgem.jeesite.common.persistence.BaseEntity"/>
-        <property name="mapperLocations" value="classpath:/mappings/**/*.xml"/>
-		<property name="configLocation" value="classpath:/mybatis-config.xml"></property>
+        <property name="mapperLocations" value="classpath:/mappings/**/*.xml" />
+		<property name="configLocation" value="classpath:/mybatis-config.xml" />
     </bean>
     
     <!-- 扫描basePackage下所有以@MyBatisDao注解的接口 -->
@@ -60,6 +60,7 @@
     
 	<!-- 配置 JSR303 Bean Validator 定义 -->
 	<bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
+
 	<!-- 缓存配置 -->
 	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
 		<property name="configLocation" value="classpath:${ehcache.configFile}" />
@@ -80,7 +81,6 @@
     <!--</task:scheduled-tasks>-->
 
 
-    
 	<!-- 数据源配置, 使用 BoneCP 数据库连接池 -->
 	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close"> 
 	    <!-- 数据源驱动类可不写，Druid默认会自动根据URL识别DriverClass -->
@@ -160,7 +160,6 @@
 	</bean>-->
 
     <!-- rgz 发送方邮件服务器的配置 -->
-
     <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
         <!-- mail提供商 -->
         <property name="host" value="mail.sohu.net" />
@@ -177,15 +176,6 @@
                 <prop key="mail.smtp.timeout">25000</prop>
             </props>
         </property>
-        <!-- 用户名 -->
-        <!--<property name="username">-->
-            <!-- 这个是你的邮箱 ，在程序发送一方需对应-->
-            <!--<value>${activiti.fromEmail}</value>-->
-        <!--</property>-->
-        <!-- 密码 -->
-        <!--<property name="password">-->
-            <!--<value>${activiti.fromEmailPwd}</value>-->
-        <!--</property>-->
     </bean>
 
     <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
@@ -197,17 +187,5 @@
         <property name="templateLoaderPath" value="/fmtemplates/" />
         <!--/WEB-INF/ftl/-->
     </bean>
-
-
-    <!-- this is a template message that we can pre-load with default state
-        usage: SimpleMailMessage msg = new SimpleMailMessage(this.templateMessage);
-        deprecated!
-    -->
-    <bean id="templateMessage" class="org.springframework.mail.SimpleMailMessage">
-        <property name="to" value="lokeshgupta1981@gmail.com" />
-        <property name="from" value="howtodoinjava@gmail.com" />
-        <property name="subject" value="FATAL - Application crash. Save your job !!"/>
-    </bean>
-    <!-- end -->
 	
 </beans>

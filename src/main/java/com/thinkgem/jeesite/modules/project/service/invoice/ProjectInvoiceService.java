@@ -180,6 +180,14 @@ public class ProjectInvoiceService extends JicActService<ProjectInvoiceDao, Proj
 
     /**
      * 保存表单数据
+     *
+     * 一级缓存应用
+     * mybatis与spring整合后，事务控制在service中
+     * service方法开始执行时，开启事务，创建SqlSession对象
+     * //第一次调用mapper的方法findUserById(1)
+     * //第二次调用mapper的方法findUserById(1)，从一级缓存中取数据
+     * 方法结束，sqlSession关闭，一级缓存清空
+     *
      * @param projectInvoice
      */
     @Override

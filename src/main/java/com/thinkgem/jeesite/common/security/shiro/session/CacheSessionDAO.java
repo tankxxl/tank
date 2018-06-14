@@ -25,7 +25,7 @@ import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.web.Servlets;
 
 /**
- * 系统安全认证实现类
+ * 系统安全认证实现类  -- Shiro session manager, include CRUD, DAO pattern.
  * @author ThinkGem
  * @version 2014-7-24
  */
