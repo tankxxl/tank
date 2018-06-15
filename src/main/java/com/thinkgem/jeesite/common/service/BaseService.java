@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Service基类
+ * Service基类 基于sql实现数据范围
  * @author ThinkGem
  * @version 2014-05-16
  */

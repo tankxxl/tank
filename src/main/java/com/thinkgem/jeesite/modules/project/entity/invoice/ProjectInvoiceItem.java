@@ -3,6 +3,7 @@
  */
 package com.thinkgem.jeesite.modules.project.entity.invoice;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.thinkgem.jeesite.common.persistence.DataEntity;
 import com.thinkgem.jeesite.modules.apply.entity.external.ProjectApplyExternal;
 import com.thinkgem.jeesite.modules.customer.entity.CustomerInvoice;
@@ -326,6 +327,7 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
         this.customerInvoice = customerInvoice;
     }
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     public Date getSettlementBegin() {
         return settlementBegin;
     }
@@ -334,6 +336,7 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
         this.settlementBegin = settlementBegin;
     }
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     public Date getSettlementEnd() {
         return settlementEnd;
     }

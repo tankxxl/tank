@@ -242,6 +242,8 @@ function initSubTable(index, row, $detail) {
             field: 'settle',
             title: '结算周期',
             formatter: function (value, row, index) {
+                if (!row.settlementBegin || !row.settlementEnd)
+                    return "";
                 return new Date(row.settlementBegin).Format("yyyy-MM-dd") + '--' +
                     new Date(row.settlementEnd).Format("yyyy-MM-dd");
             }
@@ -351,6 +353,8 @@ function initTable () {
                 field: 'settle',
                 title: '结算周期',
                 formatter: function (value, row, index) {
+                    if (!row.settlementBegin || !row.settlementEnd)
+                        return "";
                     return new Date(row.settlementBegin).Format("yyyy-MM-dd") + '--' +
                         new Date(row.settlementEnd).Format("yyyy-MM-dd");
                 }
@@ -360,6 +364,14 @@ function initTable () {
             }, {
                 field: 'remarks',
                 title: '备注'
+            }, {
+                field: 'settlementBegin',
+                title: 'b',
+                visible: false
+            }, {
+                field: 'settlementEnd',
+                title: 'a',
+                visible: false
             }, {
                 field: 'id',
                 title: '操作',
@@ -445,6 +457,7 @@ function submitG() {
     }
     json.invoiceItemList = data;
     jeesns.jeesnsAjax('${ctx}/project/invoice/saveAjax', 'POST', json);
+    <%--jeesns.jeesnsAjax('${ctx}/project/invoice/test2', 'POST', json);--%>
 }
 // 全局变量，用于给编辑框传递参数
 // 当前选中行

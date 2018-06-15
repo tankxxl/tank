@@ -29,7 +29,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -495,5 +501,22 @@ public class ProjectApplyExternalController extends BaseController {
         }
         return mapList;
     }
+
+    // 获取所有通过requestMapping注册到容器中的url
+	@RequestMapping("getAllUrl")
+	@ResponseBody
+	public Set<String> getAllUrl(HttpServletRequest request) {
+		Set<String> result = new HashSet<String>();
+		WebApplicationContext wc = (WebApplicationContext) request.getAttribute(DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+		RequestMappingHandlerMapping bean = wc.getBean(RequestMappingHandlerMapping.class);
+		Map<RequestMappingInfo, HandlerMethod> handlerMethods = bean.getHandlerMethods();
+		for (RequestMappingInfo rmi : handlerMethods.keySet()) {
+			PatternsRequestCondition pc = rmi.getPatternsCondition();
+			Set<String> pSet = pc.getPatterns();
+			result.addAll(pSet);
+		}
+		return result;
+	}
+
 
 }
