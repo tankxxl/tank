@@ -35,11 +35,11 @@
                 <property name="objectMapper">  
                     <bean class="com.thinkgem.jeesite.common.mapper.JsonMapper">
 						<!-- 统一设置jackson的日期类型格式化，也可以在entity中使用@JsonFormat注解设置 -->
-						<property name="dateFormat">
-							<bean class="java.text.SimpleDateFormat">
-								<constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss" />
-							</bean>
-						</property>
+						<!--<property name="dateFormat">-->
+							<!--<bean class="java.text.SimpleDateFormat">-->
+								<!--<constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss" />-->
+							<!--</bean>-->
+						<!--</property>-->
 					</bean>
                 </property> 
             </bean>

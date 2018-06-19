@@ -250,6 +250,7 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
         this.invoiceNo = invoiceNo;
     }
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     public Date getReturnDate() {
         return returnDate;
     }
@@ -393,6 +394,7 @@ public class ProjectInvoiceItem extends DataEntity<ProjectInvoiceItem> {
         this.tax = tax;
     }
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     public Date getInvoiceDate() {
         return invoiceDate;
     }
