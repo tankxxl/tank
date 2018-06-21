@@ -82,10 +82,10 @@
 		}
 
         // 选择项目后触发事件
-        function changeProject(projectId, idx) {
+        function changeProject(tree, prjId, prjName) {
             // 向后台获取项目信息，并将相关信息回显
             $.post('${ctx}/apply/external/projectApplyExternal/getAsJson',
-                {id: projectId},
+                {id: prjId},
                 function (apply) {
                     $("#project_code").text(apply.projectCode);
                     $("#customer_name").text(apply.customer.customerName);
@@ -126,22 +126,20 @@
 		<tr>
 			<td class="tit">项目名称</td>
 			<td >
-				<sys:treeselect id="apply" name="apply.id"
-					value="${projectContract.apply.id}"
-					labelName="apply.projectName"
-					labelValue="${projectContract.apply.projectName}"
-					title="项目名称"
-					cssStyle="width:80%;"
-					url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11"
-					cssClass="required"  allowClear="true" notAllowSelectParent="true"
-					customClick="changeProject"/>
+				<sys:treeselect id="apply"
+					name="apply.id" value="${projectContract.apply.id}"
+					labelName="apply.projectName" labelValue="${projectContract.apply.projectName}"
+					title="项目名称" cssStyle="width:80%;"
+					url="/apply/external/projectApplyExternal/treeData?proMainStage=11"
+					cssClass="required" allowClear="true" notAllowSelectParent="true"
+					customFuncOnOK="changeProject"/>
 				<span class="help-inline"><font color="red">*</font> </span>
 			</td>
 
 			<td class="tit">项目编码</td>
 			<td ><label id="project_code" >${projectContract.apply.projectCode }</label></td>
 			<td class="tit">项目类型</td>
-			<td ><label id="project_category">${fns:getDictLabel(projectContract.apply.category , 'pro_category', '')}</label></td>
+			<td ><label id="project_category">${fns:getDictLabel(projectContract.apply.category, 'pro_category', '')}</label></td>
 		</tr>
 
 		<tr>
@@ -159,7 +157,7 @@
 		</tr>
 
 		<tr>
-			<td  class="tit" colspan="5">
+			<td class="tit" colspan="5">
 				<div style="white-space:nowrap;">
 				<form:textarea path="remarks" style="width:98%" maxlength="255"/>
 				</div>

@@ -40,12 +40,39 @@ import java.util.Map;
 @RequestMapping(value = "${adminPath}/project/invoice")
 public class ProjectInvoiceController extends BaseController {
 
+	static String prefix = "modules/project/invoice/";
+	static String LIST = "InvoiceList";
+
+	static String VIEW = "projectFinishApprovalView";
+	static String EDIT = "InvoiceForm";
+	static String REDIRECT2VIEW = "/project/invoice/?repage";
+
 	@Autowired
 	private ProjectInvoiceService invoiceService;
 	@Autowired
 	private ActTaskService actTaskService;
 
-    /**
+	// 相关界面
+	// 保存结束-->跳转到controller的默认列表路径
+	@Override
+	protected String getRedirectView() {
+		return REDIRECT2VIEW;
+	}
+
+	// 查看表单页面-->查看、审批共用，页面中使用taskId、taskDefKey等来控制界面，提交到saveAudit
+	@Override
+	protected String getView() {
+		return VIEW;
+	}
+
+	// 编辑表单页面-->新建、修改、驳回修改共用，提交到save
+	@Override
+	protected String getEdit() {
+		return EDIT;
+	}
+
+
+	/**
      * 如果把@ModelAttribute放在方法的注解上时，代表的是：该Controller的所有方法在调用前，先执行此@ModelAttribute方法
      * @param id
      * @return
@@ -64,11 +91,12 @@ public class ProjectInvoiceController extends BaseController {
 	
 	@RequiresPermissions("project:invoice:view")
 	@RequestMapping(value = {"list", ""})
-	public String list(ProjectInvoice projectInvoice, HttpServletRequest request, HttpServletResponse response, Model model) {
+	public String list(ProjectInvoice projectInvoice,
+					   HttpServletRequest request, HttpServletResponse response, Model model) {
 		projectInvoice.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
-		Page<ProjectInvoice> page = invoiceService.findPage(new Page<ProjectInvoice>(request, response), projectInvoice);
+		Page<ProjectInvoice> page = invoiceService.findPage(new Page<>(request, response), projectInvoice);
 		model.addAttribute("page", page);
-		return "modules/project/invoice/InvoiceList";
+		return prefix + LIST;
 	}
 
 	/**
@@ -205,7 +233,6 @@ public class ProjectInvoiceController extends BaseController {
 
         // flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
 		if ("saveOnly".equals(flag)) { // 只保存表单数据
-			System.out.println("");
 			invoiceService.save(projectInvoice);
 		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
 			invoiceService.saveFinishProcess(projectInvoice);
@@ -214,13 +241,8 @@ public class ProjectInvoiceController extends BaseController {
 		}
 
 		addMessage(redirectAttributes, "保存成功");
-		
-		String usertask_owner = projectInvoice.getAct().getTaskDefKey();
-		if (UserTaskType.UT_OWNER.equals(usertask_owner)) { // 待办任务页面
-			return "redirect:" + adminPath + "/act/task/todo/";
-		} else { // 列表页面
-			return "redirect:"+Global.getAdminPath() + "/project/invoice/?repage";
-		}
+
+		return saveToView(projectInvoice);
 	}
 	
 	@RequiresPermissions("project:invoice:edit")
@@ -228,7 +250,7 @@ public class ProjectInvoiceController extends BaseController {
 	public String delete(ProjectInvoice projectInvoice, RedirectAttributes redirectAttributes) {
         invoiceService.delete(projectInvoice);
 		addMessage(redirectAttributes, "删除成功");
-		return "redirect:"+Global.getAdminPath()+ "/project/invoice/?repage";
+		return "redirect:"+Global.getAdminPath()+ REDIRECT2VIEW;
 	}
 
     // 审批人使用

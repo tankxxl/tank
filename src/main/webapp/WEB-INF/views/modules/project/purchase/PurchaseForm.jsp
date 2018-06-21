@@ -84,33 +84,27 @@
 		}
 
         // 选择项目后触发事件
-        function changeProject(projectId, idx) {
+        function changeProject(tree, prjId, prjName) {
 
             // JavaScript全局变量，用于传递参数，新建表单使用。
-		    treeGetParam = "?prjId=" + projectId;
-
+		    treeGetParam = "?prjId=" + prjId;
+            $('#contractItemId').data('url', '/project/contract/projectContract/treeDataContractItemList?prjId=' + prjId);
             // 向后台获取项目信息，并将相关信息回显
             $.post('${ctx}/apply/external/projectApplyExternal/getAsJson',
-                {id: projectId},
+                {id: prjId},
                 function (apply) {
 
                 $("#project_code").text(apply.projectCode);
                 $("#customer_name").text(apply.customer.customerName);
                 $("#customer_contact_name").text(apply.customerContact.contactName);
                 $("#customer_contact_phone").text(apply.customerContact.phone);
-
-//                treeUrl = apply.id;
-                <%--var ss = ${fns:getDictLabel(apply.category , 'pro_category', apply.category)};--%>
-//                console.log(ss);
-//                $("#project_category").text(ss);
             });
         }
 
         // 选择合同后触发事件
-        function changedContract(itemId, idx) {
+        function changedContract(tree, itemId, itemName) {
             $.post('${ctx}/project/contract/projectContract/getItemAsJson',
                 {id: itemId}, function (item) {
-                console.log(item);
                 $('#contract_amount').text(item.contractAmount);
                 $('#contract_gross_margin').text(item.grossProfitMargin);
                 $('#contractId').val(item.contract.id);
@@ -158,13 +152,13 @@
                        labelName="apply.projectName"
                        labelValue="${projectPurchase.apply.projectName}"
                        title="项目"
-                       url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11"
+                       url="/apply/external/projectApplyExternal/treeData?proMainStage=11"
                        cssClass="required"
                        cssStyle="width: 85%"
                        dataMsgRequired="项目必选"
                        allowClear="true"
                        notAllowSelectParent="true"
-                       customClick="changeProject"/>
+                       customFuncOnOK="changeProject"/>
                     <span class="help-inline"><font color="red">*</font> </span>
                 </div>
             </td>
@@ -201,7 +195,7 @@
                             dependBy="apply"
                             dependMsg="请先选择项目！"
                             notAllowSelectParent="true"
-                            customClick="changedContract"/>
+                            customFuncOnOK="changedContract"/>
                 </div>
             </td>
             <td class="tit">合同金额</td>
@@ -266,57 +260,56 @@
             </td>
         </tr>
 
+        <tr>
+            <td  class="tit"  >采购金额</td>
+            <td  class="tit" colspan="5">
+                <div style="white-space:nowrap;">
+                    <form:textarea path="amountInfo" style="width:98%"  maxlength="255"
+                       placeholder="采购金额如不在预算内请说明"/>
+                </div>
+            </td>
+        </tr>
 
-            <tr>
-                <td  class="tit"  >采购金额</td>
-                <td  class="tit" colspan="5">
-                    <div style="white-space:nowrap;">
-                        <form:textarea path="amountInfo" style="width:98%"  maxlength="255"
-                           placeholder="采购金额如不在预算内请说明"/>
-                    </div>
-                </td>
-            </tr>
+        <tr>
+            <td  class="tit"  >付款条件</td>
+            <td  class="tit" colspan="5">
+                <div style="white-space:nowrap;">
+                    <form:textarea path="paymentInfo" style="width:98%"  maxlength="255"
+                       placeholder="采购合同付款条件如不与销售合同背靠背请说明"/>
+                </div>
+            </td>
+        </tr>
 
-            <tr>
-                <td  class="tit"  >付款条件</td>
-                <td  class="tit" colspan="5">
-                    <div style="white-space:nowrap;">
-                        <form:textarea path="paymentInfo" style="width:98%"  maxlength="255"
-                           placeholder="采购合同付款条件如不与销售合同背靠背请说明"/>
-                    </div>
-                </td>
-            </tr>
+        <tr>
+            <td  class="tit"  >产品配置清单</td>
+            <td  class="tit" colspan="5">
+                <div style="white-space:nowrap;">
+                    <form:textarea path="inventoryInfo" style="width:98%" maxlength="255"
+                        placeholder="采购合同配置如不与项目需求相符请说明"/>
+                </div>
+            </td>
+        </tr>
 
-            <tr>
-                <td  class="tit"  >产品配置清单</td>
-                <td  class="tit" colspan="5">
-                    <div style="white-space:nowrap;">
-                        <form:textarea path="inventoryInfo" style="width:98%" maxlength="255"
-                            placeholder="采购合同配置如不与项目需求相符请说明"/>
-                    </div>
-                </td>
-            </tr>
-
-            <tr>
-                <td  class="tit"  >保修条款</td>
-                <td  class="tit" colspan="5">
-                    <div style="white-space:nowrap;">
-                        <form:textarea path="warrantyInfo" style="width:98%"  maxlength="255"
-                           placeholder="采购合同保修条款如不与项目需求相符请说明"/>
-                    </div>
-                </td>
-            </tr>
+        <tr>
+            <td  class="tit"  >保修条款</td>
+            <td  class="tit" colspan="5">
+                <div style="white-space:nowrap;">
+                    <form:textarea path="warrantyInfo" style="width:98%"  maxlength="255"
+                       placeholder="采购合同保修条款如不与项目需求相符请说明"/>
+                </div>
+            </td>
+        </tr>
 
 
-            <tr>
-                <td  class="tit"  >交货日期</td>
-                <td  class="tit" colspan="5">
-                    <div style="white-space:nowrap;">
-                        <form:textarea path="deliveryInfo" style="width:98%" maxlength="255"
-                            placeholder="采购合同交货日期如不与项目需求相符请说明"/>
-                    </div>
-                </td>
-            </tr>
+        <tr>
+            <td  class="tit"  >交货日期</td>
+            <td  class="tit" colspan="5">
+                <div style="white-space:nowrap;">
+                    <form:textarea path="deliveryInfo" style="width:98%" maxlength="255"
+                        placeholder="采购合同交货日期如不与项目需求相符请说明"/>
+                </div>
+            </td>
+        </tr>
 
 
         <tr>

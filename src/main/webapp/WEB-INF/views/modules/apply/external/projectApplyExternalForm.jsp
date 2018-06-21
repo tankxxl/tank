@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp"%>
 <html>
 <head>
-	<title>外部立项申请管理</title>
+	<title>立项申请管理</title>
 	<meta name="decorator" content="default"/>
 		
 	<script type="text/javascript">
@@ -92,8 +92,9 @@
 			});
 		});
 
-		function changeCustomer(customerId){
-            // JavaScript全局变量，用于传递参数，给下一个树控件过滤数据使用
+		function changeCustomer(tree, customerId, customerName){
+            // 给下一个树控件动态传递参数
+            $('#customerContactId').data('url', '/customer/customer/treeData2?customerId=' + customerId);
             treeGetParam = "?customerId=" + customerId;
 			var url ="${ctx }/customer/customer/getAsJson?id="+customerId;
 		    $.ajax( {  
@@ -103,10 +104,9 @@
 		        success : function(customer) {
 		            $("#customer_industry_label").text(customer.industry);
 		            $("#customer_category_label").text(customer.customerCategory);
-		            
 		            //验证validate
 		            $("#inputForm").validate().element($("#customerName"));
-		        }  
+		        }
 		    });
 		    
 		    //清除客户联系人的值
@@ -116,7 +116,7 @@
 		    $("#customerContactName").val("");
 		}
 
-		function changeCustomerContact(contactId) {
+		function changeCustomerContact(tree, contactId, contactName) {
             $.post('${ctx}/customer/customer/getContactAsJson',
                 {id: contactId}, function (item) {
                     if (item) {
@@ -131,6 +131,17 @@
 	</script>
 </head>
 <body>
+
+<%-- 根据权限控制，设置相关变量 --%>
+<shiro:hasPermission name="mis:board:hkBoardMeeting:edit">
+	<c:set var="isEditable" value="true"/>
+	<c:set var="isViewable" value="false"/>
+</shiro:hasPermission>
+<shiro:lacksPermission name="mis:board:hkBoardMeeting:edit">
+	<c:set var="isEditable" value="false"/>
+	<c:set var="isViewable" value="true"/>
+</shiro:lacksPermission>
+
 <ul class="nav nav-tabs">
 	<c:if test="${ empty projectApplyExternal.act.taskId}">
 		<li><a href="${ctx}/apply/external/projectApplyExternal/">外部立项申请列表</a></li>
@@ -187,11 +198,11 @@
 			<tr>
 				<td  class="tit" colspan="2">销售人员</td>
 
-				<td   class="tit" colspan="2">
+				<td   class="tit" colspan="1">
 					<label>${projectApplyExternal.saler.name }</label>
 				</td>
 				<td  class="tit">部&nbsp;&nbsp;门</td>
-				<td   class="tit" colspan="2">
+				<td   class="tit" colspan="3">
 					${projectApplyExternal.saler.office.name  }
 				</td>
 			</tr>
@@ -200,30 +211,28 @@
 		<tr>
 			<td  class="tit" colspan="2">客户全称</td>
 			<td>
-				<div style="white-space:nowrap;">
-					<sys:treeselect id="customer"
-						name="customer.id"
-						value="${projectApplyExternal.customer.id}"
-						labelName="customer.customerName"
-						labelValue="${projectApplyExternal.customer.customerName}"
-						dataMsgRequired="客户必填" title="客户"
-						url="/customer/customer/treeData" cssClass="required"
-						allowClear="true" notAllowSelectParent="true" customClick="changeCustomer"/>
-					<span class="help-inline"><font color="red">*</font> </span>
-				</div>
+				<sys:treeselect id="customer"
+					name="customer.id"
+					value="${projectApplyExternal.customer.id}"
+					labelName="customer.customerName"
+					labelValue="${projectApplyExternal.customer.customerName}"
+					dataMsgRequired="客户必填" title="客户"
+					url="/customer/customer/treeData" cssClass="required"
+					allowClear="true" notAllowSelectParent="true" customFuncOnOK="changeCustomer"/>
+				<span class="help-inline"><font color="red">*</font> </span>
 			</td>
 			<td  class="tit">客户类别</td>
 			<td  class="text-center">
-					<label id="customer_category_label"></label>
+				<label id="customer_category_label">${fns:getDictLabel(projectApplyExternal.customer.customerCategory, 'customer_category', '')}</label>
 			</td>
 			<td   class="tit">客户所属行业</td>
 			<td   class="text-center">
-				<label id="customer_industry_label"></label>
+				<label id="customer_industry_label">${fns:getDictLabel(projectApplyExternal.customer.industry, 'customer_industry', '')}</label>
 			</td>
 
 		</tr>
 		<tr>
-			<td  class="tit"  colspan="2">客户联系人</td>
+			<td class="tit" colspan="2">客户联系人</td>
 			<td>
 				<sys:treeselect id="customerContact"
 					name="customerContact.id"
@@ -235,7 +244,7 @@
 					allowClear="true" notAllowSelectParent="true"
 					dependBy="customer"
 					dependMsg="请先选择客户！"
-					customClick="changeCustomerContact"  />
+					customFuncOnOK="changeCustomerContact" />
 				<span class="help-inline"><font color="red">*</font> </span>
 			</td>
 			<td  class="tit">职务</td>
@@ -252,16 +261,11 @@
 			<td  class="tit" rowspan="4">项目描述</td>
 			<td class="tit">预计合同金额￥万元</td>
 			<td>
-				<div style="white-space:nowrap;">
-					<form:input path="estimatedContractAmount" style="width:80%;"   class="checkNum number contract_amount required"  maxlength="10"/>
-					<span class="help-inline"><font color="red">*</font> </span>
-				</div>
+				<form:input path="estimatedContractAmount" style="width:80%;" class="checkNum number contract_amount required" maxlength="10"/>
+				<span class="help-inline"><font color="red">*</font> </span>
 			</td>
 			<td class="tit">预计毛利率％</td>
-
-			<td>
-				<form:input path="estimatedGrossProfitMargin" style="width:80%"  maxlength="5" class="checkNum"  number="true" type="text" /><span class="help-inline"><font color="red">*</font> </span>
-			</td>
+			<td><form:input path="estimatedGrossProfitMargin" style="width:80%" maxlength="5" class="checkNum" number="true" type="text"/><span class="help-inline"><font color="red">*</font> </span></td>
 
 			<td class="tit">预计签约时间</td>
 			<td>
@@ -282,8 +286,8 @@
 			</td>
 		</tr>
 		<tr>
-			<td  class="tit"rowspan="2">项目描述</td>
-			<td  colspan="6"><label class="small_label">（描述内容包括主要设备名称及规格、实施工作等）</label></td>
+			<td class="tit"rowspan="2">项目描述</td>
+			<td colspan="6"><label class="small_label">（描述内容包括主要设备名称及规格、实施工作等）</label></td>
 		</tr>
 		<tr>
 			<td  colspan="6">
@@ -292,22 +296,20 @@
 		</tr>
 
 		<tr>
-			<td  class="tit"rowspan="2" >项目毛利率说明</td>
-			<td  colspan="6"><label class="small_label">（当预计毛利率低于公司要求时，须加以说明）</label></td>
+			<td class="tit" rowspan="2">项目毛利率说明</td>
+			<td colspan="6"><label class="small_label">（当预计毛利率低于公司要求时，须加以说明）</label></td>
 		</tr>
 		<tr>
-			<td  class="tit" colspan="6">
-				<div style="white-space:nowrap;">
+			<td class="tit" colspan="6">
 				<form:textarea path="estimatedGrossProfitMarginDescription" style="width:98%" maxlength="255"/>
-				</div>
 			</td>
 		</tr>
 		<tr>
-			<td  class="tit" rowspan="2">项目风险分析</td>
-			<td  colspan="6"><label class="small_label">（立项人对项目风险进行识别、评估）</label></td>
+			<td class="tit" rowspan="2">项目风险分析</td>
+			<td colspan="6"><label class="small_label">（立项人对项目风险进行识别、评估）</label></td>
 		</tr>
 		<tr>
-			<td  class="tit" colspan="6">
+			<td class="tit" colspan="6">
 				<div style="white-space:nowrap;">
 					<form:textarea path="riskAnalysis" class="required" style="width:98%" maxlength="255"/>
 					<span class="help-inline"><font color="red">*</font> </span>
@@ -324,9 +326,11 @@
 							  selectMultiple="true" />
 			</td>
 		</tr>
+
 		<tr>
 			<td class="tit" colspan="7">填表说明</td>
 		</tr>
+
 		<tr>
 			<td colspan="7">
 			<div>
@@ -341,15 +345,15 @@
 	<div class="form-actions">
 		<shiro:hasPermission name="apply:external:projectApplyExternal:edit">
 
-		<input id="btnSubmit" class="btn btn-primary" type="submit" value="提交申请" onclick="$('#flag').val('yes')"/>&nbsp;
+		<input id="btnSubmit" class="btn btn-primary" type="submit" value="提交申请" onclick="$('#flag').val('yes')"/>&nbsp;&nbsp;&nbsp;&nbsp;
 			<c:if test="${not empty projectApplyExternal.id}">
-				<input id="btnSubmit2" class="btn btn-inverse" type="submit" value="销毁申请" onclick="$('#flag').val('no')"/>&nbsp;
+				<input id="btnSubmit2" class="btn btn-warning" type="submit" value="销毁申请" onclick="$('#flag').val('no')"/>&nbsp;&nbsp;&nbsp;&nbsp;
 			</c:if>
 		</shiro:hasPermission>
 
 		<shiro:hasPermission name="apply:external:projectApplyExternal:super">
-			<input id="btnSubmit" class="btn btn-primary" type="submit" value="保存并结束流程" onclick="$('#flag').val('saveFinishProcess')" data-toggle="tooltip" title="小心操作！"/>&nbsp;
-			<input id="btnSubmit" class="btn btn-primary" type="submit" value="只保存表单数据" onclick="$('#flag').val('saveOnly')" data-toggle="tooltip" title="管理员才能操作！"/>&nbsp;
+			<input id="btnSubmit" class="btn btn-primary" type="submit" value="保存并结束流程" onclick="$('#flag').val('saveFinishProcess')" data-toggle="tooltip" title="小心操作！"/>&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="btnSubmit" class="btn btn-primary" type="submit" value="只保存表单数据" onclick="$('#flag').val('saveOnly')" data-toggle="tooltip" title="管理员才能操作！"/>&nbsp;&nbsp;&nbsp;&nbsp;
 		</shiro:hasPermission>
 
 		<input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.back()"/>

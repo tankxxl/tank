@@ -45,8 +45,9 @@
 		<li class="active"><a href="${ctx}/apply/external/projectApplyExternal/">外部立项申请列表</a></li>
 		<shiro:hasPermission name="apply:external:projectApplyExternal:edit"><li><a href="${ctx}/apply/external/projectApplyExternal/form">外部立项申请添加</a></li></shiro:hasPermission>
 	</ul>
-	<form:form id="searchForm" modelAttribute="projectApplyExternal" action="${ctx}/apply/external/projectApplyExternal/"
-			   htmlEscape="false" method="post" class="breadcrumb form-search">
+	<form:form id="searchForm" htmlEscape="false"
+			   modelAttribute="projectApplyExternal" action="${ctx}/apply/external/projectApplyExternal/"
+			   method="post" class="breadcrumb form-search">
 		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
 		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 		<ul class="ul-form">
@@ -131,7 +132,7 @@
 				<td class="text-success">
 					</c:otherwise>
 					</c:choose>
-						${fns:getDictLabel(projectApplyExternal.procStatus, 'AuditStatus', '')}
+						${fns:getDictLabel(projectApplyExternal.procStatus, 'AuditStatus', '流程未启动')}
 				</td>
 				
 				<td>
@@ -140,6 +141,16 @@
 				</c:if>
 					
 				<shiro:hasPermission name="apply:external:projectApplyExternal:edit">
+
+					<c:choose>
+						<c:when test="${projectApplyExternal.procStatus == null}">
+							<a href="${ctx}/apply/external/projectApplyExternal/modify?id=${projectApplyExternal.id}">修改</a>
+						</c:when>
+						<c:otherwise>
+
+						</c:otherwise>
+					</c:choose>
+
 					<a href="${ctx}/apply/external/projectApplyExternal/form?id=${projectApplyExternal.id}">详情</a>
 					<c:if test="${projectApplyExternal.procStatus != '2'}">
 						<a class="trace" target="_blank" procInsId="${projectApplyExternal.procInsId}" href="${ctx}/act/task/trace1?procInsId=${projectApplyExternal.procInsId}">跟踪</a>

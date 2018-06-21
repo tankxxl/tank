@@ -19,6 +19,12 @@ import com.thinkgem.jeesite.common.utils.CookieUtils;
 /**
  * 分页类
  * 该类描述了分页记录集 中的关于页的信息
+ *
+ * 传统的电梯式分页，一般表格下面都有分页导航工具栏，如百度搜索后的列表
+ * 前端提供页数pageNo及每页数量pageSize即可，后端就可以写出查询语句：
+ * pageNo为当前页数（以1开始），pageSize为每页的数据量
+ * select * from ... where ... order by ... limit (pageNo - 1) * pageSize, pageSize;
+ *
  * @author ThinkGem
  * @version 2013-7-2
  * @param <T>

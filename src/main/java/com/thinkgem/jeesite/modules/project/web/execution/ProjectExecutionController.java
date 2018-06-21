@@ -44,12 +44,46 @@ import java.util.Map;
 @RequestMapping(value = "${adminPath}/project/execution")
 public class ProjectExecutionController extends BaseController {
 
+	static String prefix = "modules/project/execution/";
+	static String LIST = "ExecutionList";
+	static String VIEW = "ExecutionView";
+	static String EDIT = "ExecutionForm";
+	static String REDIRECT2VIEW = "/project/execution/?repage";
+
 	@Autowired
 	private ProjectExecutionService executionService;
 	@Autowired
 	private ActTaskService actTaskService;
 
-    /**
+	// 相关界面
+	// 保存结束-->跳转到controller的默认列表路径
+	@Override
+	protected String getRedirectView() {
+		return REDIRECT2VIEW;
+	}
+
+	// 查看表单页面-->查看、审批共用，页面中使用taskId、taskDefKey等来控制界面，提交到saveAudit
+	@Override
+	protected String getView() {
+		return VIEW;
+	}
+
+	// 编辑表单页面-->新建、修改、驳回修改共用，提交到save
+	@Override
+	protected String getEdit() {
+		return EDIT;
+	}
+
+	@Override
+	protected String otherNode(String taskDefKey) {
+		if (UserTaskType.UT_COMMERCE_SPECIALIST.equals(taskDefKey) ) {
+			return "ExecutionView4Commerce";
+		} else {
+			return super.otherNode(taskDefKey);
+		}
+	}
+
+	/**
 	 *
 	 * @ModelAttribute属性和@SessionAttribute属性主要用来在不同控制器和模型之间共享数据，
 	 * 默认情况下，map的信息只是在request当前请求有效，如果想在一个controller中共享数据，可以使用这两个属性。
@@ -90,28 +124,20 @@ public class ProjectExecutionController extends BaseController {
      */
 	@ModelAttribute
 	public ProjectExecution get(@RequestParam(required=false) String id) {
-		ProjectExecution entity = null;
-		if (StringUtils.isNotBlank(id)){
-			entity = executionService.get(id);
-		}
-		if (entity == null){
-			entity = new ProjectExecution();
-		}
-		return entity;
+		return executionService.get(id);
 	}
 
 	@RequiresPermissions("project:execution:view")
 	@RequestMapping(value = {"list", ""})
 	public String list(ProjectExecution projectExecution,
-                       HttpServletRequest request,
-                       HttpServletResponse response,
+                       HttpServletRequest request, HttpServletResponse response,
                        Model model) {
         projectExecution.getSqlMap().put("dsf",
                 BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
-		Page<ProjectExecution> page = executionService.findPage(new Page<ProjectExecution>(request, response),
+		Page<ProjectExecution> page = executionService.findPage(new Page<>(request, response),
                 projectExecution);
 		model.addAttribute("page", page);
-		return "modules/project/execution/ExecutionList";
+		return prefix + LIST;
 	}
 
 	/**
@@ -130,51 +156,7 @@ public class ProjectExecutionController extends BaseController {
 	@RequiresPermissions("project:execution:view")
 	@RequestMapping(value = "form")
 	public String form(ProjectExecution projectExecution, Model model) {
-	    String prefix = "modules/project/execution/";
-		String view = "ExecutionForm";
-
-        model.addAttribute("projectExecution", projectExecution);
-
-        // 待办、已办入口界面传的act是一样的，只是act中的status不一样。
-
-		if (projectExecution.getIsNewRecord()) {
-			// 入口1：新建表单，直接返回空实体
-			if (projectExecution.hasAct()) {
-				// 入口2：从已办任务界面来的请求，1、实体是新建的，2、act是activi框架填充的。
-				// 此时实体应该由流程id来查询。
-				view = "ExecutionView";
-				projectExecution = executionService.findByProcInsId(projectExecution);
-				if (projectExecution == null) {
-					projectExecution = new ProjectExecution();
-				}
-				model.addAttribute("projectExecution", projectExecution);
-			}
-		    return prefix + view;
-        }
-
-        // 入口3：在流程图中配置，从待办任务界面来的请求，entity和act都已加载。
-        // 环节编号
-        String taskDefKey = projectExecution.getAct().getTaskDefKey();
-
-        // 查看
-        if(projectExecution.getAct().isFinishTask()){
-            view = "ExecutionView";
-        }
-        // 修改环节
-        else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ){
-            view = "ExecutionForm";
-        }
-        // 商务部专员-要填写供应商的联系人信息
-        else if (UserTaskType.UT_COMMERCE_SPECIALIST.equals(taskDefKey)) {
-			view = "ExecutionView4Commerce";
-		}
-        // 某审批环节
-        else if ("apply_end".equals(taskDefKey)){
-            view = "ExecutionView";  // replace ExecutionAudit
-        } else {
-            view = "ExecutionView";
-        }
-        return prefix + view;
+		return prefix + formToView(projectExecution);
 	}
 
     /**
@@ -186,13 +168,13 @@ public class ProjectExecutionController extends BaseController {
 	@RequiresPermissions("project:execution:admin")
 	@RequestMapping(value = "modify")
 	public String modify(ProjectExecution projectExecution, Model model) {
-		model.addAttribute("projectExecution", projectExecution);
+		// model.addAttribute("projectExecution", projectExecution);
 		return "modules/project/execution/ExecutionForm";
 	}
 
 	@RequestMapping(value = "view")
 	public String view(ProjectExecution projectExecution, Model model) {
-		model.addAttribute("projectExecution", projectExecution);
+		// model.addAttribute("projectExecution", projectExecution);
 //		return "modules/project/execution/ExecutionView2";
 		// 主要是返回的界面跟form不一样，新建一个view的入口主要是为了返回不一样的界面。
 		return "modules/project/execution/ExecutionViewDlg";
@@ -210,22 +192,18 @@ public class ProjectExecutionController extends BaseController {
 	 */
 	@RequiresPermissions("project:execution:edit")
 	@RequestMapping(value = "save")
-	public String save(ProjectExecution projectExecution, Model model, RedirectAttributes redirectAttributes) {
-		if (!beanValidator(model, projectExecution)){
-			return form(projectExecution, model);
-		}
+	public String save(ProjectExecution projectExecution, Model model,
+					   RedirectAttributes redirectAttributes) {
+
 		String flag = projectExecution.getAct().getFlag();
-
-//		flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
-		if ("saveOnly".equals(flag)) { // 只保存表单数据
-			executionService.save(projectExecution);
-		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
-            executionService.saveFinishProcess(projectExecution);
-		} else {
-            executionService.saveLaunch(projectExecution);
+		if (!"saveOnly".equals(flag)) {
+			if (!beanValidator(model, projectExecution)) {
+				return form(projectExecution, model);
+			}
 		}
 
-		addMessage(redirectAttributes, "保存项目合同执行申请单成功");
+		saveBusi(executionService, projectExecution);
+		addMessage(redirectAttributes, "保存成功!");
 		
 		String usertask_owner = projectExecution.getAct().getTaskDefKey();
         // 此节点只有在被驳回时才有，所以入口是在我的任务中
@@ -240,7 +218,7 @@ public class ProjectExecutionController extends BaseController {
 	@RequestMapping(value = "delete")
 	public String delete(ProjectExecution projectExecution, RedirectAttributes redirectAttributes) {
 		executionService.delete(projectExecution);
-		addMessage(redirectAttributes, "删除项目合同执行成功");
+		addMessage(redirectAttributes, "删除成功!");
 		return "redirect:"+Global.getAdminPath()+"/project/execution/?repage";
 	}
 

@@ -64,26 +64,17 @@
 		}
 
         // 选择项目后触发事件
-        function changeProject(projectId, idx) {
-
-            // JavaScript全局变量，用于传递参数，新建表单使用。
-		    treeGetParam = "?prjId=" + projectId;
+        function changeProject(tree, prjId, prjName) {
+            // 给下一个树控件动态传递参数
+            $('#contractItemId').data('url', '/project/contract/projectContract/treeDataContractItemList?prjId=' + prjId);
             // 向后台获取项目信息，并将相关信息回显
             $.post('${ctx}/apply/external/projectApplyExternal/getAsJson',
-                {id: projectId},
+                {id: prjId},
                 function (apply) {
-
                 $("#project_code").text(apply.projectCode);
                 $("#customer_name").text(apply.customer.customerName);
                 $("#customer_contact_name").text(apply.customerContact.contactName);
                 $("#customer_contact_phone").text(apply.customerContact.phone);
-
-//                treeUrl = apply.id;
-                <%--var ss = ${fns:getDictLabel(apply.category , 'pro_category', apply.category)};--%>
-//                console.log(ss);
-                    <%--var temp = eval(${fns:getDictList("pro_category")});--%>
-//                    console.log(temp);
-                <!--$("#project_category").text("");-->
             });
 
             //清除合同相关的值
@@ -97,10 +88,9 @@
         }
 
         // 选择合同后触发事件
-        function changedContract(itemId, idx) {
+        function changedContract(tree, itemId, itemName) {
             $.post('${ctx}/project/contract/projectContract/getItemAsJson',
                 {id: itemId}, function (item) {
-
                 if (item) {
                     $('#contract_amount').text(item.contractAmount);
                     $('#contract_gross_margin').text(item.grossProfitMargin);
@@ -141,7 +131,7 @@
 </ul><br/>
 <%--可以通过modelAttribute属性指定绑定的模型属性，若没有指定该属性，
 则默认从request域对象中读取名称为command的表单bean，如果该属性值也不存在，则会发生错误。--%>
-<form:form id="inputForm" modelAttribute="projectExecution"
+<form:form id="inputForm" modelAttribute="projectExecution" htmlEscape="false"
            action="${ctx}/project/execution/save" method="post" class="form-horizontal">
     <form:hidden path="id"/>
     <%-- path：表单字段，对应html元素的name属性，支持级联属性 --%>
@@ -151,7 +141,7 @@
     <form:hidden path="act.procInsId"/>
     <form:hidden path="act.procDefId"/>
     <form:hidden id="flag" path="act.flag"/>
-    <%--设置id，前端设置值，传回后端--%>
+    <%-- 设置id，前端设置值，传回后端，必须 --%>
     <form:hidden id="contractId" path="contract.id" />
     <sys:message content="${message}"/>
     <table class="table-form">
@@ -162,29 +152,24 @@
         <tr>
             <td class="tit">项目名称</td>
             <td colspan="1" >
-                <%--<div style="white-space:nowrap;" >--%>
-                    <sys:treeselect
-                       id="apply"
-                       name="apply.id"
-                       value="${projectExecution.apply.id}"
-                       labelName="apply.projectName"
-                       labelValue="${projectExecution.apply.projectName}"
-                       title="项目"
-                       url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11"
-                       cssClass="required"
-                       cssStyle="width: 90%;"
-                       dataMsgRequired="项目必选"
-                       allowClear="true"
-                       notAllowSelectParent="true"
-                       customClick="changeProject"/>
-                    <span class="help-inline"><font color="red">*</font> </span>
-                <%--</div>--%>
+                <sys:treeselect
+                   id="apply"
+                   name="apply.id"
+                   value="${projectExecution.apply.id}"
+                   labelName="apply.projectName"
+                   labelValue="${projectExecution.apply.projectName}"
+                   title="项目"
+                   url="/apply/external/projectApplyExternal/treeData?proMainStage=11"
+                   cssClass="required" cssStyle="width: 90%;" dataMsgRequired="项目必选"
+                   allowClear="true" notAllowSelectParent="true"
+                   customFuncOnOK="changeProject"/>
+                <span class="help-inline"><font color="red">*</font> </span>
             </td>
 
             <td class="tit">项目编码</td>
             <td class="text-center"><label id="project_code">${projectExecution.apply.projectCode}</label></td>
             <td class="tit">项目类型</td>
-            <td style="width:100px"><label id="project_category">${fns:getDictLabel(projectExecution.apply.category , 'pro_category', '')}</label></td>
+            <td ><label id="project_category">${fns:getDictLabel(projectExecution.apply.category , 'pro_category', '')}</label></td>
 
         </tr>
         <tr>
@@ -199,22 +184,17 @@
         <tr>
             <td class="tit">合同号</td>
             <td class="">
-                <%--<div style="white-space:nowrap;" >--%>
-                    <sys:treeselect
-                        id="contractItem"
-                        name="contractItem.id"
-                        value="${projectExecution.contractItem.id}"
-                        labelName="contractItem.contractCode"
-                        labelValue="${projectExecution.contractItem.contractCode}"
-                        title="合同"
-                        url="/project/contract/projectContract/treeDataContractItemList"
-                        cssStyle="width: 90%;"
-                        allowClear="true"
-                        dependBy="apply"
-                        dependMsg="请先选择项目！"
-                        notAllowSelectParent="true"
-                        customClick="changedContract"/>
-                <%--</div>--%>
+                <sys:treeselect
+                    id="contractItem"
+                    name="contractItem.id" value="${projectExecution.contractItem.id}"
+                    labelName="contractItem.contractCode"
+                    labelValue="${projectExecution.contractItem.contractCode}"
+                    title="合同"
+                    url="/project/contract/projectContract/treeDataContractItemList"
+                    cssStyle="width: 90%;" allowClear="true"
+                    dependBy="apply" dependMsg="请先选择项目！"
+                    notAllowSelectParent="true"
+                    customFuncOnOK="changedContract"/>
             </td>
 
             <td class="tit">合同金额</td>

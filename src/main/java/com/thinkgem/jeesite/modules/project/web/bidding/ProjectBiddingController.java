@@ -38,35 +38,56 @@ import java.util.Map;
 @RequestMapping(value = "${adminPath}/project/bidding/projectBidding")
 public class ProjectBiddingController extends BaseController {
 
+	static String prefix = "modules/project/bidding/";
+	static String LIST = "projectBiddingList";
+	static String VIEW = "projectBiddingView";
+	static String EDIT = "projectBiddingForm";
+	static String REDIRECT2VIEW = "/project/bidding/projectBidding/?repage";
+
 	@Autowired
 	private ProjectBiddingService projectBiddingService;
 	@Autowired
 	private ActTaskService actTaskService;
 
-    /**
-     * 如果把@ModelAttribute放在方法的注解上时，代表的是：该Controller的所有方法在调用前，先执行此@ModelAttribute方法
+	// 相关界面
+	// 保存结束-->跳转到controller的默认列表路径
+	@Override
+	protected String getRedirectView() {
+		return REDIRECT2VIEW;
+	}
+
+	// 查看表单页面-->查看、审批共用，页面中使用taskId、taskDefKey等来控制界面，提交到saveAudit
+	@Override
+	protected String getView() {
+		return VIEW;
+	}
+
+	// 编辑表单页面-->新建、修改、驳回修改共用，提交到save
+	@Override
+	protected String getEdit() {
+		return EDIT;
+	}
+
+
+	/**
+     * 如果把@ModelAttribute放在方法的注解上时，
+	 * 代表的是：该Controller的所有方法在调用前，先执行此@ModelAttribute方法
      * @param id
      * @return
      */
 	@ModelAttribute
 	public ProjectBidding get(@RequestParam(required=false) String id) {
-		ProjectBidding entity = null;
-		if (StringUtils.isNotBlank(id)){
-			entity = projectBiddingService.get(id);
-		}
-		if (entity == null){
-			entity = new ProjectBidding();
-		}
-		return entity;
+		return projectBiddingService.get(id);
 	}
 	
 	@RequiresPermissions("project:bidding:projectBidding:view")
 	@RequestMapping(value = {"list", ""})
-	public String list(ProjectBidding projectBidding, HttpServletRequest request, HttpServletResponse response, Model model) {
+	public String list(ProjectBidding projectBidding,
+					   HttpServletRequest request, HttpServletResponse response, Model model) {
 		projectBidding.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
-		Page<ProjectBidding> page = projectBiddingService.findPage(new Page<ProjectBidding>(request, response), projectBidding); 
+		Page<ProjectBidding> page = projectBiddingService.findPage(new Page<>(request, response), projectBidding);
 		model.addAttribute("page", page);
-		return "modules/project/bidding/projectBiddingList";
+		return prefix + LIST;
 	}
 
 	/**
@@ -78,58 +99,14 @@ public class ProjectBiddingController extends BaseController {
 	@RequiresPermissions("project:bidding:projectBidding:view")
 	@RequestMapping(value = "form")
 	public String form(ProjectBidding projectBidding, Model model) {
-		String prefix = "modules/project/bidding/";
-		String view = "projectBiddingForm";
-
-		model.addAttribute("projectBidding", projectBidding);
-
-		// 待办、已办入口界面传的act是一样的，只是act中的status不一样。
-
-		if (projectBidding.getIsNewRecord()) {
-			// 入口1：新建表单，直接返回空实体
-			if (projectBidding.hasAct()) {
-				// 入口2：从已办任务界面来的请求，1、实体是新建的，2、act是activi框架填充的。
-				// 此时实体应该由流程id来查询。
-				view = "projectBiddingView";
-				projectBidding = projectBiddingService.findByProcInsId(projectBidding);
-				if (projectBidding == null) {
-					projectBidding = new ProjectBidding();
-				}
-				model.addAttribute("projectBidding", projectBidding);
-			}
-			return prefix + view;
-		}
-
-		// 入口3：在流程图中配置，从待办任务界面来的请求，entity和act都已加载。
-		// 环节编号
-		String taskDefKey = projectBidding.getAct().getTaskDefKey();
-
-		// 查看
-		if(projectBidding.getAct().isFinishTask()){
-			view = "projectBiddingView";
-		}
-		// 修改环节
-		else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ){
-			view = "projectBiddingForm";
-		}
-		// 商务部专员-要填写供应商的联系人信息
-		// else if (UserTaskType.UT_COMMERCE_SPECIALIST.equals(taskDefKey)) {
-		// 	view = "ExecutionView4Commerce";
-		// }
-		// 某审批环节
-		else if ("apply_end".equals(taskDefKey)){
-			view = "projectBiddingView";  // replace ExecutionAudit
-		} else {
-			view = "projectBiddingView";
-		}
-		return prefix + view;
+		return prefix + formToView(projectBidding);
 	}
 
 	@RequiresPermissions("project:bidding:projectBidding:modify")
 	@RequestMapping(value = "modify")
 	public String modify(ProjectBidding projectBidding, Model model) {
-		model.addAttribute("projectBidding", projectBidding);
-		return "modules/project/bidding/projectBiddingForm";
+		// model.addAttribute("projectBidding", projectBidding);
+		return prefix + EDIT;
 	}
 
 	/**
@@ -141,38 +118,27 @@ public class ProjectBiddingController extends BaseController {
 	 */
 	@RequiresPermissions("project:bidding:projectBidding:edit")
 	@RequestMapping(value = "save")
-	public String save(ProjectBidding projectBidding, Model model, RedirectAttributes redirectAttributes) {
-		if (!beanValidator(model, projectBidding)){
-			return form(projectBidding, model);
-		}
+	public String save(ProjectBidding projectBidding, Model model,
+					   RedirectAttributes redirectAttributes) {
 		String flag = projectBidding.getAct().getFlag();
-
-//		flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
-		if ("saveOnly".equals(flag)) { // 只保存表单数据
-			projectBiddingService.save(projectBidding);
-		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
-			System.out.println();
-			projectBiddingService.saveFinishProcess(projectBidding);
-		} else {
-			projectBiddingService.saveLaunch(projectBidding);
+		// 如果是暂存，则不校验表单
+		if (!"saveOnly".equals(flag)) {
+			if (!beanValidator(model, projectBidding)){
+				return form(projectBidding, model);
+			}
 		}
+		saveBusi(projectBiddingService, projectBidding);
+		addMessage(redirectAttributes, "保存成功!");
 
-		addMessage(redirectAttributes, "保存项目投标成功");
-		
-		String usertask_owner = projectBidding.getAct().getTaskDefKey();
-		if (UserTaskType.UT_OWNER.equals(usertask_owner)) { // 待办任务页面
-			return "redirect:" + adminPath + "/act/task/todo/";
-		} else { // 列表页面
-			return "redirect:"+Global.getAdminPath()+"/project/bidding/projectBidding/?repage";
-		}
+		return saveToView(projectBidding);
 	}
 	
 	@RequiresPermissions("project:bidding:projectBidding:edit")
 	@RequestMapping(value = "delete")
 	public String delete(ProjectBidding projectBidding, RedirectAttributes redirectAttributes) {
 		projectBiddingService.delete(projectBidding);
-		addMessage(redirectAttributes, "删除项目投标成功");
-		return "redirect:"+Global.getAdminPath()+"/project/bidding/projectBidding/?repage";
+		addMessage(redirectAttributes, "删除成功");
+		return "redirect:"+Global.getAdminPath() + REDIRECT2VIEW;
 	}
 	
 	@RequestMapping(value = "saveAudit")
@@ -185,8 +151,7 @@ public class ProjectBiddingController extends BaseController {
 		projectBiddingService.saveAudit(projectBidding);
 		return "redirect:" + adminPath + "/act/task/todo/";
 	}
-	
-	
+
 	/**
 	 * 使用的导出
 	 * @param request

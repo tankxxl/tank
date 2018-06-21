@@ -26,13 +26,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
- * 外部立项申请Service
+ * 立项申请Service
  * @author jicdata
  * @version 2016-02-23
  */
@@ -56,16 +54,16 @@ public class ProjectApplyExternalService
 		return apply;
 	}
 
-	@Override
-	@Transactional(readOnly = false)
-	public void delete(ProjectApplyExternal entity) {
-		// 流程审批状态,字典数据AuditStatus，0初始录入，1审批中，2审批结束
-		String status = entity.getProcStatus();
-		if ("1".equals(status)) {
-			endProcess(entity.getProcInsId());
-		}
-		super.delete(entity);
-	}
+	// @Override
+	// @Transactional(readOnly = false)
+	// public void delete(ProjectApplyExternal entity) {
+	// 	// 流程审批状态,字典数据AuditStatus，0初始录入，1审批中，2审批结束
+	// 	String status = entity.getProcStatus();
+	// 	if ("1".equals(status)) {
+	// 		endProcess(entity.getProcInsId());
+	// 	}
+	// 	super.delete(entity);
+	// }
 
 	@Override
 	@Transactional(readOnly = false)
@@ -76,90 +74,16 @@ public class ProjectApplyExternalService
 		super.save(entity);
 	}
 
+	// 回调函数，设置流程变量
 	@Override
 	public void setupVariable(ProjectApplyExternal projectApplyExternal, Map<String, Object> vars) {
-		projectApplyExternal.preInsert4ProInteralApply();
-
 		vars.put(ActUtils.VAR_PRJ_ID, projectApplyExternal.getId());
 		vars.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
 		vars.put(ActUtils.VAR_PRJ_TYPE, projectApplyExternal.getCategory());
 		vars.put(ActUtils.VAR_OFFICE_CODE, projectApplyExternal.getSaler().getOffice().getCode());
-		// vars.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
-
-		if ("03".equals(projectApplyExternal.getCategory()) ) {
-			vars.put(ActUtils.VAR_TYPE, "2");
-		} else {
-			vars.put(ActUtils.VAR_TYPE, "1");
-		}
-
-		boolean isBossAudit = MyDictUtils.isBossAudit(projectApplyExternal.getEstimatedContractAmount(), projectApplyExternal.getEstimatedGrossProfitMargin());
-
-		if (isBossAudit) { // 需要总经理审批
-			vars.put(ActUtils.VAR_SKIP_BOSS, "0");
-		} else {
-			vars.put(ActUtils.VAR_SKIP_BOSS, "1");
-		}
-
-		// if ("1".equals(projectApplyExternal.getSelfDev()) ) {
-		// 	vars.put(ActUtils.VAR_SKIP_DEV, "0");
-		// } else {
-		// 	vars.put(ActUtils.VAR_SKIP_DEV, "1");
-		// }
 	}
 
-	/**
-	 * 保存并结束流程
-	 * @param projectApplyExternal
-	 */
-	// @Transactional(readOnly = false)
-	// public void saveFinishProcess(ProjectApplyExternal projectApplyExternal) {
-	// 	// 开启流程
-	// 	String procInsId = saveLaunch(projectApplyExternal);
-	// 	// 结束流程
-	// 	endProcess(procInsId);
-	// }
-
-	/**
-	 * 保存表单数据，并启动流程
-	 *
-	 * 申请人发起流程，申请人重新发起流程入口
-	 * 在form界面
-	 *
-	 * @param projectApplyExternal
-	 */
-	// @Transactional(readOnly = false)
-	// public String saveLaunch(ProjectApplyExternal projectApplyExternal) {
-	// 	if (projectApplyExternal.getIsNewRecord()) {
-	// 		projectApplyExternal.preInsert4ProInteralApply();//判断是否是插入还是修改，若是插入那么添加当前用户为销售
-	// 		// 启动流程的时候，把业务数据放到流程变量里
-	// 		Map<String, Object> varMap = new HashMap<String, Object>();
-	// 		varMap.put(ActUtils.VAR_PRJ_ID, projectApplyExternal.getId());
-    //
-	// 		varMap.put(ActUtils.VAR_PRJ_TYPE, projectApplyExternal.getCategory());
-    //
-	// 		varMap.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
-    //
-	// 		if ("03".equals(projectApplyExternal.getCategory()) ) {
-	// 			varMap.put(ActUtils.VAR_TYPE, "2");
-	// 		} else {
-	// 			varMap.put(ActUtils.VAR_TYPE, "1");
-	// 		}
-    //
-	// 		boolean isBossAudit = MyDictUtils.isBossAudit(projectApplyExternal.getEstimatedContractAmount(), projectApplyExternal.getEstimatedGrossProfitMargin());
-	// 		if (isBossAudit) { // 需要总经理审批
-	// 			varMap.put(ActUtils.VAR_SKIP_BOSS, "0");
-	// 		} else {
-	// 			varMap.put(ActUtils.VAR_SKIP_BOSS, "1");
-	// 		}
-    //
-	// 		return launch(projectApplyExternal, varMap);
-	// 	} else { // 把驳回到申请人(重新修改业务表单，重新发起流程、销毁流程)也当成一个特殊的审批节点
-	// 		// 只要不是启动流程，其它任意节点的跳转都当成节点审批
-	// 		saveAudit(projectApplyExternal);
-	// 		return null;
-	// 	}
-	// }
-
+	// 回调函数
 	@Override
 	public void processAudit(ProjectApplyExternal projectApplyExternal, Map<String, Object> vars) {
 		// 对不同环节的业务逻辑进行操作
@@ -180,95 +104,9 @@ public class ProjectApplyExternalService
 				// 项目专员审批后，保存立项申请单
 				save(projectApplyExternal);
 			}
-		} else if (UserTaskType.UT_OWNER.equals(taskDefKey)) {
-			// 又到自己的手里，重新提交
-			// save(projectExecution);
-			// projectExecution.getAct().setComment((projectExecution.getAct().getFlagBoolean() ?
-			//         	"[同意] ":"[驳回] ") + projectExecution.getAct().getComment());
 		}
 	}
 
-
-	/**
-	 * 获取当前数据库中项目编号
-	 * @return
-	 */
-	public String getCurrentCode(){
-		return dao.getCurrentCode();
-	}
-
-
-	public void sendMail(DelegateTask task, String assignee, String userId, String groupId) {
-		if (!Global.isSendEmail()) {
-			return;
-		}
-		StringBuilder sbMailTo = new StringBuilder();
-		User user;
-		// 加入assignee
-		if (StringUtils.isNotBlank(assignee)) {
-			user = UserUtils.getByLoginName(assignee);
-			if (user != null && StringUtils.isNotBlank(user.getEmail()))
-				sbMailTo.append(user.getEmail() + ";");	
-		}
-		
-		String [] userArray = userId.split(",");
-		// 加入user
-		for (int i = 0; i < userArray.length; i++) {
-			if (StringUtils.isBlank(userArray[i]))
-				continue;
-			
-			user = UserUtils.getByLoginName(userArray[i]);
-			if (user != null && StringUtils.isNotBlank(user.getEmail()))
-			sbMailTo.append(user.getEmail() + ";");
-		}
-		
-		String[] groupArray = groupId.split(",");
-		Role role = new Role();
-		// 加入group
-		for (int i = 0; i < groupArray.length; i++) {
-			if (StringUtils.isBlank(groupArray[i]))
-				continue;
-			//
-			role.setEnname(groupArray[i]);
-			role = roleDao.getRoleUserByEnname(role);
-			if (role == null)
-				continue;
-			
-			List<User> users = role.getUserList();
-			if (users == null)
-				continue;
-			
-			for (int j = 0; j < users.size(); j++) {
-				user = users.get(j);
-				if (user == null)
-					continue;
-				if ("thinkgem".equals(user.getLoginName())) 
-					continue;
-				if (StringUtils.isBlank(user.getEmail()))
-					continue;
-				sbMailTo.append(user.getEmail() + ";");
-			} // end for UserList
-		} // end for groups
-		
-		String mailTo = sbMailTo.toString();
-		if (StringUtils.isBlank(mailTo))
-			return;
-		
-		mailTo = mailTo.substring(0, mailTo.length() - 1);
-		// Email
-		Email email = new Email();
-		email.setAddressee(mailTo);
-
-//		((TaskEntity) task).execution.processDefinition.name
-		String subject = ((TaskEntity) task).getExecution().getProcessDefinition().getName();
-		email.setSubject(subject); // xxx审批流程
-		email.setContent((String) task.getVariable(ActUtils.VAR_TITLE)); // 项目名称
-		if (Global.isSendEmail()) {
-			mailService.sendMailByAsyncMode(email);
-		}
-		System.out.println("MailTo=" + sbMailTo.toString());
-	}
-	
 	/**
 	 * 业务状态、项目的业务状态、立项审批中、立项完成、招标审批中、招标完成、合同、结项等。
 	 * 在各个流程引擎开始和结束时修改项目主表中的字段。
@@ -286,14 +124,45 @@ public class ProjectApplyExternalService
 		dao.update(projectApplyExternal);
 	}
 
-	@Deprecated
-	public List<ProjectApplyExternal> findList4LargerMainStage(ProjectApplyExternal projectApplyExternal){
-		return dao.findList4LargerMainStage(projectApplyExternal);
-	}
+	// 根据参数生成项目编号
+	public Map<String,String> genPrjCode(String category,String ownership) {
+		Map<String,String> returnMap = new HashMap<>();
 
-	@Deprecated
-	public List<ProjectApplyExternal> findAllList4LargerMainStage(ProjectApplyExternal projectApplyExternal){
-		return dao.findAllList4LargerMainStage(projectApplyExternal);
+		//若项目类型为空，返回map中加error键值对
+		if(StringUtils.isBlank(category)) {
+			returnMap.put("error","项目类型不能为空，请先选择项目类型");
+			return returnMap;
+		}
+
+		StringBuffer projectCode =new StringBuffer();
+		//添加项目类型值
+		projectCode.append(category);
+		//若项目类型不为空，则在map中添加data键值对
+		SimpleDateFormat df = new SimpleDateFormat("yyyy");
+		String dateString = df.format(new Date());
+		projectCode.append(dateString);
+		//添加项目归属对应值
+		projectCode.append(ownership);
+		//添加后3位累加值
+		String currentCode = dao.getCurrentCode();
+		// currentCode = "";
+		// 如果项目号后缀超过1000，则重新从001开始生成
+		if (StringUtils.isNotEmpty(currentCode) && currentCode.length() >= 4) {
+			currentCode = "001";
+		}
+		if (StringUtils.isEmpty(currentCode)) {
+			currentCode = "001";
+		}
+
+		// for(int i=currentCode.length();i<maxIdentityLength;i++){
+		// 	projectCode.append("0");
+		// }
+		currentCode = StringUtils.leftPad(StringUtils.isBlank(currentCode) ? "0" : currentCode, 3, '0');
+		// or String.format("%03d", Integer.parseInt(currentCode) + 1);
+		projectCode.append(currentCode);
+		returnMap.put("data",projectCode.toString() );
+
+		return returnMap;
 	}
 
 	//
@@ -326,6 +195,77 @@ public class ProjectApplyExternalService
 			mapList.add(map);
 		}
 		return mapList;
+	}
+
+	// 发送邮件，流程监听器中调用
+	public void sendMail(DelegateTask task, String assignee, String userId, String groupId) {
+		if (!Global.isSendEmail()) {
+			return;
+		}
+		StringBuilder sbMailTo = new StringBuilder();
+		User user;
+		// 加入assignee
+		if (StringUtils.isNotBlank(assignee)) {
+			user = UserUtils.getByLoginName(assignee);
+			if (user != null && StringUtils.isNotBlank(user.getEmail()))
+				sbMailTo.append(user.getEmail() + ";");
+		}
+
+		String [] userArray = userId.split(",");
+		// 加入user
+		for (int i = 0; i < userArray.length; i++) {
+			if (StringUtils.isBlank(userArray[i]))
+				continue;
+
+			user = UserUtils.getByLoginName(userArray[i]);
+			if (user != null && StringUtils.isNotBlank(user.getEmail()))
+				sbMailTo.append(user.getEmail() + ";");
+		}
+
+		String[] groupArray = groupId.split(",");
+		Role role = new Role();
+		// 加入group
+		for (int i = 0; i < groupArray.length; i++) {
+			if (StringUtils.isBlank(groupArray[i]))
+				continue;
+			//
+			role.setEnname(groupArray[i]);
+			role = roleDao.getRoleUserByEnname(role);
+			if (role == null)
+				continue;
+
+			List<User> users = role.getUserList();
+			if (users == null)
+				continue;
+
+			for (int j = 0; j < users.size(); j++) {
+				user = users.get(j);
+				if (user == null)
+					continue;
+				if ("thinkgem".equals(user.getLoginName()))
+					continue;
+				if (StringUtils.isBlank(user.getEmail()))
+					continue;
+				sbMailTo.append(user.getEmail() + ";");
+			} // end for UserList
+		} // end for groups
+
+		String mailTo = sbMailTo.toString();
+		if (StringUtils.isBlank(mailTo))
+			return;
+
+		mailTo = mailTo.substring(0, mailTo.length() - 1);
+		// Email
+		Email email = new Email();
+		email.setAddressee(mailTo);
+
+//		((TaskEntity) task).execution.processDefinition.name
+		String subject = ((TaskEntity) task).getExecution().getProcessDefinition().getName();
+		email.setSubject(subject); // xxx审批流程
+		email.setContent((String) task.getVariable(ActUtils.VAR_TITLE)); // 项目名称
+		if (Global.isSendEmail()) {
+			mailService.sendMailByAsyncMode(email);
+		}
 	}
 	
 }

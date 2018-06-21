@@ -63,7 +63,7 @@
 
 
 			<li><label>标书种类：</label>
-				<form:checkboxes path="category" items="${fns:getDictList('tender_category')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+				<form:checkboxes path="category" items="${fns:getDictList('tender_category')}" itemLabel="label" itemValue="value" />
 			</li>
 			<%--<li><label>用印内容：</label>--%>
 				<%--<form:checkboxes path="printingPaste" items="${fns:getDictList('tender_printing_paste')}" itemLabel="label" itemValue="value" htmlEscape="false"/>--%>

@@ -23,8 +23,8 @@
 <%@ attribute name="disabled" type="java.lang.String" required="false" description="是否限制选择，如果限制，设置为disabled"%>
 <%@ attribute name="dataMsgRequired" type="java.lang.String" required="false" description=""%>
 <%-- rgz 参数传入，自定义点击事件--%>
-<%@ attribute name="customClick" type="java.lang.String" required="false" description="自定义点击事件" %>
-<%@ attribute name="idx" type="java.lang.String" required="false" description="自定义点击事件额外参数" %>
+<%@ attribute name="customFuncOnOK" type="java.lang.String" required="false" description="自定义执行函数（点击确认时执行）" %>
+<%@ attribute name="customFuncOnClear" type="java.lang.String" required="false" description="自定义执行函数（点击消除时执行）" %>
 <%@ attribute name="dependBy" type="java.lang.String" required="false" description="依赖某个treeselect控件" %>
 <%@ attribute name="dependMsg" type="java.lang.String" required="false" description="提示先选择那个依赖的控件" %>
 
@@ -37,16 +37,8 @@
 </div>
 <script type="text/javascript">
 
-     treeGetParam = "";
-
-     <%--<c:choose>--%>
-     <%--<c:when test="${allowInput}">--%>
-            <%--$("#${id}Button").click(function(){--%>
-     <%--</c:when>--%>
-     <%--<c:otherwise>--%>
-                <%--$("#${id}Button, #${id}Name").click(function(){--%>
-     <%--</c:otherwise>--%>
-     <%--</c:choose>--%>
+    // 增加url动态修改功能 - 将url存储于隐藏的input data-url域中，使用.data('url', newUrl)即可动态进行调整，主要解决动态传入参数
+    $('#${id}Id').data('url', '${url}');
 
 	$("#${id}Button, #${id}Name").click(function(event){
 
@@ -64,7 +56,7 @@
         </c:if>
 
 		// 正常打开	
-		top.$.jBox.open("iframe:${ctx}/tag/treeselect?url="+encodeURIComponent("${url}" + treeGetParam)+"&module=${module}&checked=${checked}&extId=${extId}&isAll=${isAll}", "选择${title}", 400, 450, {
+		top.$.jBox.open("iframe:${ctx}/tag/treeselect?url="+encodeURIComponent($('#${id}Id').data('url'))+"&module=${module}&checked=${checked}&extId=${extId}&isAll=${isAll}", "选择${title}", 400, 450, {
 			ajaxData:{selectIds: $("#${id}Id").val()},
             buttons:{"确定":"ok", ${allowClear?"\"清除\":\"clear\", ":""}"关闭":true},
             submit:function(v, h, f){
@@ -99,21 +91,25 @@
 						names.push(nodes[i].name);//<c:if test="${!checked}">
 						break; // 如果为非复选框选择，则返回第一个选择  </c:if>
 					}
+
                     // rgz 赋值
 					$("#${id}Id").val(ids.join(",").replace(/u_/ig,""));
 					$("#${id}Name").val(names.join(","));
 
 
                     // rgz 若为单选模式，点击确定时响应参数传入的自定义事件
-                    if ("${checked}" != "true") {
-                        ${customClick}($("#${id}Id").val(), '${idx}');
-                    }
-                    // end
+                    //<c:if test="${not empty customFuncOnOK}">
+                    ${customFuncOnOK}(tree, $("#${id}Id").val(), $("#${id}Name").val());
+                    //</c:if>
 
 				}//<c:if test="${allowClear}">
 				else if (v=="clear"){
 					$("#${id}Id").val("");
 					$("#${id}Name").val("");
+
+                    //<c:if test="${not empty customFuncOnClear}">
+                    ${customFuncOnClear}($("#${id}Id").val(), $("#${id}Name").val());
+                    //</c:if>
                 }//</c:if>
 				if(typeof ${id}TreeselectCallBack == 'function'){
 					${id}TreeselectCallBack(v, h, f);

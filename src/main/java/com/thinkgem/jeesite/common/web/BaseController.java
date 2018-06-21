@@ -15,6 +15,10 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 import javax.validation.Validator;
 
+import com.thinkgem.jeesite.common.config.Global;
+import com.thinkgem.jeesite.common.persistence.ActEntity;
+import com.thinkgem.jeesite.common.service.JicActService;
+import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.slf4j.Logger;
@@ -129,7 +133,7 @@ public abstract class BaseController {
 	
 	/**
 	 * 添加Model消息
-	 * @param message
+	 * @param
 	 */
 	protected void addMessage(Model model, String... messages) {
 		StringBuilder sb = new StringBuilder();
@@ -238,4 +242,78 @@ public abstract class BaseController {
 //	    this.response = response;
 //	    this.session = request.getSession();
 //    }
+
+	// 抽取子类的表单保存逻辑
+	protected String saveBusi(JicActService jicActService, ActEntity actEntity) {
+
+		String flag = actEntity.getAct().getFlag();
+
+		// flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
+		if ("saveOnly".equals(flag) ) { // 只保存表单数据
+			jicActService.save(actEntity);
+		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
+			jicActService.saveFinishProcess(actEntity);
+		} else if ("no".equalsIgnoreCase(flag)) { // 销毁申请单
+			jicActService.delete(actEntity);
+		} else { // 保存表单并启动流程
+			jicActService.saveLaunch(actEntity);
+		}
+		return null;
+	}
+
+	// 抽取子类的显示界面判断逻辑
+	// 表单展示的路由
+	protected String formToView(ActEntity actEntity) {
+
+		// 入口1：新建表单，直接返回空实体
+		if (actEntity.getIsNewRecord()) {
+			return getEdit();
+		}
+
+		String view = null;
+		// 入口2：在流程图中配置，从待办、已办任务界面来的请求，entity和act都已加载
+		// 环节编号
+		String taskDefKey = actEntity.getAct().getTaskDefKey();
+		// 先看是不是流程结束
+		if(actEntity.getAct().isFinishTask()){
+			view = getView();
+		}
+		// 修改环节，再看是不是发起人
+		else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ){
+			view = getEdit();
+		}
+		// 某审批环节
+		else {
+			// 需要特殊界面的节点，在子类中实现此方法去判断
+			view = otherNode(taskDefKey);
+		}
+		return view;
+	}
+
+	// 子类可以重载此函数，用来实现在其它审批节点时显示特别的界面
+	protected String otherNode(String taskDefKey) {
+		return getView();
+	}
+
+	// 保存之后的路由
+	protected String saveToView(ActEntity actEntity) {
+		String usertask_owner = actEntity.getAct().getTaskDefKey();
+		if (UserTaskType.UT_OWNER.equals(usertask_owner)) { // 待办任务页面
+			return "redirect:" + adminPath + "/act/task/todo/";
+		} else { // 列表页面
+			return "redirect:"+Global.getAdminPath() + getRedirectView(); // "/project/finish/projectFinishApproval/?repage";
+		}
+	}
+
+	protected String getRedirectView() {
+		return "";
+	}
+
+	protected String getView() {
+		return "";
+	}
+
+	protected String getEdit() {
+		return "";
+	}
 }

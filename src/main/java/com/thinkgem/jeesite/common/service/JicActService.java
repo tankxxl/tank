@@ -101,14 +101,19 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
 //		}
 //	}
 //
-//	/**
-//	 * 删除数据
-//	 * @param entity
-//	 */
-//	@Transactional(readOnly = false)
-//	public void delete(T entity) {
-//		dao.delete(entity);
-//	}
+	/**
+	 * 结束流程并删除数据
+	 * @param entity
+	 */
+	@Transactional(readOnly = false)
+	public void delete(T entity) {
+        // 流程审批状态,字典数据AuditStatus，0初始录入，1审批中，2审批结束
+        String status = entity.getProcStatus();
+        if ("1".equals(status)) {
+            endProcess(entity.getProcInsId());
+        }
+		super.delete(entity);
+	}
 
 
     /**
@@ -184,8 +189,8 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
      */
     @Transactional(readOnly = false)
     public void endProcess(String procInsId) {
-        if (StringUtils.isEmpty(procInsId))
-            return;
+        // if (StringUtils.isEmpty(procInsId))
+        //     return;
         actTaskService.deleteProcIns(procInsId, "");
     }
 
@@ -270,7 +275,12 @@ public abstract class JicActService<D extends JicDao<T>, T extends ActEntity<T>>
      *
      */
     public void processAudit(T entity, Map<String, Object> vars) {
-
+        // 对不同环节的业务逻辑进行操作
+        String taskDefKey = entity.getAct().getTaskDefKey();
+        if (UserTaskType.UT_OWNER.equals(taskDefKey)) {
+            // 驳回到发起人节点后，他可以修改所有的字段，所以重新设置一下流程变量
+            setupVariable(entity, vars);
+        }
     }
 
     /**

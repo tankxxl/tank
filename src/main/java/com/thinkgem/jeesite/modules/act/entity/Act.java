@@ -65,18 +65,6 @@ public class Act extends BaseEntity<Act> {
 
 	private List<Act> list; // 任务列表
 
-//    // rgz
-//    public String getEnable() {
-//        return enable;
-//    }
-//
-//    public void setEnable(String enable) {
-//        this.enable = enable;
-//    }
-//
-//    private String enable; // 是否在保存时启用流程, 之前的设计都是在保存表单时就启动流程.现在的要求是:只保存表单,不启动流程.
-//    // end
-
 	public Act() {
 		super();
 	}
@@ -390,6 +378,7 @@ public class Act extends BaseEntity<Act> {
 	 * @return
 	 */
 	public boolean isFinishTask(){
+		// 流程进行中使用status判断，流程结束后使用taskId判断（已办并结束时）
 		return "finish".equals(status) || StringUtils.isBlank(taskId);
 	}
 

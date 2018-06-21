@@ -69,9 +69,10 @@ public class ActUtils {
     // 项目类型，字典中key值，在后期审批节点中需要用项目类型来查找审批角色 *
     public static final String VAR_PRJ_TYPE = "prjType";
 
+    // 申请人所在部门编码
 	public static final String VAR_OFFICE_CODE = "officeCode";
 
-	// 根据项目类型来设置，软件类项目为2，其它类项目为1 *
+	//deprecated 根据项目类型来设置，软件类项目为2，其它类项目为1 *
 	public static final String VAR_TYPE = "type";
     // 申请单类名
     public static final String VAR_CLASS_TYPE = "classType";
@@ -98,6 +99,7 @@ public class ActUtils {
     public static final String VAR_SKIP_HR = "skip_hr";
 	public static final String VAR_SKIP_inout = "skip_inout";
 
+    // deprecated 流程名称由流程引擎提供
     public static final String PROC_NAME_APPLY = "项目立项审批流程";
     public static final String PROC_NAME_BIDDING = "项目投标审批流程";
     public static final String PROC_NAME_CONTRACT = "项目合同审批流程";

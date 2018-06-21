@@ -44,6 +44,13 @@ import java.util.Map;
 @RequestMapping(value = "${adminPath}/project/purchase")
 public class ProjectPurchaseController extends BaseController {
 
+    static String prefix = "modules/project/purchase/";
+    static String LIST = "PurchaseList";
+
+    static String VIEW = "PurchaseView";
+    static String EDIT = "PurchaseForm";
+    static String REDIRECT2VIEW = "/project/purchase/?repage";
+
 	@Autowired
 	private ProjectPurchaseService purchaseService;
 
@@ -53,6 +60,26 @@ public class ProjectPurchaseController extends BaseController {
 	@Autowired
 	private ActTaskService actTaskService;
 
+    // 相关界面
+    // 保存结束-->跳转到controller的默认列表路径
+    @Override
+    protected String getRedirectView() {
+        return REDIRECT2VIEW;
+    }
+
+    // 查看表单页面-->查看、审批共用，页面中使用taskId、taskDefKey等来控制界面，提交到saveAudit
+    @Override
+    protected String getView() {
+        return VIEW;
+    }
+
+    // 编辑表单页面-->新建、修改、驳回修改共用，提交到save
+    @Override
+    protected String getEdit() {
+        return EDIT;
+    }
+
+
     /**
      * 如果把@ModelAttribute放在方法的注解上时，代表的是：该Controller的所有方法在调用前，先执行此@ModelAttribute方法
      * @param id
@@ -60,14 +87,7 @@ public class ProjectPurchaseController extends BaseController {
      */
 	@ModelAttribute
 	public ProjectPurchase get(@RequestParam(required=false) String id) {
-        ProjectPurchase entity = null;
-		if (StringUtils.isNotBlank(id)){
-			entity = purchaseService.get(id);
-		}
-		if (entity == null){
-			entity = new ProjectPurchase();
-		}
-		return entity;
+		return purchaseService.get(id);
 	}
 
 	@RequiresPermissions("project:purchase:view")
@@ -76,10 +96,10 @@ public class ProjectPurchaseController extends BaseController {
                        HttpServletResponse response, Model model) {
 
         projectPurchase.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
-		Page<ProjectPurchase> page = purchaseService.findPage(new Page<ProjectPurchase>(request, response),
+		Page<ProjectPurchase> page = purchaseService.findPage(new Page<>(request, response),
                 projectPurchase);
 		model.addAttribute("page", page);
-		return "modules/project/purchase/PurchaseList";
+		return prefix + LIST;
 	}
 
 	/**
@@ -91,50 +111,15 @@ public class ProjectPurchaseController extends BaseController {
 	@RequiresPermissions("project:purchase:view")
 	@RequestMapping(value = "form")
 	public String form(ProjectPurchase projectPurchase, Model model) {
-		String view = "PurchaseForm";
-        String prefix = "modules/project/purchase/";
-
-        model.addAttribute("projectPurchase", projectPurchase);
-
-        if (projectPurchase.getIsNewRecord()) {
-			// 从已办任务入口过来，流程实例已结束，只有act对象
-			if (projectPurchase.hasAct()) {
-				view = "PurchaseView";
-				projectPurchase = purchaseService.findByProcInsId(projectPurchase);
-				if (projectPurchase == null) {
-					projectPurchase = new ProjectPurchase();
-				}
-				model.addAttribute("projectPurchase", projectPurchase);
-			}
-            return prefix + view;
-        }
-
-        // 环节编号
-        String taskDefKey = projectPurchase.getAct().getTaskDefKey();
-
-        // 查看
-        if(projectPurchase.getAct().isFinishTask()){
-            view = "PurchaseView";
-        }
-        // 修改环节
-        else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ){
-            view = "PurchaseForm";
-        }
-        // 某审批环节
-        else if ("apply_end".equals(taskDefKey)){
-            view = "PurchaseView";  // PurchaseAudit
-        } else {
-            view = "PurchaseView";
-        }
-        return prefix + view;
+	    return prefix + formToView(projectPurchase);
 	}
 
 	// 新增采购审批入口，采购审批是在合同执行处添加的
 	// 所以此处把execution实体查询出来，再新建一个purchase实体，把purchase跟这个execution实体关联起来就ok了。
 	@RequestMapping(value = "exec2Purchase")
 	public String exec2Purchase(@RequestParam(required=false) String execId, Model model) {
-		String prefix = "modules/project/purchase/";
-		String view = "PurchaseForm";
+		// String prefix = "modules/project/purchase/";
+		// String view = "PurchaseForm";
 
 		ProjectExecution execution = null;
 		if (StringUtils.isNotBlank(execId)){
@@ -152,7 +137,7 @@ public class ProjectPurchaseController extends BaseController {
 
 		model.addAttribute("projectPurchase", projectPurchase);
 
-		return prefix + view;
+		return prefix + EDIT;
 	}
 
 	// 自由修改表单
@@ -160,7 +145,7 @@ public class ProjectPurchaseController extends BaseController {
 	@RequestMapping(value = "modify")
 	public String modify(ProjectPurchase projectPurchase, Model model) {
 		model.addAttribute("projectPurchase", projectPurchase);
-		return "modules/project/purchase/PurchaseForm";
+		return prefix + EDIT; // "modules/project/purchase/PurchaseForm";
 	}
 
 	/**
@@ -189,13 +174,8 @@ public class ProjectPurchaseController extends BaseController {
         }
 
 		addMessage(redirectAttributes, "保存项目采购成功");
-		
-		String usertask_owner = projectPurchase.getAct().getTaskDefKey();
-		if (UserTaskType.UT_OWNER.equals(usertask_owner)) { // 待办任务页面
-			return "redirect:" + adminPath + "/act/task/todo/";
-		} else { // 列表页面
-			return "redirect:"+Global.getAdminPath()+"/project/purchase/?repage";
-		}
+
+        return saveToView(projectPurchase);
 	}
 	
 	@RequiresPermissions("project:execution:edit")
@@ -203,7 +183,7 @@ public class ProjectPurchaseController extends BaseController {
 	public String delete(ProjectPurchase projectPurchase, RedirectAttributes redirectAttributes) {
 		purchaseService.delete(projectPurchase);
 		addMessage(redirectAttributes, "删除项目采购成功");
-		return "redirect:"+Global.getAdminPath()+"/project/purchase/?repage";
+		return "redirect:"+Global.getAdminPath()+getRedirectView();
 	}
 	
 	@RequestMapping(value = "saveAudit")

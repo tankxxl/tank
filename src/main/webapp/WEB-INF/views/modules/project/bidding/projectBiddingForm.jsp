@@ -77,10 +77,10 @@
 		});
 
         // 选择项目后触发事件
-        function changeProject(projectId, idx) {
+        function changeProject(tree, prjId, prjName) {
             // 向后台获取项目信息，并将相关信息回显
             $.post('${ctx}/apply/external/projectApplyExternal/getAsJson',
-                {id: projectId},
+                {id: prjId},
                 function (apply) {
                     $("#project_code").text(apply.projectCode);
                     $("#project_saler").text(apply.saler.name);
@@ -98,11 +98,15 @@
 	<c:when test="${ empty projectBidding.act.taskId}">
 		<li><a href="${ctx}/project/bidding/projectBidding/">项目投标列表</a></li>
 		<li class="active"><a href="${ctx}/project/bidding/projectBidding/form?id=${projectBidding.id}">项目投标
-			<shiro:hasPermission name="project:bidding:projectBidding:edit">${not empty projectBidding.id?'修改':'添加'}</shiro:hasPermission><shiro:lacksPermission name="project:bidding:projectBidding:edit">查看</shiro:lacksPermission></a></li>
+			<shiro:hasPermission name="project:bidding:projectBidding:edit">
+				${not empty projectBidding.id?'修改':'添加'}</shiro:hasPermission>
+			<shiro:lacksPermission name="project:bidding:projectBidding:edit">查看</shiro:lacksPermission></a></li>
 	</c:when>
 	<c:otherwise> <!-- 我的任务 -->
-		<li class="active"><a>项目投标<shiro:hasPermission name="project:bidding:projectBidding:edit">
-			${not empty projectBidding.id?'修改':'添加'}</shiro:hasPermission><shiro:lacksPermission name="project:bidding:projectBidding:edit">查看</shiro:lacksPermission></a></li>
+		<li class="active"><a>项目投标
+			<shiro:hasPermission name="project:bidding:projectBidding:edit">
+			${not empty projectBidding.id?'修改':'添加'}</shiro:hasPermission>
+			<shiro:lacksPermission name="project:bidding:projectBidding:edit">查看</shiro:lacksPermission></a></li>
 	</c:otherwise>
 </c:choose>
 </ul><br/>
@@ -122,7 +126,7 @@
 	<table class="table-form">
 		<!-- 共6列 -->
 		<tr>
-			<td  class="tit">项目名称</td>
+			<td class="tit">项目名称</td>
 			<td>
 				<div style="white-space:nowrap;" >
 				<sys:treeselect
@@ -137,7 +141,7 @@
 						dataMsgRequired="项目必选"
 						allowClear="true"
 						notAllowSelectParent="true"
-						customClick="changeProject"/>
+						customFuncOnOK="changeProject"/>
 				<span class="help-inline"><font color="red">*</font> </span>
 				</div>
 			</td>
@@ -150,6 +154,7 @@
 				<label id="project_saler">${projectBidding.apply.saler.name }</label>
 			</td>
 		</tr>
+
 		<tr>
 			<td  class="tit">客户名称</td>
 			<td class="" colspan="5">
@@ -177,7 +182,7 @@
 		<tr>
 			<td colspan="1" class="tit">标书种类</td>
 			<td class="" colspan="1">
-				<form:checkboxes path="categoryList" items="${fns:getDictList('tender_category')}" itemLabel="label" itemValue="value" class=""/>
+				<form:checkboxes path="categoryList" items="${fns:getDictList('tender_category')}" itemLabel="label" itemValue="value"/>
 			</td>
 
 			<td colspan="1" class="tit">标书购买价</td>
@@ -192,8 +197,8 @@
 				<%--</form:select>--%>
 				<%--<span class="help-inline"><font color="red">*</font></span>--%>
 			<%--</td>--%>
-
 		</tr>
+
 		<tr>
 			<td colspan="1" class="tit">用印内容</td>
 			<td class="" colspan="5">
@@ -220,6 +225,7 @@
 				<span class="help-inline"><font color="red">*</font> </span>
 			</td>
 		</tr>
+
 		<tr>
 			<td colspan="1" class="tit">投标内容与立项内容<br/>偏差说明</td>
 			<td class="" colspan="5">
@@ -228,6 +234,7 @@
 				</div>
 			</td>
 		</tr>
+
 		<tr>
 			<td colspan="1" class="tit">毛利分析表附件</td>
 			<td class="" colspan="5">
@@ -236,9 +243,11 @@
 				<span class="help-inline"><font color="red">*</font> </span>
 			</td>
 		</tr>
+
 		<tr>
-			<td  class="tit" colspan="6">填表说明</td>
+			<td class="tit" colspan="6">填表说明</td>
 		</tr>
+
 		<tr>
 			<td colspan="6">
 			<div >

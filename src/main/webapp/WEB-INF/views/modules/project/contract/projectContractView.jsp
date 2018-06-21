@@ -73,11 +73,22 @@
 </head>
 <body>
 <ul class="nav nav-tabs">
-	<c:if test="${ empty projectContract.act.taskId}">
-		<li><a href="${ctx}/project/contract/projectContract/">合同列表</a></li>
-	</c:if>
-	<li class="active"><a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}">合同
-		<shiro:hasPermission name="project:contract:projectContract:edit">${not empty projectContract.id?'审批':'添加'}</shiro:hasPermission><shiro:lacksPermission name="project:contract:projectContract:edit">查看</shiro:lacksPermission></a></li>
+	<c:choose>
+		<c:when test="${ empty projectContract.act.taskId}">
+			<li><a href="${ctx}/project/contract/projectContract/">合同列表</a></li>
+			<li class="active"><a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}">
+				合同
+				<shiro:hasPermission name="project:contract:projectContract:edit">
+					${not empty projectContract.id?'查看':'添加'}</shiro:hasPermission>
+				<shiro:lacksPermission name="project:contract:projectContract:edit">查看</shiro:lacksPermission></a></li>
+		</c:when>
+		<c:otherwise>
+			<li class="active"><a>合同
+				<shiro:hasPermission name="project:contract:projectContract:edit">
+					${not empty projectContract.id?'审批':'添加'}</shiro:hasPermission>
+				<shiro:lacksPermission name="project:contract:projectContract:edit">查看</shiro:lacksPermission></a></li>
+		</c:otherwise>
+	</c:choose>
 </ul><br/>
 <form:form id="inputForm" modelAttribute="projectContract" htmlEscape="false"
 		   action="${ctx}/project/contract/projectContract/saveAudit" method="post" class="form-horizontal">
@@ -266,8 +277,8 @@
 	<div class="form-actions">
 		<shiro:hasPermission name="project:contract:projectContract:edit">
 			<c:if test="${not empty projectContract.act.taskId && projectContract.act.status != 'finish'}">
-				<input id="btnSubmit" class="btn btn-primary" type="submit" value="同 意" onclick="$('#flag').val('yes')"/>&nbsp;
-				<input id="btnSubmit" class="btn btn-inverse" type="submit" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;
+				<input id="btnSubmit" class="btn btn-primary" type="submit" value="同 意" onclick="$('#flag').val('yes')"/>&nbsp;&nbsp;&nbsp;&nbsp;
+				<input id="btnSubmit" class="btn btn-warning" type="submit" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;&nbsp;&nbsp;&nbsp;
 			</c:if>
 		</shiro:hasPermission>
 

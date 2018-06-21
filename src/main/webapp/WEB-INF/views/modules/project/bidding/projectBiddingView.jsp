@@ -83,7 +83,7 @@
 		<li><a href="${ctx}/project/bidding/projectBidding/">项目投标列表</a></li>
 		<li class="active"><a href="${ctx}/project/bidding/projectBidding/form?id=${projectBidding.id}">项目投标
 			<shiro:hasPermission name="project:bidding:projectBidding:edit">
-				${not empty projectBidding.act.taskId?'审批':'添加'}</shiro:hasPermission><shiro:lacksPermission name="project:bidding:projectBidding:edit">查看</shiro:lacksPermission></a></li>
+				${not empty projectBidding.id?'查看':'添加'}</shiro:hasPermission><shiro:lacksPermission name="project:bidding:projectBidding:edit">查看</shiro:lacksPermission></a></li>
 	</c:when>
 	<c:otherwise> <!-- 我的任务 -->
 		<li class="active"><a>项目投标<shiro:hasPermission name="project:bidding:projectBidding:edit">
@@ -195,29 +195,29 @@
 			</tr>
 		</c:if>
 
-		<tr>
-			<td  class="tit" colspan="6">填表说明</td>
-		</tr>
-		<tr>
-			<td colspan="6">
-			<div >
-				1、销售人员发起投标审批，必须将《项目收入成本预测表》作为附件，否则不予批准；<br>
-				2、售前工程师、解决方案部负责人、服务交付部或软件开发部负责人、技术部门分管领导负责逐级确认投标书中的技术部分，包括产品配置、技术方案、技术偏离表、技术承诺等内容；<br>
-				3、商务部负责人对《项目收入成本预测表》中的产品采购、工程外包等内容进行确认；<br>
-				4、人力资源部负责对《项目收入成本预测表》中涉及人员工时、人员外包等内容进行确认；<br>
-				5、项目销售、业务部负责人、业务部门分管领导负责逐级确认投标报价以及商务承诺等内容；<br>
-				6、项目管理部和法务对项目中的风险和法律内容进行监控；<br>
-				7、 项目投标审批完成后，由项目管理部专人负责打印本表及附件《项目收入成本预测表》存档。
-			</div>
-			</td>
-		</tr>
+		<%--<tr>--%>
+			<%--<td  class="tit" colspan="6">填表说明</td>--%>
+		<%--</tr>--%>
+		<%--<tr>--%>
+			<%--<td colspan="6">--%>
+			<%--<div >--%>
+				<%--1、销售人员发起投标审批，必须将《项目收入成本预测表》作为附件，否则不予批准；<br>--%>
+				<%--2、售前工程师、解决方案部负责人、服务交付部或软件开发部负责人、技术部门分管领导负责逐级确认投标书中的技术部分，包括产品配置、技术方案、技术偏离表、技术承诺等内容；<br>--%>
+				<%--3、商务部负责人对《项目收入成本预测表》中的产品采购、工程外包等内容进行确认；<br>--%>
+				<%--4、人力资源部负责对《项目收入成本预测表》中涉及人员工时、人员外包等内容进行确认；<br>--%>
+				<%--5、项目销售、业务部负责人、业务部门分管领导负责逐级确认投标报价以及商务承诺等内容；<br>--%>
+				<%--6、项目管理部和法务对项目中的风险和法律内容进行监控；<br>--%>
+				<%--7、 项目投标审批完成后，由项目管理部专人负责打印本表及附件《项目收入成本预测表》存档。--%>
+			<%--</div>--%>
+			<%--</td>--%>
+		<%--</tr>--%>
 	</table>
 
 	<div class="form-actions">
 		<shiro:hasPermission name="project:bidding:projectBidding:edit">
 		<c:if test="${not empty projectBidding.act.taskId && projectBidding.act.status != 'finish'}">
-			<input id="btnSubmit" class="btn btn-primary" type="submit" value="同 意" onclick="$('#flag').val('yes')"/>&nbsp;
-			<input id="btnSubmit" class="btn btn-inverse" type="submit" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;
+			<input id="btnSubmit" class="btn btn-primary" type="submit" value="同 意" onclick="$('#flag').val('yes')"/>&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="btnSubmit" class="btn btn-warning" type="submit" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;&nbsp;&nbsp;&nbsp;
 		</c:if>
 		</shiro:hasPermission>
 

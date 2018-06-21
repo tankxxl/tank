@@ -106,25 +106,19 @@
 		}
 
         // 选择项目后触发事件
-        function changeProject(projectId, idx) {
+        function changeProject(tree, prjId, prjName) {
 
             // JavaScript全局变量，用于传递参数，新建表单使用。
-		    treeGetParam = "?prjId=" + projectId;
-
+		    treeGetParam = "?prjId=" + prjId;
+            $('#contractItemId').data('url', '/project/contract/projectContract/treeDataContractItemList?prjId=' + prjId);
             // 向后台获取项目信息，并将相关信息回显
             $.post('${ctx}/apply/external/projectApplyExternal/getAsJson',
-                {id: projectId},
+                {id: prjId},
                 function (apply) {
-
                 $("#project_code").text(apply.projectCode);
                 $("#customer_name").text(apply.customer.customerName);
                 $("#customer_contact_name").text(apply.customerContact.contactName);
                 $("#customer_contact_phone").text(apply.customerContact.phone);
-
-//                treeUrl = apply.id;
-                <%--var ss = ${fns:getDictLabel(apply.category , 'pro_category', apply.category)};--%>
-//                console.log(ss);
-//                $("#project_category").text(ss);
 
                 //清除合同相关的值
                 $("#contract_amount").text("");
@@ -137,7 +131,7 @@
         }
 
         // 选择合同后触发事件
-        function changedContract(itemId, idx) {
+        function changedContract(tree, itemId, itemName) {
             $.post('${ctx}/project/contract/projectContract/getItemAsJson',
                 {id: itemId}, function (item) {
 
@@ -176,7 +170,7 @@
     <form:hidden path="act.procInsId"/>
     <form:hidden path="act.procDefId"/>
     <form:hidden id="flag" path="act.flag"/>
-    <%--设置id，前端设置值，传回后端--%>
+    <%-- 设置id，前端设置值，传回后端，必须 --%>
     <form:hidden id="contractId" path="contract.id" />
     <sys:message content="${message}"/>
     <table class="table-form">
@@ -185,20 +179,15 @@
             <td class="tit">项目名称</td>
             <td colspan="1" >
                 <div style="white-space:nowrap;" >
-                    <sys:treeselect
-                       id="apply"
-                       name="apply.id"
-                       value="${projectInvoice.apply.id}"
+                    <sys:treeselect id="apply"
+                       name="apply.id" value="${projectInvoice.apply.id}"
                        labelName="apply.projectName"
                        labelValue="${projectInvoice.apply.projectName}"
                        title="项目"
-                       url="/apply/external/projectApplyExternal/treeData4LargerMainStage?proMainStage=11"
-                       cssClass="required"
-                       cssStyle="width: 85%"
-                       dataMsgRequired="项目必选"
-                       allowClear="true"
-                       notAllowSelectParent="true"
-                       customClick="changeProject"/>
+                       url="/apply/external/projectApplyExternal/treeData?proMainStage=11"
+                       cssClass="required" cssStyle="width: 85%" dataMsgRequired="项目必选"
+                       allowClear="true" notAllowSelectParent="true"
+                       customFuncOnOK="changeProject"/>
                     <span class="help-inline" style="color: red;">*</span>
                 </div>
             </td>
@@ -229,11 +218,9 @@
                             title="合同"
                             url="/project/contract/projectContract/treeDataContractItemList"
                             cssStyle="width: 85%"
-                            allowClear="true"
-                            dependBy="apply"
-                            dependMsg="请先选择项目！"
+                            allowClear="true" dependBy="apply" dependMsg="请先选择项目！"
                             notAllowSelectParent="true"
-                            customClick="changedContract"/>
+                            customFuncOnOK="changedContract"/>
                 </div>
             </td>
             <td class="tit">合同金额</td>

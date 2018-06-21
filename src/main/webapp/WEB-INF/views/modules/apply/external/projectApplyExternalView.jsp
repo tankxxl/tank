@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp"%>
 <html>
 <head>
-	<title>外部立项申请管理</title>
+	<title>立项申请管理</title>
 	<meta name="decorator" content="default"/>
 		
 	<script type="text/javascript">
@@ -149,13 +149,40 @@
 	</script>
 </head>
 <body>
+
+<%-- 根据权限控制，设置相关变量 --%>
+<shiro:hasPermission name="apply:external:projectApplyExternal:edit">
+	<c:set var="isEditable" value="true"/>
+	<c:set var="isViewable" value="false"/>
+</shiro:hasPermission>
+<shiro:lacksPermission name="apply:external:projectApplyExternal:edit">
+	<c:set var="isEditable" value="false"/>
+	<c:set var="isViewable" value="true"/>
+</shiro:lacksPermission>
+
+<%-- 是否审批中 --%>
+<c:set var="isAuditing" value="false" />
+<c:if test="${not empty projectApplyExternal.act.taskId && projectApplyExternal.act.status != 'finish'}">
+	<c:set var="isAuditing" value="true" />
+</c:if>
+
+
 <ul class="nav nav-tabs">
-	<c:if test="${ empty projectApplyExternal.act.taskId}">
-		<li><a href="${ctx}/apply/external/projectApplyExternal/">外部立项申请列表</a></li>
-	</c:if>
-	<li class="active"><a href="${ctx}/apply/external/projectApplyExternal/form?id=${projectApplyExternal.id}">外部立项申请
-		<shiro:hasPermission name="apply:external:projectApplyExternal:edit">
-			${not empty projectApplyExternal.id?'审批':'添加'}</shiro:hasPermission><shiro:lacksPermission name="apply:external:projectApplyExternal:edit">查看</shiro:lacksPermission></a></li>
+<c:choose>
+	<c:when test="${ empty projectApplyExternal.act.taskId}">
+		<li><a href="${ctx}/apply/external/projectApplyExternal/">立项申请列表</a></li>
+		<li class="active"><a href="${ctx}/apply/external/projectApplyExternal/form?id=${projectApplyExternal.id}">立项申请
+			<shiro:hasPermission name="apply:external:projectApplyExternal:edit">
+				${not empty projectApplyExternal.id?'查看':'添加'}</shiro:hasPermission>
+			<shiro:lacksPermission name="apply:external:projectApplyExternal:edit">查看</shiro:lacksPermission></a></li>
+	</c:when>
+	<c:otherwise>
+		<li class="active"><a>立项申请
+			<shiro:hasPermission name="apply:external:projectApplyExternal:edit">
+				${not empty projectApplyExternal.id?'审批':'添加'}</shiro:hasPermission>
+			<shiro:lacksPermission name="apply:external:projectApplyExternal:edit">查看</shiro:lacksPermission></a></li>
+	</c:otherwise>
+</c:choose>
 </ul><br/>
 
 <form:form id="inputForm" modelAttribute="projectApplyExternal" htmlEscape="false"
@@ -213,9 +240,6 @@
 						${projectApplyExternal.projectName }
 					</c:otherwise>
 				</c:choose>
-
-
-
 
 			</td>
 		</tr>
@@ -337,22 +361,23 @@
 							  selectMultiple="true" />
 			</td>
 		</tr>
-		<tr>
-			<td class="tit" colspan="7">填表说明</td>
-		</tr>
-		<tr>
-			<td colspan="7">
-			<div>
-				1、项目预计合同金额默认以人民币为单位，以其他货币为单位时，应注明货币单位；<br>
-				2、项目的预计毛利率原则上不得低于公司规定的毛利率标准，若预计毛利率低于公司要求标准时，须对预计毛利率不达标的原因进行说明；<br>
-				3、如对项目信息有更详细的说明或者其他相关文档的，可使用文件附件的形式提交；<br>
-				4、超过分管领导授权的项目需公司总经理进行审批；<br>
-				5、项目立项审批完成后，由项目管理部专人负责定时打印本表进行存档。
-			</div>
-			</td>
-		</tr>
+		<%--<tr>--%>
+			<%--<td class="tit" colspan="7">填表说明</td>--%>
+		<%--</tr>--%>
+		<%--<tr>--%>
+			<%--<td colspan="7">--%>
+			<%--<div>--%>
+				<%--1、项目预计合同金额默认以人民币为单位，以其他货币为单位时，应注明货币单位；<br>--%>
+				<%--2、项目的预计毛利率原则上不得低于公司规定的毛利率标准，若预计毛利率低于公司要求标准时，须对预计毛利率不达标的原因进行说明；<br>--%>
+				<%--3、如对项目信息有更详细的说明或者其他相关文档的，可使用文件附件的形式提交；<br>--%>
+				<%--4、超过分管领导授权的项目需公司总经理进行审批；<br>--%>
+				<%--5、项目立项审批完成后，由项目管理部专人负责定时打印本表进行存档。--%>
+			<%--</div>--%>
+			<%--</td>--%>
+		<%--</tr>--%>
 
-		<c:if test="${not empty projectApplyExternal.act.taskId && projectApplyExternal.act.status != 'finish'}">
+		<%--<c:if test="${not empty projectApplyExternal.act.taskId && projectApplyExternal.act.status != 'finish'}">--%>
+		<c:if test="${isAuditing}">
 			<tr>
 				<td class="tit">您的意见</td>
 				<td colspan="6">
@@ -364,12 +389,13 @@
 	</table>
 
 	<div class="form-actions">
-		<shiro:hasPermission name="apply:external:projectApplyExternal:edit">
-			<c:if test="${not empty projectApplyExternal.act.taskId && projectApplyExternal.act.status != 'finish'}">
-				<input id="btnSubmit" class="btn btn-primary" type="submit" value="同 意" onclick="$('#flag').val('yes')"/>&nbsp;
-				<input id="btnSubmit" class="btn btn-inverse" type="submit" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;
+		<%--<shiro:hasPermission name="apply:external:projectApplyExternal:edit">--%>
+			<%--<c:if test="${not empty projectApplyExternal.act.taskId && projectApplyExternal.act.status != 'finish'}">--%>
+			<c:if test="${isEditable && isAuditing}">
+				<input id="btnSubmit" class="btn btn-primary" type="submit" value="同 意" onclick="$('#flag').val('yes')"/>&nbsp;&nbsp;&nbsp;&nbsp;
+				<input id="btnSubmit" class="btn btn-warning" type="submit" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;&nbsp;&nbsp;&nbsp;
 			</c:if>
-		</shiro:hasPermission>
+		<%--</shiro:hasPermission>--%>
 
 		<input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.back()"/>
 	</div>

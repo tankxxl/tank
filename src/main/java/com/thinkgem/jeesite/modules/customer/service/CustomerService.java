@@ -40,7 +40,7 @@ public class CustomerService extends CrudService<CustomerDao, Customer> {
 
 		// In case id is not customerId.
 		if (customer == null)
-			return customer;
+			return new Customer();
 
 		customer.setCustomerContactList(customerContactDao.findList(new CustomerContact(customer)));
 		return customer;

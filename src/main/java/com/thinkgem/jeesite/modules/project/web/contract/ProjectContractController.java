@@ -54,122 +54,81 @@ import java.util.*;
 @RequestMapping(value = "${adminPath}/project/contract/projectContract")
 public class ProjectContractController extends BaseController {
 
+	static String prefix = "modules/project/contract/";
+	static String LIST = "projectContractList";
+	static String VIEW = "projectContractView";
+	static String EDIT = "projectContractForm";
+	static String REDIRECT2VIEW = "/project/contract/projectContract/?repage";
+
 	@Autowired
 	private ProjectContractService contractService;
 	@Autowired
 	private ActTaskService actTaskService;
 
-//	@Autowired
-//	private ProjectExecutionService executionService;
+	// 相关界面
+	// 保存结束-->跳转到controller的默认列表路径
+	@Override
+	protected String getRedirectView() {
+		return REDIRECT2VIEW;
+	}
+
+	// 查看表单页面-->查看、审批共用，页面中使用taskId、taskDefKey等来控制界面，提交到saveAudit
+	@Override
+	protected String getView() {
+		return VIEW;
+	}
+
+	// 编辑表单页面-->新建、修改、驳回修改共用，提交到save
+	@Override
+	protected String getEdit() {
+		return EDIT;
+	}
+
 
 	@ModelAttribute
 	public ProjectContract get(@RequestParam(required = false) String id) {
-		ProjectContract entity = null;
-		if (StringUtils.isNotBlank(id)) {
-			entity = contractService.get(id);
-		}
-		if (entity == null) {
-			entity = new ProjectContract();
-		}
-		return entity;
+		return contractService.get(id);
 	}
 
 	@RequiresPermissions("project:contract:projectContract:view")
 	@RequestMapping(value = { "list", "" })
-	public String list(ProjectContract projectContract, HttpServletRequest request, HttpServletResponse response,
-			Model model) {
+	public String list(ProjectContract projectContract,
+					HttpServletRequest request, HttpServletResponse response,
+					Model model) {
 		projectContract.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
-		Page<ProjectContract> page = contractService.findPage(new Page<ProjectContract>(request, response),
+		Page<ProjectContract> page = contractService.findPage(new Page<>(request, response),
 				projectContract);
 		model.addAttribute("page", page);
-		return "modules/project/contract/projectContractList";
+		return prefix + LIST;
 	}
 
 	@RequiresPermissions("project:contract:projectContract:view")
 	@RequestMapping(value = "form")
 	public String form(ProjectContract projectContract, Model model) {
-
-		String prefix = "modules/project/contract/";
-		String view = "projectContractForm";
-
-		model.addAttribute("projectContract", projectContract);
-
-		// 待办、已办入口界面传的act是一样的，只是act中的status不一样。
-
-		if (projectContract.getIsNewRecord()) {
-			// 入口1：新建表单，直接返回空实体
-			if (projectContract.hasAct()) {
-				// 入口2：从已办任务界面来的请求，1、实体是新建的，2、act是activi框架填充的。
-				// 此时实体应该由流程id来查询。
-				view = "projectContractView";
-				projectContract = contractService.findByProcInsId(projectContract);
-				if (projectContract == null) {
-					projectContract = new ProjectContract();
-				}
-				model.addAttribute("projectContract", projectContract);
-			}
-			return prefix + view;
-		}
-
-		// 入口3：在流程图中配置，从待办任务界面来的请求，entity和act都已加载。
-		// 环节编号
-		String taskDefKey = projectContract.getAct().getTaskDefKey();
-
-		// 查看
-		if(projectContract.getAct().isFinishTask()){
-			view = "projectContractView";
-		}
-		// 修改环节
-		else if ( UserTaskType.UT_OWNER.equals(taskDefKey) ){
-			view = "projectContractForm";
-		}
-		// 下面是技术部门设置 项目经理
-		else if ("usertask_software_development_leader".equals(taskDefKey)||"usertask_service_delivery_leader".equals(taskDefKey)) {
-			view = "projectContractView";
-		}
-		// 某审批环节
-		else if ("apply_end".equals(taskDefKey)){
-			view = "projectContractView";  // replace ExecutionAudit
-		} else {
-			view = "projectContractView";
-		}
-		return prefix + view;
+		return prefix + formToView(projectContract);
 	}
 
 	@RequiresPermissions("project:contract:projectContract:edit")
 	@RequestMapping(value = "save")
 	public String save(ProjectContract projectContract, Model model, RedirectAttributes redirectAttributes) {
-		if (!beanValidator(model, projectContract)) {
-			return form(projectContract, model);
-		}
 
 		String flag = projectContract.getAct().getFlag();
-//		flag在前台Form.jsp中传送过来，在些进行判断要进行的操作
-		if ("saveOnly".equals(flag)) { // 只保存表单数据
-			contractService.save(projectContract);
-		} else if ("saveFinishProcess".equals(flag)) { // 保存并结束流程
-			contractService.saveFinishProcess(projectContract);
-		} else {
-			System.out.println();
-			contractService.saveLaunch(projectContract);
+		// 如果是暂存，则不校验表单
+		if (!"saveOnly".equals(flag)) {
+			if (!beanValidator(model, projectContract)){
+				return form(projectContract, model);
+			}
 		}
-
-		addMessage(redirectAttributes, "保存合同成功");
-		
-		String usertask = projectContract.getAct().getTaskDefKey();
-		if (UserTaskType.UT_OWNER.equals(usertask)) { // 待办任务页面
-			return "redirect:" + adminPath + "/act/task/todo/";
-		} else { // 列表页面
-			return "redirect:" + Global.getAdminPath() + "/project/contract/projectContract/?repage";
-		}
-		
+		saveBusi(contractService, projectContract);
+		addMessage(redirectAttributes, "保存成功!");
+		return saveToView(projectContract);
 	}
 
 	@RequiresPermissions("project:contract:projectContract:edit")
 	@RequestMapping(value = "delete")
 	public String delete(ProjectContract projectContract, RedirectAttributes redirectAttributes) {
 		contractService.delete(projectContract);
-		addMessage(redirectAttributes, "删除合同成功");
+		addMessage(redirectAttributes, "删除成功!");
 		return "redirect:" + Global.getAdminPath() + "/project/contract/projectContract/?repage";
 	}
 
@@ -204,20 +163,6 @@ public class ProjectContractController extends BaseController {
             map.put("name", e.getContractCode());
             mapList.add(map);
         }
-
-//		ProjectExecution execution = new ProjectExecution();
-//		ProjectApplyExternal applyExternal = new ProjectApplyExternal();
-//		applyExternal.setId(prjId);
-//		execution.setApply(applyExternal);
-//        List<ProjectExecution> executionList = executionService.findList(execution);
-//		for (int i=0; i<executionList.size(); i++){
-//			ProjectExecution e = executionList.get(i);
-//			Map<String, Object> map = Maps.newHashMap();
-//			map.put("id", e.getExecutionContractNo());
-//			map.put("name", e.getExecutionContractNo());
-//			mapList.add(map);
-//		}
-
         return mapList;
     }
 

@@ -50,27 +50,17 @@ public class CustomerController extends BaseController {
 	
 	@ModelAttribute
 	public Customer get(@RequestParam(required=false) String id) {
-		Customer entity = null;
-		if (StringUtils.isNotBlank(id)){
-			entity = customerService.get(id);
-		}
-		if (entity == null){
-			entity = new Customer();
-		}
-		return entity;
+		return customerService.get(id);
 	}
 	
 	@RequiresPermissions("customer:customer:view")
 	@RequestMapping(value = {"list", ""})
-	public String list(Customer customer, HttpServletRequest request, HttpServletResponse response, Model model) {
-		
-		/**
-		 * 
-		 */
+	public String list(Customer customer,
+					   HttpServletRequest request, HttpServletResponse response, Model model) {
 //		customer.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
 		BaseService.dataScopeFilter(customer, "dsf", "s5.id =id or u4.id is null ", "u4.id = id or u4.id is null");
 		
-		Page<Customer> page = customerService.findPage(new Page<Customer>(request, response), customer); 
+		Page<Customer> page = customerService.findPage(new Page<>(request, response), customer);
 		model.addAttribute("page", page);
 		return "modules/customer/customerList";
 	}
@@ -126,9 +116,9 @@ public class CustomerController extends BaseController {
 
 	
 	/**
-	 * 获取客户JSON数据。
+	 * 获取客户JSON数据
 	 * 给树控件提供数据，map格式
-	 * @return
+	 * @return 所有客户列表map
 	 */
 	@ResponseBody
 	@RequestMapping(value = "treeData")
@@ -153,11 +143,11 @@ public class CustomerController extends BaseController {
 	
 	
 	/**
-	 * 获取客户联系人JSON数据。
+	 * 获取客户联系人JSON数据
 	 * 给树控件提供数据
 	 *
-	 * @param customerId
-	 * @return
+	 * @param customerId 客户id
+	 * @return 某一个客户下所有的联系人列表map
 	 */
 	@ResponseBody
 	@RequestMapping(value = "treeData2")
@@ -168,7 +158,6 @@ public class CustomerController extends BaseController {
 			return mapList;
 		}
 
-		
 		Customer customer = new Customer(customerId);
 		List<CustomerContact> list = customerService.findContatList(customer);
 		for (int i=0; i<list.size(); i++){
@@ -180,33 +169,14 @@ public class CustomerController extends BaseController {
 		}
 		return mapList;
 	}
-	
-	
-	/**
-	 * 为了projectExternalForm的ajax请求。
-	 * @deprecated 使用getAsJson代替
-	 * @param customer
-	 * @return 返回客户的 类型 与 行业
-	 */
-	@Deprecated
-	@ResponseBody
-	@RequestMapping(value = "customer4projectApplyExternal")
-	public  Customer getCustomer4ProjectApplyExternal(Customer customer) {
-		Customer customer2 =new Customer();
-		
-		customer2.setCustomerCategory(DictUtils.getDictLabel(customer.getCustomerCategory(), "customer_category", ""));
-		customer2.setIndustry(DictUtils.getDictLabel(customer.getIndustry(), "customer_industry", ""));
-		
-		return customer2;
-	}
 
 	/**
 	 * 获得Customer详情 json格式
 	 * 供前端ajax单独请求数据，而不是页面
 	 *
-	 * @param id
+	 * @param id 客户id
 	 * @param model
-	 * @return
+	 * @return 某一个具体客户详情json格式
 	 */
 	@ResponseBody
 	@RequestMapping(value = "getAsJson")
@@ -225,34 +195,49 @@ public class CustomerController extends BaseController {
 	 * 获得CustomerContact详情 json格式
 	 * 供前端ajax单独请求数据，而不是页面
 	 *
-	 * @param id
-	 * @return
+	 * @param id 客户联系人id
+	 * @return 某一个具体的客户联系人详情json格式
 	 */
 	@ResponseBody
 	@RequestMapping(value = "getContactAsJson")
 	public CustomerContact getCustomerContactAsJson(@RequestParam(required = false) String id) {
 		return customerService.getCustomerConcat(id);
 	}
-	
-	
+
+
+	/**
+	 * 为了projectExternalForm的ajax请求。
+	 * @deprecated 使用getAsJson代替
+	 * @param customer
+	 * @return 返回客户的 类型 与 行业
+	 */
+	// @Deprecated
+	// @ResponseBody
+	// @RequestMapping(value = "customer4projectApplyExternal")
+	// public  Customer getCustomer4ProjectApplyExternal(Customer customer) {
+	// 	Customer customer2 =new Customer();
+	//
+	// 	customer2.setCustomerCategory(DictUtils.getDictLabel(customer.getCustomerCategory(), "customer_category", ""));
+	// 	customer2.setIndustry(DictUtils.getDictLabel(customer.getIndustry(), "customer_industry", ""));
+	//
+	// 	return customer2;
+	// }
 	
 	/**
 	 * 
 	 * @param customerConcatId 传过来的客户联系人id
 	 * @return 返回 联系人的 电话 与 职位
 	 */
-	@Deprecated
-	@ResponseBody
-	@RequestMapping(value = "customerConcat4ProjectApplyExternal")
-	public CustomerContact getCustomerConcat4ProjectApplyExternal(String customerConcatId) {
-		CustomerContact tempCustomerConcat = customerService.getCustomerConcat(customerConcatId);
-		CustomerContact returnCustomerConcat = new CustomerContact();
-		returnCustomerConcat.setPosition(tempCustomerConcat.getPosition());
-		returnCustomerConcat.setPhone(tempCustomerConcat.getPhone());
-		
-		return returnCustomerConcat;
-		
-	}
+	// @Deprecated
+	// @ResponseBody
+	// @RequestMapping(value = "customerConcat4ProjectApplyExternal")
+	// public CustomerContact getCustomerConcat4ProjectApplyExternal(String customerConcatId) {
+	// 	CustomerContact tempCustomerConcat = customerService.getCustomerConcat(customerConcatId);
+	// 	CustomerContact returnCustomerConcat = new CustomerContact();
+	// 	returnCustomerConcat.setPosition(tempCustomerConcat.getPosition());
+	// 	returnCustomerConcat.setPhone(tempCustomerConcat.getPhone());
+	// 	return returnCustomerConcat;
+	// }
 	
 //	
 	/**
