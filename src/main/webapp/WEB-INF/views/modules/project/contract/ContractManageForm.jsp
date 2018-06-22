@@ -69,6 +69,9 @@
 	<form:hidden path="act.procDefId"/>
 	<form:hidden path="contractType"/>
 	<form:hidden id="flag" path="act.flag"/>
+
+	<form:hidden path="procStatus"/>
+
 	<sys:message content="${message}"/>
 	<table class="table-form">
 			<%--<tr><th colspan="6" class="tit">项目信息</th></tr>--%>

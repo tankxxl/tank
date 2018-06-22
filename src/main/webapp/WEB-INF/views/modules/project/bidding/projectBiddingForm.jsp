@@ -140,6 +140,9 @@
 	<form:hidden path="act.procInsId"/>
 	<form:hidden path="act.procDefId"/>
 	<form:hidden id="flag" path="act.flag"/>
+
+	<form:hidden path="procStatus"/>
+
 	<sys:message content="${message}"/>
 	<table class="table-form">
 		<!-- 共6列 -->
@@ -381,9 +384,10 @@
 	<div class="form-actions">
 		<shiro:hasPermission name="project:bidding:projectBidding:edit">
 
-		<input id="btnSubmit" class="btn btn-primary" type="submit" value="提交申请" onclick="$('#flag').val('yes')"/>&nbsp;
+		<input id="btnSubmit" class="btn btn-primary" type="submit" value="提交申请" onclick="$('#flag').val('yes')"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		<input id="btnSubmit" class="btn btn-primary" type="submit" value="暂存" onclick="$('#flag').val('saveOnly')"/>&nbsp;&nbsp;&nbsp;&nbsp;
 			<c:if test="${not empty projectBidding.id}">
-				<input id="btnSubmit2" class="btn btn-inverse" type="submit" value="销毁申请" onclick="$('#flag').val('no')"/>&nbsp;
+				<input id="btnSubmit2" class="btn btn-inverse" type="submit" value="销毁申请" onclick="$('#flag').val('no')"/>&nbsp;&nbsp;&nbsp;&nbsp;
 			</c:if>
 		</shiro:hasPermission>
 

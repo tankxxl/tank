@@ -59,6 +59,8 @@
     <form:hidden path="act.procInsId"/>
     <form:hidden path="act.procDefId"/>
     <form:hidden id="flag" path="act.flag"/>
+
+    <form:hidden path="procStatus"/>
     <%--设置id，前端设置值，传回后端--%>
     <%--<form:hidden id="contractId" path="contract.id" />--%>
     <form:hidden id="func" path="func" />
@@ -128,7 +130,8 @@
 
     <div class="form-actions">
         <shiro:hasPermission name="project:invoice:edit">
-        <input id="btnSubmit" class="btn btn-primary" type="button" value="提交申请" @click="btn1()" />&nbsp;
+        <input id="btnSubmit" class="btn btn-primary" type="button" value="提交申请" @click="btn1()" />&nbsp;&nbsp;&nbsp;&nbsp;
+            <input id="btnSubmit" class="btn btn-primary" type="button" value="暂存" @click="btn4()"/>&nbsp;&nbsp;&nbsp;&nbsp;
         <c:if test="${not empty projectInvoice.id}">
             <input id="btnSubmit2" class="btn btn-inverse" type="button" value="销毁申请" @click="btn2()" />&nbsp;
         </c:if>

@@ -142,6 +142,9 @@
 	<%-- 写到form里的参数才会传到后台，其它参数一概不管 --%>
 	<form:hidden path="contractType"/>
 	<form:hidden id="flag" path="act.flag"/>
+
+	<form:hidden path="procStatus"/>
+
 	<sys:message content="${message}"/>
 	<table class="table-form">
 		<%--<tr><th colspan="6" class="tit">项目信息</th></tr>--%>

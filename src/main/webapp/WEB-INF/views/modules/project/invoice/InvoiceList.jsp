@@ -111,11 +111,22 @@
 						<td class="text-success">
 					</c:otherwise>
 				</c:choose>
-					${fns:getDictLabel(invoice.procStatus, 'AuditStatus', '')}
+					${fns:getDictLabel(invoice.procStatus, 'AuditStatus', '未启动流程')}
 				</td>
 
 				<shiro:hasPermission name="project:invoice:edit">
 				<td>
+
+					<c:choose>
+						<c:when test="${invoice.procStatus == null}">
+							<a href="${ctx}/project/invoice/modify?id=${invoice.id}">修改</a>
+						</c:when>
+						<c:otherwise>
+
+						</c:otherwise>
+					</c:choose>
+
+
 					<c:if test="${invoice.procStatus == '2'}">
 					<input export="btnExport" class="btn btn-primary" type="button" proId="${invoice.id}" value="导出"/>
 					</c:if>

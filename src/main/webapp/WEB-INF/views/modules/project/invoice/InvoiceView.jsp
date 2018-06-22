@@ -109,10 +109,13 @@
     <shiro:hasPermission name="project:invoice:edit">
 
     <c:if test="${not empty projectInvoice.act.taskId && projectInvoice.act.status != 'finish'}">
-        <input id="btnSubmit" class="btn btn-primary" type="submit" value="同 意" onclick="$('#flag').val('yes'); return check()"/>&nbsp;&nbsp;&nbsp;&nbsp;
-        <input id="btnSubmit" class="btn btn-inverse" type="submit" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;&nbsp;
+        <%--<input id="btnSubmit" class="btn btn-primary" type="button" value="同 意" onclick="$('#flag').val('yes'); return check()"/>&nbsp;&nbsp;&nbsp;&nbsp;--%>
+        <%--<input id="btnSubmit" class="btn btn-warning" type="button" value="驳 回" onclick="$('#flag').val('no')"/>&nbsp;&nbsp;&nbsp;&nbsp;--%>
+
+        <input id="btnSubmit" class="btn btn-primary" type="button" value="同 意" @click="btn1()" />&nbsp;&nbsp;&nbsp;&nbsp;
+        <input id="btnSubmit" class="btn btn-warning" type="button" value="驳 回" @click="btn2()" />&nbsp;&nbsp;&nbsp;&nbsp;
     </c:if>
-    </shiro:hasPermission>&nbsp;&nbsp;
+    </shiro:hasPermission>
     <input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.back()"/>
 </div>
 

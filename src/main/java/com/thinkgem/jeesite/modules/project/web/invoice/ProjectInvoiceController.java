@@ -229,7 +229,7 @@ public class ProjectInvoiceController extends BaseController {
 		// return respEntity;
 	}
 
-	@RequiresPermissions("project:invoice:admin")
+	// @RequiresPermissions("project:invoice:admin")
 	@RequestMapping(value = "modify")
 	public String modify(ProjectInvoice projectInvoice, Model model) {
 		model.addAttribute("projectInvoice", projectInvoice);
@@ -369,10 +369,10 @@ public class ProjectInvoiceController extends BaseController {
 		String url = "";
 		if (UserTaskType.UT_OWNER.equals(usertask_owner)) { // 待办任务页面
 			// return "redirect:" + adminPath + "/act/task/todo/";
-			url =path + "/" + adminPath + "/act/task/todo/";
+			url =path  + adminPath + "/act/task/todo/";
 		} else { // 列表页面
 			// return "redirect:"+Global.getAdminPath() + "/project/invoice/?repage";
-			url = path + "/" + Global.getAdminPath() + "/project/invoice/?repage";
+			url = path + Global.getAdminPath() + "/project/invoice/?repage";
 		}
 
 		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面
@@ -463,7 +463,7 @@ public class ProjectInvoiceController extends BaseController {
 			invoiceService.saveAudit(projectInvoice);
 		}
 
-		String url = path + "/" + adminPath + "/act/task/todo/";
+		String url = path + adminPath + "/act/task/todo/";
 
 		//-2参数错误，-1操作失败，0操作成功，1成功刷新当前页，2成功并跳转到url，3成功并刷新iframe的父界面
 		RespEntity respEntity = new RespEntity(2, "审批成功！");

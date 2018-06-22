@@ -157,6 +157,9 @@
 	<form:hidden path="act.procDefId"/>
 	<%-- 写到form里的参数才会传到后台，其它参数一概不管 --%>
 	<form:hidden path="contractType"/>
+
+	<form:hidden path="procStatus"/>
+
 	<form:hidden id="flag" path="act.flag"/>
 	<sys:message content="${message}"/>
 	<table class="table-form">
