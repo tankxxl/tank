@@ -167,10 +167,13 @@
 		</tr>
 
 		<tr>
-			<%--<td class="tit">合同编号</td>--%>
-			<%--<td colspan="1" class="">--%>
-			<%--<form:input path="contractCode" style="width:90%"/>--%>
-			<%--</td>--%>
+			<shiro:hasPermission name="project:contract:projectContract:modify">
+			<td class="tit">合同编号</td>
+			<td colspan="1" class="">
+				<form:input path="contractCode" style="width:90%" cssClass="required"/>
+				<span class="help-inline"><font color="red">*</font> </span>
+			</td>
+			</shiro:hasPermission>
 
 			<td class="tit">合同类型</td>
 			<td colspan="1" class="">

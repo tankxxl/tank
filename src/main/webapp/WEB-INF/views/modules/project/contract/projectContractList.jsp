@@ -188,9 +188,10 @@
 					</c:choose>
 						${fns:getDictLabel(projectContract.procStatus, 'AuditStatus', '')}
 				</td>
-				
-				<shiro:hasPermission name="project:contract:projectContract:edit">
+
 				<td>
+				<shiro:hasPermission name="project:contract:projectContract:edit">
+
 					<c:if test="${projectContract.procStatus == '2'}">
 					<input export="btnExport" class="btn btn-primary" type="button" proId="${projectContract.id}" value="导出"/>
 					</c:if>
@@ -218,7 +219,11 @@
     				<a class="trace" target="_blank" procInsId="${projectContract.procInsId}" href="${ctx}/act/task/trace1?procInsId=${projectContract.procInsId}">跟踪1</a>
 					<a class="trace" target="_blank" procInsId="${projectContract.procInsId}" href="${ctx}/act/task/trace2?procInsId=${projectContract.procInsId}">跟踪2</a>
 					<a href="${ctx}/project/contract/projectContract/delete?id=${projectContract.id}" onclick="return confirmx('确认要删除该合同吗？', this.href)">删除</a> --%>
-				</td></shiro:hasPermission>
+				</shiro:hasPermission>
+				<shiro:hasPermission name="project:contract:projectContract:modify">
+					<a href="${ctx}/project/contract/projectContract/modify?id=${projectContract.id}">修改</a>
+				</shiro:hasPermission>
+				</td>
 			</tr>
 		</c:forEach>
 		</tbody>

@@ -206,6 +206,13 @@ public class ProjectContractController extends BaseController {
 		return prefix + view;
 	}
 
+	@RequiresPermissions("project:contract:projectContract:modify")
+	@RequestMapping(value = "modify")
+	public String modify(ProjectContract projectContract, Model model) {
+		model.addAttribute("projectContract", projectContract);
+		return "modules/project/contract/" + projectContract.getForm();
+	}
+
 	// contract2resign
 	@RequiresPermissions("project:contract:projectContract:edit")
 	@RequestMapping(value = "contract2resign")
