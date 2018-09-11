@@ -8,11 +8,15 @@ import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.service.BaseService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.common.web.JxlsExcelView;
 import com.thinkgem.jeesite.modules.act.entity.Act;
 import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
 import com.thinkgem.jeesite.modules.project.entity.bidding.ProjectBidding;
+import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
+import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContractItem;
 import com.thinkgem.jeesite.modules.project.service.bidding.ProjectBiddingService;
+import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import com.thinkgem.jeesite.modules.sys.utils.ExportUtils;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -22,10 +26,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -161,11 +168,42 @@ public class ProjectBiddingController extends BaseController {
 	 */
 	@RequiresPermissions("project:bidding:projectBidding:view")
 	@RequestMapping(value = "export")
-	public void export(HttpServletRequest request, HttpServletResponse response,Map map) {
+	public ModelAndView export(HttpServletRequest request, HttpServletResponse response,Map map) {
+
 		ProjectBidding projectBidding=(ProjectBidding) map.get("projectBidding");
+
+		Map<String, Object> model = new HashMap();
+
 		List<Act> actList =actTaskService.histoicFlowListPass(projectBidding.getProcInsId(),null, null);
-		String  fileReturnName=projectBidding.getApply().getProjectName()+"_投标审批表";
-		String workBookFileRealPathName =request.getSession().getServletContext().getRealPath("/")+"WEB-INF/excel/project/ProjectBidding.xls";
-		ExportUtils.export(response, projectBidding, actList, workBookFileRealPathName, fileReturnName,"yyyy-MM-dd");
+
+
+		String temp = DictUtils.getDictLabel(projectBidding.getApply().getCategory(), "pro_category", "");
+		model.put("pro_category", temp);
+
+		// temp = DictUtils.getDictLabels(projectBidding.getCategory(), "tender_category", "");
+		// model.put("bidding_category", temp);
+
+		// temp = DictUtils.getDictLabels(projectBidding.getPrintingPaste(), "tender_printing_paste", "");
+		// model.put("printing_paste", temp);
+
+		model.put("bidding", projectBidding);
+		model.put("acts", actList);
+
+
+		String  exportFileName = projectBidding.getApply().getProjectName() + "_投标审批表.xls";
+
+		return new ModelAndView(new JxlsExcelView("ProjectBidding.xls",exportFileName),
+				model);
 	}
+
+	// 老的导出方法
+	// public void export(HttpServletRequest request, HttpServletResponse response,Map map) {
+		// 导出1 begin
+		// ProjectBidding projectBidding=(ProjectBidding) map.get("projectBidding");
+		// List<Act> actList =actTaskService.histoicFlowListPass(projectBidding.getProcInsId(),null, null);
+		// String  fileReturnName=projectBidding.getApply().getProjectName()+"_投标审批表";
+		// String workBookFileRealPathName =request.getSession().getServletContext().getRealPath("/")+"WEB-INF/excel/project/ProjectBidding.xls";
+		// ExportUtils.export(response, projectBidding, actList, workBookFileRealPathName, fileReturnName,"yyyy-MM-dd");
+		// 导出1 end
+	// }
 }
