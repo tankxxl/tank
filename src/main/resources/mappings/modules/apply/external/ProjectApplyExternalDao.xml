@@ -39,6 +39,7 @@
 		a.docPath AS "docPath",
 		
 		saler.name AS "saler.name",
+
 		s5.id AS "saler.office.id",
 		s5.name AS "saler.office.name",
 		s5.code AS "saler.office.code",
@@ -113,7 +114,7 @@
 				AND a.proc_status = #{procStatus}
 			</if>
 			<if test="proMainStage != null and proMainStage != ''">
-				AND a.pro_main_stage = #{proMainStage}
+				AND a.pro_main_stage >= #{proMainStage}
 			</if>
 			
 			<if test="queryStage != null and queryStage">

@@ -39,7 +39,9 @@
 		<xstream.version>1.4.7</xstream.version>
 		<guava.version>17.0</guava.version>
 		<dozer.version>5.5.1</dozer.version>
-		<poi.version>3.9</poi.version>
+		<!--<poi.version>3.9</poi.version>-->
+		<!--<poi.version>3.15</poi.version>-->
+		<poi.version>3.17</poi.version>
 		<freemarker.version>2.3.23</freemarker.version>
 		<zxing.version>3.3.0</zxing.version>
 		<jwt.version>0.7.0</jwt.version>
@@ -528,25 +530,36 @@
 			<version>1.1.1</version>
 		</dependency>
 
+
+		<!-- to xls template -->
+        <dependency>
+            <groupId>org.jxls</groupId>
+            <artifactId>jxls</artifactId>
+            <version>2.4.6</version>
+        </dependency>
+
+		<!-- To use Apache POI API based transformer implementation -->
+        <dependency>
+            <groupId>org.jxls</groupId>
+            <artifactId>jxls-poi</artifactId>
+            <!--<version>1.0.11</version>-->
+            <version>1.0.15</version>
+        </dependency>
+
+		<!-- To use Java Excel API based transformer implementation -->
+		<!--<dependency>-->
+			<!--<groupId>org.jxls</groupId>-->
+			<!--<artifactId>jxls-jexcel</artifactId>-->
+			<!--<version>1.0.7</version>-->
+		<!--</dependency>-->
+
 		<dependency>
 			<groupId>org.jxls</groupId>
 			<artifactId>jxls-reader</artifactId>
 			<version>2.0.3</version>
 		</dependency>
 
-		<!-- to xls template -->
-        <dependency>
-            <groupId>org.jxls</groupId>
-            <artifactId>jxls</artifactId>
-            <version>2.4.1</version>
-        </dependency>
 
-        <dependency>
-            <groupId>org.jxls</groupId>
-            <artifactId>jxls-poi</artifactId>
-            <!--<version>1.0.11</version>-->
-            <version>1.0.13</version>
-        </dependency>
 		<!-- poi office -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>

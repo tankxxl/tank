@@ -37,6 +37,14 @@ public class MailTaskListener implements TaskListener {
 	@Override
 	public void notify(DelegateTask delegateTask) {
 
+		// 增加多个审批人
+		// 如果指定了办理人assignee，则此处增加的候选人无效
+		delegateTask.addCandidateUser("thinkgem");
+		// or
+		// delegateTask.addCandidateUsers(list);
+		// 指定任务的办理人
+		// delegateTask.setAssignee("张一");
+
 		// test
 		// 节点开始时，assignment事件比create先执行
 		// 节点结束时，complete事件比delete事件先执行
@@ -88,6 +96,14 @@ public class MailTaskListener implements TaskListener {
 //		String userTaskName = delegateTask.getName();
 		
 		ProjectApplyExternalService applyExternalService = SpringContextHolder.getBean(ProjectApplyExternalService.class);
+
+		// 判断连续两个角色同一人的话，可以合并审批
+		// complete(act.getTaskId(), act.getProcInsId(), act.getComment(), null, vars);
+		String prev = (String) delegateTask.getVariable("prev");
+		if (StringUtils.isBlank(prev)) {
+
+		}
+
 		applyExternalService.sendMail(delegateTask, assignee, sbUserId.toString(), sbGroupId.toString());
 	}
 

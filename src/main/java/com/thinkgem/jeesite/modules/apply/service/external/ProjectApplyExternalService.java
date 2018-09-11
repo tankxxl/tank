@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.service.BaseService;
 import com.thinkgem.jeesite.common.service.JicActService;
+import com.thinkgem.jeesite.common.utils.Collections3;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
@@ -22,6 +23,7 @@ import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import org.activiti.engine.delegate.DelegateTask;
 import org.activiti.engine.impl.persistence.entity.TaskEntity;
+import org.activiti.engine.task.IdentityLink;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,7 +90,8 @@ public class ProjectApplyExternalService
 	public void processAudit(ProjectApplyExternal projectApplyExternal, Map<String, Object> vars) {
 		// 对不同环节的业务逻辑进行操作
 		String taskDefKey = projectApplyExternal.getAct().getTaskDefKey();
-		if (UserTaskType.UT_SPECIALIST.equals(taskDefKey)) {
+		if (UserTaskType.UT_SPECIALIST.equals(taskDefKey) ||
+				UserTaskType.UT_SPECIALIST_CONSULT.equals(taskDefKey)) {
 			// 审批通过才保存项目信息、项目编号
 			if (projectApplyExternal.getAct().getFlagBoolean()) {
 				String proCodeStr = projectApplyExternal.getProjectCode();//包含类别、年份、归属的信息+标识位
@@ -177,7 +180,7 @@ public class ProjectApplyExternalService
 			applyExternal.setProMainStage(proMainStage);
 		}
 
-		applyExternal.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "u4"));
+		applyExternal.getSqlMap().put("dsf", BaseService.dataScopeFilter(UserUtils.getUser(), "s5", "saler"));
 		List<ProjectApplyExternal> list = findList(applyExternal);
 		return toMapList(list);
 	}
@@ -267,5 +270,82 @@ public class ProjectApplyExternalService
 			mailService.sendMailByAsyncMode(email);
 		}
 	}
+
+    // 发送邮件，流程监听器中调用 -- used now
+    public void sendMail(DelegateTask delegateTask ) {
+        // 1. 审批人
+        String assignee = delegateTask.getAssignee();
+
+        // 2. 候选人、候选组
+        Set<IdentityLink> candidates = delegateTask.getCandidates();
+        Iterator<IdentityLink> iterator = candidates.iterator();
+
+        List<String> groupEnameList = new ArrayList<>();
+        List<String> userLoginNameList = new ArrayList<>();
+        while(iterator.hasNext()) {
+            IdentityLink identityLink= iterator.next();
+            groupEnameList.add(identityLink.getGroupId());
+            userLoginNameList.add(identityLink.getUserId());
+        }
+        userLoginNameList.add(assignee);
+
+        // 保存邮箱地址
+        List<String> mailTo = new ArrayList<>();
+        User user;
+
+        // 加入user email
+        for (int i = 0; i < userLoginNameList.size(); i++) {
+            if ("thinkgem".equals(userLoginNameList.get(i))) {
+                continue;
+            }
+            user = UserUtils.getByLoginName( userLoginNameList.get(i) );
+            if (user != null && StringUtils.isNotBlank(user.getEmail())) {
+                mailTo.add(user.getEmail());
+            }
+        }
+
+        Role role = new Role();
+        // 加入group中的人员email
+        for (int i = 0; i < groupEnameList.size(); i++) {
+            if (StringUtils.isBlank(groupEnameList.get(i) ))
+                continue;
+            //
+            role.setEnname(groupEnameList.get(i) );
+            role = roleDao.getRoleUserByEnname(role);
+            if (role == null)
+                continue;
+
+            List<User> users = role.getUserList();
+            if (users == null)
+                continue;
+
+            for (int j = 0; j < users.size(); j++) {
+                user = users.get(j);
+                if (user == null)
+                    continue;
+                if ("thinkgem".equals(user.getLoginName()))
+                    continue;
+                if (StringUtils.isBlank(user.getEmail()))
+                    continue;
+                mailTo.add(user.getEmail() );
+            } // end for UserList
+        } // end for groups
+        // 邮箱地址去重
+        mailTo = Collections3.removeDuplicate(mailTo);
+        String mailToString = StringUtils.join(mailTo.toArray(), ";");
+        if (StringUtils.isBlank(mailToString)) {
+            return;
+        }
+
+        // Email
+        Email email = new Email();
+        email.setAddressee(mailToString);
+
+        String subject = ((TaskEntity) delegateTask).getExecution().getProcessDefinition().getName();
+        email.setSubject(subject); // xxx审批流程
+        email.setContent((String) delegateTask.getVariable(ActUtils.VAR_TITLE)); // 项目名称
+
+        mailService.sendMailByAsyncMode(email);
+    }
 	
 }

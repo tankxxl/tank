@@ -1,7 +1,6 @@
 package com.thinkgem.jeesite.modules.sys.utils;
 
 import org.apache.poi.hssf.usermodel.*;
-import org.apache.poi.hssf.util.Region;
 import org.apache.poi.ss.usermodel.Row;
 import org.junit.Test;
 
@@ -12,7 +11,8 @@ import java.util.Iterator;
  * POI工具类 功能点： 
  * 1、实现excel的sheet复制，复制的内容包括单元的内容、样式、注释
  * 2、setMForeColor修改HSSFColor.YELLOW的色值，setMBorderColor修改PINK的色值
- * 
+ * 3、rgz实现sheet、row、cell等的拷贝，用于合同导出
+ *
  * @author Administrator
  */
 
@@ -50,13 +50,23 @@ public class POIUtils {
      * @param toStyle 
      */  
     public static void copyCellStyle(HSSFCellStyle fromStyle,  
-            HSSFCellStyle toStyle) {  
-        toStyle.setAlignment(fromStyle.getAlignment());  
-        //边框和边框颜色  
-        toStyle.setBorderBottom(fromStyle.getBorderBottom());  
-        toStyle.setBorderLeft(fromStyle.getBorderLeft());  
-        toStyle.setBorderRight(fromStyle.getBorderRight());  
-        toStyle.setBorderTop(fromStyle.getBorderTop());  
+            HSSFCellStyle toStyle) {
+        // 版本升级后api变化
+        // toStyle.setAlignment(fromStyle.getAlignment());
+        toStyle.setAlignment(fromStyle.getAlignmentEnum());
+
+        //边框和边框颜色
+        // 版本升级后api变化
+        // toStyle.setBorderBottom(fromStyle.getBorderBottom());
+        // toStyle.setBorderLeft(fromStyle.getBorderLeft());
+        // toStyle.setBorderRight(fromStyle.getBorderRight());
+        // toStyle.setBorderTop(fromStyle.getBorderTop());
+
+        toStyle.setBorderBottom(fromStyle.getBorderBottomEnum() );
+        toStyle.setBorderLeft( fromStyle.getBorderLeftEnum());
+        toStyle.setBorderRight( fromStyle.getBorderRightEnum());
+        toStyle.setBorderTop(fromStyle.getBorderTopEnum());
+
         toStyle.setTopBorderColor(fromStyle.getTopBorderColor());  
         toStyle.setBottomBorderColor(fromStyle.getBottomBorderColor());  
         toStyle.setRightBorderColor(fromStyle.getRightBorderColor());  
@@ -66,14 +76,21 @@ public class POIUtils {
         toStyle.setFillBackgroundColor(fromStyle.getFillBackgroundColor());  
         toStyle.setFillForegroundColor(fromStyle.getFillForegroundColor());  
           
-        toStyle.setDataFormat(fromStyle.getDataFormat());  
-        toStyle.setFillPattern(fromStyle.getFillPattern());  
+        toStyle.setDataFormat(fromStyle.getDataFormat());
+
+        // 版本升级后api变化
+        // toStyle.setFillPattern(fromStyle.getFillPattern());
+        toStyle.setFillPattern(fromStyle.getFillPatternEnum());
+
 //      toStyle.setFont(fromStyle.getFont(null));  
         toStyle.setHidden(fromStyle.getHidden());  
         toStyle.setIndention(fromStyle.getIndention());//首行缩进  
         toStyle.setLocked(fromStyle.getLocked());  
-        toStyle.setRotation(fromStyle.getRotation());//旋转  
-        toStyle.setVerticalAlignment(fromStyle.getVerticalAlignment());  
+        toStyle.setRotation(fromStyle.getRotation());//旋转
+
+        // 版本升级后api变化
+        // toStyle.setVerticalAlignment(fromStyle.getVerticalAlignment());
+        toStyle.setVerticalAlignment(fromStyle.getVerticalAlignmentEnum());
         toStyle.setWrapText(fromStyle.getWrapText());  
           
     }  
@@ -123,8 +140,10 @@ public class POIUtils {
      */  
     public static void copyRow(HSSFWorkbook wb,HSSFRow fromRow,HSSFRow toRow,boolean copyValueFlag){  
         for (Iterator cellIt = fromRow.cellIterator(); cellIt.hasNext();) {
-            HSSFCell tmpCell = (HSSFCell) cellIt.next();  
-            HSSFCell newCell = toRow.createCell(tmpCell.getCellNum());  
+            HSSFCell tmpCell = (HSSFCell) cellIt.next();
+            // 版本升级后api变化
+            // HSSFCell newCell = toRow.createCell(tmpCell.getCellNum());
+            HSSFCell newCell = toRow.createCell(tmpCell.getColumnIndex());
             copyCell(wb,tmpCell, newCell, copyValueFlag);  
         }
         //设置行的高度
@@ -134,14 +153,17 @@ public class POIUtils {
     /** 
     * 复制原有sheet的合并单元格到新创建的sheet 
     *  
-    * @param sheetCreat 新创建sheet 
-    * @param sheet      原有的sheet 
+    * @param fromSheet 原有的sheet
+    * @param toSheet   新创建sheet
     */  
     public static void mergerRegion(HSSFSheet fromSheet, HSSFSheet toSheet) {  
        int sheetMergerCount = fromSheet.getNumMergedRegions();  
-       for (int i = 0; i < sheetMergerCount; i++) {  
-        Region mergedRegionAt = fromSheet.getMergedRegionAt(i);  
-        toSheet.addMergedRegion(mergedRegionAt);  
+       for (int i = 0; i < sheetMergerCount; i++) {
+
+        // Region mergedRegionAt = fromSheet.getMergedRegionAt(i);
+        // toSheet.addMergedRegion(mergedRegionAt);
+        // 版本升级后api变化
+        toSheet.addMergedRegion(fromSheet.getMergedRegion(i));
        }  
     }  
     /** 

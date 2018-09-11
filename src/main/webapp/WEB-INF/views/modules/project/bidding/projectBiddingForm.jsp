@@ -186,7 +186,7 @@
 			</td>
 
 			<td colspan="1" class="tit">标书购买价</td>
-			<td class="" colspan="1">
+			<td class="" colspan="3">
 				<form:input path="price" style="width: 90%;" maxlength="64" class="input-medium number"/>
 			</td>
 

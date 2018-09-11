@@ -162,7 +162,7 @@
 		</tr>
 
 		<tr>
-			<td  class="tit" colspan="5">
+			<td colspan="5">
 				<div style="white-space:nowrap;">
 				${projectContract.remarks}
 				</div>

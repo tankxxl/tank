@@ -72,24 +72,6 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 
 		vars.put(ActUtils.VAR_TITLE, projectContract.getApply().getProjectName());
 
-		if ("03".equals(projectContract.getApply().getCategory()) ) {
-			vars.put(ActUtils.VAR_TYPE, "2");
-		} else {
-			vars.put(ActUtils.VAR_TYPE, "1");
-		}
-
-		// 20160628下午,张雪口头提需求, 05类项目根据是否有外包选项,来决定流程是否走到人力
-		// 其它所有类型项目,不管是否选择有外包,流程上必须过人力.
-		// 涉及的流程包括:投标和合同
-		if ("05".equals(projectContract.getApply().getCategory()) ) {
-			// 因为流程图上分支判断在前，故节点上的skip_hr暂时不用。
-			vars.put("hr", "0");
-			System.out.println();
-			vars.put(ActUtils.VAR_SKIP_HR, "1");
-		} else {
-			vars.put("hr", "1");
-			vars.put(ActUtils.VAR_SKIP_HR, "0");
-		}
 	}
 	
 	@Override

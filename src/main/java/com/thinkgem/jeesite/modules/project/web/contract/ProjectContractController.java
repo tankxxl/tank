@@ -275,7 +275,7 @@ public class ProjectContractController extends BaseController {
 		Map<String, Object> model = new HashMap();
 
 		List<ProjectContractItem> projectContractItemList = projectContract.getProjectContractItemList();
-		List<String> contractCodeList = new ArrayList<String>();
+		List<String> contractCodeList = new ArrayList<>();
 
 		for (int i = 0; i < projectContractItemList.size(); i++) {
 			projectContractItemList.get(i).setContract(projectContract);
@@ -293,70 +293,13 @@ public class ProjectContractController extends BaseController {
 		model.put("acts", actList);
 
 
-		String  exportFileName = projectContract.getApply().getProjectName() + "_销售合同（签约）审批表";
+		String  exportFileName = projectContract.getApply().getProjectName() + "_销售合同（签约）审批表.xls";
 
-		return new ModelAndView(new JxlsExcelView("ProjectContract2.xls",exportFileName), model);
+		// return new ModelAndView(new JxlsExcelView("/ProjectContract_test.xls",exportFileName),
+		// 		model);
 
-
-
-		// //模板位置、下载的文件
-		// String workBookFileRealPathName = request.getSession().getServletContext().getRealPath("/")+ "/WEB-INF/excel/project/ProjectContract2.xls";
-		// String fileReturnName = projectContract.getApply().getProjectName() + "_销售合同（签约）审批表";
-        //
-		// OutputStream os = null;
-		// FileInputStream workBookFis = null;
-		// System.out.println();
-		// try {
-		// 	List<Act> actList = null;
-		// 	actList = actTaskService.histoicFlowListPass(
-		// 			projectContract.getProcInsId(), null, null);
-        //
-		// 	os = response.getOutputStream();
-		// 	// 得到模板workbook
-		// 	workBookFis = new FileInputStream(workBookFileRealPathName);
-		// 	HSSFWorkbook wb = new HSSFWorkbook(workBookFis);
-		// 	List<ProjectContractItem> projectContractItemList = projectContract.getProjectContractItemList();
-		// 	List<String> contractCodeList = new ArrayList<String>();
-        //
-		// 	for (int i = 0; i < projectContractItemList.size(); i++) {
-		// 		contractCodeList.add(projectContractItemList.get(i).getContractCode());
-		// 	}
-        //
-		// 	// Context context = PoiTransformer.createInitialContext();
-		// 	Context context = new Context();
-		// 	context.putVar("contractList", projectContractItemList);
-		// 	context.putVar("sheetNames", contractCodeList);
-		// 	context.putVar("acts", actList);
-		// 	context.putVar("pro_category", "任刚在");
-		// 	JxlsHelper.getInstance()
-		// 			.setUseFastFormulaProcessor(false)
-		// 			.processTemplate(workBookFis, os, context);
-        //
-        //
-		// 	// 移除第一页的modelSheet
-		// 	// wb.removeSheetAt(0);
-		// 	String codedFileName = java.net.URLEncoder.encode(fileReturnName, "UTF-8");
-		// 	response.setHeader("content-disposition", "attachment;filename=" + codedFileName + ".xls");
-		// 	// wb.write(os);
-		// 	// os.close();
-		// 	os.flush();
-		// 	workBookFis.close();
-        //
-		// } catch (Exception e) {
-		// 	System.out.println(e);
-		// 	// addMessage(redirectAttributes, "导出用户失败！失败信息："+e.getMessage());
-		// } finally {
-        //
-		// 	try {
-		// 		if (os != null) {
-		// 			os.flush();
-		// 			os.close();
-		// 		}
-		// 	} catch (Exception e) {
-		// 		System.out.println(e);
-		// 	}
-		// }
-		// return;
+		return new ModelAndView(new JxlsExcelView("ProjectContract2.xls",exportFileName),
+				model);
 	}
 
 }

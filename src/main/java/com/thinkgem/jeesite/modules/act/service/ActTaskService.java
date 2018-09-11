@@ -42,6 +42,7 @@ import org.activiti.engine.task.TaskQuery;
 import org.activiti.spring.ProcessEngineFactoryBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -943,6 +944,13 @@ public class ActTaskService extends BaseService {
         return procInsId;
     }
 
+	/**
+	 * rgz
+	 * @param actEntity
+	 * @param title
+	 * @param vars
+	 * @return
+	 */
     @Transactional(readOnly = false)
     public String startProcEatFirstTask(ActEntity actEntity, String title, Map<String, Object> vars) {
 
@@ -960,9 +968,6 @@ public class ActTaskService extends BaseService {
         completeFirstTask(procInsId);
         return procInsId;
     }
-
-
-
 
     /**
      * rgz
@@ -1067,5 +1072,37 @@ public class ActTaskService extends BaseService {
         }
         return actList;
     }
-	
+
+	/**
+	 * rgz test
+	 * 将任务指定给另外一个人
+	 */
+	public void setAssignee() {
+		String taskId = "3304";
+		String user = "张九九";
+		// processEngine.getTaskService().setAssignee(taskId, user);
+		taskService.setAssignee(taskId, user);
+	}
+
+	/**
+	 * rgz test
+	 * 执行汇总
+	 */
+	public void execute(){
+		String executeId = "2103";
+		// processEngine.getRuntimeService().signal(executeId);
+		runtimeService.signal(executeId);
+	}
+
+	/**
+	 * rgz test
+	 * 完成个人任务
+	 */
+	@Test
+	public void completeTask() {
+		String taskId = "2503";
+		// processEngine.getTaskService().complete(taskId);
+		taskService.complete(taskId);
+	}
+
 }

@@ -74,6 +74,8 @@ public class AssigneeService extends BaseService {
 	
 	// 设置流程节点中的-技术部分管领导审批节点-定位到角色，技术分管领导角色根据项目类型分两种，一种是软件类项目，一种是集成类项目。
     // 技术分管领导按项目类型指定
+    // 以前有两位技术副总，现在只有胡总一个了，所以流程中直接使用组名就可以了。
+    // 此方法暂时在流程中没用
 	public String findTechRoleByType(String prjType) {
 		String role = null;
 		// 在字典中，03代表软件项目

@@ -141,7 +141,7 @@
 			</td>
 
 			<td colspan="1" class="tit">标书购买价</td>
-			<td class="" colspan="1">${projectBidding.price }</td>
+			<td class="" colspan="3">${projectBidding.price }</td>
 
 			<%--<td colspan="1" class="tit">投标结果</td>--%>
 			<%--<td colspan="1" class="">--%>

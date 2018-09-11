@@ -102,7 +102,7 @@ public class ExportUtils3 {
 	}
 		
 	/**
-	 * 导出到excel中
+	 * jxls导出到excel中
 	 * @param response 用于把excel文件流输出到客户端
 	 * @param bean 业务对象
 	 * @param excelTemplatePathName excel模板文件路径和名称 
@@ -120,7 +120,6 @@ public class ExportUtils3 {
 
 	}
 
-
     public static void exportByContext( HttpServletResponse response,
                                Context context,
                                String excelTemplatePathName,
@@ -133,14 +132,11 @@ public class ExportUtils3 {
             response.setHeader("content-disposition", "attachment;filename=" + codedFileName + ".xls");
             response.setContentType("application/vnd.ms-excel");
 
-
             os =response.getOutputStream();
             //得到模板workbook
             is = new FileInputStream(excelTemplatePathName);
 
             JxlsHelper.getInstance().processTemplate(is, os, context);
-
-
 
 //            Transformer transformer = TransformerFactory.createTransformer(is, os);
 //            AreaBuilder areaBuilder = new XlsCommentAreaBuilder(transformer);

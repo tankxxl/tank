@@ -111,7 +111,6 @@ public class AuditEndListener implements ExecutionListener{
 		ProjectApplyExternalService applyExternalService = SpringContextHolder.getBean(ProjectApplyExternalService.class);
 
 		applyExternalService.stageTo(prjId, stageValue);
-
 	}
 
 }
