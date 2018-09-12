@@ -127,9 +127,9 @@
 					<a href="${ctx}/project/purchase/exec2Purchase?execId=${execution.id}">采购合同审批</a>
 					</c:if>
 
-					<a href="${ctx}/project/execution/test?id=${execution.id}" target="_jeesnsLink">
-							jeesnsAjax
-					</a>
+					<%--<a href="${ctx}/project/execution/test?id=${execution.id}" target="_jeesnsLink">--%>
+							<%--jeesnsAjax--%>
+					<%--</a>--%>
 
     				<%-- <a href="${ctx}/project/contract/projectContract/form?id=${projectContract.id}">详情</a>
     				<a class="trace" target="_blank" procInsId="${projectContract.procInsId}" href="${ctx}/act/task/trace1?procInsId=${projectContract.procInsId}">跟踪1</a>
