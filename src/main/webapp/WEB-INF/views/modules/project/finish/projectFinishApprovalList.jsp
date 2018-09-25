@@ -77,19 +77,19 @@
 			</td>
 			<shiro:hasPermission name="project:finish:projectFinishApproval:edit"><td>
 
-				<c:if test="${projectFinishApproval.processStatus == '2'}">
+				<c:if test="${projectFinishApproval.procStatus == '2'}">
 					<input export="btnExport" class="btn btn-primary" type="button" proId="${projectFinishApproval.id}" value="导出"/>
 				</c:if>
 				<a href="${ctx}/project/finish/projectFinishApproval/form?id=${projectFinishApproval.id}">详情</a>
 
-				<c:if test="${projectFinishApproval.processStatus != '2'}">
+				<c:if test="${projectFinishApproval.procStatus != '2'}">
 					<a class="trace" target="_blank" procInsId="${projectFinishApproval.procInsId}" href="${ctx}/act/task/trace1?procInsId=${projectFinishApproval.procInsId}">跟踪</a>
 					<shiro:hasPermission name="act:process:edit">
 						<%--<a href="${ctx}/act/process/deleteProcIns?procInsId=${projectFinishApproval.procInsId}&reason=" onclick="return promptx('删除流程','删除原因',this.href);">删除流程</a>--%>
 						<a href="${ctx}/act/process/deleteProcInsAjax?procInsId=${projectFinishApproval.procInsId}&reason=xx" target="_jeesnsLink">删除流程</a>
 					</shiro:hasPermission>&nbsp;
 				</c:if>
-				<c:if test="${projectFinishApproval.processStatus == '2'}">
+				<c:if test="${projectFinishApproval.procStatus == '2'}">
 					<a href="${ctx}/project/finish/projectFinishApproval/delete?id=${projectFinishApproval.id}" onclick="return confirmx('确认要删除吗？', this.href)">删除</a>
 				</c:if>
 
