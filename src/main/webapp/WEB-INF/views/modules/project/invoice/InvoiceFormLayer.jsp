@@ -313,6 +313,17 @@ function initTable () {
                 resizable: true,
                 sortable: true,
                 formatter: function (value, row, index) { // 可以在此合成字段返回：row.field1 + row.field2
+
+                    // if (value === 1) {
+                    //     return '<span class="label label-success">正常</span>';
+                    // } else if (value === 0) {
+                    //     return '<span class="label label-danger">异常</span>';
+                    // } else if (value === 2) {
+                    //     return '<span class="label label-default">不存在</span>';
+                    // } else if (value === 3) {
+                    //     return '<span class="label label-info">Miss</span>';
+                    // }
+
                     return value;
                 }
             }, {
@@ -394,6 +405,35 @@ function initTable () {
             }
         });
     } // end func initTable()
+
+function cellStyle(value, row, index) {
+    var classes = ['active', 'success', 'info', 'warning', 'danger'];
+    if (value > 1024*1024*1024*1024) {
+        return {
+            "classes": classes[4]
+        };
+    } else if ( 1024*1024*1024 < value && value < 1024*1024*1024*1024) {
+        return {
+            "classes": classes[3]
+        };
+    } else {
+        return {
+            "classes": classes[1]
+        };
+    }
+}
+
+function statusFormatter(value, row, index) {
+    if (value === 1) {
+        return '<span class="label label-success">正常</span>';
+    } else if (value === 0) {
+        return '<span class="label label-danger">异常</span>';
+    } else if (value === 2) {
+        return '<span class="label label-default">不存在</span>';
+    } else if (value === 3) {
+        return '<span class="label label-info">Miss</span>';
+    }
+}
 
     // 得到查询的参数，由bootstrap-table组件调用并传参
     function queryParams (params) {
