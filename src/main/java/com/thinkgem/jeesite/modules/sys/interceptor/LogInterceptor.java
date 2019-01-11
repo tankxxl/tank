@@ -26,7 +26,10 @@ public class LogInterceptor extends BaseService implements HandlerInterceptor {
 	private static final ThreadLocal<Long> startTimeThreadLocal =
 			new NamedThreadLocal<Long>("ThreadLocal StartTime");
 
-	// 在业务处理器处理请求之前被调用，该方法将在Controller处理之前进行调用
+	/**
+	 * 在业务处理器处理请求之前被调用，该方法将在Controller处理之前进行调用
+	 * 返回true表示继续执行，返回false终止执行 这里可以加入登陆校验、权限拦截等
+	 */
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, 
 			Object handler) throws Exception {
@@ -39,7 +42,10 @@ public class LogInterceptor extends BaseService implements HandlerInterceptor {
 		return true;
 	}
 
-	// 在业务处理器处理请求执行完成后,生成视图之前执行
+	/**
+	 * 在业务处理器处理请求执行完成后,生成视图之前执行 controller执行后但未返回视图前调用此方法
+	 * 这里可在返回用户前对模型数据进行加工处理 比如可以加入共用信息以便页面显示
+	 */
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, 
 			ModelAndView modelAndView) throws Exception {
@@ -49,6 +55,10 @@ public class LogInterceptor extends BaseService implements HandlerInterceptor {
 	}
 
 	// 在DispatcherServlet完全处理完请求后被调用,可用于清理资源等
+	/**
+	 * controller执行后且视图返回后调用此方法
+	 * 这里可得到执行controller时的异常信息 也可以记录日志
+	 */
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, 
 			Object handler, Exception ex) throws Exception {
