@@ -6,10 +6,14 @@ package com.thinkgem.jeesite.modules.project.service.approval;
 import com.thinkgem.jeesite.common.annotation.Loggable;
 import com.thinkgem.jeesite.common.service.BaseService;
 import com.thinkgem.jeesite.common.utils.StringUtils;
+import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.sys.entity.Office;
 import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.service.OfficeService;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
+import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
+import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
+import org.activiti.engine.runtime.Execution;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,10 +35,81 @@ public class AssigneeService extends BaseService {
     @Autowired
 	OfficeService officeService;
 
-//	public List<String> findDeptLeaders(String employee);
+    public String findTechRole(ActivityExecution execution) {
+    	String nodeId = execution.getActivity().getId();
+		ExecutionEntity executionEntity = (ExecutionEntity) execution;
+		execution.getVariable(ActUtils.VAR_APPLY);
+		String prjType = (String) execution.getVariable(ActUtils.VAR_PRJ_TYPE);
+		String officeCode = execution.getVariable(ActUtils.VAR_OFFICE_CODE).toString();
+		String procDefName = ((ExecutionEntity) execution).getProcessDefinitionKey();
+		return getTechRole(officeCode, prjType, procDefName);
+	}
+	// 根据事业部、项目类型->技术负责人审批角色
+	private String getTechRole(String officeCode, String prjType, String procDefName) {
+    	String roleName = "system";
+    	// 先判断事业部
+    	if ("100000012".equals(officeCode)) { // 软件事业部
+    		// 再判断项目类型
+    		if ("03".equals(prjType)) { // 软件
+				roleName = "ut_tech_software_03";
+			} else {
+    			roleName = "ut_tech_software_10";
+			}
+		} else if ("100000021".equals(officeCode)) { // 系统集成事业部
+			if ("03".equals(prjType)) {
+				roleName = "ut_tech_integration_03";
+			} else {
+				roleName = "ut_tech_integration_10";
+			}
+		} else if ("100000023".equals(officeCode)) { // 创新事业部
+			if ("03".equals(prjType)) {
+				roleName = "ut_tech_innovation_03";
+			} else {
+				roleName = "ut_tech_innovation_10";
+			}
+		} else if ("100000024".equals(officeCode)) { // 大客户事业部
+			if ("03".equals(prjType)) {
+				roleName = "ut_tech_vip_03";
+			} else {
+				roleName = "ut_tech_vip_10";
+			}
+		}
+    	return roleName;
+	}
+
+	public boolean skipApplyByAmount(ActivityExecution execution) {
+		String amountStr = execution.getVariable(ActUtils.VAR_AMOUNT).toString();
+		double amount = Double.valueOf(amountStr);
+		int amountUnit = 1;
+		String prjType = (String) execution.getVariable(ActUtils.VAR_PRJ_TYPE);
+		// 由于立项流程金额用的单位是W，投标流程金额用的单位是元。所以在此要判断是那个流程
+		String procDefName = ((ExecutionEntity) execution).getProcessDefinitionKey();
+		// 确定单位是：万或元
+		if ("ProjectApplyExternal".equals(procDefName)) {
+			amountUnit = 1;
+		} else if ("ProjectBidding".equals(procDefName)) {
+			amountUnit = 10000; // 与前端界面单位要一致
+		}
+		int amountStd = 200;
+		// 确定金额免批上限，单位是W
+		if ("03".equals(prjType)) {
+			amountStd = 200;
+		} else {
+			amountStd = 500;
+		}
+
+		boolean skiped = false;
+		if (amount < amountStd * amountUnit) {
+			skiped = true;
+		} else {
+			skiped = false;
+		}
+		return skiped;
+	}
 	
-	// 设置流程节点中的-业务部负责人审批节点-定位到人，查找员工的直接领导loginName
+	// 设置流程节点中的-业务部/事业部负责人审批节点-定位到人，查找员工的直接领导loginName
 	// 找申请人的部门负责人
+	// 查找组织架构
 	public String findLeader(String loginName) {
 		User user = UserUtils.getByLoginName(loginName);
 		String leader = null;
@@ -55,6 +130,7 @@ public class AssigneeService extends BaseService {
     // 业务分管领导按部门进行指定
     // 根据登录用户的部门信息得到业务分管领导
     // 找申请人的部门分管领导
+	// 查找组织构架 - 机构副负责人字段
 	@Transactional(readOnly = true)
 	public String findBusiBoss(String loginName) {
 
@@ -64,6 +140,7 @@ public class AssigneeService extends BaseService {
 		try {
 			busiLeader = user.getOffice().getDeputyPerson().getLoginName();
 			if (StringUtils.isEmpty(busiLeader)) {
+				logger.info(loginName + "-此用户所在部门没有设置对应的副负责人。");
 				busiLeader = "thinkgem";
 			}
 		} catch (Exception e) {

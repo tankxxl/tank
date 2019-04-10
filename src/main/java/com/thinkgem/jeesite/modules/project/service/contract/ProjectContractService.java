@@ -71,6 +71,8 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 		vars.put(ActUtils.VAR_PRJ_TYPE, projectContract.getApply().getCategory());
 
 		vars.put(ActUtils.VAR_TITLE, projectContract.getApply().getProjectName());
+		// 20190409事业部
+		vars.put(ActUtils.VAR_OFFICE_CODE, projectContract.getApply().getSaler().getOffice().getCode());
 
 	}
 	

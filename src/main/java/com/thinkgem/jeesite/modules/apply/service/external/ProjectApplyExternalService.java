@@ -83,6 +83,8 @@ public class ProjectApplyExternalService
 		vars.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
 		vars.put(ActUtils.VAR_PRJ_TYPE, projectApplyExternal.getCategory());
 		vars.put(ActUtils.VAR_OFFICE_CODE, projectApplyExternal.getSaler().getOffice().getCode());
+		// 事业部修改20190404
+		vars.put(ActUtils.VAR_AMOUNT, projectApplyExternal.getEstimatedContractAmount());
 	}
 
 	// 回调函数

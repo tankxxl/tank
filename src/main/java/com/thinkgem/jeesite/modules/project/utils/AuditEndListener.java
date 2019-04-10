@@ -24,6 +24,8 @@ import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
  *
  * 在流程图上定义start、end事件的监听器，而不是在usertask节点上设置。
  *
+ * 此文件可以和AuditStartListener合用一个，用EventName来区分流程开始或结束事件。
+ *
  * @author rgz
  *
  */
