@@ -20,6 +20,13 @@
 		<property name="history" value="full" />
 		<property name="processDefinitionCacheLimit" value="10"/>
 
+		<!-- 全局注册事件监听器 -->
+		<!--<property name="eventListeners">-->
+			<!--<list>-->
+				<!--<ref bean="globalEventListener"/>-->
+			<!--</list>-->
+		<!--</property>-->
+
 		<!-- UUID作为主键生成策略 -->
 		<property name="idGenerator" ref="idGen" />
 		

@@ -1,6 +1,7 @@
 package com.thinkgem.jeesite.modules.project.utils;
 
 import com.thinkgem.jeesite.common.annotation.Loggable;
+import com.thinkgem.jeesite.common.utils.SpringContextHolder;
 import org.activiti.engine.delegate.event.ActivitiEvent;
 import org.activiti.engine.delegate.event.ActivitiEventListener;
 import org.slf4j.Logger;
@@ -28,9 +29,9 @@ public class GlobalEventListener implements ActivitiEventListener {
         logger.debug("envent type is ========>" + eventType);
         //根据事件的类型ID,找到对应的事件处理器
         String eventHandlerBeanId = handlers.get(eventType);
-        if(eventHandlerBeanId!=null){
-            // EventHandler handler=(EventHandler)WebAppUtil.getBean(eventHandlerBeanId);
-            // handler.handle(event);
+        if(eventHandlerBeanId != null) {
+            EventHandler handler = SpringContextHolder.getBean(eventHandlerBeanId);
+            handler.handle(event);
         }
     }
 
