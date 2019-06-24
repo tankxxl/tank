@@ -103,7 +103,8 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 				// 保存选择的项目经理
 				save(projectContract);
 			}
-		} else if (UserTaskType.UT_COMMERCE_LEADER.equalsIgnoreCase(taskDefKey)) {
+
+		} else if (taskDefKey.indexOf(UserTaskType.UT_COMMERCE_LEADER) != -1) {
 			// 保存合同编号
 			save(projectContract);
 		} else if (UserTaskType.UT_OWNER.equalsIgnoreCase(taskDefKey)) {

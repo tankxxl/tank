@@ -216,7 +216,7 @@
 					<input id="projectContractItemList{{idx}}_delFlag" name="projectContractItemList[{{idx}}].delFlag" type="hidden" value="0"/>
 				<td>
 				<c:choose>
-				<c:when test="${projectContract.act.taskDefKey eq 'usertask_commerce_leader'}">
+				<c:when test="${fn:indexOf(projectContract.act.taskDefKey, 'usertask_commerce_leader') != -1}">
 				<input id="projectContractItemList{{idx}}_contractCode" name="projectContractItemList[{{idx}}].contractCode" type="text" value="{{row.contractCode}}" maxlength="64" class="input-small required"/>
    				</c:when>
    				<c:otherwise>
