@@ -14,6 +14,7 @@ import com.thinkgem.jeesite.common.web.JxlsExcelView;
 import com.thinkgem.jeesite.modules.act.entity.Act;
 import com.thinkgem.jeesite.modules.act.service.ActTaskService;
 import com.thinkgem.jeesite.modules.act.utils.UserTaskType;
+import com.thinkgem.jeesite.modules.project.entity.bidding.ProjectBidding;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContract;
 import com.thinkgem.jeesite.modules.project.entity.contract.ProjectContractItem;
 import com.thinkgem.jeesite.modules.project.entity.execution.ProjectExecution;
@@ -106,6 +107,12 @@ public class ProjectContractController extends BaseController {
 	@RequestMapping(value = "form")
 	public String form(ProjectContract projectContract, Model model) {
 		return prefix + formToView(projectContract);
+	}
+
+	@RequiresPermissions("project:contract:projectContract:modify")
+	@RequestMapping(value = "modify")
+	public String modify(ProjectContract projectContract, Model model) {
+		return prefix + EDIT;
 	}
 
 	@RequiresPermissions("project:contract:projectContract:edit")

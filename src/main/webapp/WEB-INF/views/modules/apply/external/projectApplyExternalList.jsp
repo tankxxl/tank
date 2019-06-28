@@ -155,13 +155,14 @@
 					<c:if test="${projectApplyExternal.procStatus != '2'}">
 						<a class="trace" target="_blank" procInsId="${projectApplyExternal.procInsId}" href="${ctx}/act/task/trace1?procInsId=${projectApplyExternal.procInsId}">跟踪</a>
 					</c:if>
-					<c:if test="${projectApplyExternal.procStatus == '2'}">
-						<a href="${ctx}/apply/external/projectApplyExternal/delete?id=${projectApplyExternal.id}" onclick="return confirmx('确认要删除该外部立项申请吗？', this.href)">删除</a>
-					</c:if>
+
 					<%-- <a class="trace" target="_blank" procInsId="${projectApplyExternal.processInstanceId}" href="${ctx}/act/task/trace2?procInsId=${projectApplyExternal.processInstanceId}">跟踪2</a> --%>
 				</shiro:hasPermission>
 
 				<shiro:hasPermission name="apply:external:projectApplyExternal:modify">
+					<c:if test="${projectApplyExternal.procStatus == '2'}">
+						<a href="${ctx}/apply/external/projectApplyExternal/delete?id=${projectApplyExternal.id}" onclick="return confirmx('确认要删除该外部立项申请吗？', this.href)">删除</a>
+					</c:if>
 					<a href="${ctx}/apply/external/projectApplyExternal/modify?id=${projectApplyExternal.id}">修改</a>
 				</shiro:hasPermission>
 

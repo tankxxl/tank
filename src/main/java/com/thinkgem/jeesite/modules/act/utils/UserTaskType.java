@@ -20,7 +20,7 @@ public class UserTaskType {
 	// 项目专员节点
 	public static final String UT_SPECIALIST = "usertask_specialist";
 	// 项目专员节点
-	public static final String UT_SPECIALIST_CONSULT = "usertask_specialist_consultation";
+	public static final String UT_SPECIALIST_ZHIYUN = "usertask_specialist_zhiyun";
 	
 	// 项目经理节点--结项流程
 	public static final String UT_PROJECT_MANAGER = "usertask_project_manager";

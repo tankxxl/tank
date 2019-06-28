@@ -92,8 +92,7 @@ public class ProjectApplyExternalService
 	public void processAudit(ProjectApplyExternal projectApplyExternal, Map<String, Object> vars) {
 		// 对不同环节的业务逻辑进行操作
 		String taskDefKey = projectApplyExternal.getAct().getTaskDefKey();
-		if (UserTaskType.UT_SPECIALIST.equals(taskDefKey) ||
-				UserTaskType.UT_SPECIALIST_CONSULT.equals(taskDefKey)) {
+		if (taskDefKey.indexOf(UserTaskType.UT_SPECIALIST) != -1) {
 			// 审批通过才保存项目信息、项目编号
 			if (projectApplyExternal.getAct().getFlagBoolean()) {
 				String proCodeStr = projectApplyExternal.getProjectCode();//包含类别、年份、归属的信息+标识位

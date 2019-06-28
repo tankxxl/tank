@@ -165,6 +165,11 @@
 <c:if test="${not empty projectApplyExternal.act.taskId && projectApplyExternal.act.status != 'finish'}">
 	<c:set var="isAuditing" value="true" />
 </c:if>
+<%-- 是否专员 --%>
+<c:set var="isSpecialist" value="false" />
+<c:if test="${fn:indexOf(projectApplyExternal.act.taskDefKey, 'usertask_specialist') != -1}">
+	<c:set var="isSpecialist" value="true" />
+</c:if>
 
 
 <ul class="nav nav-tabs">
@@ -197,25 +202,26 @@
 	<form:hidden path="docPath" />
 	<sys:message content="${message}"/>
 
-	<c:set var="rand" value="id"/>
+	<c:set var="rand" value=""/>
 	<table class="table-form">
 		<tr>
 			<td colspan="2" class="tit">项目编号${rand}</td>
 			<td class="" colspan="3">
-				<c:if test="${projectApplyExternal.act.taskDefKey eq 'usertask_specialist'}">
-					<form:input path="projectCode" maxlength="64" class="required"/>
-					<span class="help-inline"><font color="red">*</font></span>
-					<input id="project_code_button" class="btn btn-primary" type="button" value="生成项目编号"/>
-				</c:if>
-
-				<c:if test="${projectApplyExternal.act.taskDefKey ne 'usertask_specialist'}">
-					${projectApplyExternal.projectCode }
-				</c:if>
+				<c:choose>
+					<c:when test="${isSpecialist}">
+						<form:input path="projectCode" maxlength="64" class="required"/>
+						<span class="help-inline"><font color="red">*</font></span>
+						<input id="project_code_button" class="btn btn-primary" type="button" value="生成项目编号"/>
+					</c:when>
+					<c:otherwise>
+						${projectApplyExternal.projectCode }
+					</c:otherwise>
+				</c:choose>
 			</td>
 			<td class="tit">项目归属</td>
 			<td colspan="2">
 				<c:choose>
-				<c:when test="${projectApplyExternal.act.taskDefKey eq 'usertask_specialist'}">
+				<c:when test="${isSpecialist}">
 					<form:select path="ownership" class="input-medium required" style="width:89%;">
 						<form:option value="" label=""/>
 						<form:options items="${fns:getDictList('pro_ownership')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
@@ -232,7 +238,7 @@
 			<td  class="tit" colspan="2">项目名称</td>
 			<td colspan="5">
 				<c:choose>
-					<c:when test="${projectApplyExternal.act.taskDefKey eq 'usertask_specialist'}">
+					<c:when test="${isSpecialist}">
 						<form:input path="projectName" htmlEscape="false" maxlength="64" class=" required"/>
 						<span class="help-inline"><font color="red">*</font> </span>
 					</c:when>
@@ -306,7 +312,7 @@
 			<td class="tit">项目类别</td>
 			<td>
 				<c:choose>
-					<c:when test="${projectApplyExternal.act.taskDefKey eq 'usertask_specialist'}">
+					<c:when test="${isSpecialist}">
 						<form:select path="category" class="input-medium" style="width:89%;">
 							<form:option value="" label=""/>
 							<form:options items="${fns:getDictList('pro_category')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
