@@ -73,6 +73,12 @@ public class AssigneeService extends BaseService {
 			} else {
 				roleName = "ut_tech_vip_10";
 			}
+		} else if ("100000025".equals(officeCode)) { // 四川分公司
+			if ("03".equals(prjType)) {
+				roleName = "ut_tech_sichuan_03";
+			} else {
+				roleName = "ut_tech_sichuan_10";
+			}
 		}
     	return roleName;
 	}
