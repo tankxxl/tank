@@ -6,15 +6,14 @@
 .war
 .zip
 .rar
-.idea
 *.iml
 .settings/*
 /indexes/*
 /target/*
 /src/main/webapp/WEB-INF/classes/*
 /src/main/webapp/userfiles/*
-/target/
 
 .DS_Store
 .idea/
 /src/main/resources/jeesite.properties
+/src/main/resources/rebel.xml
