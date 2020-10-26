@@ -73,6 +73,8 @@ public class ActUtils {
 	public static final String VAR_OFFICE_CODE = "officeCode";
 	// 关键业务属性，可能影响流程走向，定义能流程变量，可以在流程图中使用
 	public static final String VAR_AMOUNT = "amount";
+	// * 简化流程
+	public static final String VAR_OWNER_SHIP = "ownership";
 
 	//deprecated 根据项目类型来设置，软件类项目为2，其它类项目为1 *
 	public static final String VAR_TYPE = "type";

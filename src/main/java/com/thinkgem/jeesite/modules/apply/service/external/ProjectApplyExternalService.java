@@ -22,6 +22,7 @@ import com.thinkgem.jeesite.modules.sys.entity.Role;
 import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import org.activiti.engine.delegate.DelegateTask;
+import org.activiti.engine.impl.bpmn.helper.SkipExpressionUtil;
 import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.task.IdentityLink;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,12 +80,16 @@ public class ProjectApplyExternalService
 	// 回调函数，设置流程变量
 	@Override
 	public void setupVariable(ProjectApplyExternal projectApplyExternal, Map<String, Object> vars) {
+		vars.put("_ACTIVITI_SKIP_EXPRESSION_ENABLED", true);
 		vars.put(ActUtils.VAR_PRJ_ID, projectApplyExternal.getId());
 		vars.put(ActUtils.VAR_TITLE, projectApplyExternal.getProjectName());
 		vars.put(ActUtils.VAR_PRJ_TYPE, projectApplyExternal.getCategory());
 		vars.put(ActUtils.VAR_OFFICE_CODE, projectApplyExternal.getSaler().getOffice().getCode());
 		// 事业部修改20190404
 		vars.put(ActUtils.VAR_AMOUNT, projectApplyExternal.getEstimatedContractAmount());
+		// 框架项目下的项目再立项、签约，则简化流程。使用ownership代替，01：子项目，02：正常
+		vars.put(ActUtils.VAR_OWNER_SHIP, projectApplyExternal.getOwnership());
+
 	}
 
 	// 回调函数

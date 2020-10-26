@@ -218,7 +218,7 @@
 					</c:otherwise>
 				</c:choose>
 			</td>
-			<td class="tit">项目归属</td>
+			<td class="tit">项目属性</td>
 			<td colspan="2">
 				<c:choose>
 				<c:when test="${isSpecialist}">

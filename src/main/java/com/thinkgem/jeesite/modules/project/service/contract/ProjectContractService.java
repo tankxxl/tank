@@ -87,6 +87,7 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 			}
 		}
 		vars.put(ActUtils.VAR_AMOUNT, String.valueOf(amount));
+		vars.put(ActUtils.VAR_OWNER_SHIP, projectContract.getApply().getOwnership());
 	}
 	
 	@Override

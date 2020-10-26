@@ -178,7 +178,7 @@
 				</shiro:lacksPermission>
 
 			</td>
-			<td class="tit">项目归属</td>
+			<td class="tit">项目属性</td>
 			<td colspan="2">
 				<form:select path="ownership" class="" style="width:89%;">
 					<form:option value="" label=""/>
