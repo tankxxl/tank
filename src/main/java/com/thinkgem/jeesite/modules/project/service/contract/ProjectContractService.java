@@ -74,6 +74,19 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 		// 20190409事业部
 		vars.put(ActUtils.VAR_OFFICE_CODE, projectContract.getApply().getSaler().getOffice().getCode());
 
+		// 20200914
+		double amount = 0d;
+		for (ProjectContractItem projectContractItem : projectContract.getProjectContractItemList()){
+
+			if (projectContractItem.getId() == null){
+				continue;
+			}
+
+			if (ProjectContractItem.DEL_FLAG_NORMAL.equals(projectContractItem.getDelFlag())){
+				amount = amount + Double.parseDouble(projectContractItem.getContractAmount());
+			}
+		}
+		vars.put(ActUtils.VAR_AMOUNT, String.valueOf(amount));
 	}
 	
 	@Override

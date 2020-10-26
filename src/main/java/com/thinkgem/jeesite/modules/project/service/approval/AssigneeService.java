@@ -10,6 +10,7 @@ import com.thinkgem.jeesite.modules.act.utils.ActUtils;
 import com.thinkgem.jeesite.modules.sys.entity.Office;
 import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.service.OfficeService;
+import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
@@ -85,32 +86,40 @@ public class AssigneeService extends BaseService {
 
 	public boolean skipApplyByAmount(ActivityExecution execution) {
 		String amountStr = execution.getVariable(ActUtils.VAR_AMOUNT).toString();
-		double amount = Double.valueOf(amountStr);
+		double amount = Double.parseDouble(amountStr);
 		int amountUnit = 1;
+		double amountStd = 0;  // 金额标准，单位为W
 		String prjType = (String) execution.getVariable(ActUtils.VAR_PRJ_TYPE);
 		// 由于立项流程金额用的单位是W，投标流程金额用的单位是元。所以在此要判断是那个流程
 		String procDefName = ((ExecutionEntity) execution).getProcessDefinitionKey();
 		// 确定单位是：万或元
 		if ("ProjectApplyExternal".equals(procDefName)) {
 			amountUnit = 1;
+			amountStd = Double.parseDouble(DictUtils.getDictValue("stage_apply", "jic_amount", "0"));
 		} else if ("ProjectBidding".equals(procDefName)) {
 			amountUnit = 10000; // 与前端界面单位要一致
-		}
-		int amountStd = 200;
-		// 确定金额免批上限，单位是W
-		if ("03".equals(prjType)) {
-			amountStd = 200;
+			amountStd = Double.parseDouble(DictUtils.getDictValue("stage_bidding", "jic_amount", "0"));
+		} else if ("ProjectContract".equalsIgnoreCase(procDefName)) {
+			amountUnit = 10000;
+			amountStd = Double.parseDouble(DictUtils.getDictValue("stage_contract", "jic_amount", "0"));
 		} else {
-			amountStd = 500;
+			amountStd = 0;
 		}
 
-		boolean skiped = false;
+		// 确定金额免批上限，单位是W
+		// if ("03".equals(prjType)) {
+		// 	amountStd = 200;
+		// } else {
+		// 	amountStd = 500;
+		// }
+
+		boolean skipped = false;
 		if (amount < amountStd * amountUnit) {
-			skiped = true;
+			skipped = true;
 		} else {
-			skiped = false;
+			skipped = false;
 		}
-		return skiped;
+		return skipped;
 	}
 	
 	// 设置流程节点中的-业务部/事业部负责人审批节点-定位到人，查找员工的直接领导loginName
