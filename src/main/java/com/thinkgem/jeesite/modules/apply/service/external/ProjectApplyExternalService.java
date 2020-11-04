@@ -88,7 +88,15 @@ public class ProjectApplyExternalService
 		// 事业部修改20190404
 		vars.put(ActUtils.VAR_AMOUNT, projectApplyExternal.getEstimatedContractAmount());
 		// 框架项目下的项目再立项、签约，则简化流程。使用ownership代替，01：子项目，02：正常
-		vars.put(ActUtils.VAR_OWNER_SHIP, projectApplyExternal.getOwnership());
+
+		String ownership = projectApplyExternal.getOwnership();
+		double amount = projectApplyExternal.getEstimatedContractAmount();
+		// 单位：万元，<=50W and 01框架子项目
+		if (amount <= 50 && "01".equals(ownership)) {
+			vars.put(ActUtils.VAR_OWNER_SHIP, "01");
+		} else {
+			vars.put(ActUtils.VAR_OWNER_SHIP, "02");
+		}
 
 	}
 

@@ -87,7 +87,14 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 			}
 		}
 		vars.put(ActUtils.VAR_AMOUNT, String.valueOf(amount));
-		vars.put(ActUtils.VAR_OWNER_SHIP, projectContract.getApply().getOwnership());
+
+		String ownership = projectContract.getApply().getOwnership();
+		// 单位：元， <=50W and 01框架子项目
+		if (amount <= 500000 && "01".equals(ownership)) {
+			vars.put(ActUtils.VAR_OWNER_SHIP, "01");
+		} else {
+			vars.put(ActUtils.VAR_OWNER_SHIP, "02");
+		}
 	}
 	
 	@Override
