@@ -81,6 +81,11 @@ public class AssigneeService extends BaseService {
 				roleName = "ut_tech_sichuan_10";
 			}
 		}
+		if ("03".equals(prjType)) { // 软件
+			roleName = "usertask_tech_03";
+		} else {
+			roleName = "usertask_tech_10";
+		}
     	return roleName;
 	}
 
@@ -112,6 +117,10 @@ public class AssigneeService extends BaseService {
 		// } else {
 		// 	amountStd = 500;
 		// }
+
+		// 运营部的项目不过总经理
+		String officeCode = execution.getVariable(ActUtils.VAR_OFFICE_CODE).toString();
+
 
 		boolean skipped = false;
 		if (amount < amountStd * amountUnit) {

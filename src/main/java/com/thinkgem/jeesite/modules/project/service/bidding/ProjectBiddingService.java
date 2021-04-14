@@ -88,7 +88,7 @@ public class ProjectBiddingService extends JicActService<ProjectBiddingDao, Proj
 			vars.put(ActUtils.VAR_SKIP_HR, "1");
 		}
 		// 20190409事业部
-		vars.put(ActUtils.VAR_AMOUNT, projectBidding.getAmount());
+		vars.put(ActUtils.VAR_AMOUNT, Double.valueOf(projectBidding.getAmount()));
 		vars.put(ActUtils.VAR_OFFICE_CODE, projectBidding.getApply().getSaler().getOffice().getCode());
 	}
 

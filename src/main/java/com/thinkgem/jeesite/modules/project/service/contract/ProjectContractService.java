@@ -66,6 +66,8 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 
 		fillApply(projectContract);
 
+		vars.put("_ACTIVITI_SKIP_EXPRESSION_ENABLED", true);
+
 		vars.put(ActUtils.VAR_PRJ_ID, projectContract.getApply().getId());
 
 		vars.put(ActUtils.VAR_PRJ_TYPE, projectContract.getApply().getCategory());
@@ -86,7 +88,7 @@ public class ProjectContractService extends JicActService<ProjectContractDao, Pr
 				amount = amount + Double.parseDouble(projectContractItem.getContractAmount());
 			}
 		}
-		vars.put(ActUtils.VAR_AMOUNT, String.valueOf(amount));
+		vars.put(ActUtils.VAR_AMOUNT, amount);
 
 		String ownership = projectContract.getApply().getOwnership();
 		// 单位：元， <=50W and 01框架子项目
