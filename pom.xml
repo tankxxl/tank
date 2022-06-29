@@ -41,7 +41,7 @@
 		<dozer.version>5.5.1</dozer.version>
 		<!--<poi.version>3.9</poi.version>-->
 		<!--<poi.version>3.15</poi.version>-->
-		<poi.version>3.17</poi.version>
+		<poi.version>4.1.1</poi.version>
 		<freemarker.version>2.3.23</freemarker.version>
 		<zxing.version>3.3.0</zxing.version>
 		<jwt.version>0.7.0</jwt.version>
@@ -1010,7 +1010,7 @@
 			  	<dependency>
 				    <groupId>org.apache.poi</groupId>
 				    <artifactId>poi</artifactId>
-				    <version>3.2-FINAL</version>
+				    <version>4.1.1</version>
 				</dependency>
 			</dependencies>
 			<build>
