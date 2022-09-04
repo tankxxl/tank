@@ -2,8 +2,8 @@
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
   <process id="ProjectFinishApproval" name="项目结项审批流程" isExecutable="true">
     <extensionElements>
-      <activiti:executionListener event="end" class="com.thinkgem.jeesite.modules.project.utils.ProjectFinishApprovalAuditListener"></activiti:executionListener>
-      <activiti:executionListener event="start" class="com.thinkgem.jeesite.modules.project.utils.ProjectFinishApprovalStartListener"></activiti:executionListener>
+      <activiti:executionListener event="end" class="com.thinkgem.jeesite.modules.project.utils.AuditEndListener"></activiti:executionListener>
+      <activiti:executionListener event="start" class="com.thinkgem.jeesite.modules.project.utils.AuditStartListener"></activiti:executionListener>
     </extensionElements>
     <startEvent id="startevent1" name="Start" activiti:initiator="apply" activiti:formKey="/project/finish/projectFinishApproval/form"></startEvent>
     <userTask id="usertask_project_manager" name="项目经理">
@@ -19,22 +19,22 @@
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow3" sourceRef="exclusivegateway1" targetRef="usertask_Service_delivery_leader">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pass==1&&type==1}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${type==1}]]></conditionExpression>
     </sequenceFlow>
     <userTask id="usertask_software_development_leader" name="软件开发部负责人" activiti:candidateGroups="usertask_software_development_leader">
       <extensionElements>
         <activiti:taskListener event="create" class="com.thinkgem.jeesite.modules.apply.utils.MailTaskListener"></activiti:taskListener>
       </extensionElements>
     </userTask>
-    <sequenceFlow id="flow4" sourceRef="exclusivegateway1" targetRef="usertask_software_development_leader">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pass==1&&type==2}]]></conditionExpression>
+    <sequenceFlow id="flow4" name="软件类项目" sourceRef="exclusivegateway1" targetRef="usertask_software_development_leader">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${type==2}]]></conditionExpression>
     </sequenceFlow>
     <userTask id="usertask_project_management_leader" name="项目管理部负责人" activiti:candidateGroups="usertask_project_management_leader">
       <extensionElements>
         <activiti:taskListener event="create" class="com.thinkgem.jeesite.modules.apply.utils.MailTaskListener"></activiti:taskListener>
       </extensionElements>
     </userTask>
-    <userTask id="usertask_boss" name="总经理审批" activiti:assignee="liuyu" activiti:skipExpression="${pass==1&amp;&amp;boss==0}">
+    <userTask id="usertask_boss" name="总经理审批" activiti:candidateGroups="usertask_boss" activiti:skipExpression="${execution.getVariable('skip_boss') == 1}">
       <extensionElements>
         <activiti:taskListener event="create" class="com.thinkgem.jeesite.modules.apply.utils.MailTaskListener"></activiti:taskListener>
       </extensionElements>
@@ -54,9 +54,7 @@
     <sequenceFlow id="flow57" sourceRef="startevent1" targetRef="usertask_owner"></sequenceFlow>
     <sequenceFlow id="flow58" sourceRef="usertask_owner" targetRef="usertask_project_manager"></sequenceFlow>
     <sequenceFlow id="flow63" sourceRef="usertask_technology_boss" targetRef="usertask_business_boss"></sequenceFlow>
-    <sequenceFlow id="flow64" sourceRef="usertask_business_boss" targetRef="usertask_boss">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pass==1&&boss==1}]]></conditionExpression>
-    </sequenceFlow>
+    <sequenceFlow id="flow64" sourceRef="usertask_business_boss" targetRef="usertask_boss"></sequenceFlow>
     <sequenceFlow id="flow65" sourceRef="usertask_boss" targetRef="endevent1"></sequenceFlow>
     <userTask id="usertask_business_leader" name="业务部负责人" activiti:assignee="${assigneeService.findLeader(apply)}">
       <extensionElements>
@@ -74,10 +72,6 @@
     <sequenceFlow id="flow73" sourceRef="usertask_software_development_leader" targetRef="usertask_project_management_leader"></sequenceFlow>
     <sequenceFlow id="flow74" sourceRef="usertask_project_management_leader" targetRef="usertask_finance_leader"></sequenceFlow>
     <sequenceFlow id="flow75" sourceRef="usertask_finance_leader" targetRef="usertask_business_leader"></sequenceFlow>
-    <endEvent id="endevent2" name="End"></endEvent>
-    <sequenceFlow id="flow76" sourceRef="usertask_business_boss" targetRef="endevent2">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pass==1&&boss==0}]]></conditionExpression>
-    </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_ProjectFinishApproval">
     <bpmndi:BPMNPlane bpmnElement="ProjectFinishApproval" id="BPMNPlane_ProjectFinishApproval">
@@ -120,9 +114,6 @@
       <bpmndi:BPMNShape bpmnElement="usertask_finance_leader" id="BPMNShape_usertask_finance_leader">
         <omgdc:Bounds height="55.0" width="105.0" x="730.0" y="200.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
-        <omgdc:Bounds height="35.0" width="35.0" x="239.0" y="440.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
         <omgdi:waypoint x="506.0" y="107.0"></omgdi:waypoint>
         <omgdi:waypoint x="602.0" y="82.0"></omgdi:waypoint>
@@ -130,6 +121,9 @@
       <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
         <omgdi:waypoint x="486.0" y="127.0"></omgdi:waypoint>
         <omgdi:waypoint x="602.0" y="139.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="100.0" x="486.0" y="127.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow57" id="BPMNEdge_flow57">
         <omgdi:waypoint x="97.0" y="107.0"></omgdi:waypoint>
@@ -174,10 +168,6 @@
       <bpmndi:BPMNEdge bpmnElement="flow75" id="BPMNEdge_flow75">
         <omgdi:waypoint x="782.0" y="255.0"></omgdi:waypoint>
         <omgdi:waypoint x="782.0" y="353.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow76" id="BPMNEdge_flow76">
-        <omgdi:waypoint x="424.0" y="418.0"></omgdi:waypoint>
-        <omgdi:waypoint x="256.0" y="440.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="ProjectFinishApproval" name="项目结项审批流程" isExecutable="true">
+    <extensionElements>
+      <activiti:executionListener event="end" class="com.thinkgem.jeesite.modules.project.utils.ProjectFinishApprovalAuditListener"></activiti:executionListener>
+      <activiti:executionListener event="start" class="com.thinkgem.jeesite.modules.project.utils.ProjectFinishApprovalStartListener"></activiti:executionListener>
+    </extensionElements>
+    <startEvent id="startevent1" name="Start" activiti:initiator="apply" activiti:formKey="/project/finish/projectFinishApproval/form"></startEvent>
+    <userTask id="usertask_business_leader" name="部门负责人" activiti:assignee="${assigneeService.findLeader(apply)}">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.thinkgem.jeesite.modules.apply.utils.MailTaskListener"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="usertask_boss" name="总经理审批" activiti:candidateGroups="usertask_boss">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.thinkgem.jeesite.modules.apply.utils.MailTaskListener"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <userTask id="usertask_owner" name="申请人提交" activiti:assignee="${apply}"></userTask>
+    <sequenceFlow id="flow57" sourceRef="startevent1" targetRef="usertask_owner"></sequenceFlow>
+    <sequenceFlow id="flow58" sourceRef="usertask_owner" targetRef="usertask_business_leader"></sequenceFlow>
+    <sequenceFlow id="flow65" sourceRef="usertask_boss" targetRef="endevent1"></sequenceFlow>
+    <userTask id="usertask_finance_leader" name="财务负责人" activiti:candidateGroups="usertask_finance_leader">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.thinkgem.jeesite.modules.apply.utils.MailTaskListener"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="usertask_commerce_leader" name="商务负责人" activiti:candidateGroups="usertask_commerce_leader">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.thinkgem.jeesite.modules.apply.utils.MailTaskListener"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow66" sourceRef="usertask_business_leader" targetRef="usertask_finance_leader"></sequenceFlow>
+    <sequenceFlow id="flow67" sourceRef="usertask_finance_leader" targetRef="usertask_commerce_leader"></sequenceFlow>
+    <sequenceFlow id="flow68" sourceRef="usertask_commerce_leader" targetRef="usertask_boss"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_ProjectFinishApproval">
+    <bpmndi:BPMNPlane bpmnElement="ProjectFinishApproval" id="BPMNPlane_ProjectFinishApproval">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="62.0" y="90.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask_business_leader" id="BPMNShape_usertask_business_leader">
+        <omgdc:Bounds height="55.0" width="105.0" x="310.0" y="80.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask_boss" id="BPMNShape_usertask_boss">
+        <omgdc:Bounds height="55.0" width="105.0" x="300.0" y="200.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="150.0" y="210.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask_owner" id="BPMNShape_usertask_owner">
+        <omgdc:Bounds height="55.0" width="105.0" x="150.0" y="80.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask_finance_leader" id="BPMNShape_usertask_finance_leader">
+        <omgdc:Bounds height="55.0" width="105.0" x="500.0" y="80.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask_commerce_leader" id="BPMNShape_usertask_commerce_leader">
+        <omgdc:Bounds height="55.0" width="105.0" x="490.0" y="200.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow57" id="BPMNEdge_flow57">
+        <omgdi:waypoint x="97.0" y="107.0"></omgdi:waypoint>
+        <omgdi:waypoint x="150.0" y="107.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow58" id="BPMNEdge_flow58">
+        <omgdi:waypoint x="255.0" y="107.0"></omgdi:waypoint>
+        <omgdi:waypoint x="310.0" y="107.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow65" id="BPMNEdge_flow65">
+        <omgdi:waypoint x="300.0" y="227.0"></omgdi:waypoint>
+        <omgdi:waypoint x="185.0" y="227.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow66" id="BPMNEdge_flow66">
+        <omgdi:waypoint x="415.0" y="107.0"></omgdi:waypoint>
+        <omgdi:waypoint x="500.0" y="107.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow67" id="BPMNEdge_flow67">
+        <omgdi:waypoint x="552.0" y="135.0"></omgdi:waypoint>
+        <omgdi:waypoint x="542.0" y="200.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow68" id="BPMNEdge_flow68">
+        <omgdi:waypoint x="490.0" y="227.0"></omgdi:waypoint>
+        <omgdi:waypoint x="405.0" y="227.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

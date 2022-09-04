@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="ProjectContract" name="项目合同审批流程" isExecutable="true">
+    <extensionElements>
+      <activiti:executionListener event="end" class="com.thinkgem.jeesite.modules.project.utils.AuditEndListener"></activiti:executionListener>
+      <activiti:executionListener event="start" class="com.thinkgem.jeesite.modules.project.utils.AuditStartListener"></activiti:executionListener>
+    </extensionElements>
+    <startEvent id="startevent1" name="Start" activiti:initiator="apply" activiti:formKey="/project/contract/projectContract/form"></startEvent>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <userTask id="usertask_service_delivery_leader" name="服务交付部负责人" activiti:candidateGroups="usertask_service_delivery_leader">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.thinkgem.jeesite.modules.apply.utils.MailTaskListener"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow3" sourceRef="exclusivegateway1" targetRef="usertask_service_delivery_leader">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${type==1}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="usertask_software_development_leader" name="软件开发部负责人" activiti:candidateGroups="usertask_software_development_leader">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.thinkgem.jeesite.modules.apply.utils.MailTaskListener"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow4" name="软件项目" sourceRef="exclusivegateway1" targetRef="usertask_software_development_leader">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${type==2}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="usertask_boss" name="总经理审批" activiti:candidateGroups="usertask_boss" activiti:skipExpression="${execution.getVariable('skip_boss') == 1}">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.thinkgem.jeesite.modules.apply.utils.MailTaskListener"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <userTask id="usertask_technology_boss" name="技术部分管领导" activiti:candidateGroups="${assigneeService.findTechRoleByType(prjType)}">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.thinkgem.jeesite.modules.apply.utils.MailTaskListener"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="usertask_owner" name="申请人提交" activiti:assignee="${apply}"></userTask>
+    <sequenceFlow id="flow57" sourceRef="startevent1" targetRef="usertask_owner"></sequenceFlow>
+    <sequenceFlow id="flow65" sourceRef="usertask_boss" targetRef="endevent1"></sequenceFlow>
+    <userTask id="usertask_business_leader" name="业务部负责人" activiti:assignee="${assigneeService.findLeader(apply)}">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.thinkgem.jeesite.modules.apply.utils.MailTaskListener"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow74" sourceRef="usertask_service_delivery_leader" targetRef="exclusivegateway2"></sequenceFlow>
+    <sequenceFlow id="flow75" sourceRef="usertask_software_development_leader" targetRef="exclusivegateway2"></sequenceFlow>
+    <userTask id="usertask_commerce_leader" name="商务部负责人" activiti:candidateGroups="usertask_commerce_leader">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.thinkgem.jeesite.modules.apply.utils.MailTaskListener"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="usertask_hr" name="人力部负责人" activiti:candidateGroups="usertask_hr" activiti:skipExpression="${execution.getVariable('skip_hr') == 1}">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.thinkgem.jeesite.modules.apply.utils.MailTaskListener"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow86" sourceRef="usertask_technology_boss" targetRef="usertask_boss"></sequenceFlow>
+    <sequenceFlow id="flow87" sourceRef="usertask_owner" targetRef="usertask_commerce_leader"></sequenceFlow>
+    <sequenceFlow id="flow88" sourceRef="exclusivegateway2" targetRef="usertask_business_leader"></sequenceFlow>
+    <sequenceFlow id="flow89" sourceRef="usertask_business_leader" targetRef="usertask_lawer"></sequenceFlow>
+    <sequenceFlow id="flow90" sourceRef="usertask_commerce_leader" targetRef="exclusivegateway1"></sequenceFlow>
+    <sequenceFlow id="flow91" sourceRef="usertask_hr" targetRef="usertask_technology_boss"></sequenceFlow>
+    <userTask id="usertask_lawer" name="法务部" activiti:candidateGroups="usertask_lawer">
+      <extensionElements>
+        <activiti:taskListener event="create" class="com.thinkgem.jeesite.modules.apply.utils.MailTaskListener"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow92" sourceRef="usertask_lawer" targetRef="usertask_hr"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_ProjectContract">
+    <bpmndi:BPMNPlane bpmnElement="ProjectContract" id="BPMNPlane_ProjectContract">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="61.0" y="101.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="436.0" y="98.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask_service_delivery_leader" id="BPMNShape_usertask_service_delivery_leader">
+        <omgdc:Bounds height="55.0" width="105.0" x="540.0" y="41.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask_software_development_leader" id="BPMNShape_usertask_software_development_leader">
+        <omgdc:Bounds height="55.0" width="105.0" x="540.0" y="153.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask_boss" id="BPMNShape_usertask_boss">
+        <omgdc:Bounds height="55.0" width="105.0" x="404.0" y="325.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="220.0" y="335.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask_technology_boss" id="BPMNShape_usertask_technology_boss">
+        <omgdc:Bounds height="55.0" width="105.0" x="606.0" y="325.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask_owner" id="BPMNShape_usertask_owner">
+        <omgdc:Bounds height="55.0" width="105.0" x="137.0" y="91.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask_business_leader" id="BPMNShape_usertask_business_leader">
+        <omgdc:Bounds height="55.0" width="105.0" x="840.0" y="64.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask_commerce_leader" id="BPMNShape_usertask_commerce_leader">
+        <omgdc:Bounds height="55.0" width="105.0" x="290.0" y="91.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask_hr" id="BPMNShape_usertask_hr">
+        <omgdc:Bounds height="55.0" width="105.0" x="840.0" y="325.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+        <omgdc:Bounds height="40.0" width="40.0" x="710.0" y="88.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask_lawer" id="BPMNShape_usertask_lawer">
+        <omgdc:Bounds height="55.0" width="105.0" x="840.0" y="207.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="476.0" y="118.0"></omgdi:waypoint>
+        <omgdi:waypoint x="592.0" y="96.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="456.0" y="138.0"></omgdi:waypoint>
+        <omgdi:waypoint x="592.0" y="153.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="44.0" x="456.0" y="138.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow57" id="BPMNEdge_flow57">
+        <omgdi:waypoint x="96.0" y="118.0"></omgdi:waypoint>
+        <omgdi:waypoint x="137.0" y="118.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow65" id="BPMNEdge_flow65">
+        <omgdi:waypoint x="404.0" y="352.0"></omgdi:waypoint>
+        <omgdi:waypoint x="255.0" y="352.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow74" id="BPMNEdge_flow74">
+        <omgdi:waypoint x="645.0" y="68.0"></omgdi:waypoint>
+        <omgdi:waypoint x="730.0" y="88.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow75" id="BPMNEdge_flow75">
+        <omgdi:waypoint x="592.0" y="153.0"></omgdi:waypoint>
+        <omgdi:waypoint x="730.0" y="128.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow86" id="BPMNEdge_flow86">
+        <omgdi:waypoint x="606.0" y="352.0"></omgdi:waypoint>
+        <omgdi:waypoint x="509.0" y="352.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow87" id="BPMNEdge_flow87">
+        <omgdi:waypoint x="242.0" y="118.0"></omgdi:waypoint>
+        <omgdi:waypoint x="290.0" y="118.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow88" id="BPMNEdge_flow88">
+        <omgdi:waypoint x="750.0" y="108.0"></omgdi:waypoint>
+        <omgdi:waypoint x="840.0" y="91.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow89" id="BPMNEdge_flow89">
+        <omgdi:waypoint x="892.0" y="119.0"></omgdi:waypoint>
+        <omgdi:waypoint x="892.0" y="207.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow90" id="BPMNEdge_flow90">
+        <omgdi:waypoint x="395.0" y="118.0"></omgdi:waypoint>
+        <omgdi:waypoint x="436.0" y="118.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow91" id="BPMNEdge_flow91">
+        <omgdi:waypoint x="840.0" y="352.0"></omgdi:waypoint>
+        <omgdi:waypoint x="711.0" y="352.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow92" id="BPMNEdge_flow92">
+        <omgdi:waypoint x="892.0" y="262.0"></omgdi:waypoint>
+        <omgdi:waypoint x="892.0" y="325.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

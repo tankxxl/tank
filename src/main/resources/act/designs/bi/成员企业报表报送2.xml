@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <signal id="subSubcompanyCompleted" name="subSubcompanyCompleted" activiti:scope="global"></signal>
+  <process id="rpt_submit_audit_sub" name="成员企业报表收集报送" isExecutable="true">
+    <documentation>成员企业报表收集报送流程</documentation>
+    <startEvent id="start" name="启动收集报送流程">
+      <documentation>启动本企业报表收集报送流程</documentation>
+    </startEvent>
+    <exclusiveGateway id="sid-A22294DA-4982-4EF9-B3D4-0647B5B960B1" name="成员企业是否启用报送且已分配报表">
+      <documentation>成员企业是否启用报送且已分配报表</documentation>
+    </exclusiveGateway>
+    <serviceTask id="start_subcompany_process" name="启动成员企业收集报送流程" activiti:expression="${hkRptSubmitAudit4SubLauncher.startSubProcess(execution, currentCompany, term)}">
+      <documentation>启动成员企业报表收集报送流程</documentation>
+    </serviceTask>
+    <sequenceFlow id="sid-A6940AA0-1979-4705-B281-DE80E0BEAA2C" sourceRef="start" targetRef="sid-A22294DA-4982-4EF9-B3D4-0647B5B960B1"></sequenceFlow>
+    <userTask id="force_skip" name="管理员干预通过" activiti:candidateGroups="${hkRptSubmitAuditService.getAdminRoleName4Office(currentCompany)}" activiti:formKey="/mis/rpt/audit/hkRptSubmitAudit/form">
+      <documentation>管理员手动跳过等待流程</documentation>
+      <extensionElements>
+        <activiti:executionListener event="start" expression="${hkRptSubmitAudit4SubTerminator.setExecutionIdOfWaitedNode(execution, currentCompany, term)}"></activiti:executionListener>
+      </extensionElements>
+    </userTask>
+    <subProcess id="subprocess_dept" name="相关部门收集报送">
+      <documentation>相关部门报表收集报送流程</documentation>
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="${hkRptSubmitAuditService.findAuthorizedDeptList(currentCompany, term, retreatIds)}" activiti:elementVariable="dept">
+        <completionCondition>${nrOfCompletedInstances/nrOfInstances==1}</completionCondition>
+      </multiInstanceLoopCharacteristics>
+      <startEvent id="dept_start" name="启动收集报送流程">
+        <documentation>启动业务部门报表收集报送流程</documentation>
+      </startEvent>
+      <userTask id="dept_audit" name="分管领导审核" activiti:candidateUsers="${hkRptSubmitAuditService.findFgldByDeptId(currentCompany, dept)}" activiti:formKey="/mis/rpt/audit/hkRptSubmitAudit/form">
+        <documentation>分管领导审核报表</documentation>
+        <extensionElements>
+          <activiti:taskListener event="create" expression="${hkRptSubmitAuditTools.sendNotify(task, &quot;dept_audit&quot;)}"></activiti:taskListener>
+        </extensionElements>
+      </userTask>
+      <exclusiveGateway id="sid-AC8024E3-F45E-48A7-B253-90AF54229C3B" name="是否通过">
+        <documentation>是否通过</documentation>
+      </exclusiveGateway>
+      <endEvent id="dept_end" name="部门收集报送完毕">
+        <documentation>业务部门报表收集报送完毕</documentation>
+      </endEvent>
+      <exclusiveGateway id="sid-D409A749-9F08-47B6-BF0F-A61BA951DEEA" name="是否启用审核机制">
+        <documentation>是否启用审核机制</documentation>
+      </exclusiveGateway>
+      <subProcess id="subprocess_dept_bblry" name="录入及部门审核">
+        <documentation>录入及部门审核</documentation>
+        <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="${hkRptSubmitAuditService.findBblryByDeptId(currentCompany, dept, term, retreatIds)}" activiti:elementVariable="bblry">
+          <completionCondition>${nrOfCompletedInstances/nrOfInstances==1}</completionCondition>
+        </multiInstanceLoopCharacteristics>
+        <exclusiveGateway id="sid-552DC3E8-000F-4AE7-A8E3-C5EFAF95E4F0" name="是否通过">
+          <documentation>是否通过</documentation>
+        </exclusiveGateway>
+        <userTask id="dept_record_audit" name="部门领导审核" activiti:candidateUsers="${hkRptSubmitAuditService.findBmldByDeptId(currentCompany, dept)}" activiti:formKey="/mis/rpt/audit/hkRptSubmitAudit/form">
+          <documentation>部门领导审核报表</documentation>
+          <extensionElements>
+            <activiti:taskListener event="create" expression="${hkRptSubmitAuditTools.sendNotify(task, &quot;dept_record_audit&quot;)}"></activiti:taskListener>
+          </extensionElements>
+        </userTask>
+        <exclusiveGateway id="sid-320B875F-FDED-4E62-9ED4-A09333B43FEE" name="是否启用审核机制">
+          <documentation>是否启用审核机制</documentation>
+        </exclusiveGateway>
+        <userTask id="dept_record_record" name="部门录入员录入/修改报表" activiti:assignee="${bblry.loginName}" activiti:formKey="/mis/rpt/audit/hkRptSubmitAudit/form">
+          <documentation>部门录入员录入/修改报表</documentation>
+          <extensionElements>
+            <activiti:taskListener event="create" expression="${hkRptSubmitAuditTools.sendNotify(task, &quot;dept_record_record&quot;)}"></activiti:taskListener>
+          </extensionElements>
+        </userTask>
+        <startEvent id="dept_record_start" name="启动录入">
+          <documentation>启动录入</documentation>
+        </startEvent>
+        <endEvent id="dept_record_end" name="录入完毕">
+          <documentation>录入完毕</documentation>
+        </endEvent>
+        <sequenceFlow id="sid-5AE43E22-1FE3-47CF-82D8-9507E61CE2B4" name="是" sourceRef="sid-320B875F-FDED-4E62-9ED4-A09333B43FEE" targetRef="dept_record_audit">
+          <documentation>是</documentation>
+          <conditionExpression xsi:type="tFormalExpression"><![CDATA[${yesOrNo==1}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="sid-3CD38746-8CE5-4007-B1AC-2E196614AE5F" sourceRef="dept_record_audit" targetRef="sid-552DC3E8-000F-4AE7-A8E3-C5EFAF95E4F0"></sequenceFlow>
+        <sequenceFlow id="sid-D94E14CE-B832-4214-B88F-46958E5EA541" name="是" sourceRef="sid-552DC3E8-000F-4AE7-A8E3-C5EFAF95E4F0" targetRef="dept_record_end">
+          <documentation>是</documentation>
+          <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pass==1}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="sid-BBEA5A81-9205-4B71-A816-B263013C25A3" name="否" sourceRef="sid-552DC3E8-000F-4AE7-A8E3-C5EFAF95E4F0" targetRef="dept_record_record">
+          <documentation>否</documentation>
+          <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pass==0}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="sid-75F2E0D0-BE0A-407C-B1C9-C9BFAF7120B1" name="否" sourceRef="sid-320B875F-FDED-4E62-9ED4-A09333B43FEE" targetRef="dept_record_end">
+          <documentation>否</documentation>
+          <conditionExpression xsi:type="tFormalExpression"><![CDATA[${yesOrNo==0}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="sid-520905FF-94D3-41AB-BD25-EF3C11E06424" sourceRef="dept_record_record" targetRef="sid-320B875F-FDED-4E62-9ED4-A09333B43FEE">
+          <extensionElements>
+            <activiti:executionListener event="start" expression="${hkRptSubmitAuditTools.checkIsDeptAuditCheckEnabled(execution,dept)}"></activiti:executionListener>
+          </extensionElements>
+        </sequenceFlow>
+        <sequenceFlow id="sid-83110D01-F842-45E1-B34C-105255A5403C" sourceRef="dept_record_start" targetRef="dept_record_record">
+          <extensionElements>
+            <activiti:executionListener event="start" expression="${hkRptSubmitAuditTools.holdOneMoment(execution,1)}"></activiti:executionListener>
+          </extensionElements>
+        </sequenceFlow>
+      </subProcess>
+      <sequenceFlow id="sid-C3F93BD4-4F91-4FAC-9E7C-1DCBBBB6F6F6" sourceRef="dept_audit" targetRef="sid-AC8024E3-F45E-48A7-B253-90AF54229C3B"></sequenceFlow>
+      <sequenceFlow id="sid-B6C73794-1615-4B1A-9E69-59063123950F" name="否" sourceRef="sid-D409A749-9F08-47B6-BF0F-A61BA951DEEA" targetRef="dept_end">
+        <documentation>否</documentation>
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${yesOrNo==0}]]></conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="sid-CBC4598E-A722-4CC1-9C55-754356EEA205" name="是" sourceRef="sid-D409A749-9F08-47B6-BF0F-A61BA951DEEA" targetRef="dept_audit">
+        <documentation>是</documentation>
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${yesOrNo==1}]]></conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="sid-6009F0DB-F388-450D-A0AC-F3AD45240F6A" name="否" sourceRef="sid-AC8024E3-F45E-48A7-B253-90AF54229C3B" targetRef="subprocess_dept_bblry">
+        <documentation>否</documentation>
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pass==0}]]></conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="sid-4E51304C-403C-47FD-B271-2BB4C379E2AE" sourceRef="subprocess_dept_bblry" targetRef="sid-D409A749-9F08-47B6-BF0F-A61BA951DEEA">
+        <extensionElements>
+          <activiti:executionListener event="start" expression="${hkRptSubmitAuditTools.checkIsDeptAuditCheckEnabled(execution,dept)}"></activiti:executionListener>
+        </extensionElements>
+      </sequenceFlow>
+      <sequenceFlow id="sid-91DB0370-0405-4FBD-B4E4-6A81AA7B257F" name="是" sourceRef="sid-AC8024E3-F45E-48A7-B253-90AF54229C3B" targetRef="dept_end">
+        <documentation>是</documentation>
+        <extensionElements>
+          <activiti:executionListener event="start" expression="${hkRptSubmitAuditTools.sendNotify2GatherBbhzy4DeptFinish(execution)}"></activiti:executionListener>
+        </extensionElements>
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pass==1}]]></conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="sid-AE963F31-3BE1-4AE3-A1F8-0F1088028853" sourceRef="dept_start" targetRef="subprocess_dept_bblry">
+        <extensionElements>
+          <activiti:executionListener event="start" expression="${hkRptSubmitAuditTools.holdOneMoment(execution,1)}"></activiti:executionListener>
+        </extensionElements>
+      </sequenceFlow>
+    </subProcess>
+    <userTask id="gather_record" name="汇总员汇总报表" activiti:candidateUsers="${hkRptSubmitAuditService.findGatherBbhzy(currentCompany)}" activiti:formKey="/mis/rpt/audit/hkRptSubmitAudit/form">
+      <documentation>汇总员汇总报表</documentation>
+      <extensionElements>
+        <activiti:taskListener event="create" expression="${hkRptSubmitAuditTools.sendNotify(task, &quot;gather_record&quot;)}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <endEvent id="end" name="收集报送完毕">
+      <documentation>收集报送完毕</documentation>
+    </endEvent>
+    <serviceTask id="send_signal" name="发送执行完毕信号" activiti:expression="${hkRptSubmitAudit4SubTerminator.sendSignal2RelatedActiviti(execution, currentCompany, term)}">
+      <documentation>向上级企业流程发送执行完毕信号</documentation>
+    </serviceTask>
+    <exclusiveGateway id="sid-C8C2E86E-E89C-46CB-A73D-8EEABC017AED" name="是否汇总完毕">
+      <documentation>是否汇总完毕</documentation>
+    </exclusiveGateway>
+    <sequenceFlow id="sid-01B83F17-763B-4196-BB14-0DC06AA0AD7A" sourceRef="gather_record" targetRef="sid-C8C2E86E-E89C-46CB-A73D-8EEABC017AED"></sequenceFlow>
+    <boundaryEvent id="sid-164D51AF-772D-42B4-B160-56F21104A22D" name="取消" attachedToRef="force_skip" cancelActivity="true">
+      <signalEventDefinition signalRef="subSubcompanyCompleted"></signalEventDefinition>
+    </boundaryEvent>
+    <exclusiveGateway id="sid-3AD47FA0-0E63-4274-BDB0-721BF4EA0512" name="是否启用回退">
+      <documentation>是否启用回退</documentation>
+    </exclusiveGateway>
+    <sequenceFlow id="sid-2A9051E0-F289-4718-9EFC-A6663EF38441" name="是" sourceRef="sid-A22294DA-4982-4EF9-B3D4-0647B5B960B1" targetRef="start_subcompany_process">
+      <documentation>是</documentation>
+      <extensionElements>
+        <activiti:executionListener event="start" expression="${hkRptSubmitAuditTools.holdOneMoment(execution,1)}"></activiti:executionListener>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${yesOrNo==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-8B300195-A710-4DE3-A3FA-1B4D6956B4F3" sourceRef="start_subcompany_process" targetRef="force_skip">
+      <extensionElements>
+        <activiti:executionListener event="start" expression="${hkRptSubmitAuditTools.holdOneMoment(execution,1)}"></activiti:executionListener>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="sid-475AA20F-CC84-4316-A1BF-69AE49977BE0" sourceRef="sid-164D51AF-772D-42B4-B160-56F21104A22D" targetRef="subprocess_dept"></sequenceFlow>
+    <sequenceFlow id="sid-896F2846-D182-46A0-9AF0-DB5AC374B58A" sourceRef="force_skip" targetRef="subprocess_dept"></sequenceFlow>
+    <sequenceFlow id="sid-C0D4C27F-5098-4810-B6DD-D786E67C6436" name="否" sourceRef="sid-A22294DA-4982-4EF9-B3D4-0647B5B960B1" targetRef="subprocess_dept">
+      <documentation>否</documentation>
+      <extensionElements>
+        <activiti:executionListener event="start" expression="${hkRptSubmitAuditTools.holdOneMoment(execution,1)}"></activiti:executionListener>
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${yesOrNo==0}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-0CBC3F5B-357B-4585-B21B-3D45E8EA681E" sourceRef="subprocess_dept" targetRef="gather_record">
+      <extensionElements>
+        <activiti:executionListener event="start" expression="${hkRptSubmitAuditTools.holdOneMoment(execution,1)}"></activiti:executionListener>
+      </extensionElements>
+    </sequenceFlow>
+    <sequenceFlow id="sid-0F3D9356-199F-4295-8515-9AD1158FC46C" name="是" sourceRef="sid-3AD47FA0-0E63-4274-BDB0-721BF4EA0512" targetRef="subprocess_dept">
+      <documentation>是</documentation>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${yesOrNo==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-3B8203F8-072A-4859-8DA3-DDB9420C9049" name="否" sourceRef="sid-3AD47FA0-0E63-4274-BDB0-721BF4EA0512" targetRef="gather_record">
+      <documentation>否</documentation>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${yesOrNo==0}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-78443B66-1601-415B-BCC9-CBC72B566266" name="否" sourceRef="sid-C8C2E86E-E89C-46CB-A73D-8EEABC017AED" targetRef="sid-3AD47FA0-0E63-4274-BDB0-721BF4EA0512">
+      <documentation>否</documentation>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pass==0}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-40FB5AD8-5288-43BF-B605-04DF04E7A99C" name="是" sourceRef="sid-C8C2E86E-E89C-46CB-A73D-8EEABC017AED" targetRef="send_signal">
+      <documentation>是</documentation>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pass==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-EFAEDC50-AAB5-4EC6-893E-5C495BAAAC4E" sourceRef="send_signal" targetRef="end">
+      <extensionElements>
+        <activiti:executionListener event="start" expression="${hkRptSubmitAuditTools.sendNotify2Finish4Sub(execution)}"></activiti:executionListener>
+      </extensionElements>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_rpt_submit_audit_sub">
+    <bpmndi:BPMNPlane bpmnElement="rpt_submit_audit_sub" id="BPMNPlane_rpt_submit_audit_sub">
+      <bpmndi:BPMNShape bpmnElement="start" id="BPMNShape_start">
+        <omgdc:Bounds height="30.0" width="30.0" x="25.0" y="75.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-A22294DA-4982-4EF9-B3D4-0647B5B960B1" id="BPMNShape_sid-A22294DA-4982-4EF9-B3D4-0647B5B960B1">
+        <omgdc:Bounds height="40.0" width="40.0" x="20.0" y="150.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="start_subcompany_process" id="BPMNShape_start_subcompany_process">
+        <omgdc:Bounds height="114.0" width="219.0" x="365.0" y="113.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="force_skip" id="BPMNShape_force_skip">
+        <omgdc:Bounds height="77.0" width="122.0" x="745.0" y="131.5"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="subprocess_dept" id="BPMNShape_subprocess_dept">
+        <omgdc:Bounds height="197.47598808628527" width="1068.306609534472" x="80.0" y="365.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="dept_start" id="BPMNShape_dept_start">
+        <omgdc:Bounds height="30.0" width="30.0" x="110.0" y="456.00000000000006"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="dept_audit" id="BPMNShape_dept_audit">
+        <omgdc:Bounds height="80.0" width="100.0" x="860.0" y="431.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-AC8024E3-F45E-48A7-B253-90AF54229C3B" id="BPMNShape_sid-AC8024E3-F45E-48A7-B253-90AF54229C3B">
+        <omgdc:Bounds height="40.0" width="40.0" x="995.0" y="451.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="dept_end" id="BPMNShape_dept_end">
+        <omgdc:Bounds height="28.0" width="28.0" x="1099.671875" y="457.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-D409A749-9F08-47B6-BF0F-A61BA951DEEA" id="BPMNShape_sid-D409A749-9F08-47B6-BF0F-A61BA951DEEA">
+        <omgdc:Bounds height="40.0" width="40.0" x="758.301557487062" y="451.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="subprocess_dept_bblry" id="BPMNShape_subprocess_dept_bblry">
+        <omgdc:Bounds height="148.73990747852542" width="568.9893764606109" x="164.06701277490268" y="396.63004626073734"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-552DC3E8-000F-4AE7-A8E3-C5EFAF95E4F0" id="BPMNShape_sid-552DC3E8-000F-4AE7-A8E3-C5EFAF95E4F0">
+        <omgdc:Bounds height="40.0" width="40.00000000000003" x="614.6938178848637" y="453.78498058476123"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="dept_record_audit" id="BPMNShape_dept_record_audit">
+        <omgdc:Bounds height="80.0" width="100.00000000000003" x="479.38763576972747" y="433.78498058476123"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-320B875F-FDED-4E62-9ED4-A09333B43FEE" id="BPMNShape_sid-320B875F-FDED-4E62-9ED4-A09333B43FEE">
+        <omgdc:Bounds height="40.0" width="40.00000000000003" x="384.69381788486373" y="453.78498058476123"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="dept_record_record" id="BPMNShape_dept_record_record">
+        <omgdc:Bounds height="80.0" width="100.0" x="249.6938178848638" y="433.78498058476123"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="dept_record_start" id="BPMNShape_dept_record_start">
+        <omgdc:Bounds height="30.0" width="30.0" x="187.72530265998913" y="458.78498058476123"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="dept_record_end" id="BPMNShape_dept_record_end">
+        <omgdc:Bounds height="28.0" width="28.00000000000003" x="698.301557487062" y="459.78498058476123"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="gather_record" id="BPMNShape_gather_record">
+        <omgdc:Bounds height="80.0" width="100.0" x="489.20909874446386" y="640.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="end" id="BPMNShape_end">
+        <omgdc:Bounds height="28.0" width="28.0" x="26.0" y="666.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="send_signal" id="BPMNShape_send_signal">
+        <omgdc:Bounds height="95.0" width="201.0" x="115.0" y="632.5"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-C8C2E86E-E89C-46CB-A73D-8EEABC017AED" id="BPMNShape_sid-C8C2E86E-E89C-46CB-A73D-8EEABC017AED">
+        <omgdc:Bounds height="40.0" width="40.0" x="380.0" y="660.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-164D51AF-772D-42B4-B160-56F21104A22D" id="BPMNShape_sid-164D51AF-772D-42B4-B160-56F21104A22D">
+        <omgdc:Bounds height="30.0" width="30.0" x="807.2811250306505" y="193.72984528676125"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-3AD47FA0-0E63-4274-BDB0-721BF4EA0512" id="BPMNShape_sid-3AD47FA0-0E63-4274-BDB0-721BF4EA0512">
+        <omgdc:Bounds height="40.0" width="40.0" x="799.671875" y="660.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-C3F93BD4-4F91-4FAC-9E7C-1DCBBBB6F6F6" id="BPMNEdge_sid-C3F93BD4-4F91-4FAC-9E7C-1DCBBBB6F6F6">
+        <omgdi:waypoint x="960.0" y="471.0"></omgdi:waypoint>
+        <omgdi:waypoint x="995.0" y="471.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-6009F0DB-F388-450D-A0AC-F3AD45240F6A" id="BPMNEdge_sid-6009F0DB-F388-450D-A0AC-F3AD45240F6A">
+        <omgdi:waypoint x="1015.5" y="451.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1015.5" y="378.7878590933593"></omgdi:waypoint>
+        <omgdi:waypoint x="448.5617010052081" y="378.7878590933593"></omgdi:waypoint>
+        <omgdi:waypoint x="448.5617010052081" y="396.63004626073734"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="1015.5" y="451.5"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-40FB5AD8-5288-43BF-B605-04DF04E7A99C" id="BPMNEdge_sid-40FB5AD8-5288-43BF-B605-04DF04E7A99C">
+        <omgdi:waypoint x="380.44579945799455" y="680.4457994579946"></omgdi:waypoint>
+        <omgdi:waypoint x="316.0" y="680.2716216216216"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="380.44579945799455" y="680.4457994579946"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-475AA20F-CC84-4316-A1BF-69AE49977BE0" id="BPMNEdge_sid-475AA20F-CC84-4316-A1BF-69AE49977BE0">
+        <omgdi:waypoint x="822.2811250306505" y="223.72984528676125"></omgdi:waypoint>
+        <omgdi:waypoint x="822.2811250306505" y="323.63636015269384"></omgdi:waypoint>
+        <omgdi:waypoint x="614.153304767236" y="323.63636015269384"></omgdi:waypoint>
+        <omgdi:waypoint x="614.153304767236" y="365.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-91DB0370-0405-4FBD-B4E4-6A81AA7B257F" id="BPMNEdge_sid-91DB0370-0405-4FBD-B4E4-6A81AA7B257F">
+        <omgdi:waypoint x="1034.59726443769" y="471.40273556231006"></omgdi:waypoint>
+        <omgdi:waypoint x="1099.672056574739" y="471.0713025926482"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="1034.59726443769" y="471.40273556231006"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-896F2846-D182-46A0-9AF0-DB5AC374B58A" id="BPMNEdge_sid-896F2846-D182-46A0-9AF0-DB5AC374B58A">
+        <omgdi:waypoint x="867.0" y="170.0"></omgdi:waypoint>
+        <omgdi:waypoint x="938.671875" y="170.0"></omgdi:waypoint>
+        <omgdi:waypoint x="938.671875" y="324.0"></omgdi:waypoint>
+        <omgdi:waypoint x="614.153304767236" y="324.0"></omgdi:waypoint>
+        <omgdi:waypoint x="614.153304767236" y="365.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-3B8203F8-072A-4859-8DA3-DDB9420C9049" id="BPMNEdge_sid-3B8203F8-072A-4859-8DA3-DDB9420C9049">
+        <omgdi:waypoint x="800.1362196444711" y="680.4643446444711"></omgdi:waypoint>
+        <omgdi:waypoint x="589.2090987444639" y="680.0889797585758"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="800.1362196444711" y="680.4643446444711"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-0CBC3F5B-357B-4585-B21B-3D45E8EA681E" id="BPMNEdge_sid-0CBC3F5B-357B-4585-B21B-3D45E8EA681E">
+        <omgdi:waypoint x="614.153304767236" y="562.4759880862853"></omgdi:waypoint>
+        <omgdi:waypoint x="614.153304767236" y="594.642822265625"></omgdi:waypoint>
+        <omgdi:waypoint x="660.0111091623506" y="594.642822265625"></omgdi:waypoint>
+        <omgdi:waypoint x="660.0111091623506" y="680.0"></omgdi:waypoint>
+        <omgdi:waypoint x="589.2090987444639" y="680.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-75F2E0D0-BE0A-407C-B1C9-C9BFAF7120B1" id="BPMNEdge_sid-75F2E0D0-BE0A-407C-B1C9-C9BFAF7120B1">
+        <omgdi:waypoint x="408.3559373775578" y="490.1228610920672"></omgdi:waypoint>
+        <omgdi:waypoint x="408.3559373775578" y="530.0712266385873"></omgdi:waypoint>
+        <omgdi:waypoint x="713.9905034654289" y="530.0712266385873"></omgdi:waypoint>
+        <omgdi:waypoint x="713.9905034654289" y="499.8213805007823"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="408.3559373775578" y="490.1228610920672"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-01B83F17-763B-4196-BB14-0DC06AA0AD7A" id="BPMNEdge_sid-01B83F17-763B-4196-BB14-0DC06AA0AD7A">
+        <omgdi:waypoint x="489.20909874446386" y="680.0"></omgdi:waypoint>
+        <omgdi:waypoint x="420.0" y="680.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-4E51304C-403C-47FD-B271-2BB4C379E2AE" id="BPMNEdge_sid-4E51304C-403C-47FD-B271-2BB4C379E2AE">
+        <omgdi:waypoint x="733.0563892355135" y="471.0"></omgdi:waypoint>
+        <omgdi:waypoint x="758.301557487062" y="471.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-8B300195-A710-4DE3-A3FA-1B4D6956B4F3" id="BPMNEdge_sid-8B300195-A710-4DE3-A3FA-1B4D6956B4F3">
+        <omgdi:waypoint x="584.0" y="170.0"></omgdi:waypoint>
+        <omgdi:waypoint x="745.0" y="170.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-A6940AA0-1979-4705-B281-DE80E0BEAA2C" id="BPMNEdge_sid-A6940AA0-1979-4705-B281-DE80E0BEAA2C">
+        <omgdi:waypoint x="40.0" y="105.0"></omgdi:waypoint>
+        <omgdi:waypoint x="40.0" y="150.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-520905FF-94D3-41AB-BD25-EF3C11E06424" id="BPMNEdge_sid-520905FF-94D3-41AB-BD25-EF3C11E06424">
+        <omgdi:waypoint x="349.6938178848638" y="473.78498058476123"></omgdi:waypoint>
+        <omgdi:waypoint x="384.69381788486373" y="473.78498058476123"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-0F3D9356-199F-4295-8515-9AD1158FC46C" id="BPMNEdge_sid-0F3D9356-199F-4295-8515-9AD1158FC46C">
+        <omgdi:waypoint x="839.171875" y="680.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1187.127429298711" y="680.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1187.127429298711" y="463.73799404314263"></omgdi:waypoint>
+        <omgdi:waypoint x="1148.306609534472" y="463.73799404314263"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="839.171875" y="680.5"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-78443B66-1601-415B-BCC9-CBC72B566266" id="BPMNEdge_sid-78443B66-1601-415B-BCC9-CBC72B566266">
+        <omgdi:waypoint x="400.5" y="699.5"></omgdi:waypoint>
+        <omgdi:waypoint x="400.5" y="754.0"></omgdi:waypoint>
+        <omgdi:waypoint x="819.671875" y="754.0"></omgdi:waypoint>
+        <omgdi:waypoint x="819.671875" y="700.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="400.5" y="699.5"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-BBEA5A81-9205-4B71-A816-B263013C25A3" id="BPMNEdge_sid-BBEA5A81-9205-4B71-A816-B263013C25A3">
+        <omgdi:waypoint x="635.1938178848637" y="454.2849805847613"></omgdi:waypoint>
+        <omgdi:waypoint x="635.1938178848638" y="412.0465160998797"></omgdi:waypoint>
+        <omgdi:waypoint x="299.6938178848638" y="412.0465160998797"></omgdi:waypoint>
+        <omgdi:waypoint x="299.69381788486373" y="433.78498058476123"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="635.1938178848637" y="454.2849805847613"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-CBC4598E-A722-4CC1-9C55-754356EEA205" id="BPMNEdge_sid-CBC4598E-A722-4CC1-9C55-754356EEA205">
+        <omgdi:waypoint x="797.8742438926331" y="471.42731359442894"></omgdi:waypoint>
+        <omgdi:waypoint x="860.0" y="471.19055104253647"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="797.8742438926331" y="471.42731359442894"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-2A9051E0-F289-4718-9EFC-A6663EF38441" id="BPMNEdge_sid-2A9051E0-F289-4718-9EFC-A6663EF38441">
+        <omgdi:waypoint x="59.52923076923077" y="170.47076923076924"></omgdi:waypoint>
+        <omgdi:waypoint x="365.0" y="170.00153609831028"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="59.52923076923077" y="170.47076923076924"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-5AE43E22-1FE3-47CF-82D8-9507E61CE2B4" id="BPMNEdge_sid-5AE43E22-1FE3-47CF-82D8-9507E61CE2B4">
+        <omgdi:waypoint x="424.2706204297479" y="474.20817803987705"></omgdi:waypoint>
+        <omgdi:waypoint x="479.38763576972747" y="473.98627884924633"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="424.2706204297479" y="474.20817803987705"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-3CD38746-8CE5-4007-B1AC-2E196614AE5F" id="BPMNEdge_sid-3CD38746-8CE5-4007-B1AC-2E196614AE5F">
+        <omgdi:waypoint x="579.3876357697275" y="473.78498058476123"></omgdi:waypoint>
+        <omgdi:waypoint x="614.6938178848637" y="473.78498058476123"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-EFAEDC50-AAB5-4EC6-893E-5C495BAAAC4E" id="BPMNEdge_sid-EFAEDC50-AAB5-4EC6-893E-5C495BAAAC4E">
+        <omgdi:waypoint x="115.0" y="680.0"></omgdi:waypoint>
+        <omgdi:waypoint x="54.0" y="680.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-B6C73794-1615-4B1A-9E69-59063123950F" id="BPMNEdge_sid-B6C73794-1615-4B1A-9E69-59063123950F">
+        <omgdi:waypoint x="778.801557487062" y="490.50000000000006"></omgdi:waypoint>
+        <omgdi:waypoint x="778.8015574870619" y="540.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1113.671875" y="540.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1113.671875" y="485.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="778.801557487062" y="490.50000000000006"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-AE963F31-3BE1-4AE3-A1F8-0F1088028853" id="BPMNEdge_sid-AE963F31-3BE1-4AE3-A1F8-0F1088028853">
+        <omgdi:waypoint x="140.0" y="471.00000000000006"></omgdi:waypoint>
+        <omgdi:waypoint x="164.06701277490268" y="471.00000000000006"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-C0D4C27F-5098-4810-B6DD-D786E67C6436" id="BPMNEdge_sid-C0D4C27F-5098-4810-B6DD-D786E67C6436">
+        <omgdi:waypoint x="40.5" y="189.5"></omgdi:waypoint>
+        <omgdi:waypoint x="40.5" y="463.73799404314263"></omgdi:waypoint>
+        <omgdi:waypoint x="80.0" y="463.73799404314263"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="40.5" y="189.5"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-83110D01-F842-45E1-B34C-105255A5403C" id="BPMNEdge_sid-83110D01-F842-45E1-B34C-105255A5403C">
+        <omgdi:waypoint x="217.72530265998913" y="473.78498058476123"></omgdi:waypoint>
+        <omgdi:waypoint x="249.6938178848638" y="473.78498058476123"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-D94E14CE-B832-4214-B88F-46958E5EA541" id="BPMNEdge_sid-D94E14CE-B832-4214-B88F-46958E5EA541">
+        <omgdi:waypoint x="654.6938178848637" y="473.78498058476123"></omgdi:waypoint>
+        <omgdi:waypoint x="698.301557487062" y="473.78498058476123"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="654.6938178848637" y="473.78498058476123"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

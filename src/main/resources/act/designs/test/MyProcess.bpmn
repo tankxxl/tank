@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://activiti.org/bpmn20" id="definitions">
+  <process id="test1_called" name="called process" isExecutable="true">
+    <startEvent id="start" name="start process">
+      <extensionElements>
+        <activiti:formProperty id="fname" name="FName" type="string"></activiti:formProperty>
+      </extensionElements>
+    </startEvent>
+    <userTask id="CNV_human1" name="CNV_human1" activiti:assignee="Hari" activiti:skipExpression="${execution.getVariable('fname')==&quot;Hari&quot;}">
+      <extensionElements>
+        <activiti:formProperty id="name" name="Name" type="string"></activiti:formProperty>
+        <activiti:formProperty id="myenum" name="Enum" type="enum">
+          <activiti:value id="Hi" name="Hello"></activiti:value>
+          <activiti:value id="Bye" name="Tata"></activiti:value>
+        </activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <userTask id="CNV_human11" name="CNV_human11" activiti:assignee="Hari"></userTask>
+    <endEvent id="end"></endEvent>
+    <sequenceFlow id="flow2" sourceRef="CNV_human1" targetRef="CNV_human11"></sequenceFlow>
+    <sequenceFlow id="flow3" sourceRef="CNV_human11" targetRef="end"></sequenceFlow>
+    <userTask id="usertask1" name="Not Hari" activiti:assignee="Hari"></userTask>
+    <sequenceFlow id="flow5" sourceRef="usertask1" targetRef="end"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway" default="flow8"></exclusiveGateway>
+    <sequenceFlow id="flow6" sourceRef="start" targetRef="exclusivegateway1"></sequenceFlow>
+    <sequenceFlow id="flow7" sourceRef="exclusivegateway1" targetRef="CNV_human1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${fname=="Hari"}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow8" sourceRef="exclusivegateway1" targetRef="usertask1"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_test1_called">
+    <bpmndi:BPMNPlane bpmnElement="test1_called" id="BPMNPlane_test1_called">
+      <bpmndi:BPMNShape bpmnElement="start" id="BPMNShape_start">
+        <omgdc:Bounds height="35.0" width="35.0" x="60.0" y="173.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="CNV_human1" id="BPMNShape_CNV_human1">
+        <omgdc:Bounds height="60.0" width="100.0" x="310.0" y="59.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="CNV_human11" id="BPMNShape_CNV_human11">
+        <omgdc:Bounds height="60.0" width="100.0" x="470.0" y="59.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="end" id="BPMNShape_end">
+        <omgdc:Bounds height="35.0" width="35.0" x="790.0" y="153.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask1" id="BPMNShape_usertask1">
+        <omgdc:Bounds height="55.0" width="105.0" x="411.0" y="202.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="190.0" y="170.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="410.0" y="89.0"></omgdi:waypoint>
+        <omgdi:waypoint x="470.0" y="89.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="520.0" y="119.0"></omgdi:waypoint>
+        <omgdi:waypoint x="807.0" y="153.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="463.0" y="202.0"></omgdi:waypoint>
+        <omgdi:waypoint x="807.0" y="188.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="95.0" y="190.0"></omgdi:waypoint>
+        <omgdi:waypoint x="190.0" y="190.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="210.0" y="170.0"></omgdi:waypoint>
+        <omgdi:waypoint x="210.0" y="89.0"></omgdi:waypoint>
+        <omgdi:waypoint x="310.0" y="89.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="210.0" y="210.0"></omgdi:waypoint>
+        <omgdi:waypoint x="210.0" y="229.0"></omgdi:waypoint>
+        <omgdi:waypoint x="411.0" y="229.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

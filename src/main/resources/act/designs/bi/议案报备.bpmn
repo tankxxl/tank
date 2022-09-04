@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <process id="proposal_submit_audit" name="议案报备流程" isExecutable="true">
+    <documentation>议案报备流程</documentation>
+    <startEvent id="prepose_submit" name="议案报备申请" activiti:initiator="apply" activiti:formKey="/mis/proposal/audit/hkProposalSubmitAudit/form4Audit">
+      <documentation>启动本企业的议案报备申请</documentation>
+    </startEvent>
+    <userTask id="prepose_audit" name="议案报备核验审批" activiti:candidateGroups="${hkProposalSubmitAuditService.findAuditor4SubCompany(company)}" activiti:formKey="/mis/proposal/audit/hkProposalSubmitAudit/form4Audit">
+      <documentation>议案报备核验审批</documentation>
+      <extensionElements>
+        <activiti:taskListener event="create" expression="${hkProposalSubmitAuditTools.sendNotify(task, &quot;prepose_audit&quot;)}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="postpose_submit" name="股东(大)会通知及材料提交" activiti:assignee="${apply}" activiti:formKey="/mis/proposal/audit/hkProposalSubmitAudit/form4Audit">
+      <documentation>股东(大)会通知及材料提交</documentation>
+      <extensionElements>
+        <activiti:taskListener event="create" expression="${hkProposalSubmitAuditTools.sendNotify(task, &quot;postpose_submit&quot;)}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="postpose_audit" name="股东(大)会通知及材料核验审批" activiti:candidateGroups="${hkProposalSubmitAuditService.findAuditor4SubCompany(company)}" activiti:formKey="/mis/proposal/audit/hkProposalSubmitAudit/form4Audit">
+      <documentation>股东(大)会通知及材料核验审批</documentation>
+      <extensionElements>
+        <activiti:taskListener event="create" expression="${hkProposalSubmitAuditTools.sendNotify(task, &quot;postpose_audit&quot;)}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <userTask id="decision_release" name="股决发布" activiti:candidateGroups="${hkProposalSubmitAuditService.findAuditor4SubCompany(company)}" activiti:formKey="/mis/proposal/audit/hkProposalSubmitAudit/form4Audit">
+      <documentation>股决发布</documentation>
+      <extensionElements>
+        <activiti:taskListener event="create" expression="${hkProposalSubmitAuditTools.sendNotify(task, &quot;decision_release&quot;)}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="sid-9DF730B4-B447-487F-BF55-DF733FE77257">
+      <documentation>核验是否通过</documentation>
+    </exclusiveGateway>
+    <userTask id="prepose_modify" name="议案报备修改" activiti:assignee="${apply}" activiti:formKey="/mis/proposal/audit/hkProposalSubmitAudit/form4Audit">
+      <documentation>议案报备修改</documentation>
+      <extensionElements>
+        <activiti:taskListener event="create" expression="${hkProposalSubmitAuditTools.sendNotify(task, &quot;prepose_modify&quot;)}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <endEvent id="end" name="议案报备流程完毕">
+      <documentation>议案报备流程完毕</documentation>
+    </endEvent>
+    <exclusiveGateway id="sid-771B7A59-9B21-4A23-8962-E64708E454F1">
+      <documentation>是否重新申请议案报备</documentation>
+    </exclusiveGateway>
+    <exclusiveGateway id="sid-71FC45DA-7458-42D4-8789-4453C1362C03">
+      <documentation>核验是否通过</documentation>
+    </exclusiveGateway>
+    <userTask id="postpose_modify" name="股东(大)会通知及材料修改" activiti:assignee="${apply}" activiti:formKey="/mis/proposal/audit/hkProposalSubmitAudit/form4Audit">
+      <documentation>股东(大)会通知及材料修改</documentation>
+      <extensionElements>
+        <activiti:taskListener event="create" expression="${hkProposalSubmitAuditTools.sendNotify(task, &quot;postpose_modify&quot;)}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="sid-11C42272-52AE-41F9-B067-B0DA45B0DDFF">
+      <documentation>是否重新提交股东(大)会通知及材料</documentation>
+    </exclusiveGateway>
+    <sequenceFlow id="sid-CAA406B9-4EDC-47F5-80DE-120155B9E980" sourceRef="prepose_audit" targetRef="sid-9DF730B4-B447-487F-BF55-DF733FE77257"></sequenceFlow>
+    <sequenceFlow id="sid-E5419C95-A93B-4890-B495-8601E3B3F0C8" sourceRef="postpose_submit" targetRef="postpose_audit"></sequenceFlow>
+    <sequenceFlow id="sid-C05C944C-63E1-4BF5-859B-86DA6FC6956C" sourceRef="postpose_audit" targetRef="sid-71FC45DA-7458-42D4-8789-4453C1362C03"></sequenceFlow>
+    <userTask id="submission_end" name="接收股决及结束" activiti:assignee="${apply}" activiti:formKey="/mis/proposal/audit/hkProposalSubmitAudit/form4Audit">
+      <documentation>接收股决并结束本次议案报备</documentation>
+      <extensionElements>
+        <activiti:taskListener event="create" expression="${hkProposalSubmitAuditTools.sendNotify(task, &quot;submission_end&quot;)}"></activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="sid-73D32AD6-B550-4D96-A37B-C8BAA75426CB" sourceRef="decision_release" targetRef="submission_end"></sequenceFlow>
+    <sequenceFlow id="sid-6DE0C029-E059-474F-8AF7-D306CE2C4924" sourceRef="prepose_modify" targetRef="sid-771B7A59-9B21-4A23-8962-E64708E454F1"></sequenceFlow>
+    <sequenceFlow id="sid-F9AC8D5D-773A-40E4-A087-B8B9704CE6A2" name="通过" sourceRef="sid-9DF730B4-B447-487F-BF55-DF733FE77257" targetRef="postpose_submit">
+      <documentation>核验通过</documentation>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pass==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-755B215B-9A93-413E-A905-AB7D6AF6264D" sourceRef="submission_end" targetRef="end"></sequenceFlow>
+    <sequenceFlow id="sid-1225AAD4-2812-454E-9817-6C21BA0D089A" name="驳回" sourceRef="sid-9DF730B4-B447-487F-BF55-DF733FE77257" targetRef="prepose_modify">
+      <documentation>核验驳回</documentation>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pass==0}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-DEF2234F-0612-4A9F-9B57-1A85F8C96D9A" name="驳回" sourceRef="sid-71FC45DA-7458-42D4-8789-4453C1362C03" targetRef="postpose_modify">
+      <documentation>核验驳回</documentation>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pass==0}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-10D6AF32-B974-4339-AC8F-168467321670" name="通过" sourceRef="sid-71FC45DA-7458-42D4-8789-4453C1362C03" targetRef="decision_release">
+      <documentation>核验通过</documentation>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${pass==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-D8E7CA7F-A041-4800-B21D-C72B023028D6" sourceRef="postpose_modify" targetRef="sid-11C42272-52AE-41F9-B067-B0DA45B0DDFF"></sequenceFlow>
+    <sequenceFlow id="sid-F2CD23E3-932A-494B-97F7-E844726BF1F6" name="重新提交" sourceRef="sid-11C42272-52AE-41F9-B067-B0DA45B0DDFF" targetRef="postpose_audit">
+      <documentation>重新提交股东(大)会通知及材料</documentation>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${yesOrNo==1}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-DF9C8C51-DCD3-4C94-8843-1160DC065E54" name="取消申请" sourceRef="sid-11C42272-52AE-41F9-B067-B0DA45B0DDFF" targetRef="end">
+      <documentation>取消议案报备申请</documentation>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${yesOrNo==0}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-74053E3B-69E4-43A4-8F00-0ED3993D9DA4" name="取消申请" sourceRef="sid-771B7A59-9B21-4A23-8962-E64708E454F1" targetRef="end">
+      <documentation>取消议案报备申请</documentation>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${yesOrNo==0}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-C0949EB5-8DDF-4FBB-B005-A29475AA0F93" name="重新申请" sourceRef="sid-771B7A59-9B21-4A23-8962-E64708E454F1" targetRef="prepose_audit">
+      <documentation>重新启动议案报备申请</documentation>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${yesOrNo==1}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="prepose_submit_temp" name="议案报备填写" activiti:assignee="${apply}">
+      <documentation>议案报备填写</documentation>
+    </userTask>
+    <sequenceFlow id="sid-9BD4CF07-3D18-4BCB-B155-A2C5AF99B7F4" sourceRef="prepose_submit" targetRef="prepose_submit_temp"></sequenceFlow>
+    <sequenceFlow id="sid-5B5BBA3D-A853-40FD-8997-97BD8E8E65EC" sourceRef="prepose_submit_temp" targetRef="prepose_audit"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_proposal_submit_audit">
+    <bpmndi:BPMNPlane bpmnElement="proposal_submit_audit" id="BPMNPlane_proposal_submit_audit">
+      <bpmndi:BPMNShape bpmnElement="prepose_submit" id="BPMNShape_prepose_submit">
+        <omgdc:Bounds height="30.0" width="30.0" x="35.0" y="270.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="prepose_audit" id="BPMNShape_prepose_audit">
+        <omgdc:Bounds height="80.0" width="100.0" x="297.0" y="245.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="postpose_submit" id="BPMNShape_postpose_submit">
+        <omgdc:Bounds height="80.0" width="100.0" x="452.0" y="340.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="postpose_audit" id="BPMNShape_postpose_audit">
+        <omgdc:Bounds height="82.0" width="102.0" x="617.0" y="339.5"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="decision_release" id="BPMNShape_decision_release">
+        <omgdc:Bounds height="80.0" width="100.0" x="767.0" y="245.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-9DF730B4-B447-487F-BF55-DF733FE77257" id="BPMNShape_sid-9DF730B4-B447-487F-BF55-DF733FE77257">
+        <omgdc:Bounds height="40.0" width="40.0" x="482.0" y="265.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="prepose_modify" id="BPMNShape_prepose_modify">
+        <omgdc:Bounds height="80.0" width="100.0" x="452.0" y="155.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="end" id="BPMNShape_end">
+        <omgdc:Bounds height="28.0" width="28.0" x="1132.0" y="271.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-771B7A59-9B21-4A23-8962-E64708E454F1" id="BPMNShape_sid-771B7A59-9B21-4A23-8962-E64708E454F1">
+        <omgdc:Bounds height="40.0" width="40.0" x="482.0" y="90.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-71FC45DA-7458-42D4-8789-4453C1362C03" id="BPMNShape_sid-71FC45DA-7458-42D4-8789-4453C1362C03">
+        <omgdc:Bounds height="40.0" width="40.0" x="797.0" y="360.5"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="postpose_modify" id="BPMNShape_postpose_modify">
+        <omgdc:Bounds height="80.0" width="100.0" x="767.0" y="435.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-11C42272-52AE-41F9-B067-B0DA45B0DDFF" id="BPMNShape_sid-11C42272-52AE-41F9-B067-B0DA45B0DDFF">
+        <omgdc:Bounds height="40.0" width="40.0" x="797.0" y="540.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="submission_end" id="BPMNShape_submission_end">
+        <omgdc:Bounds height="80.0" width="100.0" x="952.0" y="245.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="prepose_submit_temp" id="BPMNShape_prepose_submit_temp">
+        <omgdc:Bounds height="80.0" width="100.0" x="120.0" y="245.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-DF9C8C51-DCD3-4C94-8843-1160DC065E54" id="BPMNEdge_sid-DF9C8C51-DCD3-4C94-8843-1160DC065E54">
+        <omgdi:waypoint x="836.5" y="560.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1146.0" y="560.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1146.0" y="299.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="836.5" y="560.5"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-74053E3B-69E4-43A4-8F00-0ED3993D9DA4" id="BPMNEdge_sid-74053E3B-69E4-43A4-8F00-0ED3993D9DA4">
+        <omgdi:waypoint x="521.5" y="110.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1146.0" y="110.5"></omgdi:waypoint>
+        <omgdi:waypoint x="1146.0" y="271.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="521.5" y="110.5"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-E5419C95-A93B-4890-B495-8601E3B3F0C8" id="BPMNEdge_sid-E5419C95-A93B-4890-B495-8601E3B3F0C8">
+        <omgdi:waypoint x="552.0" y="380.15060240963857"></omgdi:waypoint>
+        <omgdi:waypoint x="617.0" y="380.34638554216866"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-C0949EB5-8DDF-4FBB-B005-A29475AA0F93" id="BPMNEdge_sid-C0949EB5-8DDF-4FBB-B005-A29475AA0F93">
+        <omgdi:waypoint x="482.5" y="110.5"></omgdi:waypoint>
+        <omgdi:waypoint x="347.0" y="110.5"></omgdi:waypoint>
+        <omgdi:waypoint x="347.0" y="245.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="482.5" y="110.5"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-755B215B-9A93-413E-A905-AB7D6AF6264D" id="BPMNEdge_sid-755B215B-9A93-413E-A905-AB7D6AF6264D">
+        <omgdi:waypoint x="1052.0" y="285.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1132.0" y="285.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-D8E7CA7F-A041-4800-B21D-C72B023028D6" id="BPMNEdge_sid-D8E7CA7F-A041-4800-B21D-C72B023028D6">
+        <omgdi:waypoint x="817.0" y="515.0"></omgdi:waypoint>
+        <omgdi:waypoint x="817.0" y="540.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-6DE0C029-E059-474F-8AF7-D306CE2C4924" id="BPMNEdge_sid-6DE0C029-E059-474F-8AF7-D306CE2C4924">
+        <omgdi:waypoint x="502.0" y="155.0"></omgdi:waypoint>
+        <omgdi:waypoint x="502.0" y="130.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-F9AC8D5D-773A-40E4-A087-B8B9704CE6A2" id="BPMNEdge_sid-F9AC8D5D-773A-40E4-A087-B8B9704CE6A2">
+        <omgdi:waypoint x="502.3989361702128" y="304.6010638297872"></omgdi:waypoint>
+        <omgdi:waypoint x="502.2116402116402" y="340.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="502.3989361702128" y="304.6010638297872"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-F2CD23E3-932A-494B-97F7-E844726BF1F6" id="BPMNEdge_sid-F2CD23E3-932A-494B-97F7-E844726BF1F6">
+        <omgdi:waypoint x="797.5" y="560.5"></omgdi:waypoint>
+        <omgdi:waypoint x="668.0" y="560.5"></omgdi:waypoint>
+        <omgdi:waypoint x="668.0" y="421.5"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="797.5" y="560.5"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-CAA406B9-4EDC-47F5-80DE-120155B9E980" id="BPMNEdge_sid-CAA406B9-4EDC-47F5-80DE-120155B9E980">
+        <omgdi:waypoint x="397.0" y="285.0"></omgdi:waypoint>
+        <omgdi:waypoint x="482.0" y="285.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-5B5BBA3D-A853-40FD-8997-97BD8E8E65EC" id="BPMNEdge_sid-5B5BBA3D-A853-40FD-8997-97BD8E8E65EC">
+        <omgdi:waypoint x="220.0" y="285.0"></omgdi:waypoint>
+        <omgdi:waypoint x="297.0" y="285.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-9BD4CF07-3D18-4BCB-B155-A2C5AF99B7F4" id="BPMNEdge_sid-9BD4CF07-3D18-4BCB-B155-A2C5AF99B7F4">
+        <omgdi:waypoint x="65.0" y="285.0"></omgdi:waypoint>
+        <omgdi:waypoint x="120.0" y="285.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-10D6AF32-B974-4339-AC8F-168467321670" id="BPMNEdge_sid-10D6AF32-B974-4339-AC8F-168467321670">
+        <omgdi:waypoint x="817.3952879581152" y="360.8952879581152"></omgdi:waypoint>
+        <omgdi:waypoint x="817.2083333333334" y="325.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="817.3952879581152" y="360.8952879581152"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-C05C944C-63E1-4BF5-859B-86DA6FC6956C" id="BPMNEdge_sid-C05C944C-63E1-4BF5-859B-86DA6FC6956C">
+        <omgdi:waypoint x="719.0" y="380.5"></omgdi:waypoint>
+        <omgdi:waypoint x="797.0" y="380.5"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-73D32AD6-B550-4D96-A37B-C8BAA75426CB" id="BPMNEdge_sid-73D32AD6-B550-4D96-A37B-C8BAA75426CB">
+        <omgdi:waypoint x="867.0" y="285.0"></omgdi:waypoint>
+        <omgdi:waypoint x="952.0" y="285.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-DEF2234F-0612-4A9F-9B57-1A85F8C96D9A" id="BPMNEdge_sid-DEF2234F-0612-4A9F-9B57-1A85F8C96D9A">
+        <omgdi:waypoint x="817.3983957219251" y="400.1016042780749"></omgdi:waypoint>
+        <omgdi:waypoint x="817.2127659574468" y="435.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="817.3983957219251" y="400.1016042780749"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-1225AAD4-2812-454E-9817-6C21BA0D089A" id="BPMNEdge_sid-1225AAD4-2812-454E-9817-6C21BA0D089A">
+        <omgdi:waypoint x="502.3888888888889" y="265.3888888888889"></omgdi:waypoint>
+        <omgdi:waypoint x="502.2209944751381" y="235.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="502.3888888888889" y="265.3888888888889"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
